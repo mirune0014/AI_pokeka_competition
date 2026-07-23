@@ -1,0 +1,43 @@
+{
+  "decisions": 61,
+  "difference_count": 1,
+  "differences": [
+    {
+      "context": 0,
+      "left": [
+        6
+      ],
+      "left_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "recorded": [
+        7
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "right": [
+        2
+      ],
+      "right_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 1,
+          "type": 8
+        }
+      ],
+      "step": 66,
+      "turn": 6
+    }
+  ],
+  "replay": "analysis_outputs\\kaggle_live\\top_recent_replays\\episode_85023197_replay.json",
+  "target_seat": 1
+}

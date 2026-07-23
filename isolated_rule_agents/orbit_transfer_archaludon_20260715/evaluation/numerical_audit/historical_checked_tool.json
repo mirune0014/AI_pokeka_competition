@@ -1,0 +1,116 @@
+{
+  "paired_csv": "isolated_rule_agents\\orbit_transfer_archaludon_20260715\\evaluation\\historical_silver\\paired_results.csv",
+  "rows": 200,
+  "duplicate_keys": [],
+  "total": {
+    "games": 200,
+    "baseline_wins": 100,
+    "candidate_wins": 100,
+    "delta_wins": 0,
+    "baseline_rate": 0.5,
+    "candidate_rate": 0.5,
+    "gains": 0,
+    "losses": 0,
+    "discordant": 0,
+    "mcnemar_exact_two_sided_p": 1.0
+  },
+  "by_seat": {
+    "0": {
+      "games": 100,
+      "baseline_wins": 58,
+      "candidate_wins": 58,
+      "delta_wins": 0,
+      "baseline_rate": 0.58,
+      "candidate_rate": 0.58,
+      "gains": 0,
+      "losses": 0,
+      "discordant": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    },
+    "1": {
+      "games": 100,
+      "baseline_wins": 42,
+      "candidate_wins": 42,
+      "delta_wins": 0,
+      "baseline_rate": 0.42,
+      "candidate_rate": 0.42,
+      "gains": 0,
+      "losses": 0,
+      "discordant": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    }
+  },
+  "blocks": [
+    {
+      "seed_base": 271828182,
+      "opponent": "historical_silver",
+      "seat": 0,
+      "block": 0,
+      "games": 50,
+      "baseline_wins": 27,
+      "candidate_wins": 27,
+      "delta_wins": 0,
+      "baseline_rate": 0.54,
+      "candidate_rate": 0.54,
+      "gains": 0,
+      "losses": 0,
+      "discordant": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    },
+    {
+      "seed_base": 271828182,
+      "opponent": "historical_silver",
+      "seat": 0,
+      "block": 1,
+      "games": 50,
+      "baseline_wins": 31,
+      "candidate_wins": 31,
+      "delta_wins": 0,
+      "baseline_rate": 0.62,
+      "candidate_rate": 0.62,
+      "gains": 0,
+      "losses": 0,
+      "discordant": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    },
+    {
+      "seed_base": 271828182,
+      "opponent": "historical_silver",
+      "seat": 1,
+      "block": 0,
+      "games": 50,
+      "baseline_wins": 23,
+      "candidate_wins": 23,
+      "delta_wins": 0,
+      "baseline_rate": 0.46,
+      "candidate_rate": 0.46,
+      "gains": 0,
+      "losses": 0,
+      "discordant": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    },
+    {
+      "seed_base": 271828182,
+      "opponent": "historical_silver",
+      "seat": 1,
+      "block": 1,
+      "games": 50,
+      "baseline_wins": 19,
+      "candidate_wins": 19,
+      "delta_wins": 0,
+      "baseline_rate": 0.38,
+      "candidate_rate": 0.38,
+      "gains": 0,
+      "losses": 0,
+      "discordant": 0,
+      "mcnemar_exact_two_sided_p": 1.0
+    }
+  ],
+  "gates": {
+    "unique_schedule_keys": true,
+    "runner_valid": true,
+    "duplicate_controls_exact": true,
+    "block_direction": false
+  },
+  "all_gates_pass": false
+}

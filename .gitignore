@@ -1,0 +1,64 @@
+# Credentials and local configuration
+kaggle.json
+**/kaggle.json
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python environments and caches
+.venv/
+.venv-*/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Compiled/runtime artifacts copied into submission workspaces
+*.so
+*.dll
+*.dylib
+*.pyd
+*.exe
+
+# Archives and model checkpoints
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.pt
+*.pth
+
+# Logs, traces, and generated analysis
+*.log
+*.jsonl
+analysis_outputs/
+logs/
+notebook_output/
+
+# Raw Kaggle and replay data
+data/episodes*/
+data/leaderboard_*/
+data/episodes_index*/
+external/ptcg_engine/
+external/ptcg_engine.zip
+
+# Autonomous-loop raw state. Keep source, Markdown, CSV, and text evidence.
+autonomous_gold_20260715/**/*.json
+*.whl
+
+# Autonomous-loop reproducible intermediates. Canonical candidates and decisions remain tracked.
+autonomous_gold_20260715/analysis/
+autonomous_gold_20260715/audits/
+autonomous_gold_20260715/evaluations/
+autonomous_gold_20260715/evidence/
+autonomous_gold_20260715/implementation/
+autonomous_gold_20260715/live/
+autonomous_gold_20260715/packages/
+autonomous_gold_20260715/post_submit/
+autonomous_gold_20260715/pre_submit/

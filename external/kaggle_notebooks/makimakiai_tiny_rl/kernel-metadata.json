@@ -1,0 +1,21 @@
+{
+  "id": "makimakiai/ptcg-tiny-rl-to-submission-baseline-guide",
+  "id_no": 123673726,
+  "title": "PTCG Tiny RL to Submission Baseline Guide",
+  "code_file": "ptcg-tiny-rl-to-submission-baseline-guide.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [
+    "reinforcement learning"
+  ],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "competition_sources": [
+    "pokemon-tcg-ai-battle"
+  ],
+  "model_sources": []
+}

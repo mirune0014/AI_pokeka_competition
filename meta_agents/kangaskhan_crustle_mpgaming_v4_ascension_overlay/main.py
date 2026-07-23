@@ -1,0 +1,126 @@
+"""Minimal legal baseline for the exact MPGaming Kangaskhan/Crustle deck."""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+for path in (ROOT, Path("/kaggle_simulations/agent")):
+    if path.exists() and str(path) not in sys.path:
+        sys.path.insert(0, str(path))
+
+from cg.api import AreaType, OptionType, Pokemon, SelectContext, all_attack, all_card_data, to_observation_class
+
+KANGASKHAN, DWEBBLE, CRUSTLE = 756, 344, 345
+ENERGY = {1, 11, 14, 18}
+ASCENSION, SCISSORS, COMBO = 478, 479, 1092
+POFFIN, POKEGEAR, HILDA, LILLIE, XEROSIC, BOSS, SWITCH = 1086, 1122, 1225, 1227, 1197, 1182, 1123
+CARD_DB = {c.cardId: c for c in all_card_data()}
+ATTACK_DB = {a.attackId: a for a in all_attack()}
+
+
+def deck() -> list[int]:
+    for path in (ROOT / "deck.csv", Path.cwd() / "deck.csv", Path("/kaggle_simulations/agent/deck.csv")):
+        if path.exists():
+            return [int(x) for x in path.read_text().splitlines() if x.strip()][:60]
+    raise FileNotFoundError("deck.csv")
+
+
+def card(obs, area, index, player):
+    if index is None or index < 0:
+        return None
+    p = obs.current.players[player]
+    zones = {AreaType.HAND: p.hand, AreaType.DISCARD: p.discard, AreaType.ACTIVE: p.active,
+             AreaType.BENCH: p.bench, AreaType.PRIZE: p.prize, AreaType.LOOKING: obs.current.looking,
+             AreaType.DECK: obs.select.deck if obs.select else None, AreaType.STADIUM: obs.current.stadium}
+    zone = zones.get(area)
+    return zone[index] if zone is not None and index < len(zone) else None
+
+
+def mine(obs): return obs.current.players[obs.current.yourIndex]
+def theirs(obs): return obs.current.players[1 - obs.current.yourIndex]
+def field(p): return [x for x in (p.active + p.bench) if x]
+def active(p): return p.active[0] if p.active else None
+def count(p, cid): return sum(x.id == cid for x in field(p))
+def attack_ready(p, attack_id):
+    attack = ATTACK_DB.get(attack_id)
+    return bool(p and attack and len(p.energies) >= len(attack.energies))
+def ex(p):
+    data = CARD_DB.get(p.id) if p else None
+    return bool(data and (data.ex or getattr(data, "megaEx", False)))
+
+
+def ascension_attach_target(c, target, me):
+    """Small Gold-positive overlay; all other attachment choices stay at v0."""
+    a = active(me)
+    kangs = [p for p in field(me) if p.id == KANGASKHAN]
+    kang_needs_energy = len(kangs) == 1 and not attack_ready(kangs[0], COMBO)
+    return bool(c and c.id in ENERGY and target is a and a and a.id == DWEBBLE
+                and not count(me, CRUSTLE) and not attack_ready(a, ASCENSION)
+                and not kang_needs_energy)
+
+
+def score_card(c, context, me, opp):
+    if c is None: return -10000
+    cid = c.id
+    if context in (SelectContext.SETUP_ACTIVE_POKEMON,):
+        return {DWEBBLE: 9000, KANGASKHAN: 8000}.get(cid, 0)
+    if context in (SelectContext.SETUP_BENCH_POKEMON, SelectContext.TO_BENCH, SelectContext.TO_FIELD):
+        return {DWEBBLE: 9000 if count(me, DWEBBLE) == 0 else 2000, KANGASKHAN: 7000 if count(me, KANGASKHAN) == 0 else 1000}.get(cid, 0)
+    if context in (SelectContext.EVOLVES_TO, SelectContext.EVOLVE): return 9000 if cid == CRUSTLE else 0
+    if context in (SelectContext.EVOLVES_FROM,): return 9000 if cid == DWEBBLE else 0
+    if context in (SelectContext.SWITCH, SelectContext.TO_ACTIVE) and isinstance(c, Pokemon):
+        if c.id == CRUSTLE and any(ex(x) for x in field(opp)): return 9000
+        return {KANGASKHAN: 7000, DWEBBLE: 4000}.get(c.id, 0) + len(c.energies)
+    if context in (SelectContext.DISCARD, SelectContext.DISCARD_CARD_OR_ATTACHED_CARD):
+        return {POKEGEAR: 9000, SWITCH: 8000, BOSS: 7000, XEROSIC: 6500, LILLIE: 5000, HILDA: 4500,
+                1: 3500, 11: 3000, 14: 3000, 18: 3000, KANGASKHAN: -9000, DWEBBLE: -8000, CRUSTLE: -8000}.get(cid, 1000)
+    if context == SelectContext.TO_HAND:
+        return {CRUSTLE: 9000 if count(me, DWEBBLE) and not count(me, CRUSTLE) else 1000, DWEBBLE: 8000 if not count(me, DWEBBLE) else 3000,
+                KANGASKHAN: 7500 if not count(me, KANGASKHAN) else 2000, HILDA: 6500, LILLIE: 6000}.get(cid, 2500)
+    return {DWEBBLE: 7000, CRUSTLE: 6500, KANGASKHAN: 6000}.get(cid, 1000)
+
+
+def score_option(obs, opt):
+    """Optional trace hook; mirrors the agent's scores without affecting choice."""
+    sel, me, opp = obs.select, mine(obs), theirs(obs)
+    if sel.context == SelectContext.MAIN:
+        if opt.type == OptionType.ATTACH:
+            c = card(obs, opt.area, opt.index, obs.current.yourIndex)
+            target = card(obs, opt.inPlayArea, opt.inPlayIndex, obs.current.yourIndex)
+            if ascension_attach_target(c, target, me):
+                return 8000, "ascension-overlay: attach energy to unready active Dwebble"
+            return 7000, "v0 attach"
+        if opt.type == OptionType.ATTACK:
+            return (10000 if opt.attackId in (ASCENSION, SCISSORS, COMBO) else 100), "v0 attack"
+        if opt.type == OptionType.EVOLVE: return 9000, "v0 evolve"
+        if opt.type == OptionType.PLAY:
+            c = card(obs, AreaType.HAND, opt.index, obs.current.yourIndex)
+            return {POFFIN: 8500, HILDA: 8000, LILLIE: 7000, POKEGEAR: 6000, XEROSIC: 5000, BOSS: 3000}.get(c.id if c else -1, 1000), "v0 play"
+        if opt.type == OptionType.END: return -100, "v0 end"
+    if opt.type == OptionType.CARD:
+        c = card(obs, opt.area, opt.index, opt.playerIndex)
+        score = score_card(c, sel.context, me, opp)
+        if sel.context == SelectContext.TO_HAND and c and c.id == CRUSTLE:
+            return score, "crustle-completion" if score == 9000 else "v0 search: Crustle already live or no Dwebble"
+        return score, "v0 card"
+    if opt.type == OptionType.YES: return 100, "v0 yes"
+    if opt.type == OptionType.NO: return 0, "v0 no"
+    return 0, "v0 other"
+
+
+def agent(obs_dict, configuration=None):
+    try:
+        obs = to_observation_class(obs_dict)
+        if obs.select is None: return deck()
+        sel, me, opp = obs.select, mine(obs), theirs(obs)
+        scores = []
+        for opt in sel.option:
+            score, _ = score_option(obs, opt)
+            scores.append(score)
+        order = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
+        return [i for i in order[:sel.maxCount] if scores[i] >= 0 or i < sel.minCount]
+    except Exception:
+        sel = obs_dict.get("select") or {}
+        return list(range(min(int(sel.get("minCount", 0)), len(sel.get("option") or []))))

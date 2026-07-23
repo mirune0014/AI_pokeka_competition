@@ -1,0 +1,48 @@
+{
+  "checkpoint": "gold_prompt_ranker.pt",
+  "checkpoint_sha256": "a8509596d7bc164c8c322563b5ce19909048854767c73a2ebd0fbf3d50cd3c6d",
+  "config": {
+    "batch_size": 16,
+    "epochs": 12,
+    "feature_dim": 256,
+    "hidden_dim": 64,
+    "include_known_private": true,
+    "include_public_history": false,
+    "learning_rate": 0.01,
+    "style_dim": 8,
+    "use_style_embedding": false
+  },
+  "counts": {
+    "development": 770,
+    "policy_family_holdout": 60,
+    "train": 123
+  },
+  "evaluation_report": "evaluation_report.json",
+  "evaluation_report_sha256": "0ce6fb25ee05b87f8f4b7231c2cb4d540a70b654d6125571f328d20f942af75b",
+  "feature_schema": "gold_prompt_ranker_features.v2",
+  "implementation": {
+    "rl_ptcg/gold_prompt_ranker.py": {
+      "snapshot": "source_snapshot/rl_ptcg/gold_prompt_ranker.py",
+      "snapshot_sha256": "ce0624bca396b279efbb734f98121ac39f538b2fa8c0b6da0826e5d5209a2871",
+      "source_sha256": "ce0624bca396b279efbb734f98121ac39f538b2fa8c0b6da0826e5d5209a2871"
+    },
+    "tools/train_gold_prompt_ranker.py": {
+      "snapshot": "source_snapshot/tools/train_gold_prompt_ranker.py",
+      "snapshot_sha256": "e6f2603db18373a4e13b26b582384a339fec5bf32a47838ee36cb78a9286688d",
+      "source_sha256": "e6f2603db18373a4e13b26b582384a339fec5bf32a47838ee36cb78a9286688d"
+    }
+  },
+  "manifest_sha256": "7f4c1defd6fea035b28b05e582e96f15bb0ecd8d10c91a096bf3492631440407",
+  "schema_version": "gold_prompt_ranker_manifest.v2",
+  "seed": 0,
+  "source_hashes": {
+    "dataset_manifest_file_sha256": "01b2d4f607365fd7e9ea596aa999fa9abdab39d02f6f7b5bea5798752141e073",
+    "dataset_manifest_sha256": "f521918b55f41f4b6b5af7c23b6405fa2eb615cd0e92fa74f2ecc6c617b5c6b6",
+    "decision_records_sha256": "bc3b8168e7f1fbe3bfe1f1692f91d64d085b2e0d6403feabdab0279d7d966741",
+    "split_manifest_sha256": "39a7e1cf1acbb1fef4e9d9824b90fd923ce127b3ea74243e8d8fa70ec8df2aa9"
+  },
+  "style_vocab": {
+    "THIRD PTCG Club": 1,
+    "__unknown_style__": 0
+  }
+}

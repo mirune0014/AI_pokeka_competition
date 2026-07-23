@@ -1,0 +1,41 @@
+seat,game,diverged,kind,row,step,player,stadium_id,target_id,target_hp,baseline_action,candidate_action,baseline_reason,candidate_reason,baseline_option,candidate_option
+0,game_0000,True,action,132,132,0,1244,648,100,[7],[8],play item,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0001,False,,,,,,,,,,,,,
+0,game_0002,True,action,145,145,0,1244,648,100,[4],[5],play Lillie,terminal conversion,"{""index"":6,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0003,False,,,,,,,,,,,,,
+0,game_0004,True,action,111,111,0,1244,648,100,[2],[3],play Explorer,terminal conversion,"{""index"":3,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0005,True,action,134,134,0,1244,649,70,[2],[8],play item,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0006,True,action,119,119,0,1244,112,110,[11],[13],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":1,""index"":8,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0007,False,,,,,,,,,,,,,
+0,game_0008,True,action,105,105,0,,305,70,[3],[5],play item,terminal conversion,"{""index"":5,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0009,True,action,144,144,0,1244,646,70,[0],[5],play item,terminal conversion,"{""index"":2,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0010,False,,,,,,,,,,,,,
+0,game_0011,True,action,94,94,0,1244,305,70,[9],[17],play Full Metal Lab,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0012,False,,,,,,,,,,,,,
+0,game_0013,False,,,,,,,,,,,,,
+0,game_0014,True,action,127,127,0,1244,648,100,[0],[6],play item,terminal conversion,"{""index"":0,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0015,False,,,,,,,,,,,,,
+0,game_0016,True,action,117,117,0,,112,110,[11],[19],play Full Metal Lab,terminal conversion,"{""index"":10,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0017,False,,,,,,,,,,,,,
+0,game_0018,False,,,,,,,,,,,,,
+0,game_0019,True,action,144,144,0,1244,649,70,[0],[2],Hero's Cape on Archaludon ex,terminal conversion,"{""area"":2,""inPlayArea"":4,""inPlayIndex"":0,""index"":7,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0020,False,,,,,,,,,,,,,
+0,game_0021,False,,,,,,,,,,,,,
+0,game_0022,True,action,130,130,0,1244,647,100,[6],[7],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":2,""index"":3,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0023,False,,,,,,,,,,,,,
+0,game_0024,False,,,,,,,,,,,,,
+0,game_0025,False,,,,,,,,,,,,,
+0,game_0026,True,action,119,119,0,1244,305,70,[6],[8],play item,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0027,True,action,132,132,0,1244,112,110,[3],[9],evolve Bench Duraludon,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":6,""type"":9}","{""attackId"":253,""type"":13}"
+0,game_0028,True,action,117,117,0,1244,647,100,[4],[12],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":2,""index"":1,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0029,False,,,,,,,,,,,,,
+0,game_0030,False,,,,,,,,,,,,,
+0,game_0031,True,action,115,115,0,1244,305,70,[1],[5],play item,terminal conversion,"{""index"":1,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0032,True,action,108,108,0,1244,112,110,[3],[9],play item,terminal conversion,"{""index"":3,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0033,True,action,92,92,0,,112,110,[6],[8],play item,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0034,True,action,120,120,0,1244,649,70,[1],[3],play item,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0035,True,action,133,133,0,1244,646,70,[2],[5],play item,terminal conversion,"{""index"":4,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0036,False,,,,,,,,,,,,,
+0,game_0037,False,,,,,,,,,,,,,
+0,game_0038,True,action,118,118,0,1244,647,100,[12],[31],play Full Metal Lab,terminal conversion,"{""index"":6,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0039,False,,,,,,,,,,,,,

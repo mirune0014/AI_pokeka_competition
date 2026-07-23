@@ -1,0 +1,21 @@
+{
+  "id": "niiino/card2vec-learning-dense-card-embeddings",
+  "id_no": 124472926,
+  "title": "card2vec: Learning Dense Card Embeddings",
+  "code_file": "card2vec-learning-dense-card-embeddings.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [],
+  "dataset_sources": [
+    "kaggle/pokemon-tcg-ai-battle-episodes-2026-06-18"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "pokemon-tcg-ai-battle"
+  ],
+  "model_sources": []
+}

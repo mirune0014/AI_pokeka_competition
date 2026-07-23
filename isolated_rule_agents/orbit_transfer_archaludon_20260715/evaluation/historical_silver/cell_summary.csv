@@ -1,0 +1,3 @@
+seed_base,opponent,seat,games,baseline_wins,candidate_wins,delta_wins
+271828182,historical_silver,0,100,58,58,0
+271828182,historical_silver,1,100,42,42,0

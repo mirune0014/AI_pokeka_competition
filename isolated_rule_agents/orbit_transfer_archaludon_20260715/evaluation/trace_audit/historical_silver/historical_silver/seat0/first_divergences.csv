@@ -1,0 +1,101 @@
+seat,game,diverged,kind,row,step,player,stadium_id,target_id,target_hp,baseline_action,candidate_action,baseline_reason,candidate_reason,baseline_option,candidate_option
+0,game_0000,False,,,,,,,,,,,,,
+0,game_0001,False,,,,,,,,,,,,,
+0,game_0002,True,action,130,130,0,1244,190,190,[3],[4],play item,terminal conversion,"{""index"":5,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0003,True,action,150,150,0,1244,190,190,[4],[6],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":4,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0004,True,action,136,136,0,1244,169,130,[2],[4],evolve Bench Duraludon,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":4,""type"":9}","{""attackId"":253,""type"":13}"
+0,game_0005,True,action,114,114,0,1244,190,190,[0],[3],Ultra Ball: bench empty (donk risk),terminal conversion,"{""index"":0,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0006,False,,,,,,,,,,,,,
+0,game_0007,False,,,,,,,,,,,,,
+0,game_0008,False,,,,,,,,,,,,,
+0,game_0009,False,,,,,,,,,,,,,
+0,game_0010,False,,,,,,,,,,,,,
+0,game_0011,False,,,,,,,,,,,,,
+0,game_0012,False,,,,,,,,,,,,,
+0,game_0013,False,,,,,,,,,,,,,
+0,game_0014,False,,,,,,,,,,,,,
+0,game_0015,False,,,,,,,,,,,,,
+0,game_0016,True,action,103,103,0,1244,190,110,[4],[10],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":1,""index"":3,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0017,False,,,,,,,,,,,,,
+0,game_0018,False,,,,,,,,,,,,,
+0,game_0019,True,action,124,124,0,1244,169,130,[3],[5],play item,terminal conversion,"{""index"":9,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0020,False,,,,,,,,,,,,,
+0,game_0021,True,action,122,122,0,,190,80,[5],[7],Ultra Ball: search line,terminal conversion,"{""index"":7,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0022,False,,,,,,,,,,,,,
+0,game_0023,False,,,,,,,,,,,,,
+0,game_0024,True,action,122,122,0,1244,190,20,[3],[4],play item,terminal conversion,"{""index"":6,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0025,False,,,,,,,,,,,,,
+0,game_0026,False,,,,,,,,,,,,,
+0,game_0027,False,,,,,,,,,,,,,
+0,game_0028,True,action,133,133,0,1244,190,100,[6],[7],play item,terminal conversion,"{""index"":8,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0029,True,action,133,133,0,1244,169,130,[5],[6],play item,terminal conversion,"{""index"":6,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0030,False,,,,,,,,,,,,,
+0,game_0031,False,,,,,,,,,,,,,
+0,game_0032,False,,,,,,,,,,,,,
+0,game_0033,True,action,148,148,0,1244,190,190,[7],[8],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":9,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0034,True,action,130,130,0,1244,190,110,[1],[2],Hero's Cape on Archaludon ex,terminal conversion,"{""area"":2,""inPlayArea"":4,""inPlayIndex"":0,""index"":3,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0035,False,,,,,,,,,,,,,
+0,game_0036,True,action,141,141,0,1244,190,110,[5],[6],play item,terminal conversion,"{""index"":8,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0037,True,action,121,121,0,1244,190,110,[0],[4],play Explorer,terminal conversion,"{""index"":1,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0038,False,,,,,,,,,,,,,
+0,game_0039,False,,,,,,,,,,,,,
+0,game_0040,False,,,,,,,,,,,,,
+0,game_0041,False,,,,,,,,,,,,,
+0,game_0042,True,action,153,153,0,1244,190,190,[0],[5],play item,terminal conversion,"{""index"":0,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0043,False,,,,,,,,,,,,,
+0,game_0044,False,,,,,,,,,,,,,
+0,game_0045,False,,,,,,,,,,,,,
+0,game_0046,False,,,,,,,,,,,,,
+0,game_0047,False,,,,,,,,,,,,,
+0,game_0048,False,,,,,,,,,,,,,
+0,game_0049,False,,,,,,,,,,,,,
+0,game_0050,False,,,,,,,,,,,,,
+0,game_0051,True,action,147,147,0,1244,190,190,[4],[5],Ultra Ball: bench empty (donk risk),terminal conversion,"{""index"":9,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0052,False,,,,,,,,,,,,,
+0,game_0053,False,,,,,,,,,,,,,
+0,game_0054,False,,,,,,,,,,,,,
+0,game_0055,True,action,121,121,0,1244,190,80,[4],[5],attach Metal,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":5,""type"":8}","{""attackId"":253,""type"":13}"
+0,game_0056,True,action,134,134,0,1244,190,100,[5],[6],evolve Bench Duraludon,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":3,""type"":9}","{""attackId"":253,""type"":13}"
+0,game_0057,True,action,141,141,0,1244,190,110,[0],[3],play item,terminal conversion,"{""index"":2,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0058,True,action,125,125,0,1244,190,140,[4],[5],play Explorer,terminal conversion,"{""index"":6,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0059,False,,,,,,,,,,,,,
+0,game_0060,False,,,,,,,,,,,,,
+0,game_0061,True,action,124,124,0,1244,190,80,[1],[2],play item,terminal conversion,"{""index"":2,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0062,False,,,,,,,,,,,,,
+0,game_0063,False,,,,,,,,,,,,,
+0,game_0064,False,,,,,,,,,,,,,
+0,game_0065,False,,,,,,,,,,,,,
+0,game_0066,True,action,101,101,0,1244,190,110,[1],[4],play item,terminal conversion,"{""index"":3,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0067,False,,,,,,,,,,,,,
+0,game_0068,False,,,,,,,,,,,,,
+0,game_0069,False,,,,,,,,,,,,,
+0,game_0070,False,,,,,,,,,,,,,
+0,game_0071,False,,,,,,,,,,,,,
+0,game_0072,False,,,,,,,,,,,,,
+0,game_0073,False,,,,,,,,,,,,,
+0,game_0074,True,action,143,143,0,1244,190,20,[0],[5],evolve Bench Duraludon,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":0,""type"":9}","{""attackId"":253,""type"":13}"
+0,game_0075,False,,,,,,,,,,,,,
+0,game_0076,False,,,,,,,,,,,,,
+0,game_0077,False,,,,,,,,,,,,,
+0,game_0078,False,,,,,,,,,,,,,
+0,game_0079,True,action,160,160,0,1244,190,190,[4],[9],evolve Bench Duraludon,terminal conversion,"{""area"":2,""inPlayArea"":5,""inPlayIndex"":0,""index"":5,""type"":9}","{""attackId"":253,""type"":13}"
+0,game_0080,False,,,,,,,,,,,,,
+0,game_0081,True,action,142,142,0,1244,190,190,[5],[6],play item,terminal conversion,"{""index"":8,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0082,False,,,,,,,,,,,,,
+0,game_0083,False,,,,,,,,,,,,,
+0,game_0084,False,,,,,,,,,,,,,
+0,game_0085,False,,,,,,,,,,,,,
+0,game_0086,False,,,,,,,,,,,,,
+0,game_0087,False,,,,,,,,,,,,,
+0,game_0088,False,,,,,,,,,,,,,
+0,game_0089,True,action,144,144,0,1244,190,190,[2],[4],play item,terminal conversion,"{""index"":3,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0090,False,,,,,,,,,,,,,
+0,game_0091,True,action,139,139,0,1244,190,110,[0],[2],Ultra Ball: search line,terminal conversion,"{""index"":1,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0092,False,,,,,,,,,,,,,
+0,game_0093,False,,,,,,,,,,,,,
+0,game_0094,False,,,,,,,,,,,,,
+0,game_0095,False,,,,,,,,,,,,,
+0,game_0096,True,action,113,113,0,1244,190,180,[6],[8],play item,terminal conversion,"{""index"":6,""type"":7}","{""attackId"":253,""type"":13}"
+0,game_0097,False,,,,,,,,,,,,,
+0,game_0098,False,,,,,,,,,,,,,
+0,game_0099,True,action,142,142,0,1244,190,190,[0],[5],play item,terminal conversion,"{""index"":2,""type"":7}","{""attackId"":253,""type"":13}"

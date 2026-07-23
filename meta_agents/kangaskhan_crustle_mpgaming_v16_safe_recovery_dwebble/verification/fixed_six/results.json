@@ -1,0 +1,134 @@
+[
+    {
+        "label":  "okidogi_gain",
+        "seed":  202622002,
+        "seat":  1,
+        "policy":  "v13",
+        "result":  0,
+        "win":  0,
+        "steps":  142,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "okidogi_gain",
+        "seed":  202622002,
+        "seat":  1,
+        "policy":  "v16",
+        "result":  1,
+        "win":  1,
+        "steps":  104,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "marnie_gain",
+        "seed":  202622007,
+        "seat":  0,
+        "policy":  "v13",
+        "result":  1,
+        "win":  0,
+        "steps":  119,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "marnie_gain",
+        "seed":  202622007,
+        "seat":  0,
+        "policy":  "v16",
+        "result":  0,
+        "win":  1,
+        "steps":  184,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "alak_third_regression",
+        "seed":  202622023,
+        "seat":  0,
+        "policy":  "v13",
+        "result":  0,
+        "win":  1,
+        "steps":  125,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "alak_third_regression",
+        "seed":  202622023,
+        "seat":  0,
+        "policy":  "v16",
+        "result":  0,
+        "win":  1,
+        "steps":  125,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "marnie_regression",
+        "seed":  202622024,
+        "seat":  1,
+        "policy":  "v13",
+        "result":  1,
+        "win":  1,
+        "steps":  168,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "marnie_regression",
+        "seed":  202622024,
+        "seat":  1,
+        "policy":  "v16",
+        "result":  1,
+        "win":  1,
+        "steps":  168,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "alak_third_regression",
+        "seed":  202622044,
+        "seat":  1,
+        "policy":  "v13",
+        "result":  1,
+        "win":  1,
+        "steps":  157,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "alak_third_regression",
+        "seed":  202622044,
+        "seat":  1,
+        "policy":  "v16",
+        "result":  1,
+        "win":  1,
+        "steps":  157,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "alak_osel_regression",
+        "seed":  202622084,
+        "seat":  0,
+        "policy":  "v13",
+        "result":  0,
+        "win":  1,
+        "steps":  162,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    },
+    {
+        "label":  "alak_osel_regression",
+        "seed":  202622084,
+        "seat":  0,
+        "policy":  "v16",
+        "result":  0,
+        "win":  1,
+        "steps":  162,
+        "action_errors":  0,
+        "hit_max_steps":  false
+    }
+]

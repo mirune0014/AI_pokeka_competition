@@ -1,0 +1,1559 @@
+{
+  "decisions": 61,
+  "difference_count": 2,
+  "differences": [
+    {
+      "context": 0,
+      "left": [
+        6
+      ],
+      "left_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "recorded": [
+        7
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "right": [
+        7
+      ],
+      "right_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 66,
+      "turn": 6
+    },
+    {
+      "context": 0,
+      "left": [
+        6
+      ],
+      "left_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "recorded": [
+        2
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 1,
+          "type": 8
+        }
+      ],
+      "right": [
+        2
+      ],
+      "right_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 1,
+          "type": 8
+        }
+      ],
+      "step": 68,
+      "turn": 6
+    }
+  ],
+  "left_recorded_difference_count": 31,
+  "left_recorded_differences": [
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "number": 0,
+          "type": 0
+        }
+      ],
+      "context": 38,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "number": 1,
+          "type": 0
+        }
+      ],
+      "step": 4,
+      "turn": 0
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 14,
+      "turn": 2
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "step": 16,
+      "turn": 2
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "step": 38,
+      "turn": 4
+    },
+    {
+      "agent": [
+        7
+      ],
+      "agent_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        9
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 5,
+          "type": 8
+        }
+      ],
+      "step": 40,
+      "turn": 4
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "step": 41,
+      "turn": 4
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        2
+      ],
+      "recorded_options": [
+        {
+          "type": 14
+        }
+      ],
+      "step": 42,
+      "turn": 4
+    },
+    {
+      "agent": [
+        6
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        7
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 66,
+      "turn": 6
+    },
+    {
+      "agent": [
+        6
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        2
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 1,
+          "type": 8
+        }
+      ],
+      "step": 68,
+      "turn": 6
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "type": 14
+        }
+      ],
+      "step": 69,
+      "turn": 6
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 80,
+      "turn": 8
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "type": 14
+        }
+      ],
+      "step": 84,
+      "turn": 8
+    },
+    {
+      "agent": [
+        3
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 5,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        8
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 86,
+      "turn": 10
+    },
+    {
+      "agent": [
+        3
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 5,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 87,
+      "turn": 10
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 4,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 89,
+      "turn": 10
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "step": 91,
+      "turn": 10
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 2,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        5
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 93,
+      "turn": 10
+    },
+    {
+      "agent": [
+        7
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        9
+      ],
+      "recorded_options": [
+        {
+          "index": 6,
+          "type": 7
+        }
+      ],
+      "step": 105,
+      "turn": 12
+    },
+    {
+      "agent": [
+        7
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 0,
+          "type": 8
+        }
+      ],
+      "step": 107,
+      "turn": 12
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 108,
+      "turn": 12
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 7,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        7
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 109,
+      "turn": 12
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 7,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 4,
+          "type": 7
+        }
+      ],
+      "step": 110,
+      "turn": 12
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 115,
+      "turn": 14
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        12
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 117,
+      "turn": 14
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        12
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 10,
+          "type": 8
+        }
+      ],
+      "step": 118,
+      "turn": 14
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        8
+      ],
+      "recorded_options": [
+        {
+          "index": 4,
+          "type": 7
+        }
+      ],
+      "step": 126,
+      "turn": 16
+    },
+    {
+      "agent": [
+        3
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 129,
+      "turn": 16
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 130,
+      "turn": 16
+    },
+    {
+      "agent": [
+        13
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        11
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 3,
+          "index": 7,
+          "type": 9
+        }
+      ],
+      "step": 136,
+      "turn": 18
+    },
+    {
+      "agent": [
+        12
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        6
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 2,
+          "index": 4,
+          "type": 8
+        }
+      ],
+      "step": 137,
+      "turn": 18
+    },
+    {
+      "agent": [
+        6
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        4
+      ],
+      "recorded_options": [
+        {
+          "index": 5,
+          "type": 7
+        }
+      ],
+      "step": 138,
+      "turn": 18
+    }
+  ],
+  "replay": "analysis_outputs\\kaggle_live\\top_recent_replays\\episode_85023197_replay.json",
+  "right_recorded_difference_count": 29,
+  "right_recorded_differences": [
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "number": 0,
+          "type": 0
+        }
+      ],
+      "context": 38,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "number": 1,
+          "type": 0
+        }
+      ],
+      "step": 4,
+      "turn": 0
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 14,
+      "turn": 2
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "step": 16,
+      "turn": 2
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "step": 38,
+      "turn": 4
+    },
+    {
+      "agent": [
+        7
+      ],
+      "agent_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        9
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 5,
+          "type": 8
+        }
+      ],
+      "step": 40,
+      "turn": 4
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        1
+      ],
+      "recorded_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "step": 41,
+      "turn": 4
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        2
+      ],
+      "recorded_options": [
+        {
+          "type": 14
+        }
+      ],
+      "step": 42,
+      "turn": 4
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "type": 14
+        }
+      ],
+      "step": 69,
+      "turn": 6
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 80,
+      "turn": 8
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        3
+      ],
+      "recorded_options": [
+        {
+          "type": 14
+        }
+      ],
+      "step": 84,
+      "turn": 8
+    },
+    {
+      "agent": [
+        3
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 5,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        8
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 86,
+      "turn": 10
+    },
+    {
+      "agent": [
+        3
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 5,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 87,
+      "turn": 10
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 4,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 89,
+      "turn": 10
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "step": 91,
+      "turn": 10
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 2,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        5
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 93,
+      "turn": 10
+    },
+    {
+      "agent": [
+        7
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        9
+      ],
+      "recorded_options": [
+        {
+          "index": 6,
+          "type": 7
+        }
+      ],
+      "step": 105,
+      "turn": 12
+    },
+    {
+      "agent": [
+        7
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 0,
+          "type": 8
+        }
+      ],
+      "step": 107,
+      "turn": 12
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 108,
+      "turn": 12
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 7,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        7
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 109,
+      "turn": 12
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 7,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 4,
+          "type": 7
+        }
+      ],
+      "step": 110,
+      "turn": 12
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "index": 2,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 0,
+          "type": 7
+        }
+      ],
+      "step": 115,
+      "turn": 14
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        12
+      ],
+      "recorded_options": [
+        {
+          "area": 4,
+          "index": 0,
+          "type": 10
+        }
+      ],
+      "step": 117,
+      "turn": 14
+    },
+    {
+      "agent": [
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 3,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        12
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 4,
+          "inPlayIndex": 0,
+          "index": 10,
+          "type": 8
+        }
+      ],
+      "step": 118,
+      "turn": 14
+    },
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "index": 1,
+          "type": 7
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        8
+      ],
+      "recorded_options": [
+        {
+          "index": 4,
+          "type": 7
+        }
+      ],
+      "step": 126,
+      "turn": 16
+    },
+    {
+      "agent": [
+        3
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 129,
+      "turn": 16
+    },
+    {
+      "agent": [
+        2
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        0
+      ],
+      "recorded_options": [
+        {
+          "index": 3,
+          "type": 7
+        }
+      ],
+      "step": 130,
+      "turn": 16
+    },
+    {
+      "agent": [
+        13
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        11
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 3,
+          "index": 7,
+          "type": 9
+        }
+      ],
+      "step": 136,
+      "turn": 18
+    },
+    {
+      "agent": [
+        12
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        6
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 2,
+          "index": 4,
+          "type": 8
+        }
+      ],
+      "step": 137,
+      "turn": 18
+    },
+    {
+      "agent": [
+        6
+      ],
+      "agent_options": [
+        {
+          "attackId": 1092,
+          "type": 13
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        4
+      ],
+      "recorded_options": [
+        {
+          "index": 5,
+          "type": 7
+        }
+      ],
+      "step": 138,
+      "turn": 18
+    }
+  ],
+  "target_seat": 1
+}

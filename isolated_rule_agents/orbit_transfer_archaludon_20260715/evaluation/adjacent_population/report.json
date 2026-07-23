@@ -1,0 +1,181 @@
+{
+  "valid": true,
+  "invalid_reasons": [],
+  "duplicate_mismatch_count": 0,
+  "panels": [
+    {
+      "seed_base": 271958313,
+      "opponent": "arch_peak",
+      "seat": 0,
+      "baseline_wins": 19,
+      "candidate_wins": 19,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "arch_peak",
+      "seat": 1,
+      "baseline_wins": 20,
+      "candidate_wins": 20,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "arch_shumpei",
+      "seat": 0,
+      "baseline_wins": 17,
+      "candidate_wins": 17,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "arch_shumpei",
+      "seat": 1,
+      "baseline_wins": 23,
+      "candidate_wins": 23,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "cynthia_v23",
+      "seat": 0,
+      "baseline_wins": 33,
+      "candidate_wins": 33,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "cynthia_v23",
+      "seat": 1,
+      "baseline_wins": 34,
+      "candidate_wins": 34,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "kang_v23",
+      "seat": 0,
+      "baseline_wins": 15,
+      "candidate_wins": 15,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "kang_v23",
+      "seat": 1,
+      "baseline_wins": 13,
+      "candidate_wins": 13,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "marnie_kazuki",
+      "seat": 0,
+      "baseline_wins": 33,
+      "candidate_wins": 33,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "marnie_kazuki",
+      "seat": 1,
+      "baseline_wins": 37,
+      "candidate_wins": 37,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "marnie_tonakai",
+      "seat": 0,
+      "baseline_wins": 37,
+      "candidate_wins": 37,
+      "games": 40,
+      "delta_wins": 0
+    },
+    {
+      "seed_base": 271958313,
+      "opponent": "marnie_tonakai",
+      "seat": 1,
+      "baseline_wins": 36,
+      "candidate_wins": 36,
+      "games": 40,
+      "delta_wins": 0
+    }
+  ],
+  "by_opponent": [
+    {
+      "opponent": "arch_peak",
+      "baseline_wins": 39,
+      "candidate_wins": 39,
+      "games": 80,
+      "delta_wins": 0
+    },
+    {
+      "opponent": "arch_shumpei",
+      "baseline_wins": 40,
+      "candidate_wins": 40,
+      "games": 80,
+      "delta_wins": 0
+    },
+    {
+      "opponent": "cynthia_v23",
+      "baseline_wins": 67,
+      "candidate_wins": 67,
+      "games": 80,
+      "delta_wins": 0
+    },
+    {
+      "opponent": "kang_v23",
+      "baseline_wins": 28,
+      "candidate_wins": 28,
+      "games": 80,
+      "delta_wins": 0
+    },
+    {
+      "opponent": "marnie_kazuki",
+      "baseline_wins": 70,
+      "candidate_wins": 70,
+      "games": 80,
+      "delta_wins": 0
+    },
+    {
+      "opponent": "marnie_tonakai",
+      "baseline_wins": 73,
+      "candidate_wins": 73,
+      "games": 80,
+      "delta_wins": 0
+    }
+  ],
+  "by_seat": [
+    {
+      "seat": 0,
+      "baseline_wins": 154,
+      "candidate_wins": 154,
+      "games": 240,
+      "delta_wins": 0
+    },
+    {
+      "seat": 1,
+      "baseline_wins": 163,
+      "candidate_wins": 163,
+      "games": 240,
+      "delta_wins": 0
+    }
+  ],
+  "aggregates": {
+    "baseline_wins": 317,
+    "candidate_wins": 317,
+    "games": 480,
+    "delta_wins": 0
+  }
+}

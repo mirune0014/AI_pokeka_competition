@@ -1,0 +1,306 @@
+{
+  "archetype": "alakazam_psychic",
+  "counts": {
+    "development": 770,
+    "policy_family_holdout": 60,
+    "train": 123
+  },
+  "development": {
+    "action_type:1": {
+      "count": 42,
+      "nll": 0.0003103017807006836,
+      "top1_accuracy": 1.0
+    },
+    "action_type:10": {
+      "count": 86,
+      "nll": 2.5290714446888414,
+      "top1_accuracy": 0.05813953488372093
+    },
+    "action_type:12": {
+      "count": 2,
+      "nll": 3.9747533798217773,
+      "top1_accuracy": 0.5
+    },
+    "action_type:13": {
+      "count": 54,
+      "nll": 2.4585452192911394,
+      "top1_accuracy": 0.07407407407407407
+    },
+    "action_type:14": {
+      "count": 44,
+      "nll": 4.843710173260082,
+      "top1_accuracy": 0.18181818181818182
+    },
+    "action_type:2": {
+      "count": 7,
+      "nll": 8.22641236441476,
+      "top1_accuracy": 0.0
+    },
+    "action_type:3": {
+      "count": 156,
+      "nll": 0.9449819153509079,
+      "top1_accuracy": 0.75
+    },
+    "action_type:6": {
+      "count": 12,
+      "nll": 0.00027116139729817707,
+      "top1_accuracy": 1.0
+    },
+    "action_type:7": {
+      "count": 212,
+      "nll": 2.843022485597516,
+      "top1_accuracy": 0.2783018867924528
+    },
+    "action_type:8": {
+      "count": 35,
+      "nll": 4.509773598398481,
+      "top1_accuracy": 0.05714285714285714
+    },
+    "action_type:9": {
+      "count": 120,
+      "nll": 2.0017990003029507,
+      "top1_accuracy": 0.2
+    },
+    "overall:overall": {
+      "count": 770,
+      "nll": 2.3079628770808123,
+      "top1_accuracy": 0.35584415584415585
+    },
+    "split:development": {
+      "count": 770,
+      "nll": 2.3079628770808123,
+      "top1_accuracy": 0.35584415584415585
+    },
+    "style:213tubo": {
+      "count": 415,
+      "nll": 2.667660637199879,
+      "top1_accuracy": 0.26024096385542167
+    },
+    "style:OSELCOUN": {
+      "count": 163,
+      "nll": 1.6606191020070409,
+      "top1_accuracy": 0.48466257668711654
+    },
+    "style:bono": {
+      "count": 192,
+      "nll": 2.080059048370458,
+      "top1_accuracy": 0.453125
+    }
+  },
+  "fit": {
+    "action_type:1": {
+      "count": 15,
+      "nll": 0.0003136634826660156,
+      "top1_accuracy": 1.0
+    },
+    "action_type:10": {
+      "count": 3,
+      "nll": 0.8339832623799642,
+      "top1_accuracy": 0.6666666666666666
+    },
+    "action_type:12": {
+      "count": 3,
+      "nll": 2.8894954125086465,
+      "top1_accuracy": 0.3333333333333333
+    },
+    "action_type:13": {
+      "count": 14,
+      "nll": 0.9928486325911113,
+      "top1_accuracy": 0.5714285714285714
+    },
+    "action_type:14": {
+      "count": 2,
+      "nll": 0.9304105043411255,
+      "top1_accuracy": 0.0
+    },
+    "action_type:3": {
+      "count": 32,
+      "nll": 0.1962372250854969,
+      "top1_accuracy": 0.875
+    },
+    "action_type:6": {
+      "count": 6,
+      "nll": 8.265177408854166e-06,
+      "top1_accuracy": 1.0
+    },
+    "action_type:7": {
+      "count": 23,
+      "nll": 0.5840873258269351,
+      "top1_accuracy": 0.7391304347826086
+    },
+    "action_type:8": {
+      "count": 7,
+      "nll": 1.2291339891297477,
+      "top1_accuracy": 0.5714285714285714
+    },
+    "action_type:9": {
+      "count": 18,
+      "nll": 0.5370065106285943,
+      "top1_accuracy": 0.7777777777777778
+    },
+    "overall:overall": {
+      "count": 123,
+      "nll": 0.5278011971130604,
+      "top1_accuracy": 0.7723577235772358
+    },
+    "split:train": {
+      "count": 123,
+      "nll": 0.5278011971130604,
+      "top1_accuracy": 0.7723577235772358
+    },
+    "style:THIRD PTCG Club": {
+      "count": 123,
+      "nll": 0.5278011971130604,
+      "top1_accuracy": 0.7723577235772358
+    }
+  },
+  "fit_splits": [
+    "train"
+  ],
+  "loss": {
+    "first": 1.2959562540054321,
+    "last": 0.9380500316619873,
+    "minimum": 0.22038382291793823,
+    "steps": 96
+  },
+  "policy_family_holdout": {
+    "action_type:0": {
+      "count": 1,
+      "nll": 0.6787337064743042,
+      "top1_accuracy": 1.0
+    },
+    "action_type:1": {
+      "count": 7,
+      "nll": 0.0003131798335484096,
+      "top1_accuracy": 1.0
+    },
+    "action_type:10": {
+      "count": 2,
+      "nll": 3.4205775260925293,
+      "top1_accuracy": 0.0
+    },
+    "action_type:12": {
+      "count": 1,
+      "nll": 5.865101337432861,
+      "top1_accuracy": 0.0
+    },
+    "action_type:13": {
+      "count": 6,
+      "nll": 2.607478896776835,
+      "top1_accuracy": 0.0
+    },
+    "action_type:14": {
+      "count": 3,
+      "nll": 4.310008525848389,
+      "top1_accuracy": 0.0
+    },
+    "action_type:3": {
+      "count": 12,
+      "nll": 0.3528576120734215,
+      "top1_accuracy": 0.8333333333333334
+    },
+    "action_type:6": {
+      "count": 4,
+      "nll": 0.0,
+      "top1_accuracy": 1.0
+    },
+    "action_type:7": {
+      "count": 12,
+      "nll": 2.5799971322218576,
+      "top1_accuracy": 0.25
+    },
+    "action_type:8": {
+      "count": 4,
+      "nll": 4.992568910121918,
+      "top1_accuracy": 0.0
+    },
+    "action_type:9": {
+      "count": 8,
+      "nll": 1.6495098173618317,
+      "top1_accuracy": 0.125
+    },
+    "overall:overall": {
+      "count": 60,
+      "nll": 1.838711540400982,
+      "top1_accuracy": 0.43333333333333335
+    },
+    "split:policy_family_holdout": {
+      "count": 60,
+      "nll": 1.838711540400982,
+      "top1_accuracy": 0.43333333333333335
+    },
+    "style:Michael Long": {
+      "count": 60,
+      "nll": 1.838711540400982,
+      "top1_accuracy": 0.43333333333333335
+    }
+  },
+  "schema_version": "gold_prompt_ranker_evaluation.v1",
+  "train": {
+    "action_type:1": {
+      "count": 15,
+      "nll": 0.0003136634826660156,
+      "top1_accuracy": 1.0
+    },
+    "action_type:10": {
+      "count": 3,
+      "nll": 0.8339832623799642,
+      "top1_accuracy": 0.6666666666666666
+    },
+    "action_type:12": {
+      "count": 3,
+      "nll": 2.8894954125086465,
+      "top1_accuracy": 0.3333333333333333
+    },
+    "action_type:13": {
+      "count": 14,
+      "nll": 0.9928486325911113,
+      "top1_accuracy": 0.5714285714285714
+    },
+    "action_type:14": {
+      "count": 2,
+      "nll": 0.9304105043411255,
+      "top1_accuracy": 0.0
+    },
+    "action_type:3": {
+      "count": 32,
+      "nll": 0.1962372250854969,
+      "top1_accuracy": 0.875
+    },
+    "action_type:6": {
+      "count": 6,
+      "nll": 8.265177408854166e-06,
+      "top1_accuracy": 1.0
+    },
+    "action_type:7": {
+      "count": 23,
+      "nll": 0.5840873258269351,
+      "top1_accuracy": 0.7391304347826086
+    },
+    "action_type:8": {
+      "count": 7,
+      "nll": 1.2291339891297477,
+      "top1_accuracy": 0.5714285714285714
+    },
+    "action_type:9": {
+      "count": 18,
+      "nll": 0.5370065106285943,
+      "top1_accuracy": 0.7777777777777778
+    },
+    "overall:overall": {
+      "count": 123,
+      "nll": 0.5278011971130604,
+      "top1_accuracy": 0.7723577235772358
+    },
+    "split:train": {
+      "count": 123,
+      "nll": 0.5278011971130604,
+      "top1_accuracy": 0.7723577235772358
+    },
+    "style:THIRD PTCG Club": {
+      "count": 123,
+      "nll": 0.5278011971130604,
+      "top1_accuracy": 0.7723577235772358
+    }
+  }
+}

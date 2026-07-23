@@ -1,0 +1,25 @@
+from __future__ import annotations
+
+import planner_bootstrap_final as _bootstrap
+import planner_validation_final as _validation_final
+import planner_raw_parity_v3 as _raw_parity
+import planner_energy_aggregate_final as _energy_aggregate
+
+import _cumulative_parent as _parent
+import planner_integrated as _integrated
+import planner_final_policy as _final_policy
+import planner_option_resolution_final as _option_resolution
+import planner_prize_option_final as _prize_option
+import planner_ability_options_final as _ability_options
+import planner_ability_options_v2 as _ability_options_v2
+import planner_semantics_final as _semantics_final
+import planner_outcome_failclosed_final as _outcome_failclosed
+import planner_snapshot_serial_final as _snapshot_serial
+import planner_placeholder_final as _placeholder
+import planner_transaction_fixes as _transaction_fixes
+import planner_duplicate_final as _duplicate_final
+import planner_placeholder_gate_final as _placeholder_gate
+
+
+def agent(obs_dict: dict) -> list[int]:
+    return _final_policy.agent(_parent, _parent.agent, obs_dict)
