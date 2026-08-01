@@ -1,0 +1,131 @@
+{
+  "schema_version": "archaludon-bc-actor-minimal-experiment-v1",
+  "experiment_id": "archaludon-independent-bc-actor-3seeds-20260802",
+  "created_date": "2026-08-02",
+  "objective": "Train the unchanged actor representation by behavior cloning teacher actions, deploy masked actor logits without a fixed teacher margin, and decide whether the BC actor is suitable as a frozen future PPO KL reference.",
+  "prohibited_changes": [
+    "PPO training",
+    "PCGrad",
+    "reward changes",
+    "actor representation changes",
+    "teacher fixed-margin residual composition",
+    "additional epoch or residual multiplier sweeps"
+  ],
+  "inputs": {
+    "initial_checkpoint": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04"
+    },
+    "teacher_rollout_manifest": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+      "sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+      "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B"
+    },
+    "episodes_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/episodes",
+    "locked_split": {
+      "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_locked_trajectory_split_v1.json",
+      "sha256": "67435BD52C0B6F0693A33C1855AC2BC7B5C212D444E19ADE453DE50BFCB8FE23",
+      "train_episodes": 24,
+      "validation_episodes": 8,
+      "locked_validation_rows": 212
+    }
+  },
+  "data": {
+    "split_unit": "episode",
+    "train_validation_episode_overlap": 0,
+    "supervised_train_rows": 955,
+    "supervised_validation_rows": 347,
+    "label": "teacher_action single legal index",
+    "legal_mask_applied": true,
+    "additional_rollout": false,
+    "additional_rollout_reason": "Existing episode-separated data has 955 train and 347 validation single-choice rows with coverage of every validation option_type."
+  },
+  "training": {
+    "algorithm": "cross_entropy behavior cloning",
+    "policy_score": "actor logits only",
+    "teacher_fixed_margin": 0.0,
+    "initialization": "iteration004 actor tensors",
+    "value_head_used": false,
+    "learning_seeds": [
+      2026080201,
+      2026080202,
+      2026080203
+    ],
+    "epochs": 120,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "gradient_clip": 1.0,
+    "device": "cpu",
+    "threads": 1,
+    "validation_model_selection": false
+  },
+  "deployment": {
+    "policy_dir": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/runtime_agent_bc",
+    "ordinary_choice": "legal masked actor-logit argmax",
+    "teacher_fallback_conditions": [
+      "non-finite or failed model output",
+      "unselectable actor surface",
+      "invalid action before engine return",
+      "execution invariant failure",
+      "unsupported non-single selection cardinality"
+    ],
+    "deterministic_protocol_actions": "deck requests and <=1-option surfaces are returned directly and are not counted as fallback"
+  },
+  "offline_reporting": {
+    "metrics": [
+      "validation teacher top-1 accuracy",
+      "option_type top-1 accuracy",
+      "cross-entropy",
+      "entropy",
+      "illegal action count",
+      "fallback count",
+      "seed variability",
+      "locked validation 212 teacher argmax matches"
+    ],
+    "major_action_family": "validation option_type with at least 10 rows"
+  },
+  "fixed_evaluation": {
+    "baseline": "iteration004",
+    "opponents_spec": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "seed_base": 731202000,
+    "seeds": [
+      731202000, 731202001, 731202002, 731202003, 731202004,
+      731202005, 731202006, 731202007, 731202008, 731202009,
+      731202010, 731202011, 731202012, 731202013, 731202014,
+      731202015, 731202016, 731202017, 731202018, 731202019
+    ],
+    "seats": [0, 1],
+    "opponents": 8,
+    "games_per_checkpoint": 320,
+    "same_schedule_for_all_seeds": true,
+    "reported_metrics": [
+      "overall win rate",
+      "opponent win rate",
+      "seat win rate",
+      "action errors",
+      "fallback count"
+    ]
+  },
+  "provisional_pass": {
+    "validation_teacher_top1_accuracy_minimum": 0.98,
+    "major_action_family_top1_accuracy_minimum": 0.95,
+    "illegal_action_count": 0,
+    "fallback_count": 0,
+    "fixed_320_no_clear_collapse": {
+      "overall_drop_from_iteration004_maximum_percentage_points": 5.0,
+      "opponent_drop_maximum_percentage_points": 20.0,
+      "seat_drop_maximum_percentage_points": 10.0,
+      "action_errors": 0
+    }
+  },
+  "failure_split": {
+    "data_insufficient": "train top-1 reaches 98% but validation or low-support families fail",
+    "actor_representation_insufficient": "train top-1 itself remains below 98% or unsupported normal action surfaces cause fallback",
+    "ppo_gate": "PPO design remains blocked unless every provisional pass condition succeeds"
+  },
+  "outputs": {
+    "raw_root": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/bc_actor_minimal_20260802",
+    "result_json": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/BC_ACTOR_MINIMAL_RESULT.json",
+    "result_markdown": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/BC_ACTOR_MINIMAL_RESULT.md"
+  }
+}
