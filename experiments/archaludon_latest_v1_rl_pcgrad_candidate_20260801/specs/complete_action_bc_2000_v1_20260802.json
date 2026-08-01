@@ -1,0 +1,142 @@
+{
+  "schema_version": "complete-action-bc-2000-experiment-v1",
+  "experiment_id": "archaludon-complete-action-bc-teacher-2000-20260802",
+  "created_date": "2026-08-02",
+  "status": "ready_for_sub_pc_execution",
+  "parent_gate": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/COMPLETE_ACTION_CANDIDATE_GATE_RESULT.json",
+    "sha256": "6AC64936598A5DCF8B3F8643BB3D1DBBEB860431B0E396B9F7E8C0D69296B991",
+    "teacher_representability_rate": 1.0,
+    "maximum_canonical_candidate_count": 25,
+    "passed": true
+  },
+  "fixed_constraints": {
+    "state_encoder_changed": false,
+    "reward_changed": false,
+    "ppo_performed": false,
+    "pcgrad_performed": false,
+    "teacher_fixed_margin_in_actor_output": 0.0,
+    "candidate_unit": "complete legal engine list[int] action",
+    "candidate_selection": "softmax over complete-action indices",
+    "multiple_selection_encoding": "sum set pooling of selected option embeddings",
+    "validation_model_selection": false,
+    "dagger_rounds_before_initial_evaluation": 0
+  },
+  "teacher_rollout": {
+    "run_id": "complete-action-bc-teacher-2000-20260802",
+    "behavior": "exact latest-v1 rule policy via zero-residual deployment argmax",
+    "initial_checkpoint": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+    "initial_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+    "opponent_population": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "opponent_population_sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "opponents": 8,
+    "seats": [0, 1],
+    "seed_base": 731300000,
+    "seeds_per_opponent_seat": 125,
+    "episodes_per_opponent_seat": 125,
+    "episodes": 2000,
+    "duplicate_audit": false,
+    "max_steps": 1000,
+    "serial_cpu_execution": true,
+    "progress_every_episodes": 25,
+    "output": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/rollouts"
+  },
+  "dataset": {
+    "split_unit": "episode",
+    "validation_rule": "(seed - 731300000) mod 5 == 0",
+    "train_episodes": 1600,
+    "validation_episodes": 400,
+    "train_validation_episode_overlap": 0,
+    "validation_selected_without_metric_access": true,
+    "require_final_action_equals_teacher_action": true,
+    "require_teacher_canonical_representability": 1.0,
+    "maximum_candidates_per_decision": 4096,
+    "compact_tensor_output": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/dataset/complete_action_bc_dataset.pt"
+  },
+  "training": {
+    "algorithm": "complete legal-action behavior cloning",
+    "initialization": "same iteration004 zero-residual checkpoint for every seed",
+    "seeds": [2026080211, 2026080212, 2026080213],
+    "epochs": 20,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "gradient_clip": 1.0,
+    "preferred_device": "cuda",
+    "validation_model_selection": false,
+    "future_ppo_reference_status_at_save": "candidate_not_accepted",
+    "output_root": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/bc"
+  },
+  "deployment": {
+    "policy_dir": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/runtime_agent_complete_bc",
+    "checkpoint_env": "ARCHALUDON_COMPLETE_BC_CHECKPOINT",
+    "device_env": "ARCHALUDON_COMPLETE_BC_DEVICE",
+    "training_report_glob": "complete_bc_seed*.json",
+    "arm_prefix": "complete_bc_seed",
+    "ordinary_choice": "complete-action actor-logit argmax",
+    "teacher_fallback": "non-finite, unselectable, action error, explicit major safety only",
+    "representability_failure": "count explicitly; never hide as an ordinary fallback"
+  },
+  "offline_reporting": [
+    "complete-action validation top-1",
+    "action-family top-1",
+    "optional-selection top-1",
+    "multiple-selection top-1",
+    "cross-entropy",
+    "entropy",
+    "representability fallback",
+    "illegal action count",
+    "seed variability"
+  ],
+  "fixed_evaluation": {
+    "baseline": "iteration004",
+    "opponents_spec": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "seed_base": 731202000,
+    "seeds": [
+      731202000,
+      731202001,
+      731202002,
+      731202003,
+      731202004,
+      731202005,
+      731202006,
+      731202007,
+      731202008,
+      731202009,
+      731202010,
+      731202011,
+      731202012,
+      731202013,
+      731202014,
+      731202015,
+      731202016,
+      731202017,
+      731202018,
+      731202019
+    ],
+    "seats": [0, 1],
+    "opponents": 8,
+    "games_per_checkpoint": 320,
+    "same_schedule_for_all_seeds": true,
+    "workers": 4,
+    "output": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/fixed_evaluation"
+  },
+  "provisional_pass": {
+    "validation_teacher_top1_accuracy_minimum": 0.98,
+    "major_action_family_top1_accuracy_minimum": 0.95,
+    "illegal_action_count": 0,
+    "representability_fallback_count": 0,
+    "fixed_320_no_clear_collapse": {
+      "overall_drop_from_iteration004_maximum_percentage_points": 5.0,
+      "opponent_drop_maximum_percentage_points": 20.0,
+      "seat_drop_maximum_percentage_points": 10.0,
+      "action_errors": 0
+    }
+  },
+  "conditional_dagger": {
+    "run_only_if_initial_fixed_320_is_more_than_5_points_below_iteration004": true,
+    "maximum_rounds": 1,
+    "labels": "teacher labels on states visited by the BC actor",
+    "do_not_investigate_state_or_action_encoding_before_post_dagger_result": true,
+    "investigate_representation_only_if_post_dagger_drop_is_at_least_percentage_points": 5.0
+  }
+}

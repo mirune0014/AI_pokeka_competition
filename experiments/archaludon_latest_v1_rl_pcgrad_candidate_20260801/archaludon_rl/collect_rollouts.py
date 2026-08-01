@@ -114,6 +114,7 @@ def _run_episode(
     failures_ledger: Path,
     max_steps: int,
     timeout_seconds: float,
+    collection_mode: str,
 ) -> Mapping[str, Any]:
     battle_start, battle_select, battle_finish, helpers = _ensure_runtime_imports()
     load_agent, read_deck = helpers
@@ -137,7 +138,7 @@ def _run_episode(
         checkpoint_sha256=checkpoint_sha256,
         catalog=catalog,
         config=PolicyConfig(
-            mode="training",
+            mode=collection_mode,
             model_timeout_seconds=timeout_seconds,
         ),
         rng=random.Random(seed ^ 0xA5A55A5A),
@@ -158,7 +159,7 @@ def _run_episode(
         runtime_receipt_sha256=runtime_receipt_sha256,
         collection_spec_sha256=collection_spec_sha256,
         schedule_sha256=schedule_sha256,
-        mode="training",
+        mode=collection_mode,
     )
     collector = EpisodeCollector(
         policy=policy,
@@ -233,6 +234,8 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
         )
     if args.device != "cpu":
         raise ValueError("single-thread collection runtime requires device cpu")
+    if args.collection_mode == "deployment" and not args.preflight_require_zero_residuals:
+        raise ValueError("teacher deployment collection requires exact zero residuals")
     require_zero_residuals = bool(args.preflight_require_zero_residuals)
     allow_trained_residuals = bool(
         getattr(args, "preflight_allow_trained_residuals", False)
@@ -342,7 +345,7 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
         },
         runtime_receipt=runtime_receipt,
         runtime_receipt_sha256=runtime_hash,
-        mode="training",
+        mode=args.collection_mode,
         duplicate_mode=args.duplicate_audit,
         schedule=schedule,
         opponent_population_receipt=population_receipt,
@@ -382,6 +385,7 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
                 failures_ledger=failures,
                 max_steps=args.max_steps,
                 timeout_seconds=args.timeout_seconds,
+                collection_mode=args.collection_mode,
             )
             second = _run_episode(
                 run_id=args.run_id,
@@ -405,6 +409,7 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
                 failures_ledger=failures,
                 max_steps=args.max_steps,
                 timeout_seconds=args.timeout_seconds,
+                collection_mode=args.collection_mode,
             )
             duplicate = validate_duplicate_pair(first, second)
             if (
@@ -460,6 +465,7 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
                 failures_ledger=failures,
                 max_steps=args.max_steps,
                 timeout_seconds=args.timeout_seconds,
+                collection_mode=args.collection_mode,
             )
             episode_hash = sha256_file(final_path)
         published.append(
@@ -474,6 +480,18 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
                 "seed": seed,
             }
         )
+        if len(published) % args.progress_every == 0 or len(published) == len(schedule):
+            print(
+                json.dumps(
+                    {
+                        "progress": len(published),
+                        "total": len(schedule),
+                        "last_episode_id": base_id,
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
     if sha256_checkpoint(checkpoint_path) != checkpoint_hash:
         raise ValueError("checkpoint changed before final manifest publication")
     manifest = manifest.finalize(tuple(published))
@@ -487,6 +505,7 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
         "opponent_count": len(opponent_table),
         "opponent_population_sha256": population_receipt["sha256"],
         "duplicate_audit": args.duplicate_audit,
+        "collection_mode": args.collection_mode,
         "collection_spec_sha256": manifest.collection_spec_sha256,
         "runtime_receipt_sha256": runtime_hash,
         "dataset_sha256": manifest.dataset_sha256,
@@ -507,6 +526,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--episodes-per-seat", type=int, default=1)
     parser.add_argument("--seat", choices=("0", "1", "both"), default="both")
     parser.add_argument("--max-steps", type=int, default=1000)
+    parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument(
         "--timeout-seconds",
         type=float,
@@ -517,6 +537,12 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--device", default="cpu")
+    parser.add_argument(
+        "--collection-mode",
+        choices=("training", "deployment"),
+        default="training",
+        help="deployment with a zero-residual checkpoint records exact teacher trajectories",
+    )
     parser.add_argument("--duplicate-audit", action="store_true")
     parser.add_argument(
         "--preflight-require-zero-residuals",
@@ -539,8 +565,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    if args.episodes_per_seat <= 0 or args.max_steps <= 0:
-        raise ValueError("episode and max-step counts must be positive")
+    if args.episodes_per_seat <= 0 or args.max_steps <= 0 or args.progress_every <= 0:
+        raise ValueError("episode, max-step, and progress counts must be positive")
     collect(args)
     return 0
 

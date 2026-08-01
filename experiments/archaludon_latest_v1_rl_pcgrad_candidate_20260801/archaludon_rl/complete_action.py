@@ -221,12 +221,12 @@ def recorded_complete_actions(decision: Mapping[str, Any]) -> CompleteActionSet:
     )
 
 
-def observation_complete_actions(observation: Any) -> CompleteActionSet:
-    """Build candidates directly from a live observation, including raw payload."""
+def observation_option_rows(observation: Any) -> tuple[dict[str, Any], ...]:
+    """Return live semantic options with the complete execution payload."""
 
     select = get_field(observation, "select")
     if select is None:
-        raise ValueError("deck requests are not option-selection action candidates")
+        raise ValueError("deck requests do not expose semantic options")
     raw_options = list(get_field(select, "option", ()) or ())
     semantic = semantic_options(observation)
     option_rows: list[dict[str, Any]] = []
@@ -249,6 +249,16 @@ def observation_complete_actions(observation: Any) -> CompleteActionSet:
                 },
             }
         )
+    return tuple(option_rows)
+
+
+def observation_complete_actions(observation: Any) -> CompleteActionSet:
+    """Build candidates directly from a live observation, including raw payload."""
+
+    select = get_field(observation, "select")
+    if select is None:
+        raise ValueError("deck requests are not option-selection action candidates")
+    option_rows = observation_option_rows(observation)
     result = enumerate_complete_actions(
         option_rows,
         minimum=int(enum_int(get_field(select, "minCount"))),

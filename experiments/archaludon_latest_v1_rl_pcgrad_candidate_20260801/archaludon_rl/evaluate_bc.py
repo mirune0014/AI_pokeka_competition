@@ -47,9 +47,14 @@ def _opponents(spec: Mapping[str, Any]) -> list[dict[str, Any]]:
     return [dict(row) for row in population["opponents"]]
 
 
-def _training_arms(training_root: Path) -> list[dict[str, Any]]:
+def _training_arms(
+    training_root: Path,
+    *,
+    report_glob: str = "bc_seed*.json",
+    arm_prefix: str = "bc_seed",
+) -> list[dict[str, Any]]:
     arms: list[dict[str, Any]] = []
-    for report_path in sorted((training_root / "training").glob("bc_seed*.json")):
+    for report_path in sorted((training_root / "training").glob(report_glob)):
         report = _load_json(report_path)
         seed = int(report["seed"])
         checkpoint = Path(report["checkpoint"]["path"])
@@ -60,7 +65,7 @@ def _training_arms(training_root: Path) -> list[dict[str, Any]]:
             raise ValueError(f"BC checkpoint/report hash mismatch for seed {seed}")
         arms.append(
             {
-                "arm_id": f"bc_seed{seed}",
+                "arm_id": f"{arm_prefix}{seed}",
                 "seed": seed,
                 "checkpoint": checkpoint.resolve(),
                 "checkpoint_sha256": checkpoint_sha,
@@ -103,6 +108,8 @@ def _audit_rows(directory: Path) -> list[dict[str, Any]]:
 
 def _fallback_category(reason: Any) -> str:
     text = "" if reason is None else str(reason)
+    if "representability_failure" in text:
+        return "representability_failure"
     if "unsupported_cardinality" in text:
         return "unsupported_cardinality"
     if "model_or_selection_failure" in text:
@@ -174,8 +181,8 @@ def _run_cell(
     environment = os.environ.copy()
     environment.update(
         {
-            "ARCHALUDON_BC_CHECKPOINT": str(arm["checkpoint"]),
-            "ARCHALUDON_BC_DEVICE": "cpu",
+            str(spec["deployment"].get("checkpoint_env", "ARCHALUDON_BC_CHECKPOINT")): str(arm["checkpoint"]),
+            str(spec["deployment"].get("device_env", "ARCHALUDON_BC_DEVICE")): "cpu",
             "ARCHALUDON_RL_DEPLOYMENT_AUDIT_DIR": str(audit_dir),
             "OMP_NUM_THREADS": "1",
             "MKL_NUM_THREADS": "1",
@@ -326,7 +333,11 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     if output_root.exists():
         raise FileExistsError("BC evaluation output directory already exists")
     output_root.mkdir(parents=True)
-    arms = _training_arms(Path(args.training_root))
+    arms = _training_arms(
+        Path(args.training_root),
+        report_glob=str(spec["deployment"].get("training_report_glob", "bc_seed*.json")),
+        arm_prefix=str(spec["deployment"].get("arm_prefix", "bc_seed")),
+    )
     opponents = _opponents(spec)
     jobs = [
         (arm, opponent, seat)
