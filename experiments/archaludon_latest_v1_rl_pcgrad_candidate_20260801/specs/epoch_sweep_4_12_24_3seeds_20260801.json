@@ -32,7 +32,7 @@
     "code": [
       {
         "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/epoch_sweep.py",
-        "sha256": "13F046066866EFDDCED41B619C1EDAD418F5CEFBC0703E2839AB89F6D35AD965"
+        "sha256": "F028CD316E2038128AD6554CF487D75D86D487C9AFAF44DE391A6D0CDF32EB89"
       },
       {
         "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/collect_rollouts.py",
@@ -159,6 +159,7 @@
   "runtime": {
     "device": "cpu",
     "max_workers": 4,
+    "rollout_workers": 1,
     "max_steps": 1000,
     "model_timeout_seconds": 0.05,
     "subprocess_timeout_seconds": 1800,

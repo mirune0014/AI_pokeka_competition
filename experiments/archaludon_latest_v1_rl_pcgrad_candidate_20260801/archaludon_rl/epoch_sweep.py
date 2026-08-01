@@ -491,7 +491,7 @@ def _train_one_checkpoint(
 def run_rollouts(spec: Mapping[str, Any], workers: int) -> None:
     _run_parallel(
         _rollout_jobs(spec),
-        workers=min(workers, 3),
+        workers=1,
         label="fresh_rollouts",
         function=lambda job: _collect_one_rollout(spec, job),
     )
