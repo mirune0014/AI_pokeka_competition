@@ -9,7 +9,7 @@
     "verification_status": "VERIFIED",
     "version_label": "exp_result_v1"
   },
-  "status": "completed_failed_provisional_gate",
+  "status": "completed_rejected_final",
   "scope": {
     "new_teacher_rollout_collected": false,
     "ppo_training_performed": false,
@@ -1106,16 +1106,23 @@
     "overall_pass": false
   },
   "failure_split": {
-    "primary_blocker": "actor_action_representation_insufficient",
-    "primary_evidence": "17.6%-18.2% of live decisions required teacher fallback; about 99% of fallbacks were unsupported optional/multiple selection cardinalities that the current single-index actor cannot express.",
-    "secondary_blocker": "teacher_data_coverage_insufficient_for_episode_generalization",
-    "secondary_evidence": "train top-1 was 98.43%-98.74% while episode-held-out validation was only 66.86%-70.32%, so the unchanged actor can fit observed single-choice rows but does not generalize from 24 training episodes.",
+    "confirmed_blocker": "actor_action_representation_insufficient",
+    "confirmed_evidence": "17.6%-18.2% of live decisions required teacher fallback; about 99% of fallbacks were unsupported optional/multiple selection cardinalities that the current single-index actor cannot express.",
+    "generalization_gap_cause": "undetermined",
+    "generalization_gap_evidence": "Train top-1 was 98.43%-98.74% while episode-held-out validation was 66.86%-70.32%. This gap alone does not distinguish data shortage, state-representation insufficiency, or train/deployment distribution shift.",
+    "unresolved_hypotheses": [
+      "teacher_data_volume_or_coverage",
+      "state_representation_insufficiency",
+      "train_validation_or_deployment_distribution_shift"
+    ],
     "why_not_more_same_format_rollout_now": "More single-index labels cannot remove the action-cardinality representation blocker, so no additional rollout was collected in this experiment."
   },
   "decision": {
+    "final_rejection_locked": true,
     "bc_checkpoint_accepted_as_frozen_ppo_reference": false,
+    "all_three_checkpoints_excluded_from_future_ppo_reference": true,
     "ppo_next_stage_allowed": false,
     "additional_training_or_games_requested": false,
-    "recommendation": "Do not start PPO. First decide how the actor represents optional/multiple selections; after that, collect broader episode-level teacher data and repeat BC only."
+    "recommendation": "Do not start PPO. Replace only the action-output scheme with complete legal-action candidate scoring, then measure representability and candidate-set practicality on existing data before collecting more games."
   }
 }

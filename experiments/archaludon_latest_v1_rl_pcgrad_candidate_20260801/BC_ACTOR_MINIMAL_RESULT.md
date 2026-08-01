@@ -8,7 +8,7 @@
 
 # Independent Behavior Cloning actor 最小実験
 
-3 seedのBC学習と各320試合を完了した。暫定通過条件は未達で、PPOには進まない。追加rollout・PPO・PCGrad・報酬変更・actor表現変更は実施していない。
+3 seedのBC学習と各320試合を完了した。本結果は最終不採用として固定し、3 checkpointはいずれも将来のPPO referenceに使用しない。追加rollout・PPO・PCGrad・報酬変更・actor表現変更は実施していない。
 
 ## Offline validation
 
@@ -50,8 +50,8 @@ seed平均はtop-1 `68.59%`、population SD `1.41%`。
 
 ## 判定
 
-- validation 98%、主要family 95%、runtime fallback 0、固定320の非破綻を満たさず、BC checkpointはPPO用referenceとして採用しない。
-- 主因はactorの行動表現不足。live fallbackの約99%が、現actorでは表現できないoptional/multiple selection cardinalityだった。
-- 加えて、train top-1は98.4～98.7%だがepisode-held-out validationは66.9～70.3%であり、24 train episodeでは汎化用データも不足している。
-- 同形式の単一選択rolloutを増やしても表現不足は解消しないため、この実験では追加収集しない。まず可変・複数選択のactor表現を別実験として設計する必要がある。
+- validation 98%、主要family 95%、runtime fallback 0、固定320の非破綻を満たさず、3つのBC checkpointはPPO用referenceとして採用しない。この判断を最終結果として固定する。
+- 確定している阻害要因はactorの行動表現不足である。live fallbackの約99%が、現actorでは表現できないoptional/multiple selection cardinalityだった。
+- train top-1 98.4～98.7%とepisode-held-out validation 66.9～70.3%の差は確認されたが、この差だけでは、データ量・coverage不足、state表現不足、train/validation/deployment間の分布シフトのどれが主因かは確定しない。
+- 同形式の単一選択rolloutを増やしても確定済みの表現不足は解消しない。次はstate encoderを変えず、完全合法行動候補を1候補としてscoreするaction出力方式だけを検証する。
 - PPO、追加学習、追加対戦には進まない。
