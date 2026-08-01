@@ -1,0 +1,284 @@
+{
+  "failed": 0,
+  "fixture_count": 69,
+  "passed": 69,
+  "results": [
+    {
+      "name": "seat0_pad_start",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_pad_duplicate_permutation",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_reveal_select_duraludon",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_reveal_duplicate_permutation",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_target_hand_and_basic_play",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_hand_duplicate_permutation",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_bench_log_and_turbo_handoff",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_energy_selection",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_energy_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_target_1",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_target_1_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_target_2",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_target_2_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_target_3",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_target_3_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_turbo_completion_no_double_owner",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_cinderace_only_explicit_whiff",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_whiff_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_whiff_same_turn_exact_attack",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_pad_start",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_reveal_select_840",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_reveal_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_exact_evolve",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_coated_attack",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_attack_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_completion_owner_clear",
+      "status": "PASS"
+    },
+    {
+      "name": "seat0_nonex_no_exact_purpose_no_start",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_pad_start",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_pad_duplicate_permutation",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_reveal_select_duraludon",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_reveal_duplicate_permutation",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_target_hand_and_basic_play",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_hand_duplicate_permutation",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_bench_log_and_turbo_handoff",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_energy_selection",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_energy_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_target_1",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_target_1_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_target_2",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_target_2_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_target_3",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_target_3_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_turbo_completion_no_double_owner",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_cinderace_only_explicit_whiff",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_whiff_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_whiff_same_turn_exact_attack",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_pad_start",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_reveal_select_840",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_reveal_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_exact_evolve",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_coated_attack",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_attack_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_completion_owner_clear",
+      "status": "PASS"
+    },
+    {
+      "name": "seat1_nonex_no_exact_purpose_no_start",
+      "status": "PASS"
+    },
+    {
+      "name": "lowest_serial_and_equivalent_ui_duplicate",
+      "selected_position": 1,
+      "status": "PASS"
+    },
+    {
+      "name": "conflicting_same_serial_semantics_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "full_bench_no_start",
+      "status": "PASS"
+    },
+    {
+      "name": "capacity_lost_before_placement",
+      "status": "PASS"
+    },
+    {
+      "name": "exact_terminal_precedence",
+      "status": "PASS"
+    },
+    {
+      "name": "unknown_terminal_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "existing_owner_before_start",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_armed_by_parent_precedence",
+      "status": "PASS"
+    },
+    {
+      "name": "effect_serial_mismatch",
+      "status": "PASS"
+    },
+    {
+      "name": "skipped_action_count",
+      "status": "PASS"
+    },
+    {
+      "name": "seat_change",
+      "status": "PASS"
+    },
+    {
+      "name": "turn_change",
+      "status": "PASS"
+    },
+    {
+      "name": "result_change",
+      "status": "PASS"
+    },
+    {
+      "name": "malformed_reveal_metadata",
+      "status": "PASS"
+    },
+    {
+      "name": "callback_owner_conflict_no_double_owner",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "ace_spec_count": 1,
+  "ast_last_callable": "agent",
+  "cache_entries_at_check": [],
+  "candidate_main_sha256": "2B23D3AFC63A5BDC4BC7765CE1656725ED01890D161E3D23DCC672BE7FCCCFF4",
+  "deck_card_count": 60,
+  "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
+  "import_callable": true,
+  "non_main_byte_mismatches": [],
+  "package_entry_count": 12,
+  "parent_main_sha256": "CAF2C696AE9F6102C1A4A8E67649C309104064CAABF9643865BE766D91BDE8DD"
+}

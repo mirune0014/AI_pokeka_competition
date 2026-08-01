@@ -1,0 +1,22 @@
+{
+  "candidate_main_sha256": "2B23D3AFC63A5BDC4BC7765CE1656725ED01890D161E3D23DCC672BE7FCCCFF4",
+  "episodes": {
+    "89347400": {
+      "correct_seat": 1,
+      "decision_count": 11,
+      "difference_count": 0,
+      "differences": [],
+      "invalid_action_count": 0,
+      "invalid_actions": [],
+      "path": "C:\\Users\\amuam\\Downloads\\89347400.json",
+      "replay_sha256": "F389CF9FD13BE52D155A3FA7B9FF5750358F3016848640236D4E2562DA1053A4",
+      "task5_specific_difference_count": 0
+    }
+  },
+  "limitations": "Static replay snapshots establish only recorded-callback shadow behavior; they cannot establish Task 5 multi-callback counterfactual continuity. That property is checked by run_focused_fixtures.py.",
+  "parent_main_sha256": "CAF2C696AE9F6102C1A4A8E67649C309104064CAABF9643865BE766D91BDE8DD",
+  "unavailable_requested_episodes": [
+    89285518,
+    89282820
+  ]
+}

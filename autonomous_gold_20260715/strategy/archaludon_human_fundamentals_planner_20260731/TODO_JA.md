@@ -249,9 +249,25 @@ Task 4 実装結果（2026-08-02）:
 - 歴史 replay 8件・389 decision の shadow では7箇所だけが同じ目的で変化し、最終攻撃、既存 owner、実行可能な後続がある局面は変更しなかった。両 seat の実エンジン smoke も action error 0 で終了した。
 - Task 4 は「攻撃による上書きを止める」共通ゲートまでを所有する。検索対象、Ultra Ball の捨て札、検索後の配置、Turbo Flare への引き渡しは Task 5 と Task 6 で transaction として完成させる。
 
+#### Task 5: Poké Pad の検索計画
+
+- [x] Poké Pad を使う前に検索目的を宣言し、検索開始、公開された対象、手札への移動、配置、次のエネルギー・進化・攻撃までを一つの transaction owner で追跡する。
+- [x] `DURALUDON_EXECUTABLE_SUCCESSOR` は Duraludon の物理コピーを公開時に決定論的に bind し、配置後は既存の Turbo Flare・エネルギー配分・攻撃継続計画へ引き渡す。
+- [x] `NONEX_COATED_ATTACK_CONVERSION` は、公開情報だけで同じターンの非ex Archaludon進化から Coated Attack の正確なKOまで完走できる場合に限って検索する。
+- [x] 宣言した対象が公開されなかった場合、無関係な Basic へ差し替えず、空選択が合法なら空選択して同じターンの確定攻撃へ戻る。
+- [x] Cinderace 666 は Explosiveness がゲーム開始時だけの効果なので、途中配置用の検索対象にしない。
+- [x] 最終Prize、既存 owner、terminal callback、重複・option順序、Bench容量喪失を fail-closed で扱い、二重 owner を作らない。
+
+Task 5 実装結果（2026-08-02）:
+
+- `archaludon_public_poke_pad_declared_executable_role_transaction_v1` として、従来の狭い Pad watch を目的宣言型 transaction に置き換えた。
+- 集中 fixture は69件すべて合格し、Duraludon 後続形成と非ex Coated Attack 即時KOの全callback経路を両席で完走した。
+- Episode 89347400、89285518、89282820 の合計145 decisionでは親との行動差が0で、記録済みの通常進行を変えていない。両席の実エンジン smoke も action error 0 で終了した。
+- Task 5 は Poké Pad だけを所有する。Ultra Ball の捨て札2枚、検索対象、配置後の役割は Task 6 で別 transaction として実装する。
+
 ## P1: カード効果を理解した資源利用
 
-- [-] Poké Pad は検索後に置く Basic と Bench 容量まで計画する。個別経路は存在するが、攻撃優先 wrapper に上書きされない完全な transaction は Task 5 で仕上げる。
+- [x] Poké Pad は検索前に実行可能な役割を宣言し、検索対象、Bench容量、配置、後続育成または同ターンの攻撃までを一つの transaction として所有する。Task 5 の `PUBLIC_POKE_PAD_DECLARED_EXECUTABLE_ROLE_TRANSACTION_V1` で完了した。
 - [-] Ultra Ball は検索対象と安全な捨て札2枚を使用前に確定する。Episode 89347400 で攻撃優先 wrapper に上書きされたため、捨て札・検索・配置・後続育成を含む完全な transaction は Task 6 で仕上げる。
 - [-] Pokégear は必要な Supporter とその使用目的を決めてから使う。
 - [-] Explorer は取得札、捨て札、Assemble Alloy、残り山札を一緒に評価する。
