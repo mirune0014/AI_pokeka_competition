@@ -1,0 +1,199 @@
+{
+  "schema_version": "archaludon-rl-epoch-sweep-v1",
+  "experiment_id": "archaludon-iteration004-ppo-epoch-sweep-4-12-24-3seeds-20260801",
+  "created_date": "2026-08-01",
+  "material_passport": {
+    "origin_skill": "experiment-agent",
+    "origin_mode": "plan",
+    "origin_date": "2026-08-01",
+    "verification_status": "UNVERIFIED",
+    "version_label": "code_plan_v1"
+  },
+  "objective": "Compare 4, 12, and 24 full-batch PPO epochs from the exact iteration004 checkpoint over three independent fresh-rollout seed blocks.",
+  "analysis_policy": {
+    "previous_epochs12_checkpoint_status": "no confirmed degradation; improvement unconfirmed",
+    "individual_game_analysis": false,
+    "individual_position_analysis": false,
+    "probability_change_analysis": false,
+    "per_checkpoint_independent_audit": false,
+    "all_action_duplicate_verification": false,
+    "cause_analysis_trigger": "Only after a clear condition-level performance difference is reproduced across training seed blocks."
+  },
+  "bindings": {
+    "initial_checkpoint": {
+      "label": "iteration004",
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04"
+    },
+    "opponent_population": {
+      "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+      "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0"
+    },
+    "code": [
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/epoch_sweep.py",
+        "sha256": "13F046066866EFDDCED41B619C1EDAD418F5CEFBC0703E2839AB89F6D35AD965"
+      },
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/collect_rollouts.py",
+        "sha256": "09233B4DBD76FE6FDDE4972677D42535CF4F77D80665ECD21ED33062F4EB87FB"
+      },
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/train_ppo.py",
+        "sha256": "39D4CD129FD7D80C305C4C0F73AF4C13941550FF09AFB5DF88906E362E303C39"
+      },
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/deployment_audit.py",
+        "sha256": "9F729576D049A5FAAA3891F6CC92A95E85D495EAFFDE61758A17E7F5921CF28B"
+      },
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/runtime_agent/main.py",
+        "sha256": "8EC5EE3DB1B2C5D516F5CA89E9C78E4F41575813BF6F58A6D65F22D7EA67AD86"
+      },
+      {
+        "path": "tools/run_local_battle.py",
+        "sha256": "03881BA796D1D8D3A095067684E8D0F5B069EF40AC0B543420896157F0431F2A"
+      }
+    ]
+  },
+  "training": {
+    "epochs": [
+      4,
+      12,
+      24
+    ],
+    "replicates": [
+      {
+        "id": "r1",
+        "seed_base": 731201100,
+        "episode_seeds": [
+          731201100,
+          731201101
+        ]
+      },
+      {
+        "id": "r2",
+        "seed_base": 731201200,
+        "episode_seeds": [
+          731201200,
+          731201201
+        ]
+      },
+      {
+        "id": "r3",
+        "seed_base": 731201300,
+        "episode_seeds": [
+          731201300,
+          731201301
+        ]
+      }
+    ],
+    "fresh_rollout_per_seed_block": true,
+    "share_each_seed_block_rollout_across_epoch_conditions": true,
+    "reason_for_shared_rollout": "Within each seed block, epoch count must be the only changed variable.",
+    "episodes_per_seat": 2,
+    "seats": [
+      0,
+      1
+    ],
+    "opponents": 8,
+    "games_per_rollout": 32,
+    "split_spec": null,
+    "ppo": {
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "clip_ratio": 0.2,
+      "value_coef": 0.5,
+      "entropy_coef": 0.01,
+      "anchor_kl_target": 0.02,
+      "anchor_kl_initial_coef": 0.1,
+      "anchor_kl_hard_stop": 0.1,
+      "gradient_clip": 0.5,
+      "learning_rate": 0.0003,
+      "reward": "terminal win=+1, draw=0, loss=-1"
+    }
+  },
+  "evaluation": {
+    "runner": "tools/run_local_battle.py",
+    "mode": "deployment deterministic argmax",
+    "policy_dir": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/runtime_agent",
+    "baseline_arm": "iteration004",
+    "seed_base": 731202000,
+    "seeds": [
+      731202000,
+      731202001,
+      731202002,
+      731202003,
+      731202004,
+      731202005,
+      731202006,
+      731202007,
+      731202008,
+      731202009,
+      731202010,
+      731202011,
+      731202012,
+      731202013,
+      731202014,
+      731202015,
+      731202016,
+      731202017,
+      731202018,
+      731202019
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "opponents": 8,
+    "games_per_cell": 20,
+    "games_per_arm": 320,
+    "same_schedule_for_every_arm": true,
+    "seat_games_per_arm": {
+      "0": 160,
+      "1": 160
+    },
+    "per_game_trace": false,
+    "duplicate_control": false
+  },
+  "runtime": {
+    "device": "cpu",
+    "max_workers": 4,
+    "max_steps": 1000,
+    "model_timeout_seconds": 0.05,
+    "subprocess_timeout_seconds": 1800,
+    "threads_per_process": 1
+  },
+  "reporting": {
+    "overall_win_rate": "wins / all scheduled games; draws remain in the denominator",
+    "paired_delta": "mean(candidate_win - iteration004_win) on identical (opponent, seat, seed) keys",
+    "opponent_win_rate": "wins / games grouped by opponent",
+    "seat_win_rate": "wins / games grouped by policy seat",
+    "mean_turns": "mean final turn from checked run_local_battle summary rows",
+    "action_errors": "sum of checked summary action_errors",
+    "max_step_hits": "count of checked summary hit_max_steps=true",
+    "severe_abnormal_action": "deployment-audit decision where protected=true and action differs from teacher_action",
+    "severe_abnormal_action_rate": "severe abnormal actions / all deployment-audit decisions",
+    "forbidden_additional_metrics": [
+      "individual-game interpretation",
+      "individual-position interpretation",
+      "action-probability changes",
+      "all-action duplicate agreement",
+      "per-checkpoint audit verdicts"
+    ]
+  },
+  "expected_counts": {
+    "fresh_rollouts": 3,
+    "training_checkpoints": 9,
+    "training_games": 96,
+    "evaluation_arms": 10,
+    "evaluation_games_per_arm": 320,
+    "evaluation_games": 3200,
+    "total_games": 3296
+  },
+  "outputs": {
+    "raw_root": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epoch_sweep_4_12_24_3seeds_20260801",
+    "result_json": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/EPOCH_SWEEP_4_12_24_RESULT.json",
+    "result_markdown": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/EPOCH_SWEEP_4_12_24_RESULT.md"
+  }
+}

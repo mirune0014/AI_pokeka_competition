@@ -319,6 +319,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--games", type=int, default=1)
     parser.add_argument("--max-steps", type=int, default=1000)
     parser.add_argument("--trace-dir", type=Path, default=Path("analysis_outputs/traces"))
+    parser.add_argument(
+        "--no-trace",
+        action="store_true",
+        help="Do not create per-game trace files.",
+    )
     parser.add_argument("--trace-scores", action="store_true", help="Include candidate score/reason data in traces when available.")
     parser.add_argument("--trace-score-limit", type=int, default=8, help="Number of top scored options to store per step.")
     parser.add_argument("--trace-options", action="store_true", help="Include compact identities for every legal option in traces.")
@@ -333,6 +338,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.no_trace:
+        args.trace_dir = None
     ensure_engine_on_path(args.engine_dir)
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     with args.summary.open("w", encoding="utf-8") as summary_file:
