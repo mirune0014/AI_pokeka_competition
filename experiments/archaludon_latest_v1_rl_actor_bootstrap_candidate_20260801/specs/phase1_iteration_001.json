@@ -1,0 +1,87 @@
+{
+  "schema_version": "archaludon-rl-iteration-spec-v1",
+  "iteration_id": "phase1-iteration-001-20260731",
+  "purpose": "small_on_policy_safety_discrimination",
+  "strength_claim_allowed": false,
+  "frozen_sources": {
+    "latest_v1_main": {
+      "path": "analysis_outputs/archaludon_historical_vs_general_visible_counterattack_ready_rotation_20260731/inputs/candidate_exact/main.py",
+      "sha256": "AC70708082882C7BA01CFBF81D29F534B95166DFF6BAD11E1EF1FA001A5F79D2"
+    },
+    "latest_v1_deck": {
+      "path": "analysis_outputs/archaludon_historical_vs_general_visible_counterattack_ready_rotation_20260731/inputs/candidate_exact/deck.csv",
+      "sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+    },
+    "latest_v1_archive": {
+      "path": "autonomous_gold_20260715/packages/archaludon_general_visible_counterattack_ready_rotation_v1_clean_20260731_0457/submission_archaludon_general_visible_counterattack_ready_rotation_v1_20260731.tar.gz",
+      "sha256": "B2992E4A5F97A14127F6E75D4D3F3F528725E34ABC9854F06592B82D8EA24C95"
+    },
+    "engine_runtime_manifest_sha256": "DAAD95164512EA3F210B4679840FE2CD631300044A6E5F49C41642EABD823089"
+  },
+  "behavior_checkpoint": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase0_v2_collection_pilot_20260731/ppo_v2_pilot_001.pt",
+    "sha256": "9C7FDD69FC5409DFE6BED401032E5890E392705EB26135307415781D1AA03204",
+    "encoder_schema": "encoder-v4"
+  },
+  "opponent": {
+    "id": "historical_silver_archaludon_54495224",
+    "path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+    "main_sha256": "F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "collection": {
+    "run_id": "phase1-iteration-001-20260731",
+    "seeds": [
+      731200201,
+      731200202
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "retained_episodes": 4,
+    "replicas_per_episode": 2,
+    "native_games": 8,
+    "duplicate_audit": true,
+    "max_steps": 1000,
+    "model_timeout_seconds": 0.05,
+    "device": "cpu",
+    "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_001_20260731/rollouts"
+  },
+  "training": {
+    "algorithm": "ppo",
+    "epochs": 1,
+    "device": "cpu",
+    "input_manifest": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_001_20260731/rollouts/run_manifest.json",
+    "output_checkpoint": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_001_20260731/ppo_phase1_iteration_001.pt",
+    "anchor_kl_hard_stop": 0.1
+  },
+  "post_training_runtime_smoke": {
+    "opponent": "historical_silver_archaludon_54495224",
+    "seed": 731200204,
+    "seats": [
+      0,
+      1
+    ],
+    "games_per_seat": 1,
+    "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_001_20260731/runtime_smoke"
+  },
+  "acceptance_gates": {
+    "complete_manifest": true,
+    "action_errors": 0,
+    "max_step_hits": 0,
+    "duplicate_mismatches": 0,
+    "failure_ledger_entries": 0,
+    "teacher_calls_equal_telemetry_rows": true,
+    "ppo_rows_only_free_main_rank17_exact_parent": true,
+    "protected_rows_ppo_eligible": false,
+    "protected_rows_final_action_equals_teacher_action": true,
+    "post_update_anchor_kl_at_most": 0.1,
+    "post_update_runtime_smoke_both_seats_valid": true
+  },
+  "resource_gate": {
+    "notify_user_before_native_games": 2000,
+    "notify_user_before_estimated_cpu_hours": 1.0,
+    "this_iteration_requires_sub_pc": false
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "archaludon-rl-mass-preserving-pcgrad-plan-correction-v3",
+  "correction_id": "phase1-iteration-009-mass-preserving-pcgrad-final-preexecution-remediation-20260801",
+  "base_plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_implementation_plan.json",
+  "base_plan_sha256": "6797A6D884B7B69D5C78A6BD964ACC8425B64063FA9F201905146E1B2D1FB9B8",
+  "v1_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v1.json",
+  "v1_correction_sha256": "B08661C5F2905D6316D33066AC72D1A96CECE42EB8FB2C40EA29894E9AF8BB5B",
+  "v2_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v2.json",
+  "v2_correction_sha256": "FAA5975575923F2C3F1CEE2D7DE75698B3F644D47B6112ADF3E517539298BE8E",
+  "reviewed_candidate": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801",
+    "file_count": 55,
+    "snapshot_sha256": "9F144ED90C533E42778E21DA16581F1BB37E0B550C561CDE692B9E35ECCD1F3B",
+    "module_sha256": "26D244E84533BF121971D2FE2D8D2FDCF73D3B798029855668A823CB34848976",
+    "focused_test_sha256": "061C705F794ED715C4B247E3B9498EF054746FC1AE855D0C44E461F820BB82BC",
+    "disposition": "REJECT_FOR_EXECUTION_RETAIN_AS_REVIEW_EVIDENCE"
+  },
+  "scope": "This is a final implementation-and-test remediation of the unchanged matched 64-update vanilla-versus-PCGrad offline experiment. It authorizes edits only to the candidate module and its focused test, deterministic no-training prepare verification, and read-only review. It authorizes no production optimizer construction or step, runtime smoke, game, packaging, promotion, Kaggle write, or external write.",
+  "unchanged_experiment": {
+    "initial_checkpoint": "iteration004 only",
+    "stage1": "one identical full-batch readout update per arm",
+    "stage2": "64 synchronized full-batch interaction-layer updates per arm",
+    "control": "vanilla full-batch policy gradient",
+    "treatment": "seven-task mass-preserving deterministic PCGrad",
+    "rows_per_update": 830,
+    "games": 0
+  },
+  "execution_blockers": [
+    {
+      "id": "valid_loadable_checkpoint_mutation_integration",
+      "finding": "The current serialized test uses invalid synthetic checkpoint dictionaries, while helper tests and a zero-step loader test do not exercise the production 65-step checkpoint cross-binding path.",
+      "required_fix": "Build a deterministic valid/loadable 65-step checkpoint fixture whose unmodified form passes checked loading, exact model/optimizer binding, metadata binding, and 830-row update64 output binding. Through the production checkpoint cross-binding path, separately reject: a different valid 65-step checkpoint; matching metadata with different tensor bytes; and matching tensors with different retained update64 outputs. Assert the specific checkpoint failure provenance for each mutation."
+    },
+    {
+      "id": "serialized_128_series_replay_nonvacuity",
+      "finding": "The current complete-shaped bundle begins offline-failing for unrelated reasons and asserts only the outer false result, so an early raw-replay regression would remain invisible.",
+      "required_fix": "In a serialized integration fixture, assert both arms replay all 64 Stage2 updates successfully, the exact 128 series and step identities are present, the stable exception boundary did not fire, and any remaining failure is an explicitly expected later-stage fixture failure. After each raw mutation, assert the corresponding specific replay failure provenance rather than only offline_pass=false."
+    },
+    {
+      "id": "complete_run_summary_cross_binding",
+      "finding": "Some run_summary fields and nested structures are not compared with raw-derived, immutable, manifest-bound, or specification-bound values.",
+      "required_fix": "Classify and compare every run_summary field other than the self hash. Bind execution_spec_path and immutable/fixed fields exactly; derive safety_stop, all stage1_equality fields including compared_fields, complete strict_offline_gates including failures, complete checkpoint reload evidence, and every other numerical or status field from raw evidence. Require exact nested key sets. Remove any field that has no authoritative source. Any discrepancy must force offline_pass=false."
+    },
+    {
+      "id": "raw_step_identity_and_clip_coefficient",
+      "finding": "ordered_outputs and postclip_coefficient are not fully bound into the raw step identity; the retained coefficient is required by shape but is not recomputed, finite-checked, or compared.",
+      "required_fix": "Add ordered_outputs and postclip_coefficient to the raw step record identity. Require exact ordered-output mapping keys, shapes, dtypes, offsets, row count, and finite tensors. Recompute the PyTorch-compatible post-clip coefficient from the exact preclip tensors, compare it at the declared exact/tolerance contract, require finiteness, and verify that it produces the retained exact postclip tensors. A one-bit update64 output mutation and a coefficient mutation must each break the production step chain and force a specific rejection."
+    }
+  ],
+  "acceptance_tests": [
+    "The unmodified valid/loadable 65-step checkpoint fixture passes the full production checkpoint cross-binding function before any mutation is applied.",
+    "Each of the three required checkpoint mutations fails independently with a checkpoint-specific reason.",
+    "The serialized raw bundle proves control and treatment replay pass after exactly 64 Stage2 updates each and verifies all 128 raw step records before intentional downstream fixture failure.",
+    "A nested raw-element deletion and each raw-step identity mutation produces its expected specific replay or record-chain failure without invoking the outer exception fallback.",
+    "Every non-self-hash run_summary field and every accepted nested key is covered by either exact immutable binding or raw recomputation; single-field and nested-extra-key mutations are rejected after recomputing summary and manifest hashes.",
+    "ordered_outputs and postclip_coefficient mutations break raw step identity and production recomputation.",
+    "All focused tests, inherited interaction tests, inherited two-stage tests, and Python compilation pass.",
+    "A new no-training prepare receipt binds the final module, test, candidate snapshot, this v3 correction, and confirms optimizer_steps=0, training_executed=false, checkpoint_written=false, runtime_smoke_executed=false, and games_run=0."
+  ],
+  "stop_rule": "Do not author the production execution specification or run any production optimizer step until independent math and safety reviewers both pass the remediated final hashes and the root independently verifies the tests, snapshot, and no-training prepare receipt."
+}

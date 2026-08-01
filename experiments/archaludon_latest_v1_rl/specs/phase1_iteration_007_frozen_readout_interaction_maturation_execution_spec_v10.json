@@ -1,0 +1,261 @@
+{
+  "schema_version": "actor-only-interaction-maturation-execution-spec-v10",
+  "implementation_plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+  "implementation_plan_sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF",
+  "plan_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+  "plan_correction_sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09",
+  "plan_correction_v2_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+  "plan_correction_v2_sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184",
+  "prepare_audit_remediation_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+  "prepare_audit_remediation_sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E",
+  "prepare_audit_remediation_v2_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v2.json",
+  "prepare_audit_remediation_v2_sha256": "BD675A1DF53587A0E62270EBED46F1EA3D3531918F22B7F82C9063A3DCB612C0",
+  "prepare_audit_remediation_v3_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v3.json",
+  "prepare_audit_remediation_v3_sha256": "5D437C38386C7293E1EA6D9F3EE72766635EEB3E381BB982CAE3E6409C0E509E",
+  "prepare_audit_remediation_v4_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v4.json",
+  "prepare_audit_remediation_v4_sha256": "B92D03A1715BC1FF4DBB98EEBE28F8065D4A9E40CD977A6A6DA261A89295A39F",
+  "prepare_audit_remediation_v5_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v5.json",
+  "prepare_audit_remediation_v5_sha256": "79832D0DE952FA8B7F31AF203AAD71492982ADF89F675E707D0AEA0B3FB691BE",
+  "prepare_audit_remediation_v6_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v6.json",
+  "prepare_audit_remediation_v6_sha256": "7488ED2364A72EBD67AC09CB3A762B025FDBC3874F09EB150C4010AA9AE82050",
+  "prepare_audit_remediation_v7_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v7.json",
+  "prepare_audit_remediation_v7_sha256": "708EBF2320AE6F9850151C6A0AF93453AE7695A0C99240905557A5FE257CFACB",
+  "prepare_audit_remediation_v8_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v8.json",
+  "prepare_audit_remediation_v8_sha256": "C945E85A725493C2708DB58E26CFF45CF16A6B45A98B13119812280B63E3DA04",
+  "parent_result_path": "experiments/archaludon_latest_v1_rl/PHASE1_ITERATION_006_RESULT.md",
+  "parent_result_sha256": "F26BDF73AE3AE9ADBD19BCCCB8D06A36B62277C14153D8895274B92E8CB4CF77",
+  "prepare_receipt_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v4/pretraining_probe_receipt.json",
+  "prepare_receipt_file_sha256": "7E8F6238ECEE6444C98D041A12A2478EA6FEAD110A73AA224D071AEC5316F08F",
+  "prepare_receipt_sha256": "B4CA02474685E13A492E82D727AC929E7DEDCD03B15047A8962BF59C71AC6AFE",
+  "implementation_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801",
+  "implementation_snapshot_sha256": "6B95C5B6DEB354293E2DC08077DAEC5FE6A77D013832DD70DECC485C91EB87CA",
+  "input_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+  "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+  "forbidden_rejected_checkpoint_sha256s": [
+    "E7D0CA4DCEEBE33C8043D3C8A45DD9119CFE0E06ACC58F343E9A60BB7F787088",
+    "C1F9B0D4CEAFD0B481F9E1C517F5B56A2490DF9AF2EEA1DD8B8E5412596FA12B"
+  ],
+  "manifest_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+  "manifest_sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+  "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+  "fixed_advantages_sha256": "B7F77DEBE545FDD5B7767C909E185904A52F161B6253D821950E6FDE6A79E53B",
+  "fixed_behavior_logprobabilities_sha256": "BF402ED36ECD78905597F562E8987927C2D74FD5AEE390F1D1E1426CE3D1DA98",
+  "runtime_thread_receipt": {
+    "observed_thread_counts": {
+      "torch_num_interop_threads": 1,
+      "torch_num_threads": 1
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": {
+      "implementation": "CPython",
+      "version": "3.11.6"
+    },
+    "requested_thread_counts": {
+      "torch_num_interop_threads": 1,
+      "torch_num_threads": 1
+    },
+    "required_environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "torch_version": "2.11.0+cu128"
+  },
+  "training_contract": {
+    "algorithm": "ppo_actor_only_frozen_readout_interaction_maturation",
+    "device": "cpu",
+    "fixed_training_inputs": {
+      "advantages": "Recompute GAE and float32 population normalization from the immutable initial checkpoint exactly once, require equality with the bound hashes, and hold all 830 values fixed for every update.",
+      "behavior_logprobabilities": "Use the same 830 stored behavior log-probabilities for every update.",
+      "row_order_and_sampled_indices": "Use the same manifest-order rows and sampled indices for every update.",
+      "value_targets": "Hold the initial-checkpoint targets fixed for diagnostics only; value loss is exactly zero."
+    },
+    "minibatches": false,
+    "optimizer": {
+      "amsgrad": false,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "capturable": false,
+      "decoupled_weight_decay": false,
+      "differentiable": false,
+      "eps": 1e-08,
+      "foreach": null,
+      "fresh_state": true,
+      "fused": null,
+      "learning_rate": 0.0001,
+      "maximize": false,
+      "name": "Adam",
+      "parameter_names_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "reset_between_stages": false,
+      "single_object_across_stages": true,
+      "weight_decay": 0.0
+    },
+    "ppo_config": {
+      "anchor_kl_adaptation": false,
+      "anchor_kl_coefficient": 0.1,
+      "clip_ratio": 0.1,
+      "entropy_coef": 0.0,
+      "full_batch_rows": 830,
+      "gae_lambda": 0.95,
+      "gamma": 0.99,
+      "gradient_clip": 0.25,
+      "total_optimizer_steps": 33,
+      "value_coef": 0.0
+    },
+    "replay_mixing": false,
+    "required_environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "row_order": "manifest order",
+    "shuffle": false,
+    "stage_1": {
+      "expected_optimizer_steps_after_stage": {
+        "residual_head.0.bias": "absent",
+        "residual_head.0.weight": "absent",
+        "residual_head.2.bias": 1,
+        "residual_head.2.weight": 1
+      },
+      "frozen_parameter_names_include": [
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "state_encoder.*",
+        "action_encoder.*",
+        "value_head.*"
+      ],
+      "global_safety_failure_hard_stops_before_stage_2": true,
+      "learning_rate": 0.0001,
+      "name": "output_readout_bootstrap",
+      "optimizer_step_count": 1,
+      "trainable_parameter_names_exact": [
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ]
+    },
+    "stage_2": {
+      "diagnostic_update_ordinals": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "expected_optimizer_steps_at_terminal": {
+        "residual_head.0.bias": 32,
+        "residual_head.0.weight": 32,
+        "residual_head.2.bias": 1,
+        "residual_head.2.weight": 1
+      },
+      "frozen_parameter_names_include": [
+        "residual_head.2.weight",
+        "residual_head.2.bias",
+        "state_encoder.*",
+        "action_encoder.*",
+        "value_head.*"
+      ],
+      "learning_rate": 0.0001,
+      "name": "frozen_readout_interaction_maturation",
+      "no_directional_or_futility_early_stop_before_terminal": true,
+      "optimizer_step_count": 32,
+      "same_optimizer_object_and_state": true,
+      "terminal_candidate_update_ordinal": 32,
+      "trainable_parameter_names_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias"
+      ]
+    },
+    "torch_num_interop_threads": 1,
+    "torch_num_threads": 1,
+    "torch_version": "2.11.0+cu128",
+    "value_contract": {
+      "action_encoder_parameter_bytes_unchanged": true,
+      "all_encoder_and_value_optimizer_state_absent": true,
+      "raw_value_mse_exact_to_initial_at_every_diagnostic": true,
+      "state_encoder_parameter_bytes_unchanged": true,
+      "value_head_parameter_bytes_unchanged": true,
+      "value_loss_is_exact_zero": true,
+      "value_outputs_all_830_rows_byte_exact_to_initial_at_every_diagnostic": true
+    }
+  },
+  "diagnostic_contract": {
+    "after_every_stage_2_update_record": [
+      "optimizer step ordinal and per-parameter optimizer step state",
+      "loss, policy loss, anchor KL loss, entropy diagnostic, total gradient norm, and per-parameter gradient norms",
+      "parameter hashes and maximum absolute changes from initial and stage start",
+      "global aligned, anti-aligned, neutral counts, alignment score, lower empirical median, mean and maximum anchor KL, maximum TV, unique argmax count, and nonfinite counts",
+      "value-output identity summary"
+    ],
+    "at_stage_1_and_fixed_stage_2_milestones_record_full_830_rows": true,
+    "full_row_fields": [
+      "public-state and legal-action-order identities",
+      "all policy probabilities",
+      "value output",
+      "sampled probability delta and oriented delta from the immutable initial checkpoint",
+      "unique argmax",
+      "anchor KL and TV"
+    ],
+    "lower_empirical_median": "Sort ascending and select index (n - 1) // 2 without averaging.",
+    "orientation_deadband_tau": 1e-07
+  },
+  "safety_gates": {
+    "apply_after_stage_1_and_every_stage_2_update": {
+      "mean_anchor_kl_maximum": 0.002,
+      "nonfinite_probability_value_loss_gradient_parameter_or_optimizer_count": 0,
+      "parameter_and_optimizer_contract_must_pass": true,
+      "per_row_anchor_kl_maximum": 0.01,
+      "per_row_total_variation_from_initial_maximum": 0.02,
+      "unique_argmax_required_for_every_row": true,
+      "value_contract_must_pass": true
+    },
+    "failure_action": "Stop immediately, retain exactly one checkpoint reflecting the completed safe or failing post-step state as specified by the exception contract, write only a canonical rejected receipt and REJECTED marker, and do not retry."
+  },
+  "terminal_offline_acceptance": {
+    "accepted_marker_written_only_after_every_gate_passes": true,
+    "all_12_family_polarity_lower_medians_at_update_32_strictly_greater_than": 1e-07,
+    "all_safety_gates_pass_at_every_update": true,
+    "checkpoint_post_save_reload_and_exact_metadata_validation": true,
+    "completed_optimizer_steps_exact": 33,
+    "formerly_failing_group_requirements": {
+      "update_16_each_strictly_greater_than_stage_1_corresponding_median": true,
+      "update_32_each_minimum": 1e-06,
+      "update_32_each_strictly_greater_than_stage_1_corresponding_median": true
+    },
+    "formerly_failing_groups": [
+      "PLAY:positive",
+      "ATTACH:negative",
+      "EVOLVE:negative",
+      "RETREAT:positive",
+      "ATTACK:negative",
+      "END:positive"
+    ],
+    "inherited_end_gates": {
+      "all_43_teacher_end_rows_preserve_teacher_unique_argmax": true,
+      "each_of_20_positive_normalized_teacher_and_sampled_end_rows_delta_minimum": 1e-06,
+      "four_negative_targets_all_pass": true,
+      "maximum_individual_end_probability_decrease": 0.0025,
+      "positive_raw_teacher_and_sampled_end_lower_median_strictly_positive": true
+    },
+    "qualifying_action_families": [
+      "PLAY",
+      "ATTACH",
+      "EVOLVE",
+      "RETREAT",
+      "ATTACK",
+      "END"
+    ],
+    "terminal_global_alignment_score_minimum": 0.1,
+    "terminal_global_lower_median_minimum": 1e-05
+  },
+  "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801"
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "archaludon-rl-deterministic-control-spec-v1",
+  "experiment_id": "phase1-iteration-003-deterministic-control-20260731",
+  "purpose": "Measure the unmodified deterministic latest-v1 rule policy on the same broad eight-opponent population before changing the stochastic reference prior.",
+  "strength_claim": false,
+  "agent": {
+    "path": "analysis_outputs/archaludon_historical_vs_general_visible_counterattack_ready_rotation_20260731/inputs/candidate_exact",
+    "main_sha256": "AC70708082882C7BA01CFBF81D29F534B95166DFF6BAD11E1EF1FA001A5F79D2",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
+    "baseline_and_candidate_are_identical": true
+  },
+  "engine": {
+    "path": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+    "cg_api_sha256": "C31AA24E63BF0E71779D97F6286D10A2BF23CB4A3B9449C977F63577704FBE6C",
+    "runtime_manifest_sha256": "DAAD95164512EA3F210B4679840FE2CD631300044A6E5F49C41642EABD823089"
+  },
+  "opponent_population": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "ordered_ids": [
+      "historical_silver",
+      "alakazam_public",
+      "alakazam_rmy_live",
+      "marnie_kazuki_live",
+      "mega_lucario_public",
+      "starmie_public",
+      "dragapult_live",
+      "ogerpon_cornerstone_public"
+    ]
+  },
+  "runner": {
+    "path": "tools/run_seeded_paired_suite.py",
+    "sha256": "5EC25C98F2777FF61DE2DBD0A03A08519A7FEA4B2B4C510B5B8895BC2000E000",
+    "battle_runner_path": "tools/run_local_battle.py",
+    "battle_runner_sha256": "E1ABA0151CDAEE425B858511AA760CE5C5647D555DDEFBD69D7319C29C5B773B"
+  },
+  "schedule": {
+    "seed_bases": [
+      731200401,
+      731200402
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "games_per_seat_per_seed": 1,
+    "max_steps": 1000,
+    "logical_control_games": 32,
+    "native_executions": 96,
+    "native_roles_per_cell": [
+      "baseline_a",
+      "baseline_b",
+      "candidate"
+    ]
+  },
+  "output_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_deterministic_control_20260731",
+  "gates": {
+    "valid": true,
+    "duplicate_mismatch_count": 0,
+    "nonzero_exit_codes": 0,
+    "action_errors": 0,
+    "max_step_hits": 0,
+    "candidate_wins_minimum": 16,
+    "candidate_wins_per_seat_minimum": 6
+  },
+  "stop_rule": "Do not implement or collect with the recalibrated prior if any integrity gate fails, total candidate wins are below 16 of 32, or either seat has fewer than 6 wins of 16."
+}

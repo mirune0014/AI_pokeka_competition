@@ -1,0 +1,48 @@
+{
+  "schema_version": "archaludon-rl-mass-preserving-pcgrad-plan-correction-v4",
+  "correction_id": "phase1-iteration-009-mass-preserving-pcgrad-noncyclic-test-remediation-20260801",
+  "base_plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_implementation_plan.json",
+  "base_plan_sha256": "6797A6D884B7B69D5C78A6BD964ACC8425B64063FA9F201905146E1B2D1FB9B8",
+  "v1_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v1.json",
+  "v1_correction_sha256": "B08661C5F2905D6316D33066AC72D1A96CECE42EB8FB2C40EA29894E9AF8BB5B",
+  "v2_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v2.json",
+  "v2_correction_sha256": "FAA5975575923F2C3F1CEE2D7DE75698B3F644D47B6112ADF3E517539298BE8E",
+  "v3_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v3.json",
+  "v3_correction_sha256": "0E91C620996122E50E2F83DCCDD636EDEF97142AE42FDB3754DD30DE1138ECA4",
+  "reviewed_candidate": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801",
+    "file_count": 55,
+    "snapshot_sha256": "2B57F53F74AC1500DEB8D0A6A97838DC3BDFE7D5DC53B3787F16F833CC6B087A",
+    "module_sha256": "BAFBC65888EBEAF714F956708BF912F63AA88C48D3BA2A03E7B6DD6F1A676CDE",
+    "focused_test_sha256": "237E6871E3F4B1044C42FF654C48AAFE39789CB4C188D9D81C2C2C417E0AE3A4",
+    "disposition": "REJECT_FOR_EXECUTION_RETAIN_AS_REVIEW_EVIDENCE"
+  },
+  "scope": "This correction changes only noncyclic and isolated validation tests plus the immutable v4 provenance binding. The matched 64-update vanilla-versus-PCGrad hypothesis, model, data, targets, optimizer, thresholds, publication schemas, and production algorithms remain unchanged. No production optimizer construction or step, runtime smoke, game, packaging, promotion, Kaggle write, or external write is authorized.",
+  "execution_blockers": [
+    {
+      "id": "independent_pytorch_adam_oracle",
+      "finding": "The 64-step Adam test compares two executions of the same manual helper from an empty state and does not submit exp_avg or exp_avg_sq mutations to the replay validator.",
+      "required_fix": "Start from a deterministic nonempty retained Stage1-like model and Adam state covering all four optimizer parameters. Apply the same 64 float32 gradient steps to production manual replay and a real torch.optim.Adam oracle. At every step compare parameter bytes, actual deltas, step counters, exp_avg, and exp_avg_sq, and compare the final complete optimizer state. Independently one-bit mutate starting exp_avg and starting exp_avg_sq, feed each mutated state through the production 64-step replay validator, and require a state-specific rejection."
+    },
+    {
+      "id": "all_64_pcgrad_mutations_through_validator",
+      "finding": "The all-64 PCGrad test only checks that a copied projected tensor differs after mutation; it never asks the production replay validator to reject the retained mutation.",
+      "required_fix": "Use deterministic conflicting nonzero seven-task gradients for every update 1 through 64. Compare the production projected tensors against an independently implemented original-g_j cyclic float64 oracle at every update. For each update, one-bit mutate one retained projected element in an otherwise valid 64-step raw replay bundle, run the production replay validator, and require a rejection whose provenance names exactly that update."
+    },
+    {
+      "id": "isolated_update64_output_mutation",
+      "finding": "The serialized fixture aliases one ordered-output mapping across Stage1 and all 128 steps, so a treatment/update64 mutation propagates to unrelated evidence.",
+      "required_fix": "Deep-copy the ordered-output mapping independently into both Stage1 branches and every raw step. On the unmodified serialized baseline assert both arms replay all 64 updates, all 128 public step records bind, and there are zero step-binding failures. After a treatment/update64 probability mutation, require the raw step-binding failure set to contain treatment/update64 only; separately assert only the explicitly permitted downstream checkpoint/output failures. The same isolation rule applies to the coefficient mutation."
+    }
+  ],
+  "required_verification": [
+    "The new focused tests fail when the production manual Adam update is deliberately perturbed but the real torch.optim.Adam oracle is unchanged.",
+    "Both starting exp_avg and starting exp_avg_sq one-bit mutations are rejected by the production replay path.",
+    "Every update 1 through 64 has an independently computed PCGrad oracle comparison and an update-specific production replay rejection after mutation.",
+    "The serialized baseline explicitly has zero step-record binding failures across exactly 128 steps.",
+    "The isolated treatment/update64 ordered-output and clip-coefficient mutations do not alter Stage1 or any other update identity.",
+    "Focused, inherited interaction, inherited two-stage, and Python compilation suites pass after the change.",
+    "A new no-training prepare receipt binds this v4 correction, the final implementation hashes, and confirms zero optimizer steps, zero training, zero checkpoints, zero runtime smoke, and zero games."
+  ],
+  "stop_rule": "Do not author an execution specification or run production training until independent math and safety reviewers both pass the final v4-bound hashes and the root independently verifies the tests, snapshot, and prepare receipt."
+}

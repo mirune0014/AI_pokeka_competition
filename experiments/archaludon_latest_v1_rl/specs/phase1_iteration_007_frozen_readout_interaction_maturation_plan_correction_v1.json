@@ -1,0 +1,248 @@
+{
+  "schema_version": "archaludon-rl-frozen-readout-interaction-maturation-plan-correction-v1",
+  "correction_id": "phase1-iteration-007-contract-clarification-20260801",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+    "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+  },
+  "authority": "This correction is execution-authoritative wherever it adds detail or resolves ambiguity in the base plan. Every prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind both the base-plan hash and this correction hash.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "clarifications": {
+    "optimizer_execution_scope": {
+      "forbidden_before_separate_execution_authorization": [
+        "any optimizer step over the immutable real 830-row dataset",
+        "any canonical real-data candidate checkpoint",
+        "games, runtime smoke, packaging, promotion, submission, or same-iteration retry"
+      ],
+      "allowed_during_implementation_tests": [
+        "tiny synthetic model or mocked loss optimizer steps that cannot load the real 830-row dataset",
+        "temporary-directory publication, collision, exception, and validator tests using synthetic checkpoints"
+      ],
+      "prepare_remains_no_training": true
+    },
+    "single_adam_structure": {
+      "parameter_group_count_exact": 1,
+      "parameter_order_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "all_four_parameters_present_from_construction": true,
+      "parameter_group_add_remove_reorder_or_replace_forbidden": true,
+      "stage_transition_mechanism": "Change requires_grad only. Call optimizer.zero_grad(set_to_none=True) on the same optimizer before every backward pass.",
+      "stage_1": {
+        "trainable_exact": [
+          "residual_head.2.weight",
+          "residual_head.2.bias"
+        ],
+        "global_optimizer_step_ordinal_after_success": 1,
+        "step_state": {
+          "residual_head.2.weight": 1,
+          "residual_head.2.bias": 1,
+          "residual_head.0.weight": "absent",
+          "residual_head.0.bias": "absent"
+        }
+      },
+      "stage_2": {
+        "trainable_exact": [
+          "residual_head.0.weight",
+          "residual_head.0.bias"
+        ],
+        "for_stage_2_update_k": {
+          "global_optimizer_step_ordinal": "k + 1",
+          "residual_head.0_step": "k",
+          "residual_head.2_step": 1,
+          "residual_head.2_parameter_bytes_equal_post_stage_1": true,
+          "residual_head.2_exp_avg_bytes_equal_post_stage_1": true,
+          "residual_head.2_exp_avg_sq_bytes_equal_post_stage_1": true
+        }
+      },
+      "successful_step_history_rule": "Increment the completed-step and global-ordinal history immediately after optimizer.step returns successfully and before any post-step metric or safety evaluation. Never claim a step that did not return successfully."
+    },
+    "gate_phase_separation": {
+      "stage_1_and_each_stage_2_update": "Evaluate only provenance, parameter/optimizer/value contracts and the numerical safety gates. A safety failure stops immediately.",
+      "stage_2_updates_1_through_31": "Family polarity, formerly-failing-group improvement, inherited END direction, global alignment score, and global lower median are diagnostic only and must never cause a stop or acceptance.",
+      "stage_2_update_32": "Evaluate all safety and terminal acceptance gates. This is the only normal acceptance or terminal-rejection decision point."
+    },
+    "derived_metric_recomputation": {
+      "authoritative_inputs": "The immutable initial rows, zero-residual anchor distributions, and each current full float32 probability vector are authoritative. Stored scalar metrics are derived evidence only.",
+      "recompute_before_every_gate": [
+        "probability-vector length, finiteness, nonnegativity, and float-domain normalization",
+        "row identity, sampled index, teacher index, END index, and legal-action-order identity",
+        "sampled probability delta from immutable initial",
+        "oriented sampled delta from the frozen normalized-advantage sign",
+        "unique argmax or exact tie",
+        "KL(current policy || immutable zero-residual anchor)",
+        "total variation(current policy, immutable initial policy)",
+        "family memberships and every family/polarity lower empirical median",
+        "all inherited END directional quantities and global alignment summaries"
+      ],
+      "stored_and_recomputed_values_must_match": "Every stored finite derived scalar must equal the validator recomputation under the same deterministic formula. A mismatch is a rejection and validator failure, never silently repaired."
+    },
+    "exception_and_checkpoint_contract": {
+      "preflight_failure_before_optimizer_construction": {
+        "output_directory_must_remain_absent": true,
+        "artifacts": []
+      },
+      "loss_or_gradient_nonfinite": {
+        "optimizer_step_forbidden": true,
+        "completed_step_count_unchanged": true
+      },
+      "failure_before_first_successful_step_after_optimizer_construction": {
+        "checkpoint_required": false,
+        "artifacts_exact": [
+          "rejected_receipt.json",
+          "REJECTED"
+        ]
+      },
+      "failure_after_one_or_more_successful_steps_but_before_a_new_step_returns": {
+        "checkpoint_state": "The current last successfully completed post-step model and optimizer state.",
+        "artifacts_exact": [
+          "candidate.pt",
+          "rejected_receipt.json",
+          "REJECTED"
+        ]
+      },
+      "post_step_safety_failure": {
+        "rollback": false,
+        "checkpoint_state": "The exact failing post-step model and optimizer state whose optimizer.step already returned successfully.",
+        "artifacts_exact": [
+          "candidate.pt",
+          "rejected_receipt.json",
+          "REJECTED"
+        ]
+      },
+      "normal_terminal_update_32": {
+        "checkpoint_state": "The exact Stage-2-update-32 post-step state.",
+        "accepted_artifacts_exact": [
+          "candidate.pt",
+          "accepted_receipt.json",
+          "ACCEPTED"
+        ],
+        "rejected_artifacts_exact": [
+          "candidate.pt",
+          "rejected_receipt.json",
+          "REJECTED"
+        ]
+      },
+      "checkpoint_identity_handoff": "After the public checkpoint identity is established, any publication exception must retain and hand off the same verified inode/file identity and must not create or replace a second checkpoint.",
+      "same_iteration_retry": false
+    },
+    "canonical_nonfinite_encoding": {
+      "canonical_json_allow_nan": false,
+      "raw_nonfinite_json_numbers_forbidden": true,
+      "sentinel_schema_version": "nonfinite-float-sentinel-v1",
+      "sentinel_exact_keys": [
+        "schema_version",
+        "classification",
+        "dtype",
+        "raw_bytes_hex"
+      ],
+      "classification_values": [
+        "nan",
+        "positive_infinity",
+        "negative_infinity"
+      ],
+      "dtype_values": [
+        "float32",
+        "float64"
+      ],
+      "path_evidence": "Every receipt section containing a sentinel must also record the canonical JSON path, count, classification, dtype, and tensor or collection byte hash for all nonfinite locations.",
+      "checkpoint_evidence": "When a checkpoint is required, preserve the real model and optimizer bytes, including nonfinite tensor bytes. Never replace checkpoint values with sentinels.",
+      "validation": "The validator must reject an untagged NaN or Infinity, a malformed sentinel, a count/path/hash mismatch, or a sentinel in an accepted receipt."
+    },
+    "execution_spec_contract": {
+      "schema_version": "actor-only-interaction-maturation-execution-spec-v1",
+      "exact_top_level_keys": [
+        "schema_version",
+        "implementation_plan_path",
+        "implementation_plan_sha256",
+        "plan_correction_path",
+        "plan_correction_sha256",
+        "parent_result_path",
+        "parent_result_sha256",
+        "prepare_receipt_path",
+        "prepare_receipt_file_sha256",
+        "prepare_receipt_sha256",
+        "implementation_path",
+        "implementation_snapshot_sha256",
+        "input_checkpoint_path",
+        "input_checkpoint_sha256",
+        "forbidden_rejected_checkpoint_sha256s",
+        "manifest_path",
+        "manifest_sha256",
+        "dataset_sha256",
+        "fixed_advantages_sha256",
+        "fixed_behavior_logprobabilities_sha256",
+        "runtime_thread_receipt",
+        "training_contract",
+        "diagnostic_contract",
+        "safety_gates",
+        "terminal_offline_acceptance",
+        "output_directory"
+      ],
+      "forbidden_rejected_checkpoint_sha256s_exact": [
+        "E7D0CA4DCEEBE33C8043D3C8A45DD9119CFE0E06ACC58F343E9A60BB7F787088",
+        "C1F9B0D4CEAFD0B481F9E1C517F5B56A2490DF9AF2EEA1DD8B8E5412596FA12B"
+      ],
+      "training_diagnostic_safety_and_terminal_objects": "These four objects must be byte-for-byte canonical-JSON equal to the corresponding authoritative base-plan objects after applying this correction; no omitted, extra, or overridden field is allowed.",
+      "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+      "output_path_rules": [
+        "canonical relative POSIX path only, with no empty, dot, or dot-dot component",
+        "resolved path must remain under the repository analysis_outputs directory",
+        "no existing path component may be a symlink, junction, or reparse point",
+        "the output directory itself must be absent at execution-boundary validation and created exactly once only after every preflight check passes"
+      ],
+      "prepare_output_path_exact": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v1/pretraining_probe_receipt.json",
+      "prepare_publication": "The prepare command may create the approved prepare subtree and receipt with CREATE_NEW semantics. It may not overwrite an existing path and it creates no checkpoint or optimizer.",
+      "pre_optimizer_validation": "Validate the execution-spec file hash, exact schema and key set, every bound file/hash/object/path, empty output boundary, implementation snapshot, runtime, and prepare receipt before constructing Adam."
+    },
+    "value_identity_contract": {
+      "prepare": "Record every initial value output as float32 raw bytes in row order, a per-row byte hash, and one aggregate hash over the ordered byte sequence. Record the initial raw MSE using the pinned deterministic formula.",
+      "stage_1_and_all_32_stage_2_updates": "For all 830 rows, require bitwise float32 equality to the initial value output, equality of every per-row hash and the aggregate hash, and exact equality of raw MSE. Recompute these checks from raw model outputs before every safety decision.",
+      "accepted_or_rejected_receipt": "Record all equality counts, first mismatch when present, aggregate hashes, raw MSE, encoder/value-head parameter hashes, and proof that optimizer state for both encoders and value head is absent."
+    },
+    "inherited_end_gate_exact": {
+      "comparison_baseline": "Every probability delta is current minus immutable initial-checkpoint probability.",
+      "negative_target_ordinals": [
+        158,
+        260,
+        547,
+        812
+      ],
+      "each_negative_target_requires": {
+        "end_probability_delta_maximum_inclusive": -1e-06,
+        "teacher_probability_delta_minimum_inclusive": 1e-06,
+        "teacher_unique_argmax": true
+      },
+      "positive_normalized_teacher_and_sampled_end_count": 20,
+      "each_positive_normalized_end_delta_minimum_inclusive": 1e-06,
+      "positive_raw_teacher_and_sampled_end_count": 31,
+      "positive_raw_lower_empirical_median_strictly_greater_than": 0.0,
+      "maximum_individual_decrease_population": "the same 31 positive-raw teacher-and-sampled-END rows",
+      "maximum_individual_decrease_maximum_inclusive": 0.0025,
+      "teacher_end_unique_argmax_count": 43,
+      "teacher_end_unique_argmax_required_all": true
+    },
+    "gae_recomputation_scope": {
+      "allowed": "Prepare generation, prepare validation, execution-boundary validation, independent read-only audit, and tests may independently recompute GAE and normalization for verification.",
+      "authorized_execution": "After all preflight validation and before Adam construction, build the 830 GAE, value-target, normalized-advantage, and behavior-logprob values exactly once and reuse those same arrays for all 33 updates.",
+      "fixed_hash_domain": "Uppercase SHA-256 of the canonical JSON manifest-order array in the same float-domain and schema already bound by the iteration006 prepare receipt."
+    }
+  },
+  "required_new_tests": [
+    "real 830-row optimizer execution is unreachable from implementation tests and prepare",
+    "the optimizer has one unmodified four-parameter group and toggles only requires_grad",
+    "Stage2 global ordinals and per-parameter steps are exact for k=1 and k=32, and readout parameters plus moments remain byte-exact",
+    "family, END, and practical terminal failures at updates 1 through 31 never stop execution",
+    "raw probabilities are the source for recomputed delta, orientation, argmax, KL, TV, family, END, and global gates; forged stored scalars fail validation",
+    "all exception phases publish exactly the permitted artifact set and never roll back a completed failing step",
+    "tagged nonfinite diagnostics serialize with allow_nan=false and malformed or untagged values fail",
+    "execution-spec missing, extra, changed, traversal, reparse, existing-output, or unbound fields fail before optimizer construction",
+    "all 830 value outputs and raw MSE are bit-exact at every update; a one-bit forged difference fails",
+    "all inherited END comparisons use the exact initial baseline, membership, inequality, and maximum-decrease population",
+    "prepare may recompute for verification but constructs no optimizer and writes only one CREATE_NEW receipt"
+  ]
+}

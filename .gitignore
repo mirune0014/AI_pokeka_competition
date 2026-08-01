@@ -40,6 +40,7 @@ htmlcov/
 analysis_outputs/
 logs/
 notebook_output/
+experiments/**/test_outputs/
 
 # Raw Kaggle and replay data
 data/episodes*/

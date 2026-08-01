@@ -1,0 +1,116 @@
+{
+  "schema_version": "archaludon-rl-iteration-spec-v1",
+  "iteration_id": "phase1-iteration-002-20260731",
+  "purpose": "multi_opponent_collection_contract_and_discrimination_pilot",
+  "strength_claim_allowed": false,
+  "behavior_checkpoint": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_001_20260731/ppo_phase1_iteration_001.pt",
+    "sha256": "44E80A6E316CF6754C6BAF812DBD40C03BA9D3281F4FF779532DE77A6D239EC2",
+    "encoder_schema": "encoder-v4"
+  },
+  "opponent_population": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "count": 8,
+    "ordered_ids": [
+      "historical_silver",
+      "alakazam_public",
+      "alakazam_rmy_live",
+      "marnie_kazuki_live",
+      "mega_lucario_public",
+      "starmie_public",
+      "dragapult_live",
+      "ogerpon_cornerstone_public"
+    ]
+  },
+  "implementation_contract": {
+    "population_spec_is_collector_input": true,
+    "single_atomic_complete_manifest": true,
+    "post_hoc_manifest_stitching_allowed": false,
+    "opponent_table_binds_id_path_main_and_deck_hashes": true,
+    "opponent_id_in_schedule_episode_header_and_receipt": true,
+    "dataset_identity": [
+      "opponent_id",
+      "seat",
+      "seed"
+    ],
+    "trainer_reverifies_population_files_and_all_receipts": true,
+    "serial_collection_only": true,
+    "eligibility_contract_unchanged": "free_MAIN_rank17_exact_parent_only",
+    "reward_contract_unchanged": "terminal_only",
+    "optimizer_contract_unchanged": "one_full_batch_epoch"
+  },
+  "collection": {
+    "run_id": "phase1-iteration-002-20260731",
+    "seed_base": 731200301,
+    "seeds": [
+      731200301,
+      731200302
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "opponents": 8,
+    "retained_episodes": 32,
+    "replicas_per_episode": 2,
+    "native_games": 64,
+    "duplicate_audit": true,
+    "max_steps": 1000,
+    "model_timeout_seconds": 0.05,
+    "device": "cpu",
+    "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_002_20260731/rollouts"
+  },
+  "training": {
+    "algorithm": "ppo",
+    "epochs": 1,
+    "device": "cpu",
+    "input_manifest": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_002_20260731/rollouts/run_manifest.json",
+    "output_checkpoint": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_002_20260731/ppo_phase1_iteration_002.pt",
+    "anchor_kl_target": 0.02,
+    "anchor_kl_hard_stop": 0.1,
+    "maximum_ppo_rows": 1000
+  },
+  "post_training_runtime_smoke": {
+    "opponent": "historical_silver",
+    "seed": 731200304,
+    "seats": [
+      0,
+      1
+    ],
+    "games_per_seat": 1,
+    "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_002_20260731/runtime_smoke"
+  },
+  "acceptance_gates": {
+    "complete_manifest": true,
+    "schedule_keys": 32,
+    "native_games": 64,
+    "opponent_seat_cells": 16,
+    "action_errors": 0,
+    "max_step_hits": 0,
+    "duplicate_mismatches": 0,
+    "failure_ledger_entries": 0,
+    "missing_or_extra_files": 0,
+    "receipt_or_hash_mismatches": 0,
+    "teacher_calls_equal_telemetry_rows": true,
+    "ppo_rows_only_free_main_rank17_exact_parent": true,
+    "protected_rows_ppo_eligible": false,
+    "protected_rows_final_action_equals_teacher_action": true,
+    "every_opponent_seat_cell_has_ppo_row": true,
+    "both_winning_and_nonwinning_rewards_present": true,
+    "maximum_single_opponent_ppo_row_share": 0.35,
+    "post_update_anchor_kl_target_at_most": 0.02,
+    "post_update_anchor_kl_hard_stop": 0.1,
+    "post_update_runtime_smoke_both_seats_valid": true
+  },
+  "interpretation": {
+    "no_deterministic_argmax_change": "safe_but_nondiscriminating_stop",
+    "changes_in_only_one_opponent_seat_cell": "population_mechanism_not_supported_stop",
+    "strength_or_promotion_claim_from_this_iteration": false
+  },
+  "resource_gate": {
+    "notify_user_before_native_games": 2000,
+    "notify_user_before_estimated_cpu_hours": 1.0,
+    "this_iteration_requires_sub_pc": false
+  }
+}

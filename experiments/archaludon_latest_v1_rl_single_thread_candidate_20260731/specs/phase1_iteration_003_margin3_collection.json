@@ -1,0 +1,82 @@
+{
+  "schema_version": "archaludon-rl-calibrated-collection-spec-v1",
+  "experiment_id": "phase1-iteration-003-margin3-collection-20260731",
+  "purpose": "Collection-only duplicate-audited pilot of a fresh zero-residual latest-v1 policy with teacher margin 3.0.",
+  "run_ppo": false,
+  "change_spec": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_teacher_margin_recalibration.json",
+    "sha256": "AEE57AE492163BF7B1B0F7C7AE425E0BAD995D6E909A7FB9B1F70AF9F58AB5FD"
+  },
+  "implementation": {
+    "path": "experiments/archaludon_latest_v1_rl",
+    "reference_policy_py_sha256": "2F3A480E0E21F420D8CC6063960CF79C14514BE32EBA2A2565825728E73CAEE9",
+    "model_py_sha256": "BB02EB065D24A145F9B943D57C8BF1FFDA5FBC2750A7E92D0332918AFE566EC1",
+    "policy_py_sha256": "1B169AC631F36795FB37136D2F20C4FEAED060B7A4EE98D15B368A2A2CD5189F",
+    "trajectory_py_sha256": "537D492E38735FD5CFFDBFED86D63E97EA0109146420B1FC6B55B43B4A8838A5",
+    "collect_rollouts_py_sha256": "248964A4B19E305E23AA7105EAF935BBC3CFC7A067E258333D3F741865A06F41",
+    "train_ppo_py_sha256": "07D5FE053E2338289D65EA293577EF1B7E37D014D7B4DD89EEEEE4A917D547C9"
+  },
+  "reference_prior": {
+    "schema_version": "archaludon-reference-prior-v1",
+    "teacher_margin": 3.0,
+    "residual_cap": 3.0,
+    "residual_scale": 2.0,
+    "exploration_epsilon": 0.02,
+    "schema_sha256": "15E74D83F157224101865561339154CE0323929B2730B21606166807E1103FAE"
+  },
+  "behavior_checkpoint": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/initial_zero_margin3.pt",
+    "sha256": "6B84B2A7006D92CBC2477473E68CBC2E216612FF27511E1FBD471240100546BC",
+    "model_schema_version": "residual-actor-critic-v2",
+    "parent_checkpoint_sha256": null,
+    "optimizer_state_present": false,
+    "residual_output_weights_nonzero": 0,
+    "residual_output_bias_nonzero": 0
+  },
+  "opponent_population": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "ordered_ids": [
+      "historical_silver",
+      "alakazam_public",
+      "alakazam_rmy_live",
+      "marnie_kazuki_live",
+      "mega_lucario_public",
+      "starmie_public",
+      "dragapult_live",
+      "ogerpon_cornerstone_public"
+    ]
+  },
+  "schedule": {
+    "run_id": "phase1-iteration-003-margin3-20260731",
+    "seed_base": 731200401,
+    "episodes_per_seat": 2,
+    "seats": [
+      0,
+      1
+    ],
+    "max_steps": 1000,
+    "timeout_seconds": 0.05,
+    "device": "cpu",
+    "duplicate_audit": true,
+    "retained_episodes": 32,
+    "native_executions": 64
+  },
+  "output_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/rollouts",
+  "gates": {
+    "integrity_failures": 0,
+    "every_opponent_seat_cell_has_ppo_rows": true,
+    "eligible_divergence_rate_minimum": 0.15,
+    "eligible_divergence_rate_maximum": 0.35,
+    "divergence_present_in_both_seats": true,
+    "divergence_present_for_all_opponents": true,
+    "cell_divergence_rate_maximum": 0.5,
+    "terminal_wins_minimum": 4,
+    "terminal_losses_minimum": 4,
+    "terminal_wins_control_adjusted_minimum": 19,
+    "protected_ppo_eligible_rows": 0,
+    "protected_action_divergences": 0,
+    "zero_residual_eligible_argmax_divergences": 0
+  },
+  "stop_rule": "Do not run PPO. Stop and return the immutable manifest for a new judgment on any failed gate, especially another near-all-loss terminal distribution."
+}

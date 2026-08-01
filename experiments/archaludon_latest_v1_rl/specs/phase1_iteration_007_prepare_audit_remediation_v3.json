@@ -1,0 +1,138 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v3",
+  "remediation_id": "phase1-iteration-007-directional-membership-binding-fix-20260801",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+    "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+  },
+  "plan_correction_v1": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+    "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+  },
+  "plan_correction_v2": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+    "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+  },
+  "prepare_audit_remediation_v1": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+    "sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E"
+  },
+  "prepare_audit_remediation_v2": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v2.json",
+    "sha256": "BD675A1DF53587A0E62270EBED46F1EA3D3531918F22B7F82C9063A3DCB612C0"
+  },
+  "authority": "This remediation authorizes exactly one production behavior fix exposed by remediation-v2 mutation-sensitive analysis. It is execution-authoritative over all prior iteration-007 contracts where it adds detail. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all six contract file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "real_optimizer_execution_authorized": false,
+  "confirmed_defect": {
+    "production_entrypoint": "actor_only_interaction_maturation_pilot.evaluate_directional_gates",
+    "observation": "A direct call with directional membership counts [1,1,1,1] returned passed=true and reported the mutated populations instead of rejecting deviation from the authoritative prepare rows.",
+    "candidate_snapshot_before_fix": "7B8849CCEDADA9D05063E02E7CB1FCBE268BD77112F33355B5D80A27500D50A3",
+    "primary_module_sha256_before_fix": "C322ED77FEB68C7BEC01A12D8CCEF635D3DD7E39255D8E6AD09EE82DC886F4CE",
+    "test_module_sha256_before_fix": "D5106BD6A2D300214659EFDBB4B9F36C17DE6B8C7AC0E40CA41B4AF36894A2E5",
+    "files_changed_during_confirmation": false,
+    "prepare_v3_created": false
+  },
+  "authorized_production_fix": {
+    "scope": "Add one fail-closed authoritative directional-membership validator and call it before any directional metric is read or gate is computed.",
+    "authoritative_derivation_from_prepare_rows": {
+      "teacher_end_ordinals": "All and only ppo_row_ordinals whose teacher_index equals end_index.",
+      "teacher_end_and_sampled_end_ordinals": "All and only teacher-END rows whose sampled_index also equals end_index.",
+      "positive_normalized_teacher_and_sampled_end_ordinals": "All and only teacher-and-sampled-END rows whose fixed_normalized_advantage_float32 is strictly greater than zero.",
+      "positive_raw_teacher_and_sampled_end_ordinals": "All and only teacher-and-sampled-END rows whose raw_advantage_float64 is strictly greater than zero.",
+      "negative_target_ordinals": "Exactly [158,260,547,812], inherited from the bound historical control contract."
+    },
+    "required_counts_exact": {
+      "negative_target_ordinals": 4,
+      "positive_normalized_teacher_and_sampled_end_ordinals": 20,
+      "positive_raw_teacher_and_sampled_end_ordinals": 31,
+      "teacher_end_and_sampled_end_ordinals": 41,
+      "teacher_end_ordinals": 43
+    },
+    "validation_rules": [
+      "Require the directional_memberships object to have exactly the five expected keys.",
+      "Require each membership to be a sorted duplicate-free list of non-boolean integers within [0,829].",
+      "Recompute all five authoritative lists from the immutable prepare rows and fixed negative controls before every evaluate_directional_gates call.",
+      "Require canonical-JSON exact equality between the supplied object and the recomputed object, including order, membership, and counts.",
+      "Reject with a deterministic ValueError before reading any metric row when any key, count, ordinal, order, duplicate, type, range, or derived population differs.",
+      "Return and use only the recomputed authoritative object for all 4/20/31/41/43 gate loops and summaries. Never use an unchecked caller-supplied list."
+    ],
+    "forbidden_changes": [
+      "changing any END threshold, inequality, delta baseline, metric formula, terminal rule, row, advantage, action, reward, model, optimizer, or update schedule",
+      "hard-coding the 20,31,41,43 lists independently of the prepare rows",
+      "silently replacing a malformed supplied membership with the recomputed one",
+      "continuing gate evaluation after a membership mismatch"
+    ]
+  },
+  "required_fix_tests": [
+    "The confirmed [1,1,1,1] mutated-count case raises before reading metrics.",
+    "For each of the five membership lists, removing, adding, reordering, duplicating, changing type, or using an out-of-range ordinal raises.",
+    "Mutating a prepare-row teacher_index, sampled_index, normalized-advantage sign, or raw-advantage sign without changing the supplied memberships raises because recomputation differs.",
+    "The byte-exact prepare-v2 4/20/31/41/43 memberships pass the production validator.",
+    "After membership validation passes, every remediation-v2 production-path boundary and outsider-poison test directly exercises evaluate_directional_gates."
+  ],
+  "all_remediation_v2_tests_remain_required": true,
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v3",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v3/pretraining_probe_receipt.json",
+    "publication": "Create exactly once with CREATE_NEW semantics only after the production fix, every remediation-v2 production-path test, every fix test, and all regressions pass. Preserve prepare v1 and v2 byte-exact.",
+    "must_bind_all_six_contracts": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v5",
+    "overrides_remediation_v2_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "prepare_audit_remediation_v2_path",
+      "prepare_audit_remediation_v2_sha256",
+      "prepare_audit_remediation_v3_path",
+      "prepare_audit_remediation_v3_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 34,
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "all_fix_and_remediation_v2_production_path_tests_pass": true,
+    "full_exact_name_iteration_007_suite_pass": true,
+    "source_baseline_full_suite_pass": true,
+    "destination_relocation_safe_suite_pass": true,
+    "only_the_same_five_source_root_confinement_tests_may_be_excluded": true,
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_code_and_test_changes": true
+  },
+  "stop_rule": "After the single authorized production fix and all required tests pass, generate prepare v3 exactly once and stop for independent code and numerical-provenance audits before execution-spec authoring."
+}

@@ -1,0 +1,120 @@
+{
+  "schema_version": "archaludon-rl-reference-prior-change-spec-v1",
+  "change_id": "phase1-iteration-003-teacher-margin-3",
+  "status": "implementation-authorized-after-control",
+  "single_hypothesis": "Raise only the latest-v1 teacher log-weight margin from 1.0 to 3.0 so stochastic collection remains exploratory without discarding the deterministic rule policy on most decisions.",
+  "control_evidence": {
+    "comparison_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_deterministic_control.json",
+    "comparison_spec_sha256": "EFB19983FA78F826354400A324943F100F69322D137DEB818FC830AE65D98CA3",
+    "raw_output_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_deterministic_control_20260731",
+    "paired_results_sha256": "2CE14B5D44A4C9B63CB5BC2B3AA61B576BA38E9BFC41358F2C46C0FA749A6080",
+    "manifest_sha256": "E330D7B6E597F5E8D6FD2DDC76E3DB528D7A794C76CCE31B8E9D169C8D184C21",
+    "logical_games": 32,
+    "candidate_wins": 27,
+    "seat_0_wins": 13,
+    "seat_1_wins": 14,
+    "integrity_failures": 0
+  },
+  "input_implementation": {
+    "path": "experiments/archaludon_latest_v1_rl",
+    "reference_policy_py_sha256": "7B40B33451D46D1F3B2C6167E3FC039FC137EF2B4A9091D9F3D0BAA4AF3EE235",
+    "model_py_sha256": "7FD44C5174F00F66D07C7621EAD88569FB79D7DC4ACA1B3069A8719F4F9D211F",
+    "policy_py_sha256": "F7722E3440F393B374B6CDC8D54B5D5DC5F1069B72982BB30232B968F05DD6A2",
+    "trajectory_py_sha256": "9DB09CB908E41F3B1B4E432A9361551B4B2C17E5EEF30CFFA2B141BC589F492D",
+    "train_ppo_py_sha256": "58FA2D68862A35EFA37B5C70FCB9F3108FF587EB501CF6CD04BD8C8AB4BBEB50",
+    "trajectory_tests_sha256": "6F542BF50E926574F9DF2146A9FF1C9DD4CD01F661133FA7AF1649C1D2936C41"
+  },
+  "isolated_candidate_path": "experiments/archaludon_latest_v1_rl_margin3_candidate_20260731",
+  "fixed_reference_policy": {
+    "teacher_margin": 3.0,
+    "residual_cap": 3.0,
+    "residual_scale": 2.0,
+    "exploration_epsilon": 0.02,
+    "teacher_weight": "exp(3.0)",
+    "other_legal_weight": 1.0,
+    "prior_formula": "q_i = 0.98 * w_i / sum_j(w_j) + 0.02 / legal_option_count",
+    "behavior_formula": "pi_i is proportional to q_i * exp(2.0 * tanh(clamp(residual_i, -3.0, 3.0)))"
+  },
+  "must_not_change": [
+    "latest-v1 teacher source or deck",
+    "opponent population or weights",
+    "terminal reward",
+    "PPO optimizer or objective",
+    "residual cap",
+    "residual scale",
+    "exploration epsilon",
+    "eligibility rules",
+    "protected callback behavior",
+    "timeout and exact-fallback behavior",
+    "serial teacher execution"
+  ],
+  "provenance_contract": {
+    "bump_reference_prior_schema": true,
+    "bump_policy_trajectory_and_manifest_schemas_as_needed": true,
+    "canonical_prior_schema_hash_must_bind": [
+      "reference-prior schema version",
+      "teacher_margin",
+      "residual_cap",
+      "residual_scale",
+      "exploration_epsilon"
+    ],
+    "bind_prior_schema_hash_into": [
+      "checkpoint metadata",
+      "trajectory episode header",
+      "every PPO-eligible decision row",
+      "final run manifest",
+      "dataset hash preimage"
+    ],
+    "every_ppo_row_must_record": [
+      "prior_schema_sha256",
+      "legal_option_count",
+      "teacher_probability",
+      "complete q_latest"
+    ],
+    "trainer_must_recompute_and_reject": [
+      "prior schema hash mismatch",
+      "legal option count mismatch",
+      "teacher probability mismatch",
+      "q_latest dimension mismatch",
+      "q_latest value mismatch",
+      "q_latest nonfinite, nonpositive, or nonnormalized values"
+    ],
+    "legacy_checkpoints_and_trajectories_must_be_rejected": true
+  },
+  "checkpoint_contract": {
+    "create_new_zero_residual_checkpoint": true,
+    "inherit_model_or_optimizer_from_training_checkpoint": false,
+    "optimizer_state_must_be_absent": true,
+    "banned_input_checkpoint_sha256": [
+      "44E80A6E316CF6754C6BAF812DBD40C03BA9D3281F4FF779532DE77A6D239EC2",
+      "9C7B43CB48896C69CEDAE5D270F43D07D3939CD7ED705A67AE07192A683EBAB9"
+    ],
+    "residual_output_weights_and_bias_must_be_exact_zero": true
+  },
+  "unit_gates": [
+    "finite normalized probabilities and strictly positive support for every legal action",
+    "at zero residual the teacher is the unique argmax for every tested legal option count",
+    "for every legal index, residual +3 for it and -3 for all others makes it the unique argmax",
+    "identical sampling seed yields exactly identical stochastic choices",
+    "protected callbacks remain teacher-exact, unsampled, and PPO-ineligible",
+    "timeout and invalid-model fallbacks remain exact",
+    "trainer rejects each independently tampered provenance field",
+    "all pre-existing tests pass"
+  ],
+  "calibrated_collection_if_implementation_passes": {
+    "collection_only": true,
+    "run_ppo": false,
+    "opponent_population_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "opponent_population_sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "seed_base": 731200401,
+    "episodes_per_seat": 2,
+    "seats": [
+      0,
+      1
+    ],
+    "retained_episodes": 32,
+    "native_executions_with_duplicate_audit": 64,
+    "max_steps": 1000,
+    "timeout_seconds": 0.05
+  }
+}

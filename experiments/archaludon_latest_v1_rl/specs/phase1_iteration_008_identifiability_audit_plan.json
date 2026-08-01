@@ -1,0 +1,183 @@
+{
+  "schema_version": "phase1-iteration-008-identifiability-audit-plan-v1",
+  "plan_id": "phase1_iteration_008_read_only_identifiability_audit",
+  "purpose": "Determine whether iteration007 failed because the frozen public representation cannot distinguish opposing targets, temporal information is missing, value/credit targets conflict, the dataset is imbalanced, or optimization alone was insufficient. This audit is not a game-strength test and does not reject RL generally.",
+  "fixed_inputs": {
+    "iteration004_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+    "iteration004_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+    "manifest_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+    "manifest_sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+    "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+    "prepare_receipt_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v4/pretraining_probe_receipt.json",
+    "prepare_receipt_file_sha256": "7E8F6238ECEE6444C98D041A12A2478EA6FEAD110A73AA224D071AEC5316F08F",
+    "prepare_receipt_sha256": "B4CA02474685E13A492E82D727AC929E7DEDCD03B15047A8962BF59C71AC6AFE",
+    "iteration007_execution_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_execution_spec_v10.json",
+    "iteration007_execution_spec_sha256": "9CDA1C0B8A7BF5E542C23061349505C5AC80119595060B968BD002B7D06CD1CF",
+    "iteration007_receipt_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801/rejected_receipt.json",
+    "iteration007_receipt_file_sha256": "C2AF5C7BCA142296CAF1407F3FFA498A4FD2E4F71FB7C9E6B68C5D2C2AC0B796",
+    "iteration007_receipt_sha256": "07E8D544F5544779A5488C9072238317FDE238E7BCEE13EE69E9A87B2EBBFC3D",
+    "iteration007_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801/candidate.pt",
+    "iteration007_checkpoint_sha256": "5547AFD90CF039390CDA8E70E3DA5868C12B0277AA670636573F7BC0FE7715B3",
+    "candidate_implementation_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801",
+    "candidate_implementation_snapshot_sha256": "6B95C5B6DEB354293E2DC08077DAEC5FE6A77D013832DD70DECC485C91EB87CA",
+    "fixed_advantages_sha256": "B7F77DEBE545FDD5B7767C909E185904A52F161B6253D821950E6FDE6A79E53B",
+    "fixed_behavior_logprobabilities_sha256": "BF402ED36ECD78905597F562E8987927C2D74FD5AEE390F1D1E1426CE3D1DA98"
+  },
+  "expected_population": {
+    "ppo_rows": 830,
+    "unique_episode_decision_keys": 830,
+    "source_trajectories": 32,
+    "diagnostic_priority_groups": [
+      "PLAY:positive",
+      "ATTACH:negative",
+      "EVOLVE:negative",
+      "RETREAT:positive",
+      "ATTACK:negative",
+      "END:positive"
+    ],
+    "positive_normalized_end_rows": 20,
+    "negative_end_controls": 4,
+    "teacher_end_controls": 43
+  },
+  "execution_constraints": {
+    "read_only_inputs": true,
+    "optimizer_construction_or_step": false,
+    "training_or_parameter_mutation": false,
+    "games_or_runtime_smoke": false,
+    "iteration006_loading": false,
+    "kaggle_or_external_write": false,
+    "single_fresh_output_directory": true,
+    "fail_closed_on_hash_row_or_trajectory_mismatch": true,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+  },
+  "canonical_identities": {
+    "P": "Canonical current public_projection with no target, future, opponent-id, seed, or engine action index.",
+    "O": "The immutable raw_observation_sha256 because the full raw observation was not persisted. Exact O comparisons are supported; field-level O differences are not claimed.",
+    "L": "Sorted multiset of canonical legal semantic-action identities.",
+    "a": "Selected semantic option canonicalized from option_type, source_card_id, target_card_id, and every public payload field; engine_index is excluded.",
+    "X": "Byte-exact float32 concatenation of the frozen iteration004 state_encoder output and selected action_encoder output. Legal-set identity remains separately bound by L.",
+    "row_id": "ppo_row_ordinal plus episode_id and decision_index, all three required to agree."
+  },
+  "exact_identity_levels": [
+    "P",
+    "P+L",
+    "P+L+a",
+    "O+L+a",
+    "X+L+a"
+  ],
+  "near_identity_levels": {
+    "public_one_unit": "Same L+a and exactly one differing flattened public scalar whose numeric distance is one, or one boolean flip.",
+    "public_two_units": "Same L+a and at most two public one-unit scalar differences.",
+    "legal_multiset_one_or_two": "Same P+a and legal semantic-action multiset symmetric difference exactly one or two.",
+    "latent_mutual_knn": {
+      "eligible_rows": "same L+a",
+      "distance": "Euclidean distance after per-dimension median-absolute-deviation scaling of X",
+      "zero_mad_dimensions_ignored": true,
+      "neighbors_per_row": 5,
+      "retain_lowest_nonzero_distance_fraction": 0.01,
+      "mutual_only": true,
+      "tie_break": "immutable row_id"
+    }
+  },
+  "target_contract": {
+    "robust_positive_minimum": 0.000001,
+    "robust_negative_maximum": -0.000001,
+    "otherwise": "neutral",
+    "domains": [
+      "raw_gae_float64",
+      "normalized_training_advantage_float32",
+      "discounted_realized_return_minus_initial_value"
+    ],
+    "exact_conflict": "An exact identity class contains both robust positive and robust negative signs.",
+    "strong_conflict": "Each robust sign occurs in at least two distinct source trajectories.",
+    "unweighted_irreducible_wrong_sign_mass": "sum over classes of min(positive_row_count, negative_row_count)",
+    "loss_weight": "absolute normalized training advantage, matching the unclipped ratio-one PPO policy-loss contribution",
+    "weighted_irreducible_wrong_sign_mass": "sum over classes of min(sum positive loss weights, sum negative loss weights)"
+  },
+  "trajectory_credit_decomposition": {
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "required_terms": [
+      "reward",
+      "bootstrap_mask",
+      "current_value",
+      "next_value",
+      "delta_reward_term",
+      "delta_next_value_term",
+      "delta_current_value_term",
+      "gae_lag_0",
+      "gae_lag_1",
+      "gae_lags_2_3",
+      "gae_lags_4_7",
+      "gae_lags_8_plus",
+      "raw_gae",
+      "normalization_mean_float32",
+      "normalization_population_sd_float32",
+      "normalized_training_advantage_float32",
+      "discounted_realized_return",
+      "monte_carlo_advantage",
+      "terminal_distance",
+      "previous_one_and_two_public_actions",
+      "previous_one_and_two_public_state_deltas"
+    ],
+    "reward_channel_limitation": "The dataset persists one scalar reward channel; no additional unrecorded reward-channel decomposition is claimed.",
+    "clipping_or_reweighting": "Advantages are not clipped or reweighted before the full-batch PPO objective. PPO ratio clipping is recorded separately and equals the execution contract."
+  },
+  "balance_contract": {
+    "units": [
+      "exact_public_state",
+      "source_trajectory",
+      "family_polarity"
+    ],
+    "required_statistics": [
+      "row_count",
+      "positive_negative_neutral_counts",
+      "loss_weight_sum",
+      "effective_sample_size",
+      "top_10_percent_trajectory_weight_share",
+      "equal_state_weighted_target_median",
+      "equal_trajectory_weighted_target_median",
+      "leave_one_trajectory_out_target_range"
+    ]
+  },
+  "gradient_contract": {
+    "operations": "Autograd Jacobian and gradient evaluation only; no optimizer may be constructed or stepped.",
+    "stage1_reconstruction": "Use iteration004 residual_head.0 and the iteration007 terminal residual_head.2, which was frozen after Stage1.",
+    "stage32": "Use the serialized iteration007 checkpoint.",
+    "stage16_limitation": "No update16 parameter bytes were persisted. Report probability-space movement from the 830 stored update16 diagnostics; do not replay optimizer updates or claim an unavailable parameter-space gradient.",
+    "required_outputs": [
+      "per_group_signed_gradient_norm_stage1",
+      "per_group_signed_gradient_norm_stage32",
+      "pairwise_group_gradient_cosines_stage1",
+      "pairwise_group_gradient_cosines_stage32",
+      "stage1_to_stage32_parameter_delta_projection",
+      "stored_probability_space_projection_stage1_update16_update32"
+    ],
+    "mere_optimization_failure_may_pass_with_missing_update16_parameters": false
+  },
+  "classification_thresholds": {
+    "representation_collision": "Strong O+L+a to X+L+a collisions explain at least 50 percent of priority anti-or-neutral loss weight.",
+    "missing_temporal_information": "Adding the prior two public actions and public-state deltas reduces exact O+L+a conflict mass by at least 50 percent and covers at least 10 priority rows or two failed groups.",
+    "value_or_credit_conflict": "At least 50 percent of conflict loss weight changes or resolves under Monte-Carlo-advantage polarity, with flips attributable to bootstrap/value, GAE horizon, or normalization terms.",
+    "dataset_imbalance": "A failed target direction reverses under both equal-state and equal-trajectory weighting and either effective trajectory sample size is at most 50 percent of nominal or the top 10 percent of trajectories provide at least 50 percent of weight.",
+    "mere_optimization_failure": "All preceding material causes fail, near-neighbor target agreement is at least 90 percent, GAE and Monte-Carlo sign agreement is at least 90 percent, reweighting preserves direction, all six group-isolated signed derivatives are favorable, and the intermediate-parameter evidence contract is complete."
+  },
+  "required_output_files": [
+    "manifest.json",
+    "rows.jsonl",
+    "exact_collisions.json",
+    "near_neighbors.jsonl",
+    "group_end_comparison.json",
+    "gae_decomposition.jsonl",
+    "balance.json",
+    "gradient_projection.json",
+    "cause_matrix.json",
+    "summary.json"
+  ],
+  "decision_rule": "The audit may classify one or more evidenced causes, but it must not select an architecture, target, or optimizer change. A later Sol-Ultra strategy judgment selects exactly one improvement hypothesis from the immutable audit outputs."
+}

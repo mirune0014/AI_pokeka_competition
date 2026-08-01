@@ -1,0 +1,216 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v5",
+  "remediation_id": "phase1-iteration-007-measurement-timing-semantic-validation-fix-20260801",
+  "contract_chain": [
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+      "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+      "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+      "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+      "sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v2.json",
+      "sha256": "BD675A1DF53587A0E62270EBED46F1EA3D3531918F22B7F82C9063A3DCB612C0"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v3.json",
+      "sha256": "5D437C38386C7293E1EA6D9F3EE72766635EEB3E381BB982CAE3E6409C0E509E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v4.json",
+      "sha256": "B92D03A1715BC1FF4DBB98EEBE28F8065D4A9E40CD977A6A6DA261A89295A39F"
+    }
+  ],
+  "authority": "This remediation authorizes exactly one additional production behavior fix exposed by the remediation-v2 measurement-timing mutation test. It is execution-authoritative over all prior iteration-007 contracts only where it adds strict semantic validation of already-required Stage-2 timing evidence. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all eight contract file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "model_optimizer_schedule_or_threshold_change": false,
+  "real_optimizer_execution_authorized": false,
+  "confirmed_defect": {
+    "observation": "A 32-record compact Stage-2 chain with valid chronological links and recomputed self-hashes still returned status=pass after the measurement_timing payloads were deliberately interchanged so that pre_step carried a post-output sentinel and post_step carried loss.",
+    "failure_mechanism": "validate_compact_update_chain checked only record count, ordinals, previous-record links, record self-hashes, and optional whole-record equality. It did not validate the exact measurement_timing schema or bind nested pre-step and post-step evidence to the corresponding authoritative top-level fields.",
+    "candidate_snapshot_after_authorized_v3_v4_partial_edits": "67F337A09391E046281F17AD2D9E3759FFF4F877D01A7EFDE8D699686F2B535D",
+    "primary_module_sha256_after_authorized_v3_v4_partial_edits": "C71F5C4E000DFB1ED793FB66E64BF05EE5EF6A2D00C03CBE51EBD8256DB2C6DA",
+    "test_module_sha256_after_authorized_v3_v4_partial_edits": "3A1DD105CE3462B4D44CDAFEECF88981B2B2241605A1AF3CFB9B38F2D54A33BB",
+    "prepare_v3_created": false
+  },
+  "authorized_production_fix": {
+    "scope": "Add one fail-closed Stage-2 compact-record schema and measurement-timing semantic validator and invoke it for every one of the 32 compact update records on every validate_compact_update_chain call, including calls without an independent reconstruction. No training or report-producer behavior change is authorized or required.",
+    "required_entrypoint": "validate_compact_update_chain",
+    "recommended_private_helper": "_validate_stage_2_measurement_timing",
+    "exact_compact_record_keys": [
+      "stage_2_update_ordinal",
+      "optimizer_step_ordinal",
+      "optimizer_state_steps",
+      "loss",
+      "policy_loss",
+      "anchor_kl_loss",
+      "entropy",
+      "gradient_norm_before_clipping",
+      "per_parameter_gradient_norm_before_clipping",
+      "per_parameter_gradient_norm_after_clipping",
+      "parameter_diffs_from_initial",
+      "parameter_diffs_from_previous_step",
+      "parameter_diffs_from_stage_start",
+      "safety",
+      "value_identity",
+      "frozen_encoder_value_contract",
+      "ordered_probability_bytes_sha256",
+      "ordered_value_bytes_sha256",
+      "raw_rows_persisted",
+      "previous_record_hash",
+      "measurement_timing",
+      "record_hash"
+    ],
+    "exact_measurement_timing_keys": [
+      "pre_step",
+      "post_step"
+    ],
+    "exact_pre_step_keys": [
+      "loss",
+      "policy_loss",
+      "anchor_kl_contribution",
+      "entropy",
+      "gradient_norm_before_clipping",
+      "per_parameter_gradient_norm_before_clipping",
+      "per_parameter_gradient_norm_after_clipping"
+    ],
+    "exact_post_step_keys": [
+      "optimizer_state_steps",
+      "parameter_diffs_from_initial",
+      "parameter_diffs_from_fixed_stage_2_start",
+      "parameter_diffs_from_previous_step",
+      "safety",
+      "ordered_probability_bytes_sha256",
+      "ordered_value_bytes_sha256"
+    ],
+    "exact_semantic_bindings": {
+      "measurement_timing.pre_step.loss": "summary.loss",
+      "measurement_timing.pre_step.policy_loss": "summary.policy_loss",
+      "measurement_timing.pre_step.anchor_kl_contribution": "summary.anchor_kl_loss",
+      "measurement_timing.pre_step.entropy": "summary.entropy",
+      "measurement_timing.pre_step.gradient_norm_before_clipping": "summary.gradient_norm_before_clipping",
+      "measurement_timing.pre_step.per_parameter_gradient_norm_before_clipping": "summary.per_parameter_gradient_norm_before_clipping",
+      "measurement_timing.pre_step.per_parameter_gradient_norm_after_clipping": "summary.per_parameter_gradient_norm_after_clipping",
+      "measurement_timing.post_step.optimizer_state_steps": "summary.optimizer_state_steps",
+      "measurement_timing.post_step.parameter_diffs_from_initial": "summary.parameter_diffs_from_initial",
+      "measurement_timing.post_step.parameter_diffs_from_fixed_stage_2_start": "summary.parameter_diffs_from_stage_start",
+      "measurement_timing.post_step.parameter_diffs_from_previous_step": "summary.parameter_diffs_from_previous_step",
+      "measurement_timing.post_step.safety": "summary.safety",
+      "measurement_timing.post_step.ordered_probability_bytes_sha256": "summary.ordered_probability_bytes_sha256",
+      "measurement_timing.post_step.ordered_value_bytes_sha256": "summary.ordered_value_bytes_sha256"
+    },
+    "record_hash_rule": "record_hash is the canonical SHA-256 of the other exact 21 compact-record fields. Exact schema and timing semantics are validated in addition to, not instead of, this self-hash and the chronological previous-record hash chain.",
+    "comparison_rule": "The compact record and both timing mappings must have their exact key sets. Each bound nested value must have byte-identical canonical JSON encoding to its authoritative top-level value. Missing, extra, renamed, duplicate-after-decoding, wrong-type, noncanonical, or unequal evidence raises before pass can be returned. Python loose equality is insufficient.",
+    "schema_nonextensions": "value_identity and frozen_encoder_value_contract remain authoritative post-step top-level evidence but are not duplicated inside measurement_timing. Do not add them, a per-record schema_version, or any other producer field.",
+    "temporal_semantics": [
+      "The authoritative top-level loss, policy_loss, anchor_kl_loss, entropy, and gradient fields continue to come from the pre-step full batch and backward pass immediately preceding that record's optimizer step.",
+      "The authoritative top-level optimizer state, parameter deltas, safety result, and output hashes continue to come from the model and optimizer after that optimizer step.",
+      "parameter_diffs_from_stage_start and its nested alias parameter_diffs_from_fixed_stage_2_start continue to use the one fixed post-Stage-1 snapshot for all Stage-2 updates 1 through 32.",
+      "The validator adds no new measurement, recomputation, rounding, tolerance, or persisted raw-row claim. It only authenticates the existing timing schema and exact duplicated evidence."
+    ],
+    "forbidden_changes": [
+      "changing the Stage-2 compact report producer or the order of backward, clipping, optimizer.step, successful-step accounting, post-step measurement, safety evaluation, or receipt construction",
+      "changing any model, data, advantage, behavior log-probability, objective, coefficient, learning rate, optimizer, trainability, schedule, diagnostic milestone, safety threshold, or acceptance threshold",
+      "accepting a record merely because its self-hash or hash-chain link was recomputed after a semantic timing mutation",
+      "requiring independent_reconstruction as a prerequisite for semantic timing validation",
+      "weakening any directional-membership, artifact-allowlist, publication-identity, probability, value, optimizer, or nonfinite check",
+      "creating prepare v3, an execution spec, a checkpoint, optimizer state, or games before all required tests pass"
+    ]
+  },
+  "required_fix_tests": [
+    "A correctly generated 32-record chain from the production Stage-2 report path passes the new semantic validator both with and without independent_reconstruction.",
+    "Distinct pre-step and post-step sentinels travel through the production report builder and land only in their exact authorized nested keys while all top-level semantic bindings remain byte-identical.",
+    "After recomputing every affected record hash and downstream previous_record_hash, swapping the pre_step and post_step objects is rejected.",
+    "The same correctly rehashed malformed chain is rejected when it is also supplied verbatim as independent_reconstruction.",
+    "After recomputing the chain, moving or copying loss, policy loss, anchor contribution, entropy, either gradient map, optimizer steps, any parameter-delta set, safety, or either output hash to the wrong phase is rejected one field at a time.",
+    "Missing, extra, renamed, non-mapping, or wrong-type timing objects and nested fields are rejected even when the record and chain hashes are valid.",
+    "A mutation of parameter_diffs_from_fixed_stage_2_start to the preceding-update delta is rejected, and the production path proves all 32 records use the same fixed post-Stage-1 snapshot.",
+    "All remediation-v2 directional, output-confinement, artifact, and timing tests plus remediation-v3 membership tests and remediation-v4 real-filesystem publication tests remain mutation-sensitive and pass."
+  ],
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v3",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v3/pretraining_probe_receipt.json",
+    "publication": "Create exactly once with CREATE_NEW semantics only after the authorized membership, artifact-allowlist, and timing-semantic fixes, every remediation-v2/v3/v4/v5 test, and all regressions pass. Preserve prepare v1 and v2 byte-exact.",
+    "must_bind_all_eight_contracts": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true,
+    "contract_binding_field_count": 16,
+    "top_level_key_count_exact": 45,
+    "top_level_additions_over_the_v4_prepare_contract": [
+      "prepare_audit_remediation_v5",
+      "prepare_audit_remediation_v5_path",
+      "prepare_audit_remediation_v5_sha256"
+    ],
+    "all_other_prepare_keys_unchanged": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v7",
+    "overrides_remediation_v4_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "prepare_audit_remediation_v2_path",
+      "prepare_audit_remediation_v2_sha256",
+      "prepare_audit_remediation_v3_path",
+      "prepare_audit_remediation_v3_sha256",
+      "prepare_audit_remediation_v4_path",
+      "prepare_audit_remediation_v4_sha256",
+      "prepare_audit_remediation_v5_path",
+      "prepare_audit_remediation_v5_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 38,
+    "loader_key_derivation": "Preserve the prior 36-key v6 set as EXECUTION_SPEC_V6_TOP_LEVEL_KEYS by excluding only the v5 path/hash pair from the new v7 set. The v4 remediation loader must compare its override against that preserved v6 set; derive all older sets transitively without changing them.",
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "all_v2_v3_v4_v5_production_path_tests_pass": true,
+    "full_exact_name_iteration_007_suite_pass": true,
+    "source_baseline_full_suite_pass": true,
+    "destination_relocation_safe_suite_pass": true,
+    "only_the_same_five_source_root_confinement_tests_may_be_excluded": true,
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_code_and_test_changes": true
+  },
+  "stop_rule": "After the single timing-semantic validation fix and all previously authorized fixes and tests pass, generate prepare v3 exactly once and stop for independent code and numerical-provenance audits before execution-spec authoring. If any further production defect appears, do not alter production behavior without another root-authored correction."
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "archaludon-rl-conservative-ppo-provenance-correction-v1",
+  "correction_id": "phase1-iteration-005-conservative-ppo-provenance-correction-20260801",
+  "purpose": "Correct only the implementation-tree ordering definition and source snapshot binding used by the iteration-005 conservative PPO plan. This correction does not authorize training, games, packaging, promotion, or submission.",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_005_conservative_ppo_implementation_plan.json",
+    "sha256": "E47800D5842FDEB0E49B9C0CBC6A4F55D334091DF6D79C253941DCFC28047577",
+    "plan_id": "phase1-iteration-005-conservative-ppo-implementation-20260731"
+  },
+  "source_implementation_snapshot": {
+    "path": "experiments/archaludon_latest_v1_rl_temperature_candidate_20260731",
+    "file_count": 46,
+    "superseded_sha256": "2B4E0795439843A69ED78EA3EA1567C791271EFEFBF2E4662940CB93F2E5F1BB",
+    "superseded_ordering_actual": "Python 3.11 WindowsPath native ordering. On this frozen 46-path set it is reproduced by sorting relative POSIX paths case-insensitively before hashing records.",
+    "corrected_sha256": "FA6BE7FB76977C60D89F5D0505AC7CDE9656442F96905666E6F7605A8EDC2985",
+    "corrected_definition": "Enumerate regular files recursively, excluding every path with a __pycache__ or test_outputs component and every .pyc suffix. Sort by the unsigned UTF-8 bytes of each relative POSIX path in ascending lexicographic order. Hash the concatenation, for each file, of relative_path UTF-8 bytes, NUL, decimal byte_size ASCII, NUL, uppercase_file_sha256 ASCII, and LF."
+  },
+  "invariants": [
+    "The base plan remains immutable and is still required at its exact path and SHA-256.",
+    "Every base-plan field other than immutable_inputs.source_implementation.snapshot_sha256 remains unchanged.",
+    "The source implementation remains unchanged; this correction changes only its snapshot ordering definition and derived hash.",
+    "Every candidate prepare receipt and execution spec after this correction must use the corrected case-sensitive UTF-8 byte ordering.",
+    "All v1, v2, and v3 prepare receipts remain historical rejected evidence and must not be used for execution."
+  ],
+  "execution_stop_rule": "Regenerate a no-training v4 prepare receipt and obtain independent code and numerical provenance audits before authoring a separate immutable execution spec."
+}

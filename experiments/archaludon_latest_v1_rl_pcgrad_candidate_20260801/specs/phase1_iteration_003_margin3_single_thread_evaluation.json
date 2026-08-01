@@ -1,0 +1,92 @@
+{
+  "schema_version": "archaludon-rl-immutable-collection-evaluation-spec-v1",
+  "evaluation_id": "phase1-iteration-003-margin3-single-thread-evaluation-20260731",
+  "collection_execution_spec": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_margin3_single_thread_collection.json",
+    "sha256": "4806F8B64DE4089176281FEB222ED9C43F4C355D7C568B91EE7DE96805336955"
+  },
+  "raw_collection": {
+    "root": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/rollouts",
+    "manifest_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/rollouts/run_manifest.json",
+    "manifest_sha256": "60CEE4928E50A12D26636A86B6784896D3345E09A84D0FE345568C522944A588",
+    "collector_stdout_sha256": "7EDEB53AEF373E74D04D3481466982924B1D688FF8D1BCCA18B73CC15C2F8046",
+    "collector_stderr_sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "rollout_file_count": 97,
+    "rollout_snapshot_sha256": "19973E5D16F788958633E859596018882DA779806AC3BAC56129D9E214DA678D",
+    "snapshot_definition": "SHA256 of UTF-8 concatenation of sorted relative_path + NUL + byte_size + NUL + uppercase_file_sha256 + LF for every file under raw_collection.root",
+    "schedule_sha256": "0E585F7BE8909B65850909C34F8E55B1097429092DDF999BFED2D9449C733980",
+    "collection_spec_sha256": "22668FD65C4E7081865ED1C4D257466E277B50424B745E110F36A63FE1723276",
+    "dataset_sha256": "FB493145FE4B58B3FC67EB436F0CB12ADFFE3BD43B952FD79E8EEBB80455773B",
+    "runtime_receipt_sha256": "31EA46BD5C25D7D349DABA2C554FF7E46ED72254EAD87B9D85B01DC136A5ABA1",
+    "expected_retained_episodes": 32,
+    "expected_audit_episodes": 64
+  },
+  "deterministic_latest_v1_control": {
+    "spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_deterministic_control.json",
+    "spec_sha256": "EFB19983FA78F826354400A324943F100F69322D137DEB818FC830AE65D98CA3",
+    "paired_results_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_deterministic_control_20260731/paired_results.csv",
+    "paired_results_sha256": "2CE14B5D44A4C9B63CB5BC2B3AA61B576BA38E9BFC41358F2C46C0FA749A6080",
+    "report_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_deterministic_control_20260731/report.json",
+    "report_sha256": "A298B3E366F7D6464B0AEA17D20C46AFF8C5990238DEB564933E75EF384CC2FC",
+    "cell_summary_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_deterministic_control_20260731/cell_summary.csv",
+    "cell_summary_sha256": "091F4154E85759B154022025070A1F7977EE45CEE89E5573DC2D57AB78B90358",
+    "comparison_win_column": "candidate_win",
+    "expected_rows": 32,
+    "verified_control_wins": 27
+  },
+  "identity_key": [
+    "opponent_id",
+    "seat",
+    "seed"
+  ],
+  "metric_definitions": {
+    "policy_win": "terminal_result equals seat",
+    "policy_loss": "terminal_result is 0 or 1 and does not equal seat",
+    "draw": "terminal_result equals 2",
+    "ppo_row": "decision.ppo_eligible is true",
+    "eligible_divergence": "ppo_row and final_action differs from teacher_action",
+    "protected_ppo_row": "decision.protected is true and decision.ppo_eligible is true",
+    "protected_action_divergence": "decision.protected is true and final_action differs from teacher_action",
+    "zero_residual_eligible_argmax_divergence": "ppo_row and neural_shadow_action differs from teacher_action",
+    "paired_win_delta": "stochastic policy_win minus deterministic control candidate_win on the exact identity key"
+  },
+  "required_recomputations": [
+    "verify every input hash and the rollout snapshot hash",
+    "run the checked no-game manifest dataset validator",
+    "verify exact schedule coverage and unique identity keys",
+    "verify all retained and A/B audit receipts, terminal results, engine steps, schemas, and runtime receipts",
+    "count model failures, timeouts, action errors, exceptions, max-step hits, and duplicate mismatches",
+    "compute wins, losses, draws, PPO rows, eligible divergences, protected violations, and zero-residual argmax violations overall, by seat, by opponent, and by opponent-seat cell",
+    "join the deterministic control on the exact identity key and compute paired win deltas",
+    "report Wilson 95 percent intervals for overall win rate and overall eligible-divergence rate",
+    "evaluate every gate without running PPO"
+  ],
+  "gates": {
+    "integrity_failures": 0,
+    "every_opponent_seat_cell_has_ppo_rows": true,
+    "eligible_divergence_rate_minimum": 0.15,
+    "eligible_divergence_rate_maximum": 0.35,
+    "divergence_present_in_both_seats": true,
+    "divergence_present_for_all_opponents": true,
+    "cell_divergence_rate_maximum": 0.5,
+    "terminal_wins_minimum": 4,
+    "terminal_losses_minimum": 4,
+    "terminal_wins_control_adjusted_minimum": 19,
+    "protected_ppo_eligible_rows": 0,
+    "protected_action_divergences": 0,
+    "zero_residual_eligible_argmax_divergences": 0,
+    "model_failures": 0,
+    "model_timeouts": 0,
+    "action_errors": 0,
+    "max_step_hits": 0,
+    "exceptions": 0,
+    "duplicate_mismatches": 0
+  },
+  "evaluation_output": {
+    "directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/evaluation",
+    "reproducible_calculation": "sol_ultra_recompute.py",
+    "machine_summary": "sol_ultra_evaluation.json",
+    "human_summary": "SOL_ULTRA_EVALUATION.md"
+  },
+  "decision_scope": "Numerically assess collection admissibility and PPO-start readiness only. Do not train, package, submit, or make a strength/promotion claim."
+}

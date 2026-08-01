@@ -1,0 +1,372 @@
+{
+  "schema_version": "archaludon-rl-mass-preserving-pcgrad-implementation-plan-v1",
+  "plan_id": "phase1-iteration-009-mass-preserving-pcgrad-20260801",
+  "purpose": "Implement and prepare, without training, one matched two-arm offline experiment that isolates destructive family-polarity gradient aggregation. This plan does not authorize optimizer execution, games, runtime smoke, packaging, promotion, or submission.",
+  "strength_claim_allowed": false,
+  "parent_result": {
+    "path": "experiments/archaludon_latest_v1_rl/PHASE1_ITERATION_008_RESULT.md",
+    "sha256": "6AAEA02E37D5C9AD91745D4ABCED11ED6CAADE3EC049816903142DFF7ED3B2AA",
+    "decision": "PASS_AS_NARROW_READ_ONLY_AUDIT_CONTINUE_RL_PATH",
+    "games_run": 0,
+    "optimizer_steps": 0
+  },
+  "audit_evidence": {
+    "plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_008_identifiability_audit_plan.json",
+    "plan_sha256": "8FAE5B736C4C1E269AC5FCD1EA1D0146EBC35B78BDA6A454AF452D6920D7E701",
+    "execution_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_008_identifiability_audit_execution_spec_v1.json",
+    "execution_spec_sha256": "55B2F8D928F787C9B99821D556448D5F4761CAE1D46DC3E6861AE7D5ABF9F479",
+    "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_identifiability_audit_20260801",
+    "manifest_core_sha256": "0FB981A19C01B068E77210E06E074A94064641DFA8BA758D741CECE82449DF4C",
+    "manifest_file_sha256": "537FF791D51A562A8DC2280461E973F4E849539DB069E3E3D1EAFA770D2A5526",
+    "independent_numeric_discrepancies": 0,
+    "priority_gradient_projection_favorable_count": 2,
+    "priority_gradient_projection_total": 6,
+    "normalization_robust_sign_flips": 219,
+    "limitations": [
+      "O is an opaque exact hash and is unique on all 830 rows, so temporal and value-credit denominators are zero rather than affirmative evidence of sufficiency.",
+      "Near-neighbor agreement is based on only two retained pairs.",
+      "The audit manifest describes its implementation aggregate as path-sorted although the stored aggregate follows implementation tuple order; individual file hashes and numeric outputs are unaffected."
+    ]
+  },
+  "rejection_scope": {
+    "rejected_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801/candidate.pt",
+    "rejected_checkpoint_sha256": "5547AFD90CF039390CDA8E70E3DA5868C12B0277AA670636573F7BC0FE7715B3",
+    "rejected_receipt_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801/rejected_receipt.json",
+    "rejected_receipt_file_sha256": "C2AF5C7BCA142296CAF1407F3FFA498A4FD2E4F71FB7C9E6B68C5D2C2AC0B796",
+    "rejected_receipt_self_sha256": "07E8D544F5544779A5488C9072238317FDE238E7BCEE13EE69E9A87B2EBBFC3D",
+    "checkpoint_must_not_initialize_either_arm": true,
+    "read_only_reference_use": "Only the hashes bound in this plan may be used to validate control reproduction. The rejected checkpoint must not be loaded during prepare or execution.",
+    "not_rejected": [
+      "clean-room RL",
+      "latest-v1 rule policy",
+      "iteration004 initialization",
+      "game strength",
+      "the frozen representation as a general proposition",
+      "the fixed targets as a general proposition"
+    ]
+  },
+  "selected_hypothesis": "Destructive aggregation of family-polarity policy gradients inside residual_head.0 is the immediate blocker. Holding the representation, targets, architecture, data mass, and optimizer constant, deterministic mass-preserving PCGrad will make all six priority directions persistently favorable without violating global, raw-return, END, KL, or TV safety.",
+  "hypothesis_falsifier": "After a matched 64-update control and treatment, the hypothesis is insufficient if the treatment does not satisfy every offline gate, if the control also satisfies all six priority directions, if Adam steps undo the projected direction, or if any safety or raw-return gate fails. Such failure rejects only this PCGrad intervention, not RL.",
+  "immutable_inputs": {
+    "input_checkpoint": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "optimizer_state_must_be_none": true
+    },
+    "manifest": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+      "sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393"
+    },
+    "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+    "on_policy_rows": 830,
+    "source_trajectories": 32,
+    "fixed_advantages_sha256": "B7F77DEBE545FDD5B7767C909E185904A52F161B6253D821950E6FDE6A79E53B",
+    "fixed_behavior_logprobabilities_sha256": "BF402ED36ECD78905597F562E8987927C2D74FD5AEE390F1D1E1426CE3D1DA98",
+    "source_implementation": {
+      "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801",
+      "snapshot_sha256": "6B95C5B6DEB354293E2DC08077DAEC5FE6A77D013832DD70DECC485C91EB87CA",
+      "snapshot_file_count": 53,
+      "copy_exclusions": [
+        "__pycache__",
+        "test_outputs",
+        "*.pyc"
+      ]
+    }
+  },
+  "control_reproduction_at_stage2_update32": {
+    "reference_checkpoint_sha256_for_provenance_only": "5547AFD90CF039390CDA8E70E3DA5868C12B0277AA670636573F7BC0FE7715B3",
+    "stage1_record_sha256": "E4059D36B9B549F290B1652D51654DB7DED5B5906D809FB21517FD21DBDC6177",
+    "stage1_ordered_probability_bytes_sha256": "F1CB32B1FC474A940710860E9DDF16D71FB8C35CE726D211794D9544BD064454",
+    "stage32_record_sha256": "58EA0E4F4CD8C3351D922BF0D03C637A1F379402F8DC51EE7453FEC1940C5984",
+    "stage32_ordered_probability_bytes_sha256": "BBC78682CCE797D0E1D0A90329643DCC06BC0A356CB4033FB522244F0FE6B832",
+    "ordered_value_bytes_sha256": "3F61B19DAAA108D58E57700E2226BEABDBF551D23AA024CC9EBF14AD7AE131B7",
+    "stage32_parameter_bytes_sha256": {
+      "residual_head.0.weight": "7F155F7909959A89CBD1B67F35A35295D20C178AD0590CDD24CF49472895F1B4",
+      "residual_head.0.bias": "8CE0B6702427014004AC58BF10AB47EEA411042F416F11B43455E1B1E88C709F",
+      "residual_head.2.weight": "BC23EAC75269414FC67EEBA9A0B8B0172AEFB59B5C4CB090C97ED1D16748CBF4",
+      "residual_head.2.bias": "CC9EE0D468FA74EBCF8C5934E4A48EB8CE9B538E79A744E4B0B7862329F5F71C"
+    },
+    "optimizer_canonicalization": "Replace param indices with the exact four parameter names in optimizer order. For each state tensor record torch dtype, shape, and SHA-256 of contiguous CPU NumPy C-order bytes. Serialize one object containing the single param_group and name-keyed state records as UTF-8 JSON with sort_keys=true, separators comma/colon, ensure_ascii=false, then SHA-256.",
+    "optimizer_canonical_sha256": "45816C02B1B909FFB153EFCE5FA406AF381B3D2955D3CAEBD3B910DB632B70BA",
+    "optimizer_param_group_canonical_sha256": "CCD077FF186B2F0855C7D7362B44A22B97FF8C134FDD057B0A5102DC8494E4AA",
+    "optimizer_state_steps": {
+      "residual_head.0.weight": 32,
+      "residual_head.0.bias": 32,
+      "residual_head.2.weight": 1,
+      "residual_head.2.bias": 1
+    }
+  },
+  "isolated_implementation": {
+    "destination": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801",
+    "source_tree_must_remain_unchanged": true,
+    "required_module": "archaludon_rl.mass_preserving_pcgrad_pilot",
+    "required_test_module": "tests/test_mass_preserving_pcgrad_pilot.py",
+    "required_capabilities": [
+      "prepare one canonical no-training receipt without constructing an optimizer, changing parameters, or writing a checkpoint",
+      "validate the plan, parent result, audit evidence, input hashes, runtime, rows, task memberships, control reference hashes, and exact execution spec before optimizer construction",
+      "execute byte-identical Stage1 updates in two independent arms and branch only after exact equality checks",
+      "execute one 64-update vanilla control arm and one 64-update deterministic PCGrad treatment arm",
+      "retain raw task gradients, projection matrices, actual Adam-step projections, conflicts, full row diagnostics, and all acceptance evidence",
+      "publish exactly two terminal checkpoints plus one canonical accepted or rejected receipt without overwriting inputs"
+    ]
+  },
+  "training_contract": {
+    "algorithm": "matched_actor_only_mass_preserving_pcgrad",
+    "device": "cpu",
+    "row_order": "manifest order",
+    "shuffle": false,
+    "minibatches": false,
+    "replay_mixing": false,
+    "games": 0,
+    "torch_version": "2.11.0+cu128",
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "fixed_training_inputs": {
+      "advantages": "Recompute the original GAE and float32 population normalization from iteration004 exactly once, validate the bound SHA, and hold all 830 values fixed in both arms.",
+      "behavior_logprobabilities": "Use the same 830 stored behavior log-probabilities in both arms and every update.",
+      "value_targets": "Hold initial-checkpoint targets for diagnostics only; value loss is exactly zero.",
+      "row_order_and_sampled_indices": "Use identical manifest-order rows and sampled indices in both arms and every update."
+    },
+    "arms": [
+      "control_vanilla",
+      "treatment_pcgrad"
+    ],
+    "optimizer_per_arm": {
+      "name": "Adam",
+      "fresh_state": true,
+      "one_object_within_each_arm": true,
+      "objects_shared_between_arms": false,
+      "reset_between_stages": false,
+      "parameter_names_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "learning_rate": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.0,
+      "amsgrad": false,
+      "foreach": null,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "fused": null,
+      "decoupled_weight_decay": false
+    },
+    "ppo_config": {
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "clip_ratio": 0.1,
+      "value_coef": 0.0,
+      "entropy_coef": 0.0,
+      "anchor_kl_coefficient": 0.1,
+      "anchor_kl_adaptation": false,
+      "gradient_clip": 0.25,
+      "full_batch_rows": 830,
+      "optimizer_steps_per_arm": 65,
+      "total_optimizer_steps_both_arms": 130
+    },
+    "stage1": {
+      "optimizer_steps_per_arm": 1,
+      "trainable_parameter_names_exact": [
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "required_branch_equality": [
+        "all model parameter bytes",
+        "all optimizer state bytes and scalar options",
+        "all 830 probability and value bytes",
+        "loss and diagnostic values",
+        "fixed input identities"
+      ],
+      "must_match_bound_iteration007_stage1": true
+    },
+    "stage2_common": {
+      "optimizer_steps_per_arm": 64,
+      "trainable_parameter_names_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias"
+      ],
+      "frozen_parameter_names_include": [
+        "residual_head.2.*",
+        "state_encoder.*",
+        "action_encoder.*",
+        "value_head.*"
+      ],
+      "diagnostic_update_ordinals": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        24,
+        32,
+        48,
+        64
+      ],
+      "terminal_update_ordinal": 64,
+      "no_directional_or_futility_early_stop": true,
+      "control_update32_must_match_bound_reference": true
+    },
+    "control": {
+      "gradient": "The direct ordinary full-batch clipped PPO policy-loss gradient plus the unchanged anchor-KL gradient."
+    },
+    "treatment": {
+      "task_order": [
+        "PLAY:positive",
+        "ATTACH:negative",
+        "EVOLVE:negative",
+        "RETREAT:positive",
+        "ATTACK:negative",
+        "END:positive",
+        "REMAINING_ROWS"
+      ],
+      "task_partition": "Seven disjoint sets covering each of the 830 rows exactly once. Sign/polarity uses the fixed normalized training advantage and the robust/deadband conventions already bound by the source implementation.",
+      "mass_preservation": "Each task policy loss is the sum of its own row terms divided by the common denominator 830. No task averaging or equalization is allowed. The sum of seven unsurgeried gradients must reproduce the direct full-batch policy-loss gradient.",
+      "policy_loss_row_term": "Negative min(ratio*advantage, clamp(ratio,0.9,1.1)*advantage), using the fixed behavior log-probability.",
+      "projection_numeric_domain": "Flatten each residual_head.0 gradient in exact parameter order, convert to CPU float64, perform dot products and projections in float64, sum projected gradients in rotated task order, then cast once to each parameter's float32 dtype before adding the float32 anchor-KL gradient.",
+      "cyclic_order": "At Stage2 update u, left-rotate the fixed task_order by (u-1) mod 7. For each task i in that rotated order, initialize h_i=g_i and visit every other task j in the same rotated order. If dot(h_i,g_j)<0 and squared_norm(g_j)>0, set h_i=h_i-dot(h_i,g_j)/squared_norm(g_j)*g_j. g_j is always the original unsurgeried gradient for that update.",
+      "combined_gradient": "Sum all final h_i in the rotated task order, add the unchanged global anchor-KL loss gradient, apply the common global norm clip 0.25, and take the Adam step.",
+      "unsurgeried_sum_tolerance": {
+        "maximum_absolute_difference": 5e-10,
+        "relative_l2_difference": 1e-05
+      },
+      "zero_norm_rule": "A zero-norm g_j is skipped and recorded. Nonfinite task gradients or projections are a hard safety stop."
+    },
+    "value_contract": {
+      "value_loss_is_exact_zero": true,
+      "state_encoder_parameter_bytes_unchanged": true,
+      "action_encoder_parameter_bytes_unchanged": true,
+      "value_head_parameter_bytes_unchanged": true,
+      "all_encoder_and_value_optimizer_state_absent": true,
+      "all_830_value_outputs_byte_exact_to_initial": true
+    }
+  },
+  "diagnostic_contract": {
+    "every_stage2_update": [
+      "seven raw task gradient norms, pairwise dots and cosines",
+      "projection order, every conflict and projection coefficient, projected task norms, and surgery delta",
+      "unsurgeried sum versus direct full-batch gradient differences",
+      "combined pre-clip gradient and actual parameter delta projections for all seven tasks",
+      "optimizer state steps, losses, parameter hashes, KL, TV, nonfinite counts, and compact 830-row alignment summary"
+    ],
+    "full_830_row_diagnostics_at": [
+      "Stage1",
+      "Stage2 updates 1, 2, 4, 8, 16, 24, 32, 48, and 64 in both arms"
+    ],
+    "required_weighting_views": [
+      "ordinary absolute normalized-advantage weight",
+      "equal exact-public-state weight",
+      "equal source-trajectory weight",
+      "raw-GAE absolute-target weight",
+      "Monte-Carlo absolute-target weight",
+      "611 raw-normalized sign-stable rows"
+    ],
+    "lower_empirical_median": "Sort ascending and select index (n-1)//2 without averaging.",
+    "orientation_deadband_tau": 1e-07
+  },
+  "safety_gates": {
+    "apply_after_stage1_and_every_stage2_update": {
+      "mean_anchor_kl_maximum": 0.002,
+      "per_row_anchor_kl_maximum": 0.01,
+      "per_row_total_variation_from_initial_maximum": 0.02,
+      "unique_argmax_required_for_every_row": true,
+      "nonfinite_count": 0,
+      "parameter_optimizer_and_value_contracts_must_pass": true
+    },
+    "ppo_clip_active_rows_required_zero_at_diagnostic_milestones": true,
+    "failure_action": "Stop both arms immediately after retaining the exact completed state, publish only a canonical rejected result with both checkpoints and no retry, and do not run runtime smoke or games."
+  },
+  "terminal_offline_acceptance": {
+    "completed_optimizer_steps_per_arm_exact": 65,
+    "all_safety_gates_pass": true,
+    "intended_mechanism": {
+      "surgery_nonzero": true,
+      "each_of_four_audit_adverse_groups_touched_within_first_16_updates": true,
+      "all_six_priority_group_gradient_projections_into_cumulative_treatment_delta_strictly_favorable_at_updates": [
+        48,
+        64
+      ]
+    },
+    "priority_directions": {
+      "groups": [
+        "PLAY:positive",
+        "ATTACH:negative",
+        "EVOLVE:negative",
+        "RETREAT:positive",
+        "ATTACK:negative",
+        "END:positive"
+      ],
+      "treatment_oriented_lower_median_minimum_at_updates_48_and_64": 1e-06,
+      "treatment_ordinary_equal_state_equal_trajectory_median_minimum_at_update64": 1e-06,
+      "treatment_minus_control_oriented_lower_median_minimum_at_updates_48_and_64": 1e-06,
+      "control_must_fail_at_least_one_group_at_update64": true
+    },
+    "global_and_adjacent_safety": {
+      "all_12_family_polarity_lower_medians_strictly_greater_than_at_updates_48_and_64": 1e-07,
+      "global_lower_median_minimum_at_updates_48_and_64": 1e-05,
+      "global_alignment_score_minimum_at_updates_48_and_64": 0.1,
+      "raw_GAE_absolute_target_weighted_global_movement_minimum": 0.0,
+      "Monte_Carlo_absolute_target_weighted_global_movement_minimum": 0.0,
+      "sign_stable_611_rows_lower_median_minimum": 0.0
+    },
+    "END_controls": {
+      "each_of_20_positive_normalized_sampled_teacher_END_rows_delta_minimum": 1e-06,
+      "all_four_negative_END_controls_oriented_delta_strictly_greater_than": 1e-07,
+      "all_43_teacher_END_rows_preserve_unique_argmax": true,
+      "raw_positive_END_lower_median_strictly_positive": true,
+      "maximum_individual_raw_positive_END_probability_decrease": 0.0025
+    },
+    "duplicate_treatment_execution_canonical_outputs_identical": true,
+    "checkpoint_reload_and_exact_metadata_validation": true,
+    "accepted_marker_only_after_independent_numeric_audit_and_root_recomputation": true
+  },
+  "runtime_and_game_unlock": {
+    "offline_pass_unlocks": "Only a both-seat deterministic runtime parity smoke with repeated-trace identity, zero action errors, zero nonfinite outputs, and zero max-step hits.",
+    "runtime_smoke_pass_unlocks": "Only a separately immutable paired both-seat schedule against exact historical-Silver first and then the adjacent complete-agent population.",
+    "game_strength_claim_before_unlock": false
+  },
+  "implementation_tests": [
+    "prepare constructs no optimizer, changes no parameter, loads no rejected checkpoint, and writes no checkpoint",
+    "wrong plan, parent, audit, input, dataset, task membership, control reference, source snapshot, runtime, or execution-spec binding fails before optimizer construction",
+    "the seven tasks are disjoint, cover 830 rows, preserve 1/830 mass, and their unsurgeried gradient sum matches the direct full-batch gradient at and across tolerance boundaries",
+    "cyclic order, negative-dot projection, zero-norm skip, float64 projection, float32 cast, KL addition, norm clip, and Adam step are tested independently",
+    "Stage1 arms are byte-identical and match the bound reference before branching",
+    "control update32 matches every bound parameter, probability, value, optimizer, and record hash",
+    "only residual_head.0 changes during 64 Stage2 updates; frozen tensors and values remain byte-exact",
+    "all diagnostic milestones, raw matrices, Adam-step projections, weighting views, END controls, and pass/fail boundaries are covered",
+    "directional failure never early-stops, while safety failure stops both arms",
+    "output publication is atomic, refuses existing destinations, and cannot write ACCEPTED before every gate plus independent audit"
+  ],
+  "forbidden_changes": [
+    "initializing from or loading iteration005, iteration006, or iteration007 rejected checkpoints",
+    "teacher-action imitation, behavior cloning, Gold-action labels, or replay-derived opponent-policy labels",
+    "family-specific heads, architecture changes, feature changes, target changes, reward changes, or target reweighting",
+    "equalizing task weights, oversampling, duplicating rows, changing row order, minibatching, shuffling, or replay mixing",
+    "training encoders, readout during Stage2, or value parameters",
+    "changing optimizer hyperparameters, PPO clip, KL formula, anchor coefficient, behavior log-probabilities, or advantages",
+    "directional early stop, same-iteration retry, runtime smoke, games, packaging, promotion, Kaggle write, or strength claim"
+  ],
+  "output_semantics": {
+    "new_empty_output_directory_required": true,
+    "terminal_checkpoints_exact": [
+      "control.pt",
+      "treatment.pt"
+    ],
+    "one_receipt_only": true,
+    "one_of_ACCEPTED_or_REJECTED_only": true,
+    "same_iteration_retry": false
+  },
+  "execution_stop_rule": "Implementation, focused tests, one no-training prepare receipt, independent code review, and root provenance verification must pass before the root authors a separately hashed execution specification. This implementation plan itself authorizes no optimizer step and no game."
+}

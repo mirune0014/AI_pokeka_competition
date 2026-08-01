@@ -1,0 +1,195 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v8",
+  "remediation_id": "phase1-iteration-007-cleanup-share-and-entry-type-test-fix-20260801",
+  "contract_chain": [
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+      "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+      "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+      "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+      "sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v2.json",
+      "sha256": "BD675A1DF53587A0E62270EBED46F1EA3D3531918F22B7F82C9063A3DCB612C0"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v3.json",
+      "sha256": "5D437C38386C7293E1EA6D9F3EE72766635EEB3E381BB982CAE3E6409C0E509E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v4.json",
+      "sha256": "B92D03A1715BC1FF4DBB98EEBE28F8065D4A9E40CD977A6A6DA261A89295A39F"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v5.json",
+      "sha256": "79832D0DE952FA8B7F31AF203AAD71492982ADF89F675E707D0AEA0B3FB691BE"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v6.json",
+      "sha256": "7488ED2364A72EBD67AC09CB3A762B025FDBC3874F09EB150C4010AA9AE82050"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v7.json",
+      "sha256": "708EBF2320AE6F9850151C6A0AF93453AE7695A0C99240905557A5FE257CFACB"
+    }
+  ],
+  "authority": "This remediation authorizes exactly one production behavior correction and one test-fixture correction after the prepare-v3 code audit. The production correction restores the required FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE sharing to owned receipt and marker cleanup reopens. The test correction must make wrong-entry-type cases reach the production type gate with same-parent held evidence. It changes no training or acceptance behavior. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all eleven contract file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "model_optimizer_schedule_or_threshold_change": false,
+  "real_optimizer_execution_authorized": false,
+  "blocked_prepare_v3": {
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v3/pretraining_probe_receipt.json",
+    "file_sha256": "8D89BC1EF26345DE567623B76F9070DB43FB971770818DE7632D94C66D306AB1",
+    "receipt_sha256": "A9202B2A5F0DCD06FAA0679BDBB00B7CF5A1FBC78C1D801AB67F718E19E2E9C2",
+    "candidate_snapshot_sha256": "B8B51A5B7FA54A542CE32B56019F92018E2D734BC33C3FCB570DC0C938CA18CB",
+    "primary_module_sha256": "D024773EB606359633C4DACAC7C1B0E7F6BE77EF20F13961C20A3C8E75608B91",
+    "test_module_sha256": "E603C654FE6A65E5B43E33560EE93326CD6E7822EB392FAE5B4BE6B9FF2E55A9",
+    "numerical_status": "PASS_ZERO_DISCREPANCIES",
+    "code_status": "AUDIT_BLOCKED_NOT_EXECUTION_AUTHORIZATION",
+    "must_remain_byte_exact": true,
+    "must_not_be_bound_by_execution_spec": true
+  },
+  "confirmed_findings": {
+    "production_defect": {
+      "function": "_delete_owned_status_artifact",
+      "current_behavior": "The OPEN_EXISTING cleanup handle requests GENERIC_READ | DELETE but supplies FILE_SHARE_READ only.",
+      "required_behavior": "The cleanup reopen for an owned receipt or marker must use FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, matching the exact non-held artifact sharing contract from remediations v6 and v7.",
+      "scope": "Only the share_mode expression in the cleanup reopen is authorized to change. Desired access, creation disposition, flags, identity/hash verification, delete-on-close, close order, directory guards, and cleanup ownership remain unchanged."
+    },
+    "test_blind_spot": {
+      "test": "test_held_candidate_wrong_direct_entry_type_fails_before_guard_use",
+      "current_failure_point": "A guard from a different directory is supplied, so held-checkpoint parent provenance fails before the direct-entry type gate.",
+      "required_failure_point": "The candidate or private-alias direct entry is classified as directory, symlink, junction, reparse, or other in the same guarded output and the production exact-type gate rejects it before held bytes are read or a canonical status is published."
+    }
+  },
+  "authorized_production_fix": {
+    "exact_change": "In _delete_owned_status_artifact, set the cleanup OPEN_EXISTING share_mode to inherited._FILE_SHARE_READ | inherited._FILE_SHARE_WRITE | inherited._FILE_SHARE_DELETE.",
+    "must_remain_exact": [
+      "desired_access is GENERIC_READ | DELETE",
+      "creation_disposition is OPEN_EXISTING",
+      "flags are FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT",
+      "attributes reject directories and reparse points",
+      "final path equals the exact owned receipt or marker path",
+      "readback SHA-256 equals the expected owned hash",
+      "only that verified owned status file receives delete-on-close",
+      "the stable directory guard is checked before and after cleanup"
+    ],
+    "forbidden_changes": [
+      "changing inventory, candidate, private-alias, or publication sharing modes beyond the one cleanup correction",
+      "deleting or adopting an unexpected entry",
+      "weakening identity, hash, exact-set, cleanup, held-guard, or second-checkpoint gates",
+      "changing inherited conservative_ppo_pilot.py",
+      "changing any model, data, feature, loss, optimizer, learning rate, schedule, diagnostic, safety, or acceptance behavior",
+      "creating an execution spec, optimizer state, checkpoint, runtime smoke, or games before replacement prepare and audits pass"
+    ]
+  },
+  "required_test_corrections": {
+    "cleanup_share_mode": [
+      "Exercise real post-status contamination cleanup for both accepted and rejected status.",
+      "Instrument every _win_open_handle call and identify cleanup receipt and marker opens by exact path, GENERIC_READ | DELETE access, and OPEN_EXISTING disposition.",
+      "Require both cleanup opens to use exactly FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE.",
+      "Mutating either cleanup open back to FILE_SHARE_READ only must make the test fail.",
+      "After cleanup, only the newly owned receipt and marker are removed; candidate.pt and every unexpected entry remain, and the internal alias disappears only on owner close."
+    ],
+    "same_parent_wrong_entry_type": [
+      "Create one real stable output-directory guard and one real same-parent held staging file guard with exact readback/hash evidence; do not use a guard from a second output directory.",
+      "For candidate.pt, create real same-parent directory, symlink, junction, or reparse cases where the platform permits them. If privilege prevents a link kind, use the existing link/reparse detection seam while retaining the same-parent real guard and exact production entrypoint.",
+      "For the private alias state that cannot be physically substituted while its real guard is live, mutate only the production inventory result at the narrow classification seam while retaining the same-parent real guard, exact alias name, readback, and public candidate evidence.",
+      "Each case must reach _require_exact_output_artifacts and fail specifically at the exact direct regular-file type/link gate before _win_read_all on the held guard, before _publish_status, and before any receipt or marker exists.",
+      "A valid same-parent regular-file control must pass the same production entrypoint."
+    ],
+    "all_prior_tests_remain_required": true
+  },
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v4",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v4/pretraining_probe_receipt.json",
+    "publication": "Create exactly once with CREATE_NEW semantics only after the cleanup correction, corrected mutation-sensitive tests, all remediation-v2 through v8 tests, and every regression pass. Preserve prepare v1, v2, and blocked v3 byte-exact.",
+    "must_bind_all_eleven_contracts": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true,
+    "contract_binding_field_count": 22,
+    "top_level_key_count_exact": 54,
+    "top_level_additions_over_the_v7_prepare_contract": [
+      "prepare_audit_remediation_v8",
+      "prepare_audit_remediation_v8_path",
+      "prepare_audit_remediation_v8_sha256"
+    ],
+    "all_other_prepare_keys_unchanged": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v10",
+    "overrides_remediation_v7_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "prepare_audit_remediation_v2_path",
+      "prepare_audit_remediation_v2_sha256",
+      "prepare_audit_remediation_v3_path",
+      "prepare_audit_remediation_v3_sha256",
+      "prepare_audit_remediation_v4_path",
+      "prepare_audit_remediation_v4_sha256",
+      "prepare_audit_remediation_v5_path",
+      "prepare_audit_remediation_v5_sha256",
+      "prepare_audit_remediation_v6_path",
+      "prepare_audit_remediation_v6_sha256",
+      "prepare_audit_remediation_v7_path",
+      "prepare_audit_remediation_v7_sha256",
+      "prepare_audit_remediation_v8_path",
+      "prepare_audit_remediation_v8_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 44,
+    "loader_key_derivation": "Preserve the prior 42-key v9 set as EXECUTION_SPEC_V9_TOP_LEVEL_KEYS by excluding only the v8 path/hash pair from the new v10 set. The v7 remediation loader must compare its override against that preserved v9 set; derive all older sets transitively without changing them.",
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "all_v2_through_v8_production_path_tests_pass": true,
+    "full_exact_name_iteration_007_suite_pass": true,
+    "source_baseline_full_suite_pass": true,
+    "destination_relocation_safe_suite_pass": true,
+    "only_the_same_five_source_root_confinement_tests_may_be_excluded": true,
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_code_and_test_changes": true
+  },
+  "stop_rule": "After the one cleanup share-mode correction and the two corrected mutation-sensitive test families pass with every prior regression, generate prepare v4 exactly once and stop for independent code and numerical-provenance audits before authoring execution spec v10. Any further production defect requires another root-authored correction."
+}

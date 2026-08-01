@@ -1,0 +1,320 @@
+{
+  "schema_version": "archaludon-rl-conservative-ppo-implementation-plan-v1",
+  "plan_id": "phase1-iteration-005-conservative-ppo-implementation-20260731",
+  "purpose": "Implement and verify a separately pinned one-step PPO pilot over the accepted iteration-004 dataset. This plan does not itself authorize training, games, packaging, promotion, or submission.",
+  "strength_claim_allowed": false,
+  "parent_result": {
+    "path": "experiments/archaludon_latest_v1_rl/PHASE1_ITERATION_004_RESULT.md",
+    "collection_evaluation_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_004_temperature065_single_thread_evaluation.json",
+    "collection_evaluation_spec_sha256": "3BB07C12B0D376B5EC5889640F729569454B2A8A2F385F5E53061A637D54FC9E",
+    "sol_ultra_evaluation_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/evaluation/sol_ultra_evaluation.json",
+    "sol_ultra_evaluation_sha256": "8BF7002B2728317228A40E3652DEB0166E3C6E3A4DE1A38DB92D6F7225DCF8E8",
+    "decision": "ACCEPT_DATASET_ONLY"
+  },
+  "selected_hypothesis": "Negative-return samples of premature END while a legal setup PLAY advances an empty or underdeveloped bench will lower END relative to setup actions, while the latest-v1 prior and KL constraint preserve legitimate END decisions.",
+  "immutable_inputs": {
+    "input_checkpoint": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "optimizer_state_must_be_none": true
+    },
+    "manifest": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+      "sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393"
+    },
+    "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+    "on_policy_rows": 830,
+    "behavior_policy_schema_sha256": "11049A88FB535D7496A2B3C9F7A1A48DB71FD20EFAD3EA39FD9E35CD79819F22",
+    "source_implementation": {
+      "path": "experiments/archaludon_latest_v1_rl_temperature_candidate_20260731",
+      "snapshot_sha256": "2B4E0795439843A69ED78EA3EA1567C791271EFEFBF2E4662940CB93F2E5F1BB",
+      "model_py_sha256": "B15665C47746A01C75AF8D79019D2AF13CCBF499A47213F0F8EF8461516536EC",
+      "reference_policy_py_sha256": "6BB635B78FE04C07F1760EE4C2EE7910B9D08E88F8088494E271BD75DEE3E0A7",
+      "train_ppo_py_sha256": "3D109EF05AA25838063E6B6D3CC2967BBC6B64910F445AD9FC2B1F01BCD81643",
+      "trajectory_py_sha256": "C1A167976D8315C724E1300375319C629D204542BCCF006E3F1798EEEDA17CBC"
+    }
+  },
+  "isolated_implementation": {
+    "destination": "experiments/archaludon_latest_v1_rl_ppo_candidate_20260731",
+    "source_tree_must_remain_unchanged": true,
+    "raw_dataset_must_remain_unchanged": true,
+    "required_capabilities": [
+      "prepare a canonical pre-training probe receipt without creating an optimizer or checkpoint",
+      "validate an immutable execution spec and the exact pre-training probe receipt before training",
+      "instantiate every PPOConfig field explicitly",
+      "reject any nonempty input optimizer state",
+      "perform exactly one full-batch optimizer step over manifest-order rows",
+      "record gradient norm and prove all values, gradients, and parameters are finite",
+      "measure pre/post behavior distributions, per-row anchor KL, per-row total variation, and deployment argmax",
+      "evaluate all negative-target and legitimate-END gates",
+      "save the candidate checkpoint and a canonical acceptance or rejection receipt without overwriting inputs",
+      "provide opt-in deployment telemetry in the isolated runtime agent so a real smoke can expose protected equality and model failures without changing normal deployment behavior"
+    ],
+    "training_loop_implementation": "Use a dedicated audited one-step loop in the isolated copy, reusing the checked manifest, row, GAE, distribution, KL, and checkpoint helpers. Do not monkeypatch Adam or call the unmodified train() blindly because it cannot certify gradient finiteness, step count, row KL/TV, pre-save probes, or output collisions.",
+    "output_semantics": {
+      "new_empty_output_directory_required": true,
+      "staging_checkpoint_never_overwrites_an_existing_path": true,
+      "accepted_marker_written_only_after_all_offline_gates_pass": true,
+      "rejected_checkpoint_is_retained_with_a_canonical_rejection_receipt": true,
+      "same_iteration_retry": false
+    }
+  },
+  "training_contract": {
+    "algorithm": "ppo",
+    "row_order": "manifest order",
+    "shuffle": false,
+    "minibatches": false,
+    "replay_mixing": false,
+    "epochs": 1,
+    "optimizer_steps": 1,
+    "device": "cpu",
+    "torch_version": "2.11.0+cu128",
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "optimizer": {
+      "name": "Adam",
+      "fresh_state": true,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.0,
+      "amsgrad": false,
+      "foreach": null,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "fused": null,
+      "decoupled_weight_decay": false
+    },
+    "ppo_config": {
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "clip_ratio": 0.1,
+      "value_coef": 0.5,
+      "entropy_coef": 0.0,
+      "anchor_kl_target": 0.0005,
+      "anchor_kl_initial_coef": 0.1,
+      "anchor_kl_hard_stop": 0.002,
+      "gradient_clip": 0.25,
+      "learning_rate": 0.0001,
+      "epochs": 1
+    }
+  },
+  "pretraining_probe_contract": {
+    "advantage_domains": {
+      "independent_float64": {
+        "description": "Python-float raw GAE followed by independent population mean, population SD, and normalization in float64.",
+        "advantage_mean": 0.242822610287225,
+        "advantage_population_sd": 0.4569847026613282,
+        "numeric_absolute_tolerance": 1e-12
+      },
+      "trainer_float32": {
+        "description": "The pinned trainer converts the ordered raw GAE values to torch.float32 before mean, population SD, and normalization. These are the values consumed by the PPO objective.",
+        "advantage_mean": 0.24282261729240417,
+        "advantage_population_sd": 0.4569846987724304,
+        "numeric_absolute_tolerance": 1e-07
+      }
+    },
+    "negative_targets": [
+      {
+        "ppo_row_ordinal": 158,
+        "episode_id": "phase1-iteration-004-temperature065-single-thread-20260731_opponent_alakazam_public_seat0_seed731200402",
+        "opponent_id": "alakazam_public",
+        "seat": 0,
+        "seed": 731200402,
+        "decision_index": 6,
+        "legal_option_count": 8,
+        "teacher_index": 6,
+        "sampled_end_index": 7,
+        "raw_observation_sha256": "0ace1a6f35ce0c04e396e0a35c4286a7c0dff2efc392e5406e09cda85717f9dc",
+        "public_state_sha256": "5ad8ab5e5b859cc25d031688aed228497471dced9fb0a6fbd93274c3f07cc16f",
+        "behavior_action_order_sha256": "345B0010A65B6D333F35D5BEAC5283D147AE1DE2CFA49E7B5472EB3079F238DB",
+        "teacher_semantic_identity": "3c4c89672be081a53f9ff7badb95ecfce8844c5287fa5432d220d14653b6d8c6",
+        "sampled_end_semantic_identity": "1da3a7c010534db001ac9c799ad23f4396e92348eb5ed72264326af8d66fbb34",
+        "raw_advantage": -1.079068973660469,
+        "independent_normalized_advantage_float64": -2.892638585601298,
+        "trainer_normalized_advantage_float32": -2.892638683319092,
+        "stored_behavior_end_probability_float64": 0.011571833207335078,
+        "trainer_model_pre_update_end_probability_float32": 0.011571832001209259
+      },
+      {
+        "ppo_row_ordinal": 260,
+        "episode_id": "phase1-iteration-004-temperature065-single-thread-20260731_opponent_alakazam_rmy_live_seat0_seed731200402",
+        "opponent_id": "alakazam_rmy_live",
+        "seat": 0,
+        "seed": 731200402,
+        "decision_index": 6,
+        "legal_option_count": 7,
+        "teacher_index": 5,
+        "sampled_end_index": 6,
+        "raw_observation_sha256": "1e9f3dae22a0e08b9901c87ddb9cc6b28fe68b450657783189207c50840e401c",
+        "public_state_sha256": "a16c69d5ad14c4e9f4ddfc81889d1658a7ae01a56bd26781f0648d00181e6412",
+        "behavior_action_order_sha256": "A7E3A02AD59B70D88F27B57C19BA922B489291C0C1000B097332B5E9BC9D7543",
+        "teacher_semantic_identity": "3c4c89672be081a53f9ff7badb95ecfce8844c5287fa5432d220d14653b6d8c6",
+        "sampled_end_semantic_identity": "1da3a7c010534db001ac9c799ad23f4396e92348eb5ed72264326af8d66fbb34",
+        "raw_advantage": -1.0833491533994675,
+        "independent_normalized_advantage_float64": -2.902004719115335,
+        "trainer_normalized_advantage_float32": -2.9020047187805176,
+        "stored_behavior_end_probability_float64": 0.012013738419260128,
+        "trainer_model_pre_update_end_probability_float32": 0.012013738043606281
+      },
+      {
+        "ppo_row_ordinal": 547,
+        "episode_id": "phase1-iteration-004-temperature065-single-thread-20260731_opponent_starmie_public_seat0_seed731200402",
+        "opponent_id": "starmie_public",
+        "seat": 0,
+        "seed": 731200402,
+        "decision_index": 6,
+        "legal_option_count": 4,
+        "teacher_index": 2,
+        "sampled_end_index": 3,
+        "raw_observation_sha256": "ee149c17ff2bcb45aef116be755ab0576faffbe32166069184c020f0d77bf5b0",
+        "public_state_sha256": "3fc1bb372a4933da9506f13d595a5daf8fe0a98482ecafa227f8680472f66171",
+        "behavior_action_order_sha256": "09905C3FB26D87F10DE97144E3D8722F6ABD3CC7206E3CBA80848A634217DB00",
+        "teacher_semantic_identity": "c8cadf1e5fc4c893bbe8d643283fa1aa13f46245b9c9173539905d81b336d715",
+        "sampled_end_semantic_identity": "1da3a7c010534db001ac9c799ad23f4396e92348eb5ed72264326af8d66fbb34",
+        "raw_advantage": -1.0852456763386726,
+        "independent_normalized_advantage_float64": -2.9061547988185734,
+        "trainer_normalized_advantage_float32": -2.9061551094055176,
+        "stored_behavior_end_probability_float64": 0.014420660390034427,
+        "trainer_model_pre_update_end_probability_float32": 0.014420660212635994
+      },
+      {
+        "ppo_row_ordinal": 812,
+        "episode_id": "phase1-iteration-004-temperature065-single-thread-20260731_opponent_ogerpon_cornerstone_public_seat1_seed731200402",
+        "opponent_id": "ogerpon_cornerstone_public",
+        "seat": 1,
+        "seed": 731200402,
+        "decision_index": 3,
+        "legal_option_count": 2,
+        "teacher_index": 0,
+        "sampled_end_index": 1,
+        "raw_observation_sha256": "dd523947b92c47ccf2cab4edf79ec3e13c7289b285634e4b832d9c45262dd516",
+        "public_state_sha256": "9fa84a958bd59da62efde36eb528806f870af4af195bd303802fa38dd4f52882",
+        "behavior_action_order_sha256": "4621500F6F55D7DF412BE19592E8E6214358D72588B937A46180A1B2CC9C7CB7",
+        "teacher_semantic_identity": "f03e63d242ff58fb06099ff540ba3767620590347fd455d90a29eef7bf26b775",
+        "sampled_end_semantic_identity": "1da3a7c010534db001ac9c799ad23f4396e92348eb5ed72264326af8d66fbb34",
+        "raw_advantage": -0.3875351451905657,
+        "independent_normalized_advantage_float64": -1.3793848061145046,
+        "trainer_normalized_advantage_float32": -1.3793847560882568,
+        "stored_behavior_end_probability_float64": 0.019605330921764714,
+        "trainer_model_pre_update_end_probability_float32": 0.019605331122875214
+      }
+    ],
+    "legitimate_end_sets": {
+      "canonical_end_semantic_identity": "1da3a7c010534db001ac9c799ad23f4396e92348eb5ed72264326af8d66fbb34",
+      "every_eligible_row_has_exactly_one_canonical_end_option": true,
+      "teacher_end_rows": 43,
+      "teacher_end_and_sampled_end_rows": 41,
+      "positive_raw_advantage_among_sampled_end_rows": 31,
+      "positive_normalized_advantage_among_sampled_end_rows": 20,
+      "positive_raw_advantage_among_all_teacher_end_rows": 32,
+      "positive_normalized_advantage_among_all_teacher_end_rows": 21,
+      "clarification": "The 31 and 20 gates apply only to the 41 rows whose teacher and sampled action are both END. One additional teacher-END row with raw_observation_sha256 e6c6536440effe5f49105110a3aaff38772582dc1dc701ec4e5ba940b5e21a76 sampled a non-END action and has positive raw and normalized advantage. It is included in the 43-row argmax-preservation bank but not the 31/20 probability-increase banks."
+    },
+    "receipt_must_bind": [
+      "input hashes",
+      "implementation hashes",
+      "runtime thread receipt",
+      "all 830 ordered row identities",
+      "830 unique episode_id and decision_index keys",
+      "state hash",
+      "episode ID and decision index",
+      "legal semantic action order and its SHA256",
+      "teacher, sampled, and END indices",
+      "raw and normalized advantages",
+      "both the independent-float64 and trainer-float32 normalization domains without conflating them",
+      "pre-update probabilities and unique argmax",
+      "stored float64 behavior probabilities separately from float32 model-path pre-update probabilities",
+      "the exact membership of every probe set"
+    ],
+    "target_selection": "The four negative targets are the explicit fully bound allowlist above. Do not derive them from teacher-not-END and sampled-END, because that predicate matches 17 rows.",
+    "hash_definitions": {
+      "raw_observation_sha256": "Bind the retained value but do not claim to recompute it because the hidden raw observation is intentionally absent.",
+      "public_state_sha256": "Recompute public_state_hash(public_projection) and bind it separately.",
+      "behavior_action_order_sha256": "Recompute from the complete ordered legal semantic action rows."
+    }
+  },
+  "post_update_gates": {
+    "negative_targets": {
+      "count": 4,
+      "probability_delta_domain": "float32 model path using the same behavior-distribution function before and after the update",
+      "end_probability_decrease_minimum": 1e-06,
+      "teacher_setup_probability_increase_minimum": 1e-06,
+      "teacher_setup_remains_unique_argmax": true,
+      "identity_and_action_order_unchanged": true
+    },
+    "legitimate_end_controls": {
+      "teacher_end_unique_argmax_preserved_all_43": true,
+      "each_positive_normalized_sampled_end_probability_increase_minimum": 1e-06,
+      "positive_normalized_sampled_end_count": 20,
+      "positive_raw_sampled_end_count": 31,
+      "median_end_probability_change_across_positive_raw_sampled_end": "nonnegative",
+      "maximum_individual_end_probability_decrease_across_positive_raw_sampled_end": 0.0025
+    },
+    "global": {
+      "stopped_early": false,
+      "rolled_back": false,
+      "mean_anchor_kl_maximum": 0.002,
+      "per_row_anchor_kl_maximum": 0.01,
+      "per_row_total_variation_maximum": 0.02,
+      "nonfinite_values_gradients_or_parameters": 0,
+      "optimizer_steps": 1,
+      "protected_action_validation": "pass",
+      "checkpoint_provenance_validation": "pass"
+    },
+    "metric_definitions": {
+      "per_row_anchor_kl": "KL(mu_post || mu_zero) on the same teacher index and ordered legal surface",
+      "per_row_total_variation": "0.5 * sum(abs(mu_post - mu_pre_float32))",
+      "mean_anchor_kl": "arithmetic mean of per_row_anchor_kl across all 830 rows",
+      "unique_argmax": "required probability is strictly greater than every other probability; tie-breaking argmax is insufficient"
+    }
+  },
+  "runtime_smoke_instrumentation": {
+    "reason": "The checked paired game runner exposes execution, result, action-error, max-step, exit, and duplicate evidence, but the existing runtime agent discards PolicyDecision and can hide fail-closed model errors. collect_rollouts is training-mode and is not a deployment-smoke substitute.",
+    "normal_runtime_without_audit_environment_must_remain_unchanged": true,
+    "opt_in_audit_requirements": [
+      "one canonical append-only JSONL file per agent process under an explicitly supplied audit directory",
+      "record process-safe identity, game epoch, callback ordinal, collection mode, checkpoint SHA256, action, teacher action, neural shadow action, protected and fallback flags, PPO eligibility, sampled flag, model failure kind, model timeout, legal option count, residual finiteness, behavior receipt SHA256, and teacher call count",
+      "fsync each row and never write raw hidden observations",
+      "deployment rows must be unsampled and PPO-ineligible",
+      "every protected row must be teacher-exact",
+      "model failures and timeouts must be counted explicitly even when the final action fails closed to teacher",
+      "tests must prove audit-disabled action parity and adversarial protected/failure telemetry"
+    ],
+    "execution_scope": "After offline PPO gates pass, a separate immutable smoke spec may use the checked paired suite for historical_silver, both seats, one fresh seed. This implementation plan runs no games."
+  },
+  "implementation_tests": [
+    "preparation mode cannot construct an optimizer, change parameters, or create a checkpoint",
+    "all PPOConfig and Adam fields are explicit and recorded",
+    "a nonempty input optimizer state is rejected before training",
+    "missing, extra, reordered, or modified rows and probes are rejected before training",
+    "one epoch produces exactly one optimizer step and no row shuffle",
+    "nonfinite objective, value, gradient, norm, or parameter rejects the output",
+    "rollback or early stop rejects the output",
+    "negative-target gates reject reversed or insufficient probability movement",
+    "43/41/31/20 legitimate-END set membership and gates are independently tested",
+    "per-row KL and total-variation boundaries are tested at and beyond the limits",
+    "deployment audit is opt-in, process-safe, and audit-disabled behavior is action-identical",
+    "real-smoke audit validation can detect protected-action mismatch and fail-closed model failure",
+    "input checkpoint, manifest, raw episodes, and existing output paths are never overwritten"
+  ],
+  "forbidden_changes": [
+    "hand-coded END protection",
+    "action masking",
+    "action-type penalties",
+    "sample duplication or reweighting",
+    "behavior cloning or teacher-action labels",
+    "replay-specific rules",
+    "changes to reward, eligibility, model architecture, encoder, teacher, deck, opponent population, or behavior formula"
+  ],
+  "execution_stop_rule": "Implementation and no-training probe preparation must be independently audited before a separate immutable execution spec is created. Do not run PPO from this plan alone."
+}

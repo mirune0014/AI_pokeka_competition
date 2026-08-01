@@ -1,0 +1,54 @@
+{
+  "schema_version": "archaludon-rl-opponent-population-v1",
+  "population_id": "phase1-iteration-002-broad-eight-20260731",
+  "opponents": [
+    {
+      "id": "historical_silver",
+      "path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+      "main_sha256": "F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E",
+      "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+    },
+    {
+      "id": "alakazam_public",
+      "path": "meta_agents/alakazam_psychic_public_simple",
+      "main_sha256": "9BD4FDBCCBD43786F689232B36D01A107BE16B4423EB91966DC964846031A2DC",
+      "deck_sha256": "F2F1A89266170FA0D7E2AE63F167CCBD57B1B31D0EA83925E9236D69AC900E42"
+    },
+    {
+      "id": "alakazam_rmy_live",
+      "path": "meta_agents/alakazam_rmy_live_85082271_simple",
+      "main_sha256": "B9228C5A8C473206A980E638947D9F24A46A06CE7A8C963F7EA4C697AC63F6F3",
+      "deck_sha256": "0F8FB632ADE2833645AF8C6FFE2B282FE24E7446EE8B23F3E468B8410D8EA36C"
+    },
+    {
+      "id": "marnie_kazuki_live",
+      "path": "meta_agents/marnie_kazuki_live_85083586_simple",
+      "main_sha256": "B2317C6CD6A031912BCFE89D5498B33A056F1D9583C7631E046E4F8ABAD9E59D",
+      "deck_sha256": "F75CB0C32939525FF083FCB5C4D6052D413E21644FDAFF81DE717F9121EAEE1B"
+    },
+    {
+      "id": "mega_lucario_public",
+      "path": "meta_agents/mega_lucario_public_simple",
+      "main_sha256": "A5732DD50FA0F0BC872B6CFC92227B9A61D48F989D97BB282C06F9509E68158F",
+      "deck_sha256": "026F160E0BC581BA97004047CEF3FE0986C7D49FA3B77D6956226E9A70D3252D"
+    },
+    {
+      "id": "starmie_public",
+      "path": "meta_agents/starmie_public_simple",
+      "main_sha256": "59A063DBF33876048B6BE7821F6EBA25EC84ED6C0FE9FB2991C9F19C83303362",
+      "deck_sha256": "E4E8DD2C4A31AEBF27CF92DFF9612EC29F8D7DD3ACCE23F5153FAC95648DC62D"
+    },
+    {
+      "id": "dragapult_live",
+      "path": "meta_agents/dragapult_live_simple",
+      "main_sha256": "7071D3D502D7EEFB033219FC7D64D7E3F8E7F86524BB92633545866CAC29B6BB",
+      "deck_sha256": "008816603A8AC836007F2CFC1C5B238177D7C1853EB3BBBBB931EEC24CF717A7"
+    },
+    {
+      "id": "ogerpon_cornerstone_public",
+      "path": "meta_agents/ogerpon_cornerstone_public_simple",
+      "main_sha256": "C4DC3F5FB421D6BB9FC7503DB27FD6BE4DB0FDCCDBAC9D0B8B2EEEE371A126B8",
+      "deck_sha256": "D899FB7B4E9A0D8BA6E914E66D23BF9C71AC0C5FD9D73CABABAB3673C8A03650"
+    }
+  ]
+}

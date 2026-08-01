@@ -1,0 +1,68 @@
+{
+  "schema_version": "archaludon-rl-immutable-checkpoint-upgrade-spec-v1",
+  "upgrade_id": "phase1-iteration-004-temperature065-zero-checkpoint-upgrade-20260731",
+  "purpose": "Add the canonical iteration-004 behavior and anchor receipt to the exact zero-residual checkpoint without changing model weights or running games/PPO.",
+  "parent_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_004_temperature_sharpened_behavior_plan.json",
+    "sha256": "10B72C49A7B93C4B72D682D71C55083F95D449711426290E5DB428200EA975AD"
+  },
+  "implementation": {
+    "root": "experiments/archaludon_latest_v1_rl_temperature_candidate_20260731",
+    "snapshot_definition": "SHA256 of UTF-8 sorted relative_path + NUL + byte_size + NUL + uppercase_file_sha256 + LF; excludes __pycache__, .pyc, and test_outputs/",
+    "snapshot_file_count": 46,
+    "snapshot_sha256": "7CEF49481456FF0217A846D27C23E5AB101B960A93E7858D4DF3C17229DC4180",
+    "critical_files": {
+      "archaludon_rl/collect_rollouts.py": "184DC51BC0BDF531606686EDAF940301AB9C8EAB85A80FDA921910656A518D53",
+      "archaludon_rl/collector.py": "BE5C118D9BD1CABC6BBB48D018DD28864940AB1BFE781D69A569EA8846F057CA",
+      "archaludon_rl/model.py": "0172D46F841B6E58F5AA1F422EACCF4ED31EFF184B22C95F3D816AD1CFD5A2CA",
+      "archaludon_rl/policy.py": "B2DED9D5EC1A9F006916CAD120E94D97702A271790FEB35DC3BC890184FD721A",
+      "archaludon_rl/reference_policy.py": "6BB635B78FE04C07F1760EE4C2EE7910B9D08E88F8088494E271BD75DEE3E0A7",
+      "archaludon_rl/runtime_contract.py": "B3B848448962E884B8F0B09119BF356EF9D3C1BF90610C979EC55EE0CD8D45C9",
+      "archaludon_rl/train_ppo.py": "3D109EF05AA25838063E6B6D3CC2967BBC6B64910F445AD9FC2B1F01BCD81643",
+      "archaludon_rl/trajectory.py": "C1A167976D8315C724E1300375319C629D204542BCCF006E3F1798EEEDA17CBC",
+      "archaludon_rl/upgrade_iteration004_checkpoint.py": "27714E005D58CD04D3CF8F1BC13F37A69C527AD8597EDA161E74E004ED8CAE79"
+    }
+  },
+  "behavior_contract": {
+    "schema_version": "temperature-sharpened-full-support-v1",
+    "schema_sha256": "11049A88FB535D7496A2B3C9F7A1A48DB71FD20EFAD3EA39FD9E35CD79819F22",
+    "formula": "mu_i=0.98*softmax((log(w_i)+2*tanh(clamp(r_i,-3,3)))/0.65)_i+0.02/K; w_teacher=exp(3); w_other=1",
+    "anchor_kl_id": "zero-residual-mu-anchor-v1",
+    "anchor_kl_direction": "KL(mu_current||mu_zero)",
+    "ppo_authorized": false
+  },
+  "input": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/initial_zero_margin3.pt",
+    "sha256": "6B84B2A7006D92CBC2477473E68CBC2E216612FF27511E1FBD471240100546BC",
+    "model_schema_version": "residual-actor-critic-v2",
+    "optimizer_state": null,
+    "residual_output_head_exact_zero": true
+  },
+  "output": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_20260731/initial_zero_temperature065.pt",
+    "must_not_exist_before_start": true,
+    "expected_sha256": "B17117348549312BC0E16BD9EED622C80F0394DA8E1FE7FC2220341AFA77F6E3",
+    "model_schema_version": "residual-actor-critic-v3"
+  },
+  "execution": {
+    "maximum_attempts": 1,
+    "python": ".venv-rl/Scripts/python.exe",
+    "module": "archaludon_rl.upgrade_iteration004_checkpoint",
+    "games_run": 0,
+    "ppo_steps": 0
+  },
+  "acceptance_gates": {
+    "input_hash_unchanged": true,
+    "output_hash_matches_expected": true,
+    "model_config_exactly_equal": true,
+    "all_model_state_tensors_bit_equal": true,
+    "optimizer_state_exactly_equal": true,
+    "encoder_receipt_exactly_equal": true,
+    "reference_prior_receipt_exactly_equal": true,
+    "frozen_source_receipts_exactly_equal": true,
+    "behavior_receipt_is_canonical": true,
+    "games_run": 0,
+    "ppo_steps": 0
+  },
+  "stop_rule": "On any mismatch, retain the failed artifact as evidence, stop without native games, and do not retry under this spec."
+}

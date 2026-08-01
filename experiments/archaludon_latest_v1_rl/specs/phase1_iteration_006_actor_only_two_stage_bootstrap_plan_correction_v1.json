@@ -1,0 +1,49 @@
+{
+  "schema_version": "archaludon-rl-actor-only-two-stage-plan-correction-v1",
+  "correction_id": "phase1-iteration-006-actor-only-two-stage-plan-correction-20260801",
+  "purpose": "Resolve four execution-affecting ambiguities found by the independent pre-implementation audit without changing the selected hypothesis, immutable inputs, data, model architecture, optimizer, or directional safety gates. This correction does not authorize training or games.",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_implementation_plan.json",
+    "sha256": "372B713B41649B42553953E3857C33258DBDD85F0DB460785525D8A0FE02C1B3",
+    "plan_id": "phase1-iteration-006-actor-only-two-stage-bootstrap-20260801"
+  },
+  "corrections": {
+    "anchor_kl_coefficient": {
+      "stage_1": 0.1,
+      "stage_2": 0.1,
+      "adaptive_adjustment_between_stages": false,
+      "clarification": "The same fixed coefficient multiplies the same anchor-KL objective in both stages. Do not call or reproduce the epoch-level coefficient adaptation in train_ppo."
+    },
+    "family_gate_staging": {
+      "stage_1": "Record all 12 qualifying family/polarity lower medians, aligned/anti-aligned/neutral counts, S_stage1, and M_stage1 as diagnostic evidence. A Stage-1 family-direction failure does not stop Stage 2 and is not itself an acceptance failure.",
+      "stage_2": "All 12 qualifying family/polarity lower empirical medians must be strictly greater than tau. Both global Stage-2 improvement inequalities relative to the recorded Stage-1 values must pass.",
+      "reason": "Stage 1 only opens the zero-initialized final actor layer. Contextual separation is the Stage-2 hypothesis and cannot be an acceptance requirement before upstream actor gradients are enabled."
+    },
+    "global_gate_semantics": {
+      "unique_argmax_definition": "Every row distribution must have exactly one maximum-probability option. The winning index need not equal the initial teacher index unless a separate inherited directional gate explicitly requires it.",
+      "stage_1_hard_stop": "Stop before Stage 2 and reject if Stage 1 has any nonfinite value, gradient, optimizer state, or parameter; mean anchor KL above 0.002; any row anchor KL above 0.01; any row TV from the initial distribution above 0.02; or any row without exactly one argmax.",
+      "stage_2_rejection": "After exactly two completed optimizer steps, reject if Stage 2 has any nonfinite value, gradient, optimizer state, or parameter; mean anchor KL above 0.002; any row anchor KL above 0.01; any row TV from the initial distribution above 0.02; or any row without exactly one argmax.",
+      "final_acceptance": "Every Stage-1 and Stage-2 global gate must pass. Stage-1 family metrics are diagnostic only. Stage-2 family, improvement, inherited directional, parameter, optimizer, value, provenance, and post-save reload gates must all pass."
+    },
+    "value_loss_reporting": {
+      "optimization_contract": "Do not place a critic MSE or any value-derived term in either stage's autograd objective. The exact weighted value-loss contribution is 0.0 in both stages.",
+      "diagnostic_contract": "Under no_grad, compute and record the raw unweighted value MSE against the immutable initial value targets before training, after Stage 1, and after Stage 2. This diagnostic is not an optimization term or an acceptance claim.",
+      "required_fields": [
+        "raw_value_mse_initial",
+        "raw_value_mse_stage_1",
+        "raw_value_mse_stage_2",
+        "weighted_value_loss_stage_1",
+        "weighted_value_loss_stage_2"
+      ]
+    }
+  },
+  "invariants": [
+    "The base plan remains immutable and is still required at its exact path and SHA-256.",
+    "The selected actor-only two-stage hypothesis and every immutable input remain unchanged.",
+    "Stage 1 remains final-residual-layer-only and Stage 2 remains all-actor with the same Adam object and state.",
+    "The value head remains excluded from the optimizer and byte-exact.",
+    "All Stage-2 family gates, global improvement gates, inherited END gates, and global KL/TV bounds remain mandatory.",
+    "This correction introduces no teacher imitation, action-specific loss, data weighting, retry, game, packaging, promotion, or submission authorization."
+  ],
+  "execution_stop_rule": "Regenerate and independently audit a no-training prepare receipt that binds both the base plan and this correction before authoring an execution spec."
+}

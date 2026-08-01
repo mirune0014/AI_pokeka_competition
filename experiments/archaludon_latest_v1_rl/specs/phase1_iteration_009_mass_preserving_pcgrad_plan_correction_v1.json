@@ -1,0 +1,200 @@
+{
+  "schema_version": "archaludon-rl-mass-preserving-pcgrad-plan-correction-v1",
+  "correction_id": "phase1-iteration-009-mass-preserving-pcgrad-publication-remediation-20260801",
+  "base_plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_implementation_plan.json",
+  "base_plan_sha256": "6797A6D884B7B69D5C78A6BD964ACC8425B64063FA9F201905146E1B2D1FB9B8",
+  "reviewed_implementation_snapshot": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801",
+    "file_count": 55,
+    "sha256": "36AEDB1476AE976A29A56E4DCCDEE965AF68541F5AF3EFDE895738A660423718",
+    "disposition": "REJECT_FOR_EXECUTION_RETAIN_AS_REVIEW_EVIDENCE"
+  },
+  "purpose": "Remove the prepare/spec circularity and require an auditable two-phase publication path before any optimizer execution. This correction authorizes implementation and no-training validation only. It does not authorize optimizer execution, games, runtime smoke, packaging, promotion, or submission.",
+  "unchanged_hypothesis": "The sole Iteration 009 hypothesis remains the matched 64-update mass-preserving PCGrad isolation experiment. No architecture, feature, target, reward, row mass, or opponent change is authorized.",
+  "review_findings_to_remediate": [
+    "The prepare receipt was self-hashed but not independently bound or recomputed before Adam.",
+    "The execution entry point discarded live arm states and published no audit or terminal artifacts.",
+    "An exception could leave one arm one step ahead of the other and publish no synchronized rejection evidence.",
+    "The checkpoint schema was not compatible with the checked ResidualActorCritic runtime loader.",
+    "The execution-spec path contract did not bind the prepare file/self hashes or both output destinations.",
+    "Stage1 full diagnostics and some control-gradient evidence were not retained.",
+    "Terminal gates trusted caller summaries, allowed vacuous missing structures, and were not tied to the actual checkpoint states.",
+    "No integration test exercised the full matched schedule, pending audit publication, and finalization path."
+  ],
+  "superseding_order_of_operations": [
+    "Finish the isolated implementation and focused tests.",
+    "Independently review the implementation and fix every blocker.",
+    "Run a specification-independent no-training prepare and publish one canonical receipt.",
+    "Root verifies and binds both the prepare receipt file SHA-256 and self SHA-256.",
+    "Root authors one immutable execution spec binding the final implementation snapshot, prepare hashes, pending-audit directory, terminal-output directory, and the complete unchanged training contract.",
+    "Run the matched optimizer schedule exactly once and atomically publish a PENDING_AUDIT bundle.",
+    "Run the independent numerical audit and root recomputation against the immutable pending bundle.",
+    "Run a separate finalizer that verifies both authority receipts and atomically publishes exactly two runtime-compatible checkpoints, one final receipt, and one final marker.",
+    "Only a fully accepted final result may unlock runtime smoke."
+  ],
+  "prepare_contract_correction": {
+    "execution_spec_independent": true,
+    "prepare_cli_arguments": [
+      "--output-receipt"
+    ],
+    "forbidden_prepare_inputs": [
+      "execution spec path",
+      "execution spec hash",
+      "placeholder future hash"
+    ],
+    "required_prepare_bindings": [
+      "base plan file and canonical hashes",
+      "this correction file and canonical hashes",
+      "final implementation snapshot definition, file count, and SHA-256",
+      "parent result and Iteration 008 audit evidence",
+      "iteration004 checkpoint and rollout manifest",
+      "830 ordered rows, 32 trajectories, fixed GAE, normalized advantages, behavior log-probabilities, sampled indices, action families, END memberships, and initial outputs",
+      "seven disjoint task memberships and their individual hashes",
+      "830 Monte-Carlo advantages and the exact 611 sign-stable ordinals",
+      "Stage1 and control-update32 reference hashes",
+      "runtime and single-thread identity",
+      "proof of zero optimizer construction, zero optimizer steps, zero parameter changes, zero checkpoint writes, zero games, and no rejected-checkpoint load"
+    ],
+    "execution_revalidation": "Before constructing either Adam, rebuild the canonical prepare receipt from the current immutable inputs and implementation, require byte equality with the stored receipt, and require its file and self hashes to equal the execution-spec bindings.",
+    "skeletal_self_consistent_receipts_must_fail": true
+  },
+  "execution_spec_correction": {
+    "authored_after_prepare": true,
+    "must_bind": [
+      "base plan path and SHA-256",
+      "correction path and SHA-256",
+      "final implementation path, snapshot file count, and snapshot SHA-256",
+      "source implementation path and snapshot",
+      "input checkpoint, rollout manifest, dataset, fixed advantage, and fixed behavior-logprobability hashes",
+      "prepare receipt repository-relative path, file SHA-256, and self SHA-256",
+      "complete training, diagnostic, safety, and terminal gate contracts",
+      "control reference hashes",
+      "one absent repository-confined pending-audit directory",
+      "one distinct absent repository-confined terminal-output directory",
+      "exact pending bundle and final artifact schemas"
+    ],
+    "prepare_and_output_paths_validated_during_prepare_or_preflight": true,
+    "output_directories_must_be_distinct": true,
+    "execution_spec_rewrite_after_prepare": false
+  },
+  "matched_execution_transaction": {
+    "last_synchronized_state_rule": "Before Stage1 and before every Stage2 update, retain byte-exact model and optimizer snapshots for both arms. If either arm raises before both arms and both post-step diagnostics finish, restore both arms to the preceding synchronized state and record the failing arm, phase, exception type, and message. Never retain one arm at a later optimizer step than the other.",
+    "post_step_safety_failure_rule": "If both arm steps complete and a safety gate fails, retain both arms at that same completed update and stop.",
+    "directional_failure_rule": "Directional or terminal-performance failures never stop before update64.",
+    "stage1_failure_rule": "A pre-completion Stage1 exception restores both arms to zero steps. A Stage1 safety failure after both steps retains both arms at one step.",
+    "always_publish_pending_bundle": true,
+    "same_iteration_retry": false
+  },
+  "pending_audit_bundle": {
+    "status_marker": "PENDING_AUDIT",
+    "atomic_new_directory": true,
+    "minimum_required_files": [
+      "manifest.json",
+      "run_summary.json",
+      "stage1_diagnostics.jsonl",
+      "milestone_diagnostics.jsonl",
+      "step_summaries.jsonl",
+      "gradient_tensors.pt",
+      "control_pending.pt",
+      "treatment_pending.pt",
+      "PENDING_AUDIT"
+    ],
+    "manifest_contract": "The manifest records exact file sizes and SHA-256 values for every other file, a core self-hash, execution-spec and prepare hashes, completed synchronized steps per arm, failure status, games_run=0, and runtime_smoke_executed=false.",
+    "run_summary_contract": "Contains complete non-tensor summaries, strict gates, exception evidence, task and update completeness, Stage1 equality, control-update32 gate when reached, duplicate-treatment identity when reached, checkpoint reload evidence, and hashes into the tensor/full-row evidence. It must not omit required keys on a safety path.",
+    "stage1_diagnostics_contract": "Contains all 830 rows for both arms and exact equality evidence, including both Stage1 record hashes.",
+    "milestone_diagnostics_contract": "Contains all 830 rows for both arms at every completed diagnostic milestone.",
+    "step_summaries_contract": "Contains one synchronized record per completed arm/update, with raw and projected matrix summaries, projection events, actual Adam-step and cumulative-delta projections, loss, optimizer, safety, KL/TV, parameter, and evidence-tensor references.",
+    "gradient_tensor_contract": {
+      "format": "torch.save weights-only-loadable mapping of CPU tensors and primitive metadata",
+      "required_series_for_every_completed_stage2_update": [
+        "seven raw task gradients for control",
+        "seven raw task gradients for treatment",
+        "seven projected task gradients for treatment",
+        "combined pre-clip policy-plus-KL gradients for both arms",
+        "post-clip gradients or exact clip coefficients for both arms",
+        "actual parameter deltas for both arms",
+        "cumulative parameter deltas for both arms"
+      ],
+      "float64_required_for_raw_and_projected_pcgrad_vectors": true,
+      "float32_required_for_actual_optimizer_gradients_and_parameter_deltas": true
+    },
+    "checkpoint_contract": "Both pending checkpoints use the checked runtime-compatible schema with model_config, model_state, metadata, and optimizer_state. Metadata binds arm, plan, correction, implementation snapshot, execution spec, prepare receipt, synchronized step count, pending status, source hashes, and games_run=0. Each checkpoint is rebuilt into ResidualActorCritic, optimizer state is reloaded, and all available 830 terminal outputs are byte-checked before bundle publication.",
+    "no_ACCEPTED_or_REJECTED_marker_in_pending_bundle": true,
+    "independent_audit_must_not_require_training_rerun": true
+  },
+  "strict_gate_recomputation": {
+    "missing_expected_keys_or_wrong_counts_fail": true,
+    "all_12_family_polarity_keys_exactly_required": true,
+    "all_six_priority_keys_exactly_required": true,
+    "required_updates_exactly_checked": [
+      48,
+      64
+    ],
+    "control_must_have_all_six_entries_before_control_failure_is_evaluated": true,
+    "summaries_recomputed_from_full_rows_and_gradient_tensors": true,
+    "checkpoint_parameter_optimizer_and_output_hashes_must_match_bundle": true,
+    "caller_claimed_step_counts_or_gate_booleans_are_not_authoritative": true
+  },
+  "independent_authority_receipts": {
+    "numerical_audit_receipt": {
+      "required_bindings": [
+        "pending manifest path, file SHA-256, and core SHA-256",
+        "all pending file hashes",
+        "recomputed row, step, gradient, safety, direction, global, END, duplicate, and checkpoint gates",
+        "numeric discrepancy count",
+        "audit integrity pass/fail"
+      ]
+    },
+    "root_recomputation_receipt": {
+      "required_bindings": [
+        "pending manifest path, file SHA-256, and core SHA-256",
+        "numerical audit receipt path, file SHA-256, and self SHA-256",
+        "root-recomputed critical gates and discrepancy count",
+        "root integrity pass/fail"
+      ]
+    },
+    "candidate_performance_can_fail_while_audit_integrity_passes": true
+  },
+  "finalization_contract": {
+    "separate_cli_mode": "finalize",
+    "inputs": [
+      "execution spec path and hash",
+      "pending manifest path and hash",
+      "numerical audit receipt path and hash",
+      "root recomputation receipt path and hash"
+    ],
+    "training_rerun_forbidden": true,
+    "load_only_pending_checkpoint_states": true,
+    "status_rule": "ACCEPTED only when the pending run completed 65 steps per arm, every strict offline gate passes, both authority receipt integrity gates pass with zero unexplained discrepancies, the pending bundle is complete, and both checkpoints exactly match the evidence. Otherwise REJECTED.",
+    "final_artifacts_exact": [
+      "control.pt",
+      "treatment.pt",
+      "accepted_receipt.json or rejected_receipt.json",
+      "ACCEPTED or REJECTED"
+    ],
+    "final_checkpoints": "Copy or deterministically rebuild the runtime-compatible pending checkpoint states without changing model or optimizer tensors. Final receipt binds their exact hashes, the pending manifest, both authority receipts, status, games_run=0, and runtime_smoke_executed=false.",
+    "atomic_new_directory": true,
+    "existing_destination_refused": true,
+    "ACCEPTED_without_both_authorities_impossible": true
+  },
+  "additional_required_tests": [
+    "A replaced self-consistent prepare receipt fails before Adam.",
+    "Prepare is execution-spec independent and the later spec binds both receipt hashes.",
+    "Both Stage1 record hashes and full 830-row diagnostics are compared and retained.",
+    "A treatment exception after a control step restores both arms to the preceding synchronized state.",
+    "A control exception, treatment exception, measurement exception, and safety failure each publish one valid pending bundle without a final marker.",
+    "A Stage1 exception and Stage1 safety failure retain the correct synchronized step counts.",
+    "The full 64-update schedule is exercised with a deterministic lightweight fake stepper, including all milestones and duplicate treatment, without real optimizer training.",
+    "Pending checkpoints load through the checked runtime-compatible checkpoint loader and match model, optimizer, metadata, and row outputs.",
+    "Missing one of 12 family keys, one priority key, one update, one gradient tensor, or one full-row diagnostic forces rejection.",
+    "Fabricated 65-step summaries attached to unrelated zero-step optimizers cannot finalize.",
+    "Execute publishes a pending bundle and never discards the only recoverable arm states.",
+    "Finalize cannot train, cannot use mutable summaries, cannot accept without both immutable authority receipts, and writes exactly four final artifacts atomically."
+  ],
+  "legacy_test_interpretation": {
+    "conservative_ppo_suite_result": "48 pass, 1 fail, 4 errors",
+    "authorized_explanation": "The exact five failures are relocation-only checks that intentionally bind the original actor-bootstrap source root. The 53 inherited files are byte-identical and the five failures are not new implementation regressions.",
+    "do_not_modify_inherited_files_to_force_these_five_tests_to_pass": true
+  },
+  "execution_stop_rule": "After remediation, focused tests, inherited tests, independent code review, and a real specification-independent prepare receipt must pass. The root may then author and hash one execution spec. No optimizer step or game is authorized by this correction."
+}

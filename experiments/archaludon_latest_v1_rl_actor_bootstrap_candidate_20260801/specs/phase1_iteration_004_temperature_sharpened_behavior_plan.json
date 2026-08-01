@@ -1,0 +1,109 @@
+{
+  "schema_version": "archaludon-rl-next-iteration-plan-v1",
+  "plan_id": "phase1-iteration-004-temperature-sharpened-full-support-behavior-20260731",
+  "status": "offline-calibrated-implementation-not-started",
+  "purpose": "Prepare exactly one next-iteration test of a lower-variance, full-support behavior policy. This plan does not authorize PPO and does not retry iteration 003.",
+  "parent_iteration": {
+    "collection_execution_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_margin3_single_thread_collection.json",
+    "collection_execution_spec_sha256": "4806F8B64DE4089176281FEB222ED9C43F4C355D7C568B91EE7DE96805336955",
+    "evaluation_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_margin3_single_thread_evaluation.json",
+    "evaluation_spec_sha256": "1F3E08919B9237CABD7FD869C7480FB2901D94E707402FEFC5F0C1572F9ED18E",
+    "manifest_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/rollouts/run_manifest.json",
+    "manifest_sha256": "60CEE4928E50A12D26636A86B6784896D3345E09A84D0FE345568C522944A588",
+    "rollout_snapshot_sha256": "19973E5D16F788958633E859596018882DA779806AC3BAC56129D9E214DA678D",
+    "root_verification_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/root_verification.json",
+    "root_verification_sha256": "A2CF69A9278D81A4CBE16D3B63D94ED7989D97AE09C545A7F64F5F1607678BDE",
+    "sol_ultra_evaluation_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/evaluation/sol_ultra_evaluation.json",
+    "sol_ultra_evaluation_sha256": "BC2870F7B9DAE395F4E5C05F6858EA001E96B6A4314281EFA305D00350C42CA7",
+    "decision": "reject-dataset-for-ppo",
+    "reason": "The stochastic behavior policy won 12 of 32 games against the 19-win minimum and regressed on 15 paired keys with no paired improvements."
+  },
+  "accepted_from_iteration_003": {
+    "scope": "runtime-and-provenance-infrastructure-only",
+    "active_source_root": "experiments/archaludon_latest_v1_rl",
+    "unit_tests": {
+      "passed": 74,
+      "failed": 0
+    },
+    "manifest_validator": "pass",
+    "dataset_or_checkpoint_adopted": false
+  },
+  "behavior_proposal": {
+    "name": "temperature-sharpened-full-support",
+    "teacher_weight": "exp(3)",
+    "non_teacher_weight": "1",
+    "logit_formula": "z_i = log(w_i) + 2 * tanh(clamp(r_i, -3, 3))",
+    "probability_formula": "mu_i = 0.98 * softmax(z / 0.65)_i + 0.02 / K",
+    "temperature": 0.65,
+    "support_mixture": 0.02,
+    "residual_scale": 2.0,
+    "residual_cap": 3.0,
+    "protected_decisions": "Return the exact latest-v1 teacher action; do not sample and do not emit PPO-eligible data.",
+    "requirements": [
+      "Record the complete mu vector and log(mu(chosen_action)) for every eligible decision.",
+      "Record temperature, support mixture, formula version, policy schema hash, and legal-action ordering.",
+      "Require the trainer to reconstruct and exactly verify the stored behavior probability.",
+      "Preserve finite normalized probabilities and a strict lower bound of 0.02/K.",
+      "Preserve the teacher as the unique argmax when every residual is exactly zero.",
+      "Permit every legal action to become the unique argmax under an admissible extreme residual assignment."
+    ]
+  },
+  "offline_calibration": {
+    "script_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/temperature_065_offline_calibration.py",
+    "script_sha256": "170687F04344CF0433AB125A33659F8D077C5A3CD8134CA244023D53B4C722EA",
+    "result_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/temperature_065_offline_calibration.json",
+    "result_sha256": "F8CCA11A65CAC36A512E259CCA5E961361E4A8B62AF7C75BB182FA75A66DA795",
+    "ppo_rows": 834,
+    "expected_divergences": 54.46488151881994,
+    "expected_divergence_rate": 0.0653056133319184,
+    "minimum_cell_expected_divergence_rate": 0.05329861571004494,
+    "maximum_cell_expected_divergence_rate": 0.07355300101612186,
+    "all_offline_gates_pass": true
+  },
+  "offline_acceptance_gates_before_native_execution": {
+    "overall_expected_divergence_rate_minimum": 0.05,
+    "overall_expected_divergence_rate_maximum": 0.08,
+    "every_opponent_seat_expected_divergence_rate_minimum": 0.04,
+    "every_opponent_seat_expected_divergence_rate_maximum": 0.10,
+    "finite_normalized_strictly_positive_probabilities": true,
+    "teacher_unique_argmax_at_zero_residual": true,
+    "every_legal_action_reachable_as_unique_argmax": true,
+    "protected_behavior_exact_teacher": true,
+    "all_new_tests_pass": true
+  },
+  "native_evaluation_after_implementation": {
+    "attempts": 1,
+    "schedule": "Reuse the exact 32 opponent-seat-seed keys and the 64-execution duplicate audit from iteration 003.",
+    "deterministic_control_wins": 27,
+    "gates": {
+      "terminal_wins_minimum": 19,
+      "seat_regressions_vs_control_maximum": 4,
+      "opponent_wins_minimum_out_of_four": 1,
+      "observed_eligible_divergence_rate_minimum": 0.04,
+      "observed_eligible_divergence_rate_maximum": 0.10,
+      "divergence_present_in_both_seats": true,
+      "divergence_present_for_all_opponents": true,
+      "integrity_failures": 0,
+      "model_failures": 0,
+      "model_timeouts": 0,
+      "action_errors": 0,
+      "max_step_hits": 0,
+      "exceptions": 0,
+      "duplicate_mismatches": 0,
+      "zero_divergence_episodes_match_deterministic_control": true
+    },
+    "required_diagnosis": "Inspect the first divergent decision in every remaining paired regression before any PPO decision.",
+    "stop_rule": "If any gate fails, stop without retry and do not run PPO."
+  },
+  "resource_policy": {
+    "expected_native_executions": 64,
+    "sub_pc_required": false,
+    "notify_user_before": "Any plan reaching 2000 native games or approximately one CPU-hour."
+  },
+  "prohibitions": [
+    "Do not train PPO from the iteration-003 dataset.",
+    "Do not tune and rerun within iteration 003.",
+    "Do not run a native game until the implementation, tests, hashes, and immutable execution specification are complete.",
+    "Do not package or submit to Kaggle from this plan."
+  ]
+}

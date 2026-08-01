@@ -1,0 +1,123 @@
+{
+  "schema_version": "archaludon-rl-collection-runtime-change-spec-v1",
+  "change_id": "phase1-iteration-003-single-thread-runtime-20260731",
+  "purpose": "Remove wall-clock timeout nondeterminism from the approved margin-3 collection without changing its policy, checkpoint, schedule, timeout, or RNG mapping.",
+  "policy_hypothesis_changed": false,
+  "failed_attempt": {
+    "collection_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_margin3_collection.json",
+    "collection_spec_sha256": "8E9B3C638FCF7D24EAAFEBD3273C72B8E30E9DE1143564E969DDE214C261F605",
+    "output_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/rollouts",
+    "collector_stderr_sha256": "5A9FFF432F53D0721E55236D4C0A0A18FF1DB565313663063B608A76B760AFC9",
+    "failed_cell": {
+      "opponent_id": "historical_silver",
+      "seat": 1,
+      "seed": 731200401
+    },
+    "first_canonical_mismatch_decision": 6,
+    "replica_a_fallback": "model inference 0.063000s exceeded 0.050000s",
+    "replica_b_fallback": null,
+    "first_action_divergence_decision": 12,
+    "final_manifest_created": false
+  },
+  "input_implementation": {
+    "path": "experiments/archaludon_latest_v1_rl",
+    "reference_policy_py_sha256": "2F3A480E0E21F420D8CC6063960CF79C14514BE32EBA2A2565825728E73CAEE9",
+    "model_py_sha256": "BB02EB065D24A145F9B943D57C8BF1FFDA5FBC2750A7E92D0332918AFE566EC1",
+    "policy_py_sha256": "1B169AC631F36795FB37136D2F20C4FEAED060B7A4EE98D15B368A2A2CD5189F",
+    "trajectory_py_sha256": "537D492E38735FD5CFFDBFED86D63E97EA0109146420B1FC6B55B43B4A8838A5",
+    "collect_rollouts_py_sha256": "248964A4B19E305E23AA7105EAF935BBC3CFC7A067E258333D3F741865A06F41",
+    "train_ppo_py_sha256": "07D5FE053E2338289D65EA293577EF1B7E37D014D7B4DD89EEEEE4A917D547C9"
+  },
+  "isolated_candidate_path": "experiments/archaludon_latest_v1_rl_single_thread_candidate_20260731",
+  "fixed_runtime": {
+    "torch_num_threads_requested": 1,
+    "torch_num_interop_threads_requested": 1,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "collector_must_set_and_verify_before_checkpoint_load": true,
+    "bind_into_runtime_receipt": [
+      "requested and observed Torch intra-op threads",
+      "requested and observed Torch inter-op threads",
+      "Python implementation and version",
+      "Torch version",
+      "platform string",
+      "device",
+      "timeout seconds",
+      "checkpoint SHA256",
+      "required BLAS and OpenMP environment values",
+      "preflight configuration and measurements"
+    ],
+    "bind_runtime_receipt_into": [
+      "collection-spec hash",
+      "final run manifest",
+      "trajectory episode header",
+      "dataset provenance"
+    ]
+  },
+  "preflight": {
+    "prediction_calls": 600,
+    "fixed_option_counts": [
+      2,
+      3,
+      4,
+      7,
+      10,
+      19
+    ],
+    "zero_calls_above_timeout": true,
+    "timeout_seconds": 0.05,
+    "maximum_latency_seconds": 0.025,
+    "finite_outputs": true,
+    "residuals_must_be_exact_zero": true
+  },
+  "must_not_change": [
+    "behavior checkpoint bytes or SHA256",
+    "teacher-margin 3.0 policy formula",
+    "residual cap or scale",
+    "exploration epsilon",
+    "RNG seed mapping or RNG consumption on valid decisions",
+    "protected teacher fallback",
+    "0.050-second timeout",
+    "opponent population, order, seats, or seeds",
+    "reward, eligibility, PPO objective, or optimizer",
+    "serial episode execution"
+  ],
+  "behavior_checkpoint": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/initial_zero_margin3.pt",
+    "sha256": "6B84B2A7006D92CBC2477473E68CBC2E216612FF27511E1FBD471240100546BC"
+  },
+  "rerun": {
+    "run_id": "phase1-iteration-003-margin3-single-thread-20260731",
+    "opponent_population_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "opponent_population_sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "seed_base": 731200401,
+    "episodes_per_seat": 2,
+    "seats": [
+      0,
+      1
+    ],
+    "duplicate_audit": true,
+    "retained_episodes": 32,
+    "native_executions": 64,
+    "max_steps": 1000,
+    "timeout_seconds": 0.05,
+    "device": "cpu",
+    "output_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/rollouts",
+    "maximum_attempts": 1
+  },
+  "additional_gates": {
+    "model_timeouts_in_any_replica": 0,
+    "duplicate_public_state_mismatches": 0,
+    "duplicate_option_mismatches": 0,
+    "duplicate_ppo_eligibility_mismatches": 0,
+    "duplicate_fallback_status_mismatches": 0,
+    "duplicate_action_mismatches": 0,
+    "duplicate_terminal_or_step_mismatches": 0,
+    "checkpoint_sha256_unchanged": true
+  },
+  "stop_rule": "If the one permitted single-thread rerun has any timeout, duplicate mismatch, or integrity failure, stop without another retry and without PPO."
+}

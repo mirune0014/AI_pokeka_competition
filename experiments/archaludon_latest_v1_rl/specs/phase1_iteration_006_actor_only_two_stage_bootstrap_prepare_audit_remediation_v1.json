@@ -1,0 +1,93 @@
+{
+  "schema_version": "archaludon-rl-actor-only-two-stage-prepare-audit-remediation-v1",
+  "remediation_id": "phase1-iteration-006-actor-only-two-stage-prepare-audit-remediation-20260801",
+  "purpose": "Repair the fail-closed execution evidence and standalone prepare-receipt validation defects found by the independent code audit. This remediation does not change the selected learning hypothesis, immutable data, model architecture, optimizer, losses, gates, or output destination, and it does not authorize training or games.",
+  "immutable_contracts": {
+    "base_plan": {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_implementation_plan.json",
+      "sha256": "372B713B41649B42553953E3857C33258DBDD85F0DB460785525D8A0FE02C1B3"
+    },
+    "plan_correction": {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_plan_correction_v1.json",
+      "sha256": "4A7F3EDE454603F843D874E05DBE4808C5AF0FA641F77750DB22867AD9CB90AA"
+    }
+  },
+  "blocked_prepare": {
+    "implementation_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801",
+    "implementation_file_count": 51,
+    "implementation_snapshot_sha256": "EC02811118D76CC3CBB2AB2A9429F63028A32B713045946C5B581461D0B03283",
+    "receipt_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/test_outputs/phase1_iteration_006_prepare_v1/pretraining_probe_receipt.json",
+    "receipt_file_sha256": "E7B9145B9AFE843E41EF0598468D898DD8ACEB9A732583D6E3C818F466748A94",
+    "receipt_sha256": "B43FA5917CB6416CCEF051F80DB09EE9465EB25898A1E04BB1E84EACFE606354",
+    "numerical_provenance_audit": "PASS",
+    "code_audit": "BLOCK",
+    "execution_authorized": false
+  },
+  "required_repairs": {
+    "optimizer_progress": {
+      "rule": "Immediately after each optimizer.step call returns successfully, and before any subsequent finite, parameter, optimizer, measurement, or gate check, record the completed optimizer-step count in execution-owned progress state that remains available to the outer exception handler.",
+      "before_any_successful_step": 0,
+      "after_stage_1_step": 1,
+      "after_stage_2_step": 2,
+      "stage_1_post_step_failure": "Do not enter Stage 2. Retain the current model and the same live Adam state as one rejected checkpoint, and record optimizer_steps_completed=1.",
+      "stage_2_post_step_failure": "Retain the current model and the same live Adam state as one rejected checkpoint, and record optimizer_steps_completed=2.",
+      "pre_step_failure": "Record optimizer_steps_completed=0. No trained checkpoint is required because no optimizer update exists."
+    },
+    "exceptional_rejection_publication": {
+      "after_one_or_more_completed_steps": "Publish exactly one checkpoint with exclusive CREATE_NEW semantics, read it back through the held file and directory guards, prove exact serialized model and optimizer-state round-trip, then publish one canonical rejected receipt and one REJECTED marker.",
+      "nonfinite_rejection": "A rejected checkpoint may contain the state that triggered a nonfinite gate. Retention validation must record nonfinite counts and exact round-trip instead of treating nonfiniteness as acceptance. It must never emit ACCEPTED.",
+      "receipt_must_include": [
+        "failure_phase",
+        "failure_kind",
+        "failure_message",
+        "optimizer_steps_completed",
+        "output_checkpoint_path",
+        "output_checkpoint_sha256",
+        "checkpoint_readback_exact",
+        "accepted_marker_written"
+      ],
+      "accepted_marker_written": false,
+      "same_iteration_retry": false
+    },
+    "cli_exit_status": {
+      "prepare": 0,
+      "accepted": 0,
+      "rejected": 2,
+      "rule": "The CLI return code must be derived from the published status. A rejected result must never return success."
+    },
+    "standalone_prepare_receipt_validation": {
+      "rule": "Recomputing the receipt self-hash must not make altered nested provenance valid.",
+      "must_fail_closed_on_tampering": [
+        "parent rejection identity or decision",
+        "immutable input checkpoint path or SHA-256",
+        "manifest or dataset identity",
+        "runtime thread receipt",
+        "source implementation snapshot",
+        "candidate implementation snapshot",
+        "directional or global gate contract",
+        "plan correction contents"
+      ],
+      "execution_boundary_exact_rebuild": "Retain the existing exact rebuild before optimizer construction as an additional independent guard."
+    }
+  },
+  "required_tests": [
+    "Use only synthetic tensors, mocks, or no-training prepare reconstruction; do not run the real 830-row optimizer path or games while repairing.",
+    "Inject a Stage-1 post-step failure and prove step count 1, no Stage 2, one rejected checkpoint with the same Adam state, one canonical rejected receipt, REJECTED present, and ACCEPTED absent.",
+    "Inject a Stage-2 post-step failure and prove step count 2 with the corresponding mixed Adam step state and the same rejection-publication properties.",
+    "Inject a pre-step failure and prove step count 0 is distinguished from both post-step cases.",
+    "Prove rejected CLI exit 2 and prepare or accepted exit 0.",
+    "Re-self-hash each required nested-provenance tamper and prove standalone receipt validation rejects it.",
+    "Exercise final acceptance composition so Stage-1 family failures remain diagnostic while every Stage-1 global and Stage-2 global, family, improvement, directional, value, optimizer, provenance, and reload gate remains mandatory.",
+    "Run the full copied regression suite and compileall after the repairs."
+  ],
+  "replacement_prepare": {
+    "output_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/test_outputs/phase1_iteration_006_prepare_v2/pretraining_probe_receipt.json",
+    "must_bind_this_remediation_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_prepare_audit_remediation_v1.json",
+    "must_bind_the_exact_external_file_sha256": true,
+    "optimizer_constructed": false,
+    "optimizer_steps": 0,
+    "checkpoint_written": false,
+    "old_prepare_v1_remains_rejected_for_execution": true
+  },
+  "execution_stop_rule": "After repair, regenerate a new strict implementation snapshot and a no-training prepare_v2 receipt exactly once. Independent code and numerical provenance audits of prepare_v2 must both pass before the root authors an execution specification."
+}

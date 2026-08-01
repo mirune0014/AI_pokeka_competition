@@ -1,0 +1,112 @@
+{
+  "schema_version": "archaludon-rl-mass-preserving-pcgrad-plan-correction-v5",
+  "correction_id": "phase1-iteration-009-legacy-control-gradient-authority-remediation-20260801",
+  "base_plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_implementation_plan.json",
+  "base_plan_sha256": "6797A6D884B7B69D5C78A6BD964ACC8425B64063FA9F201905146E1B2D1FB9B8",
+  "prior_corrections": [
+    {"path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v1.json", "sha256": "B08661C5F2905D6316D33066AC72D1A96CECE42EB8FB2C40EA29894E9AF8BB5B"},
+    {"path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v2.json", "sha256": "FAA5975575923F2C3F1CEE2D7DE75698B3F644D47B6112ADF3E517539298BE8E"},
+    {"path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v3.json", "sha256": "0E91C620996122E50E2F83DCCDD636EDEF97142AE42FDB3754DD30DE1138ECA4"},
+    {"path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v4.json", "sha256": "BD9B12F9B8D525398BCED16CFB2730DD64C441B4DD4BDE1D0F38B690CB9FDDAF"}
+  ],
+  "reviewed_candidate": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801",
+    "file_count": 55,
+    "snapshot_sha256": "729F3FDB1050F3C96A5D61BCB60A6AC5949147AF147D055D5D9486476296F21C",
+    "module_sha256": "1E04DF89574F1CA39CBEDA2E25C101E0D65F4F85D0FE32485BCEF5C793778BCD",
+    "focused_test_sha256": "7FE57C9171193344B275809A109447317F4FDCBCDF4453CC5AC92B7E1B1A64EB",
+    "disposition": "REJECT_FOR_EXECUTION_RETAIN_AS_IMPLEMENTATION_STOP_EVIDENCE"
+  },
+  "predecessor_execution_stop": {
+    "execution_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_execution_spec_v1.json",
+    "execution_spec_sha256": "F11295F8DB3E4DB7C33D19225D5145EEF1DFBA087F82E67A798851DC7B2987F9",
+    "pending_directory": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/phase1_iteration_009_pending_audit_v1",
+    "manifest_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/phase1_iteration_009_pending_audit_v1/manifest.json",
+    "manifest_file_sha256": "2D684F5E9ADDFEB4E0F9A33C83AAE799D909FCED9BFFB32E8AB3A677B01E36C7",
+    "manifest_core_sha256": "F5E76699DE578E9349C5ABFC9D94D812EEF46C977D0F9ED27B10FCA355E7CF95",
+    "completed_optimizer_steps_per_arm": {"control_vanilla": 1, "treatment_pcgrad": 1},
+    "completed_stage2_updates": 0,
+    "games_run": 0,
+    "failure": "control post-clip gradient differs from PyTorch contract",
+    "disposition": "Retain immutably as fail-closed implementation evidence only. Never resume, overwrite, delete, finalize, use as a performance observation, count as a candidate rejection, or use to falsify RL or PCGrad. A corrected run must restart from iteration004 in new pending and terminal directories."
+  },
+  "diagnosed_cause": {
+    "legacy_control_expression": "mean_i(policy_i + 0.1 * anchor_i) followed by one backward",
+    "diagnostic_split_expression": "grad(mean_i(policy_i)) + grad(0.1 * mean_i(anchor_i)) followed by float32 parameter-gradient addition",
+    "real_arithmetic_relation": "equivalent",
+    "float32_byte_relation": "not guaranteed equal because scaling, graph merge, accumulation, and reduction order differ",
+    "observed_stage2_update1": {
+      "maximum_absolute_difference": 4.774847184307873e-12,
+      "difference_l2": 5.117420029399078e-11,
+      "relative_l2": 6.8720229e-7,
+      "legacy_gradient_l2": 7.4467447121e-5,
+      "differing_elements": 18066,
+      "total_elements": 18528,
+      "clip_coefficient_legacy": 1.0,
+      "clip_coefficient_split": 1.0
+    },
+    "interpretation": "This is an implementation-audit topology mismatch, not abnormal learning, a safety regression, a directional result, or a performance result."
+  },
+  "unchanged_hypothesis": "Restart both arms from iteration004, reproduce identical Stage1, compare 64 ordinary vanilla Stage2 updates against 64 mass-preserving deterministic PCGrad Stage2 updates on the same 830 fixed rows, then apply the previously fixed directional, global, raw-return, END, KL, TV, checkpoint, and duplicate gates. No runtime or game is authorized by this correction.",
+  "control_execution_contract": {
+    "stage1": "Use the inherited legacy rowwise joint-loss path for exactly one update in both arms.",
+    "stage2_control": "Use the inherited legacy rowwise joint-loss one-backward, native clip_grad_norm_, and Adam path for all 64 of 64 control updates. Never dispatch control to the custom separated-gradient step at updates33-64.",
+    "stage2_treatment": "Use the already fixed mass-preserving seven-task PCGrad path for all 64 of 64 treatment updates.",
+    "update32_anchor": "The control update32 parameter, optimizer, probability, value, and canonical record identities must remain byte-exact to the immutable iteration007 reference.",
+    "causal_reason": "The control must be a pure longer continuation of the same vanilla implementation so that a control recovery means 32 updates were too short, while a treatment-only recovery can be attributed to PCGrad."
+  },
+  "actual_gradient_authority": {
+    "control": "The authoritative control preclip gradient is the exact float32 leaf gradient produced by the inherited rowwise joint-loss backward on the actual training graph. The authoritative postclip gradient is the exact .grad retained after the inherited native clipping call. Split policy and KL gradients are diagnostic decomposition evidence only and must never be assigned to control .grad or used for its optimizer step.",
+    "treatment": "The authoritative treatment preclip gradient remains the byte-exact deterministic sum of the projected policy gradient after its single float64-to-float32 cast and the unchanged float32 anchor-KL gradient. It must equal the tensor assigned to .grad. The postclip gradient must equal the pinned native clipping result.",
+    "control_capture": [
+      "Immediately before each inherited control backward, register temporary no-return leaf-gradient hooks on exactly residual_head.0.weight and residual_head.0.bias in canonical parameter order.",
+      "Clone the backward-produced preclip gradients without changing them, always remove hooks in a finally block, and fail if a hook is missing, repeated, nonfinite, wrong-shape, wrong-dtype, or reaches any other parameter.",
+      "On an isolated graph/model with identical pre-step model bytes and immutable 830 rows, independently compute the same rowwise joint-loss VJP and require byte-exact equality to the captured actual preclip gradient.",
+      "Hash model parameters, optimizer state, .grad state, and CPU RNG state before and after the isolated decomposition audit; any unapproved change fails before the optimizer step.",
+      "After inherited clipping, require the actual postclip .grad bytes to equal a pinned native clip_grad_norm_ replay over cloned production-shaped tensors in the identical sorted parameter order."
+    ],
+    "retained_per_control_update": [
+      "pre-step policy parameter state and optimizer state identity",
+      "canonical parameter names, shapes, dtypes, and raw-byte hashes",
+      "actual captured legacy preclip gradients",
+      "independent rowwise-joint VJP and its byte identity",
+      "split direct policy and anchor-KL gradients",
+      "decomposition discrepancy metrics and pass/fail",
+      "native clip norm and coefficient",
+      "actual postclip gradients",
+      "post-step policy parameters, optimizer state, actual delta, cumulative delta, and ordered outputs"
+    ]
+  },
+  "control_decomposition_tolerance": {
+    "maximum_absolute_error_inclusive": 2e-11,
+    "l2_error_inclusive": "max(2e-6 * L2(actual_legacy_preclip_gradient), 1e-10)",
+    "nonfinite_count": 0,
+    "both_bounds_required": true,
+    "scope": "Only comparison of diagnostic split direct-plus-anchor against authoritative legacy joint-loss preclip for control updates1-64. It does not relax any task-sum, PCGrad, treatment preclip, clip, Adam, checkpoint, output, or terminal acceptance equality."
+  },
+  "load_only_replay_correction": {
+    "control_updates_1_to_64": [
+      "Use retained authoritative legacy preclip tensors for native clip replay and manual Adam replay.",
+      "Require independent rowwise-joint VJP evidence to be byte-exact to the authoritative preclip tensors and bind its canonical raw-byte hashes into every step record.",
+      "Require split direct-plus-anchor to satisfy both fixed decomposition bounds; never require byte equality for this diagnostic split relation.",
+      "Require exact native postclip tensors, actual deltas, cumulative deltas, parameter states, optimizer moments/counters, outputs, and record chain as before."
+    ],
+    "treatment_updates_1_to_64": "Retain all v1-v4 exact split, PCGrad, clip, Adam, output, and record-chain validation without tolerance relaxation.",
+    "control_task_sum": "The seven unsurgeried task policy gradients must still match the direct policy gradient under the existing maximum-absolute 5e-10 and relative-L2 1e-5 tolerances.",
+    "native_clip": "Validate pinned torch 2.11 clip_grad_norm_ semantics with foreach=None on production-shaped weight and bias tensors for both coefficient=1 and coefficient<1 cases. Manual norm code may be retained only if those exact-byte tests pass."
+  },
+  "required_tests": [
+    "A real 830-row retained Stage1 control fixture executes one unmocked inherited Stage2 control update through the production _control_reference_step without the predecessor exception, and its model/optimizer/output state matches a direct inherited base step byte-for-byte.",
+    "Capture hooks enabled versus an otherwise identical inherited step without capture produce byte-identical parameters, optimizer state, deltas, postclip gradients, outputs, and RNG state.",
+    "Independent same-rowwise-joint VJP equals the captured actual preclip bytes across independent forward graphs.",
+    "The known split rounding discrepancy passes both fixed bounds; a single-element perturbation above 2e-11 and a constructed L2-only excess each fail before Adam.",
+    "The dispatcher invokes the inherited legacy control step exactly 64 times and invokes the custom control step zero times; the treatment PCGrad step is invoked exactly 64 times.",
+    "Control update32 still matches every immutable iteration007 reference hash.",
+    "Production-shaped native clipping matches retained pre/post tensors byte-exactly for coefficient=1 and coefficient<1, including pinned foreach=None behavior and sorted parameter order.",
+    "A serialized complete 64-update control raw chain uses legacy-gradient semantics on every update and is rejected if one authoritative preclip, independent VJP hash, decomposition metric, clip tensor, Adam state, or output element is mutated.",
+    "Focused, inherited interaction, inherited two-stage, and Python compilation suites pass.",
+    "A fresh no-training prepare receipt binds this v5 correction, final implementation hashes, the predecessor implementation-stop manifest, and zero optimizer/training/checkpoint/runtime/game proof."
+  ],
+  "new_execution_rule": "After root hash/test verification and independent math and safety PASS, author a new immutable execution spec with new absent pending and terminal directories. Restart from iteration004; do not reuse the predecessor Stage1 checkpoints or any predecessor optimizer state.",
+  "stop_rule": "Until the v5 implementation, real-path tests, no-training prepare receipt, root verification, and both independent reviews pass, do not author the replacement execution spec and do not run production optimizer steps, runtime smoke, games, packaging, promotion, Kaggle, or external writes."
+}

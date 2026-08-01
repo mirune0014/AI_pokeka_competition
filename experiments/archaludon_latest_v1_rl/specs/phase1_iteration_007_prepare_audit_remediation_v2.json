@@ -1,0 +1,161 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v2",
+  "remediation_id": "phase1-iteration-007-production-path-test-remediation-20260801",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+    "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+  },
+  "plan_correction_v1": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+    "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+  },
+  "plan_correction_v2": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+    "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+  },
+  "prepare_audit_remediation_v1": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+    "sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E"
+  },
+  "authority": "This remediation is execution-authoritative over all prior iteration-007 contracts wherever it adds detail. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all five contract file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "intended_production_behavior_change": false,
+  "real_optimizer_execution_authorized": false,
+  "audited_blocked_candidate": {
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801",
+    "snapshot_file_count": 53,
+    "snapshot_sha256": "7B8849CCEDADA9D05063E02E7CB1FCBE268BD77112F33355B5D80A27500D50A3",
+    "primary_module_sha256": "C322ED77FEB68C7BEC01A12D8CCEF635D3DD7E39255D8E6AD09EE82DC886F4CE",
+    "test_module_sha256": "D5106BD6A2D300214659EFDBB4B9F36C17DE6B8C7AC0E40CA41B4AF36894A2E5",
+    "prepare_v2_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v2/pretraining_probe_receipt.json",
+    "prepare_v2_file_sha256": "7320BC7C57A7B344F2A250135F30DBC93205C6ADFB7F25912A8B482F7B7F6E09",
+    "prepare_v2_receipt_sha256": "1E0D192794CCF2B524E7694DCA24B959644111C2E28D8A4BDF2CFFFAA7F151FB",
+    "prepare_v2_status": "NUMERICAL_PASS_CODE_TEST_COVERAGE_BLOCKED_NOT_EXECUTION_AUTHORIZATION",
+    "prepare_v2_must_remain_byte_exact": true
+  },
+  "production_path_test_requirements": {
+    "end_directional_gates": {
+      "production_entrypoint_required": "actor_only_interaction_maturation_pilot.evaluate_directional_gates",
+      "forbidden_as_sole_evidence": "scalar helpers, copied formulas, range-only assertions, or self-equality assertions",
+      "mutation_sensitive_cases": [
+        "poison each of the four negative-target values at its inclusive END-delta, teacher-delta, and unique-argmax boundary and verify the production gate changes only beyond the boundary",
+        "poison each of the 20 positive-normalized END rows at and below the inclusive 1e-6 boundary and verify the exact ordinal is reported",
+        "construct the 31-row positive-raw population so the lower empirical median is exactly zero and then strictly positive, using the production lower-median path",
+        "place a large END decrease outside the 31-row population and prove it cannot affect maximum-decrease acceptance, then place it inside and prove it does",
+        "break each of the 43 teacher-END unique argmax controls through the production gate and verify the exact ordinal is reported",
+        "alter one bound membership or count and prove validation fails rather than silently recomputing a new population"
+      ]
+    },
+    "execution_output_confinement": {
+      "production_entrypoint_required": "The real execution-spec/output preflight path that is called by execute before Adam construction, including the production output-directory validator.",
+      "adam_guard": "Patch torch.optim.Adam to raise and assert zero constructor calls for every rejected path case.",
+      "required_cases": [
+        "canonical absent fixed output path passes preflight",
+        "existing file or directory at the fixed output path fails",
+        "dot, dot-dot, empty-component, separator, or noncanonical traversal fails",
+        "path escaping repository analysis_outputs fails",
+        "symlink, junction, or reparse point in any existing component fails using a real temporary filesystem object when supported, otherwise a production filesystem-attribute seam patched to the real reparse result",
+        "wrong but otherwise safe output path fails exact-value binding"
+      ],
+      "forbidden_as_sole_evidence": "prepare-path validator tests or failures caused only by an earlier fixed-string mismatch that never reach the production execution-output validator"
+    },
+    "terminal_artifact_allowlists": {
+      "production_entrypoint_required": "The real checkpoint and status publication functions using a temporary directory and synthetic checkpoint payload.",
+      "required_filesystem_cases": [
+        "accepted terminal contains exactly candidate.pt, accepted_receipt.json, and ACCEPTED",
+        "rejected terminal contains exactly candidate.pt, rejected_receipt.json, and REJECTED",
+        "zero-successful-step rejection contains exactly rejected_receipt.json and REJECTED",
+        "preflight failure leaves the output absent",
+        "pre-public-identity failure creates no canonical terminal claim and removes only owned staging",
+        "post-identity failure retains the same verified candidate identity, creates no replacement checkpoint, and permits only the matching rejected receipt-marker completion",
+        "opposite marker/receipt, extra file, overwrite, collision, or second checkpoint fails"
+      ],
+      "forbidden_as_sole_evidence": "mocking the publisher itself or checking only an in-memory gate boolean without inspecting the real temporary filesystem artifact set"
+    },
+    "measurement_timing": {
+      "production_entrypoint_required": "The real stage full-batch update path and report builder with a tiny synthetic model/loss or mutation-sensitive seams.",
+      "sentinel_contract": [
+        "assign distinguishable pre-step and post-step parameter or output sentinels",
+        "prove loss, policy loss, anchor contribution, entropy, and gradient evidence capture the pre-step sentinel",
+        "prove probabilities, values, safety metrics, parameter bytes, and optimizer state capture the post-step sentinel",
+        "prove every Stage-2 delta-from-stage-start uses one fixed post-Stage-1 snapshot rather than the preceding Stage-2 update",
+        "intentionally swap a pre/post seam in the test and prove the production validation rejects it"
+      ],
+      "forbidden_as_sole_evidence": "checking only that measurement_timing contains the expected key names or prose values"
+    }
+  },
+  "implementation_rule": {
+    "test_only_expected": true,
+    "if_a_production_defect_is_exposed": "Stop and report the exact defect before modifying production code. A further root-authored correction is required for any behavior change beyond adding strict receipt bindings for this remediation.",
+    "test_module_path_exact": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_actor_only_interaction_maturation_pilot.py",
+    "inherited_files_must_remain_byte_exact": true
+  },
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v3",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v3/pretraining_probe_receipt.json",
+    "publication": "Create exactly once with CREATE_NEW semantics only after all production-path tests and regression schedules pass. Preserve prepare v1 and v2 byte-exact.",
+    "must_bind_all_five_contracts": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v4",
+    "overrides_remediation_v1_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "prepare_audit_remediation_v2_path",
+      "prepare_audit_remediation_v2_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 32,
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "focused_production_path_tests_all_pass": true,
+    "full_exact_name_iteration_007_suite_all_pass": true,
+    "source_baseline_full_suite_all_pass": true,
+    "destination_relocation_safe_suite_all_pass": true,
+    "only_the_five_remediation_v1_enumerated_source_root_confinement_tests_may_be_excluded_from_destination": true,
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_test_change": true
+  },
+  "forbidden": [
+    "overwriting, deleting, or presenting prepare v1 or v2 as execution authorization",
+    "weakening production gates or path confinement to make tests pass",
+    "mocking away the production function that the test claims to exercise",
+    "changing hypothesis, training data, objective, model, update schedule, parameter groups, or thresholds",
+    "real 830-row optimizer execution, games, runtime smoke, packaging, promotion, submission, or same-iteration retry before prepare v3 passes independent audits"
+  ],
+  "stop_rule": "After the mutation-sensitive production-path tests and all regressions pass, generate prepare v3 exactly once and stop for another independent code and numerical-provenance audit before execution-spec authoring."
+}

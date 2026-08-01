@@ -1,0 +1,113 @@
+{
+  "schema_version": "archaludon-rl-frozen-readout-interaction-maturation-plan-correction-v2",
+  "correction_id": "phase1-iteration-007-post-audit-clarification-20260801",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+    "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+  },
+  "prior_correction": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+    "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+  },
+  "authority": "This correction is execution-authoritative over the base plan and correction v1 wherever it adds detail or resolves ambiguity. Every prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all three hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "clarifications": {
+    "nonmilestone_recomputation_scope": {
+      "online_execution": "Immediately after every successful update, the execution process must retain all 830 current raw probability vectors and raw value outputs in memory, recompute every safety quantity from them before the next optimizer step, compare all stored derived fields, and discard the per-row vectors only after the safety decision and compact record are complete.",
+      "receipt_persistence": "Full 830-row evidence is persisted only for Stage 1 and Stage 2 updates 1, 2, 4, 8, 16, and 32. The other 26 Stage 2 updates persist the compact summary, ordered-probability-byte aggregate hash, ordered-value-byte aggregate hash, loss and gradient evidence, parameter hashes, optimizer-step state, and previous-record hash.",
+      "post_hoc_receipt_validator": "Recompute every full-row milestone and its summary. For nonmilestones, validate schema, finiteness or tagged nonfinite evidence, hashes, optimizer and parameter transitions, chronological hash chaining, and equality to any independently reconstructed evidence supplied to the validator. Do not claim raw-row post-hoc recomputation from data absent from the receipt.",
+      "independent_audit": "Before any acceptance is acted upon, independently replay all 33 deterministic updates from the immutable inputs and compare all 32 nonmilestone and milestone summaries, hashes, and terminal state."
+    },
+    "execution_spec_subobjects": {
+      "training_contract": "Must be canonical-JSON exactly equal to the unmodified base-plan training_contract subobject.",
+      "diagnostic_contract": "Must be canonical-JSON exactly equal to the unmodified base-plan diagnostic_contract subobject.",
+      "safety_gates": "Must be canonical-JSON exactly equal to the unmodified base-plan safety_gates subobject.",
+      "terminal_offline_acceptance": "Must be canonical-JSON exactly equal to the unmodified base-plan terminal_offline_acceptance subobject.",
+      "additional_contract_binding": "Correction-v1 and correction-v2 requirements are bound only by their exact path and SHA-256 fields. They are not merged into or used to mutate the four base-plan subobjects in the execution spec."
+    },
+    "execution_spec_correction_chain": {
+      "overrides_correction_v1_exact_top_level_keys": true,
+      "schema_version": "actor-only-interaction-maturation-execution-spec-v2",
+      "exact_top_level_keys": [
+        "schema_version",
+        "implementation_plan_path",
+        "implementation_plan_sha256",
+        "plan_correction_path",
+        "plan_correction_sha256",
+        "plan_correction_v2_path",
+        "plan_correction_v2_sha256",
+        "parent_result_path",
+        "parent_result_sha256",
+        "prepare_receipt_path",
+        "prepare_receipt_file_sha256",
+        "prepare_receipt_sha256",
+        "implementation_path",
+        "implementation_snapshot_sha256",
+        "input_checkpoint_path",
+        "input_checkpoint_sha256",
+        "forbidden_rejected_checkpoint_sha256s",
+        "manifest_path",
+        "manifest_sha256",
+        "dataset_sha256",
+        "fixed_advantages_sha256",
+        "fixed_behavior_logprobabilities_sha256",
+        "runtime_thread_receipt",
+        "training_contract",
+        "diagnostic_contract",
+        "safety_gates",
+        "terminal_offline_acceptance",
+        "output_directory"
+      ],
+      "key_count_exact": 28,
+      "plan_correction_path_binds": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+      "plan_correction_sha256_binds": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09",
+      "plan_correction_v2_path_binds": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+      "plan_correction_v2_sha256_rule": "The uppercase SHA-256 of this complete correction-v2 file after this clarification is present.",
+      "other_execution_spec_contract_fields": "All other execution-spec requirements from correction v1 remain unchanged."
+    },
+    "probability_vector_validation": {
+      "dtype": "CPU torch.float32 converted elementwise to Python float without rounding or formatting",
+      "legal_length": "Exactly the immutable legal-action count for that row and at least one.",
+      "element_constraints": "Every element must be finite and strictly greater than zero and no greater than one for a safe state.",
+      "normalization_sum": "Compute math.fsum over the Python-float elements in legal-action order and require abs(sum - 1.0) <= 1e-6. The inclusive boundary passes.",
+      "model_output_identity": "At each in-memory decision, the authoritative vector is the direct pinned behavior-distribution output for the current model and immutable row. Persist its contiguous float32 bytes and SHA-256. At terminal post-save validation, strict reload must reproduce every one of the 830 vectors byte-for-byte.",
+      "failure": "Wrong length, nonfinite, nonpositive, greater-than-one, normalization breach, raw-byte mismatch, or recomputed-derived-field mismatch is a safety rejection."
+    },
+    "stage_and_measurement_timing": {
+      "stage_1_start": "The immutable input-checkpoint model and fresh four-parameter Adam before the first backward pass.",
+      "stage_2_start": "The single fixed post-Stage-1 model and optimizer snapshot. Every Stage-2 parameter delta-from-stage-start and frozen-readout comparison uses this same snapshot for updates 1 through 32.",
+      "pre_step_measurements": [
+        "loss",
+        "policy loss",
+        "anchor KL contribution",
+        "entropy diagnostic",
+        "total gradient norm before clipping",
+        "per-parameter gradient norms before and after clipping"
+      ],
+      "post_step_measurements": [
+        "raw probabilities and values",
+        "all recomputed safety and direction metrics",
+        "parameter bytes and deltas",
+        "optimizer state, moments, and step counters"
+      ],
+      "loss_batch": "The pre-step full batch whose backward pass produced the gradients used by the immediately following optimizer.step.",
+      "history_order": "Record the pre-step report, execute the step, increment the successful-step history, compute the post-step report, then evaluate safety."
+    },
+    "publication_identity_failure": {
+      "before_public_checkpoint_identity": "If checkpoint CREATE_NEW, link, rename, identity, or readback establishment fails before a verified public candidate.pt identity exists, remove only owned staging artifacts after verifying their paths and identities, raise an exception, and publish no canonical accepted or rejected result. Do not write a receipt or marker claiming terminal completion.",
+      "before_any_publication_and_zero_steps": "Preserve the preflight no-artifact rule from correction v1.",
+      "after_public_checkpoint_identity": "Use correction v1 checkpoint-identity handoff. Preserve and reuse the same verified public checkpoint identity, never create a replacement, and allow the outer publisher to attempt only the matching rejected receipt and marker.",
+      "status_publication_before_identity": "A failure while publishing a receipt or marker before its own public identity is established must clean only verified owned staging, preserve any already verified candidate identity, and raise without claiming a complete canonical terminal artifact set.",
+      "canonical_artifact_allowlists_scope": "The exact artifact allowlists in correction v1 apply only to successfully published canonical terminal or safety-stop results. An identity-establishment exception is an unclaimed execution failure, not a canonical REJECTED result and not a retry authorization."
+    }
+  },
+  "required_new_tests": [
+    "nonmilestone in-memory gates use all raw 830 vectors while the receipt persists only the specified compact evidence and hash chain",
+    "the post-hoc validator does not claim absent-row recomputation and can compare an optional independent reconstruction",
+    "execution-spec subobjects equal the unmodified base-plan subobjects and both correction hashes bind separately",
+    "probability normalization passes at exactly 1e-6 and fails above it, with length, positivity, upper-bound, finiteness, and terminal byte-identity cases",
+    "all Stage-2 deltas use the fixed post-Stage-1 start and pre-step versus post-step measurements are not interchanged",
+    "checkpoint public-identity failure removes only owned staging, creates no canonical status claim, and never replaces an already verified public checkpoint"
+  ]
+}

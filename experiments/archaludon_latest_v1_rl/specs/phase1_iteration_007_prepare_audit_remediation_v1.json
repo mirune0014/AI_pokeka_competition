@@ -1,0 +1,147 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v1",
+  "remediation_id": "phase1-iteration-007-prepare-code-audit-remediation-20260801",
+  "base_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+    "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+  },
+  "plan_correction_v1": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+    "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+  },
+  "plan_correction_v2": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+    "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+  },
+  "authority": "This remediation is execution-authoritative over the base plan and both corrections wherever it adds detail or resolves the audited implementation defects. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all four file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "real_optimizer_execution_authorized": false,
+  "audited_blocked_candidate": {
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801",
+    "snapshot_file_count": 53,
+    "snapshot_sha256": "0BF5140E9759D8635F0B41DC1C7CEC20958F2B28E7F0BA5CF971A047A57EFFF6",
+    "primary_module_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/archaludon_rl/actor_only_interaction_maturation_pilot.py",
+    "primary_module_sha256": "C05C0A7FBEF6C71AB69EDADEF037568AE084A6FDC86B84E6244019B8359A6230",
+    "misnamed_test_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_actor_only_z_interaction_maturation_pilot.py",
+    "misnamed_test_sha256": "B39CC4108F1AAAB339AFFEF4199BA9366DDE6BAD8E7DF81E395AE7A4FA864F48",
+    "prepare_v1_path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v1/pretraining_probe_receipt.json",
+    "prepare_v1_file_sha256": "4C47DC2921A9BBB3018FFAE950BD1ED9F874FF32EBFE5425B5364C9837F888F2",
+    "prepare_v1_receipt_sha256": "60D20EF6EE8B3725349347E4ED255C9CF2CF8744C390AF5A925504FED24D3ACA",
+    "prepare_v1_status": "AUDIT_BLOCKED_NOT_EXECUTION_AUTHORIZATION",
+    "prepare_v1_must_remain_byte_exact": true
+  },
+  "required_code_changes": {
+    "exact_test_module_path": {
+      "required": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_actor_only_interaction_maturation_pilot.py",
+      "forbidden_after_remediation": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_actor_only_z_interaction_maturation_pilot.py",
+      "test_runtime_rule": "The exact-name test module must not initialize or mutate process-global Torch interop-thread state before inherited tests. Runtime-sensitive real-prepare validation must use a fresh pinned subprocess or an idempotent already-initialized path so package discovery order is irrelevant."
+    },
+    "all_receipt_contract_binding": {
+      "required_path_hash_pairs": [
+        "implementation_plan_path and implementation_plan_sha256",
+        "plan_correction_path and plan_correction_sha256",
+        "plan_correction_v2_path and plan_correction_v2_sha256",
+        "prepare_audit_remediation_path and prepare_audit_remediation_sha256"
+      ],
+      "applies_to": [
+        "prepare receipt",
+        "zero-successful-step rejection receipt",
+        "post-step safety rejection receipt",
+        "normal terminal accepted or rejected receipt",
+        "checkpoint metadata",
+        "execution spec"
+      ],
+      "zero_step_publication_test_required": true
+    },
+    "authoritative_float32_probability_domain": {
+      "input_rule": "Convert every stored or supplied probability element to CPU float32, then back to Python float. Require exact elementwise equality with the supplied Python values; extra precision that changes the Python value while preserving float32 bytes is forbidden.",
+      "metric_rule": "Compute normalization, argmax/ties, sampled delta, oriented delta, KL, TV, family medians, END gates, and global summaries only from the round-tripped float32 vector.",
+      "raw_byte_rule": "Hash the same contiguous float32 bytes used by the metric calculation.",
+      "forged_precision_test": "A supplied [0.5000000000000001, 0.4999999999999999] vector must be rejected rather than treated as a unique argmax because its authoritative float32 representation is an exact tie."
+    },
+    "required_missing_test_coverage": [
+      "exact inclusive and strict boundaries for all 4 negative-target END requirements",
+      "all 20 positive-normalized END per-row inclusive boundaries",
+      "31-row positive-raw lower empirical median strict boundary and maximum-decrease population restricted to the same 31 rows",
+      "all 43 teacher-END unique-argmax controls",
+      "preflight no-artifact failure, zero-step rejected receipt-marker without checkpoint, pre-step failure after prior successful steps, post-step failing-state checkpoint without rollback, normal accepted and rejected terminal allowlists",
+      "checkpoint identity failure before public identity, handoff after identity, and no replacement checkpoint",
+      "existing output, traversal, symlink, junction, and reparse-point rejection before optimizer construction",
+      "one fixed post-Stage-1 snapshot as the delta reference for every Stage-2 update",
+      "loss, policy, anchor, entropy, and gradients are pre-step while probabilities, safety, parameters, and optimizer state are post-step",
+      "extra-precision float32 round-trip and tie rejection",
+      "zero-step and every other receipt bind the remediation path and hash"
+    ]
+  },
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v2",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v2/pretraining_probe_receipt.json",
+    "publication": "Create the new subtree and receipt exactly once with CREATE_NEW semantics after all remediated focused and regression tests pass. Never overwrite or delete prepare v1.",
+    "must_bind_remediation": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v3",
+    "overrides_correction_v2_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 30,
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "focused_required_test_module_all_pass": true,
+    "source_baseline_full_suite_all_pass": true,
+    "destination_relocation_safe_suite_all_pass": true,
+    "five_known_source_root_confinement_tests_may_be_excluded_only_from_destination_relocation_schedule": [
+      "tests.test_conservative_ppo_pilot.ConservativePPOProbeTests.test_prepare_constructs_no_optimizer_and_writes_no_checkpoint",
+      "tests.test_conservative_ppo_pilot.ConservativePPOProbeTests.test_prepare_holds_same_parent_guard_through_probe_and_receipt_create",
+      "tests.test_conservative_ppo_pilot.ConservativePPOProbeTests.test_prepare_parent_swap_fails_closed_without_outside_artifact",
+      "tests.test_conservative_ppo_pilot.ConservativePPOProbeTests.test_prepare_path_is_exclusively_confined_to_isolated_test_outputs",
+      "tests.test_conservative_ppo_pilot.ConservativePPOStepTests.test_plan_spec_and_prepare_authorization_use_single_buffer_loader"
+    ],
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_every_code_or_test_change": true
+  },
+  "forbidden": [
+    "overwriting, deleting, or presenting prepare v1 as valid",
+    "changing the selected hypothesis, training rows, objective, update counts, thresholds, or parameter groups",
+    "changing inherited production modules or inherited tests to hide relocation-only failures",
+    "using Python float64 distinctions as policy evidence when float32 bytes are equal",
+    "real 830-row optimizer execution, games, runtime smoke, packaging, promotion, submission, or same-iteration retry before replacement prepare passes independent audits"
+  ],
+  "stop_rule": "After remediated implementation tests pass, generate replacement prepare v2 exactly once. Stop again for independent code and numerical-provenance audits before the root may author an execution spec."
+}

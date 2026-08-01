@@ -1,0 +1,75 @@
+{
+  "schema_version": "phase1-iteration-008-identifiability-audit-execution-spec-v1",
+  "spec_id": "phase1_iteration_008_identifiability_audit_execution_20260801",
+  "purpose": "Execute the immutable read-only identifiability audit once. This is not training, a game-strength test, runtime smoke, or a reason to reject RL generally.",
+  "immutable_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_008_identifiability_audit_plan.json",
+    "sha256": "8FAE5B736C4C1E269AC5FCD1EA1D0146EBC35B78BDA6A454AF452D6920D7E701"
+  },
+  "audit_implementation": {
+    "path": "tools/audit_archaludon_iteration007_identifiability.py",
+    "sha256": "8BCC581937E647E196DA0D0AADD85FD7D88B0528A60C678E810FAFA751E3B0B9"
+  },
+  "focused_tests": {
+    "path": "rl_ptcg/tests/test_audit_archaludon_iteration007_identifiability.py",
+    "sha256": "90F4D2DC2A2C3B306163E5D6EC2E9AA6F69ABA413AACA571D6546DB8892667F6",
+    "expected_test_count": 29,
+    "required_result": "OK"
+  },
+  "candidate_implementation_snapshot_sha256": "6B95C5B6DEB354293E2DC08077DAEC5FE6A77D013832DD70DECC485C91EB87CA",
+  "runtime": {
+    "python": ".venv-rl/Scripts/python.exe",
+    "python_flag": "-B",
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "expected_python_version": "3.11.6",
+    "expected_torch_version": "2.11.0+cu128",
+    "expected_torch_threads": 1,
+    "expected_torch_interop_threads": 1
+  },
+  "command_arguments": [
+    "-B",
+    "tools/audit_archaludon_iteration007_identifiability.py",
+    "--plan",
+    "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_008_identifiability_audit_plan.json",
+    "--plan-sha256",
+    "8FAE5B736C4C1E269AC5FCD1EA1D0146EBC35B78BDA6A454AF452D6920D7E701",
+    "--output-dir",
+    "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_identifiability_audit_20260801"
+  ],
+  "output": {
+    "directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_identifiability_audit_20260801",
+    "must_be_absent_before_execution": true,
+    "required_files_exact": [
+      "manifest.json",
+      "rows.jsonl",
+      "exact_collisions.json",
+      "near_neighbors.jsonl",
+      "group_end_comparison.json",
+      "gae_decomposition.jsonl",
+      "balance.json",
+      "gradient_projection.json",
+      "cause_matrix.json",
+      "summary.json"
+    ],
+    "expected_rows_jsonl": 830,
+    "expected_gae_rows_jsonl": 830,
+    "expected_source_trajectories": 32
+  },
+  "safety_contract": {
+    "optimizer_constructions": 0,
+    "optimizer_steps": 0,
+    "training_updates": 0,
+    "games": 0,
+    "runtime_smoke_games": 0,
+    "iteration006_checkpoint_loads": 0,
+    "network_writes": 0,
+    "kaggle_writes": 0,
+    "retry_on_failure": false
+  },
+  "expected_exit_code": 0
+}

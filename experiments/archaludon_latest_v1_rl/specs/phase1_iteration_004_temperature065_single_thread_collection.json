@@ -1,0 +1,205 @@
+{
+  "schema_version": "archaludon-rl-immutable-collection-execution-spec-v2",
+  "experiment_id": "phase1-iteration-004-temperature065-single-thread-20260731",
+  "purpose": "One duplicate-audited collection of the approved temperature-0.65 full-support behavior policy on the exact iteration-003 opponent-seat-seed keys.",
+  "run_ppo": false,
+  "maximum_collection_attempts": 1,
+  "parent_plan": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_004_temperature_sharpened_behavior_plan.json",
+    "sha256": "10B72C49A7B93C4B72D682D71C55083F95D449711426290E5DB428200EA975AD"
+  },
+  "implementation": {
+    "path": "experiments/archaludon_latest_v1_rl_temperature_candidate_20260731",
+    "snapshot_definition": "SHA256 of UTF-8 sorted relative_path + NUL + byte_size + NUL + uppercase_file_sha256 + LF; excludes __pycache__, .pyc, and test_outputs/",
+    "snapshot_file_count": 46,
+    "snapshot_sha256": "2B4E0795439843A69ED78EA3EA1567C791271EFEFBF2E4662940CB93F2E5F1BB",
+    "collect_rollouts_py_sha256": "184DC51BC0BDF531606686EDAF940301AB9C8EAB85A80FDA921910656A518D53",
+    "collector_py_sha256": "BE5C118D9BD1CABC6BBB48D018DD28864940AB1BFE781D69A569EA8846F057CA",
+    "model_py_sha256": "B15665C47746A01C75AF8D79019D2AF13CCBF499A47213F0F8EF8461516536EC",
+    "policy_py_sha256": "B2DED9D5EC1A9F006916CAD120E94D97702A271790FEB35DC3BC890184FD721A",
+    "reference_policy_py_sha256": "6BB635B78FE04C07F1760EE4C2EE7910B9D08E88F8088494E271BD75DEE3E0A7",
+    "runtime_contract_py_sha256": "B3B848448962E884B8F0B09119BF356EF9D3C1BF90610C979EC55EE0CD8D45C9",
+    "train_ppo_py_sha256": "3D109EF05AA25838063E6B6D3CC2967BBC6B64910F445AD9FC2B1F01BCD81643",
+    "trajectory_py_sha256": "C1A167976D8315C724E1300375319C629D204542BCCF006E3F1798EEEDA17CBC",
+    "unit_tests_passed": 87,
+    "unit_tests_failed": 0,
+    "remaining_p0_or_p1": 0
+  },
+  "behavior_contract": {
+    "schema_version": "temperature-sharpened-full-support-v1",
+    "schema_sha256": "11049A88FB535D7496A2B3C9F7A1A48DB71FD20EFAD3EA39FD9E35CD79819F22",
+    "teacher_log_weight": 3.0,
+    "other_log_weight": 0.0,
+    "residual_cap": 3.0,
+    "residual_scale": 2.0,
+    "temperature": 0.65,
+    "support_mixture": 0.02,
+    "formula": "mu_i=0.98*softmax((log(w_i)+2*tanh(clamp(r_i,-3,3)))/0.65)_i+0.02/K",
+    "anchor_kl_id": "zero-residual-mu-anchor-v1",
+    "anchor_kl_direction": "KL(mu_current||mu_zero)",
+    "protected_behavior": "exact latest-v1 teacher, unsampled, PPO-ineligible"
+  },
+  "offline_evidence": {
+    "calibration_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/temperature_065_offline_calibration.json",
+    "calibration_sha256": "F8CCA11A65CAC36A512E259CCA5E961361E4A8B62AF7C75BB182FA75A66DA795",
+    "implementation_audit_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/implementation_audit.json",
+    "implementation_audit_sha256": "403EAEFF94E91355C6B9A68CD6A6DA6CAFF9F1C51F8AE1B16043555FA0532927",
+    "ppo_rows_recalibrated": 834,
+    "expected_divergence_rate": 0.0653056133319184,
+    "observed_option_counts_verified": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "all_offline_gates_pass": true
+  },
+  "checkpoint": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+    "sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+    "upgrade_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_004_temperature065_checkpoint_upgrade_v2.json",
+    "upgrade_spec_sha256": "73EBB904A1308ABFCBABB45AE0D10C1A920F34C84B8584431BD1F20216FE37B0",
+    "upgrade_receipt_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/upgrade_receipt.json",
+    "upgrade_receipt_sha256": "12770056C1B674173057E926EDF2060E241C599DDC9E42220D5B4EE603A1443B",
+    "residuals_must_be_exact_zero": true,
+    "games_run_before_collection": 0,
+    "ppo_steps_before_collection": 0
+  },
+  "opponent_population": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "ordered_ids": [
+      "historical_silver",
+      "alakazam_public",
+      "alakazam_rmy_live",
+      "marnie_kazuki_live",
+      "mega_lucario_public",
+      "starmie_public",
+      "dragapult_live",
+      "ogerpon_cornerstone_public"
+    ]
+  },
+  "runtime": {
+    "parent_runtime_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_single_thread_runtime.json",
+    "parent_runtime_spec_sha256": "9DFBF9B9A15A6C454D66A2F852013C5D44CDBA20915268F665C30C807EBE8DB7",
+    "python": ".venv-rl/Scripts/python.exe",
+    "device": "cpu",
+    "timeout_seconds": 0.05,
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "preflight": {
+      "prediction_calls": 600,
+      "option_counts": [
+        2,
+        3,
+        4,
+        7,
+        10,
+        19
+      ],
+      "calls_per_option_count": 100,
+      "maximum_latency_seconds": 0.025,
+      "timeout_seconds": 0.05,
+      "finite_outputs": true,
+      "zero_residuals": true
+    }
+  },
+  "schedule": {
+    "run_id": "phase1-iteration-004-temperature065-single-thread-20260731",
+    "seed_base": 731200401,
+    "seeds": [
+      731200401,
+      731200402
+    ],
+    "episodes_per_seat": 2,
+    "seats": [
+      0,
+      1
+    ],
+    "opponent_count": 8,
+    "retained_episodes": 32,
+    "native_executions": 64,
+    "duplicate_audit": true,
+    "serial_execution": true,
+    "max_steps": 1000,
+    "expected_schedule_sha256": "2DB8B8F875998C5EF52AD3456C84FF64CCB7817EBF34AB03021DFA32FA7D43FB",
+    "identity_keys_equal_iteration_003": true
+  },
+  "output": {
+    "root": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731",
+    "rollouts": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts",
+    "collector_stdout": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/collector_stdout.txt",
+    "collector_stderr": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/collector_stderr.txt",
+    "must_not_exist_before_start": true,
+    "expected_retained_files": 32,
+    "expected_audit_files": 64,
+    "expected_final_manifests": 1,
+    "expected_failure_ledgers": 0
+  },
+  "expected_schemas": {
+    "model": "residual-actor-critic-v3",
+    "behavior": "temperature-sharpened-full-support-v1",
+    "policy": "residual-policy-v4",
+    "trajectory": "trajectory-v6",
+    "run_manifest": "run-manifest-v6",
+    "collection_spec": "collection-spec-v4",
+    "dataset": "trajectory-dataset-v3",
+    "runtime_receipt": "collection-runtime-receipt-v1",
+    "runtime_preflight": "collection-runtime-preflight-v1"
+  },
+  "execution_acceptance_gates": {
+    "collector_exit_code": 0,
+    "complete_final_manifest": true,
+    "implementation_snapshot_unchanged": true,
+    "checkpoint_sha256_unchanged": true,
+    "behavior_receipt_mismatches": 0,
+    "model_failure_count_all_replicas": 0,
+    "model_timeout_count_all_replicas": 0,
+    "action_errors_all_replicas": 0,
+    "max_step_hits_all_replicas": 0,
+    "exceptions_all_replicas": 0,
+    "duplicate_trace_mismatches": 0,
+    "duplicate_terminal_mismatches": 0,
+    "duplicate_engine_step_mismatches": 0,
+    "audit_receipt_hash_mismatches": 0,
+    "runtime_receipt_mismatches": 0,
+    "protected_action_divergences": 0,
+    "protected_ppo_eligible_rows": 0,
+    "zero_residual_eligible_argmax_divergences": 0,
+    "trainer_manifest_validator_passes": true
+  },
+  "strength_gates_for_post_collection_evaluation": {
+    "terminal_wins_minimum": 19,
+    "seat0_wins_minimum": 9,
+    "seat1_wins_minimum": 10,
+    "opponent_wins_minimum_out_of_four": 1,
+    "eligible_divergence_rate_minimum": 0.04,
+    "eligible_divergence_rate_maximum": 0.10,
+    "divergence_present_in_both_seats": true,
+    "divergence_present_for_all_opponents": true,
+    "zero_divergence_episodes_match_control": true
+  },
+  "stop_rule": "Execute this collection once. On any execution, provenance, schedule, duplicate, or integrity failure, stop without retry and without PPO. Performance gates are evaluated from the completed immutable raw output and also never trigger a same-iteration retry."
+}

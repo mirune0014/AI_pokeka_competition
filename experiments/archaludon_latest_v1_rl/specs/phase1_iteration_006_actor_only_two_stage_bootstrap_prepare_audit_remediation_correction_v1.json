@@ -1,0 +1,73 @@
+{
+  "schema_version": "archaludon-rl-actor-only-two-stage-prepare-audit-remediation-correction-v1",
+  "correction_id": "phase1-iteration-006-prepare-audit-remediation-correction-20260801",
+  "purpose": "Close the two post-step rejection-evidence gaps found by the independent code re-audit of prepare_v2. This correction does not alter the learning hypothesis, data, optimizer update, losses, gates, or output destination, and it does not authorize training or games.",
+  "base_remediation": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_prepare_audit_remediation_v1.json",
+    "sha256": "41F8A68EEE551CCF4139D2F3F905ADE807D48CFF3D1858BEFE7ED86E090F2C6D",
+    "remediation_id": "phase1-iteration-006-actor-only-two-stage-prepare-audit-remediation-20260801"
+  },
+  "blocked_prepare": {
+    "implementation_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801",
+    "implementation_file_count": 51,
+    "implementation_snapshot_sha256": "CECA81E4BA6B583F4811CC3C20BD5518693867D8834D3FAFC568209FF1EFEBE9",
+    "receipt_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/test_outputs/phase1_iteration_006_prepare_v2/pretraining_probe_receipt.json",
+    "receipt_file_sha256": "A1D88A9CACB00ADDF4D5DB43DFC9AA2A69DABEB7CCA481B1747B2E0DF9866F00",
+    "receipt_sha256": "49BD1E0D2300CAAB995B42E2BD6EFAC238D4F12F84F3B1692DB9679F76ECED73",
+    "numerical_provenance_audit": "PASS",
+    "code_audit": "BLOCK",
+    "execution_authorized": false
+  },
+  "corrections": {
+    "rejected_optimizer_contract_evidence": {
+      "rule": "A semantic optimizer-contract failure after a successfully returned optimizer step is rejection evidence, not a reason to lose the rejection receipt.",
+      "hard_fail_conditions": [
+        "checkpoint SHA-256 mismatch",
+        "checkpoint metadata mismatch",
+        "model-state byte round-trip mismatch",
+        "optimizer-state byte round-trip mismatch"
+      ],
+      "nonblocking_for_retention_but_mandatory_rejection": [
+        "missing optimizer state",
+        "extra optimizer state",
+        "wrong per-parameter optimizer step",
+        "nonfinite optimizer state"
+      ],
+      "receipt_fields": [
+        "optimizer_contract_pass",
+        "optimizer_contract_failures",
+        "optimizer_steps_expected",
+        "optimizer_steps_observed",
+        "optimizer_steps_completed"
+      ],
+      "progress_authority": "optimizer_steps_completed is the count recorded immediately after successful optimizer.step returns. A malformed optimizer state must not rewrite that historical count."
+    },
+    "owned_hardlink_handoff": {
+      "rule": "Once candidate.pt has been created from the held staging inode and its public-name identity has been verified, ownership evidence must survive every later exception until the outer rejection handler receives it.",
+      "allowed_mechanisms": [
+        "return the held guard, path, SHA-256, and readback before any later fallible operation",
+        "raise a structured exception that transfers the held guard, path, SHA-256, and readback to the outer handler"
+      ],
+      "outer_handler": "Reuse the transferred checkpoint evidence and never attempt a second checkpoint publication.",
+      "unverified_collision": "If public-name identity was not verified, do not adopt, delete, overwrite, or replace the unknown file. Fail closed and never emit ACCEPTED.",
+      "single_checkpoint": true
+    }
+  },
+  "required_tests": [
+    "Use only synthetic tensors, mocks, and no-training prepare reconstruction; do not execute the real 830-row optimizer path or games.",
+    "For both completed-stage counts 1 and 2, inject missing, extra, and wrong-step optimizer state after the successful step and prove one byte-exact rejected checkpoint, one canonical rejected receipt, REJECTED present, ACCEPTED absent, and the semantic optimizer failures recorded without changing the historical completed-step count.",
+    "Inject an exception after candidate.pt hardlink identity verification but before normal publisher return. Prove the outer handler reuses the transferred held checkpoint, publishes no second checkpoint, and emits the canonical rejection artifacts.",
+    "Inject an unverified candidate.pt collision and prove the unknown file is neither deleted nor overwritten and no accepted artifact is emitted.",
+    "Retain every test required by the base remediation, then run the full regression suite and compileall."
+  ],
+  "replacement_prepare": {
+    "output_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/test_outputs/phase1_iteration_006_prepare_v3/pretraining_probe_receipt.json",
+    "must_bind_this_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_prepare_audit_remediation_correction_v1.json",
+    "must_bind_the_exact_external_file_sha256": true,
+    "optimizer_constructed": false,
+    "optimizer_steps": 0,
+    "checkpoint_written": false,
+    "old_prepare_v2_remains_rejected_for_execution": true
+  },
+  "execution_stop_rule": "Generate a new strict implementation snapshot and no-training prepare_v3 receipt exactly once after all repairs and tests pass. Independent code and numerical provenance audits of prepare_v3 must both pass before the root authors an execution specification."
+}

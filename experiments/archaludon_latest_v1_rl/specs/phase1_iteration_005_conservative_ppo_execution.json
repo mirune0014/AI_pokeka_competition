@@ -1,0 +1,75 @@
+{
+  "schema_version": "conservative-ppo-execution-spec-v1",
+  "plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_005_conservative_ppo_implementation_plan.json",
+  "plan_sha256": "E47800D5842FDEB0E49B9C0CBC6A4F55D334091DF6D79C253941DCFC28047577",
+  "prepare_receipt_path": "experiments/archaludon_latest_v1_rl_ppo_candidate_20260731/test_outputs/phase1_iteration_005_prepare_v4/pretraining_probe_receipt.json",
+  "prepare_receipt_file_sha256": "63E8599248E62FFD80D548A65109EBCE05E164463FA218C41B33F335D76DC322",
+  "prepare_receipt_sha256": "CD7D8A8E8CA037E0A9D8036C2221AB336CB7F8BEDDA43D765F33F0EEEDD2D0E9",
+  "implementation_snapshot_sha256": "2197C82DF499EE3026F960C6A1690094A2EF5D4FB4863E07267E025BE2BDF940",
+  "input_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+  "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+  "manifest_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+  "manifest_sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+  "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+  "runtime_thread_receipt": {
+    "observed_thread_counts": {
+      "torch_num_interop_threads": 1,
+      "torch_num_threads": 1
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": {
+      "implementation": "CPython",
+      "version": "3.11.6"
+    },
+    "requested_thread_counts": {
+      "torch_num_interop_threads": 1,
+      "torch_num_threads": 1
+    },
+    "required_environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "torch_version": "2.11.0+cu128"
+  },
+  "training_contract": {
+    "adam": {
+      "amsgrad": false,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "capturable": false,
+      "decoupled_weight_decay": false,
+      "differentiable": false,
+      "eps": 1e-08,
+      "foreach": null,
+      "fresh_state": true,
+      "fused": null,
+      "maximize": false,
+      "name": "Adam",
+      "weight_decay": 0.0
+    },
+    "device": "cpu",
+    "epochs": 1,
+    "minibatches": false,
+    "optimizer_steps": 1,
+    "ppo_config": {
+      "anchor_kl_hard_stop": 0.002,
+      "anchor_kl_initial_coef": 0.1,
+      "anchor_kl_target": 0.0005,
+      "clip_ratio": 0.1,
+      "entropy_coef": 0.0,
+      "epochs": 1,
+      "gae_lambda": 0.95,
+      "gamma": 0.99,
+      "gradient_clip": 0.25,
+      "learning_rate": 0.0001,
+      "value_coef": 0.5
+    },
+    "row_order": "manifest order",
+    "shuffle": false
+  },
+  "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_005_conservative_ppo_20260731"
+}

@@ -1,0 +1,306 @@
+{
+  "schema_version": "archaludon-rl-frozen-readout-interaction-maturation-implementation-plan-v1",
+  "plan_id": "phase1-iteration-007-frozen-readout-interaction-maturation-20260801",
+  "purpose": "Implement and prepare, without training, one immutable offline diagnostic that gives the nonlinear state-action interaction layer 32 updates after a one-step output-layer bootstrap. This plan does not authorize optimizer execution, games, runtime smoke, packaging, promotion, or submission.",
+  "strength_claim_allowed": false,
+  "parent_result": {
+    "path": "experiments/archaludon_latest_v1_rl/PHASE1_ITERATION_006_RESULT.md",
+    "sha256": "F26BDF73AE3AE9ADBD19BCCCB8D06A36B62277C14153D8895274B92E8CB4CF77",
+    "decision": "REJECT_CHECKPOINT_CONTINUE_RL_PATH",
+    "rejected_receipt_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_006_actor_only_two_stage_20260801/rejected_receipt.json",
+    "rejected_receipt_file_sha256": "FF97079BB4CD071A3548A830AC516FE2E30FC70CCCF09EBFC57F1605421A950B",
+    "rejected_receipt_sha256": "9F61AC21FABF231FB3B4D5BF37BC1BB0CCFBFF0F15A5342708F91AB8D29019C0",
+    "rejected_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_006_actor_only_two_stage_20260801/candidate.pt",
+    "rejected_checkpoint_sha256": "C1F9B0D4CEAFD0B481F9E1C517F5B56A2490DF9AF2EEA1DD8B8E5412596FA12B",
+    "rejected_checkpoint_must_not_be_loaded": true,
+    "runtime_smoke_skipped": true,
+    "games_run": 0
+  },
+  "selected_hypothesis": "After one output-layer bootstrap step, freezing the output readout and training only residual_head.0 for 32 full-batch updates will let the nonlinear state-action interaction representation separate positive from negative advantage rows within each action family. Continuing to train residual_head.2 would instead keep amplifying action-family bias.",
+  "hypothesis_falsifier": "The hypothesis is insufficient if residual_head.0 has verified finite nonzero gradients and completes 32 safe updates, but the same family-polarity signs and positive-END suppression persist or the terminal practical alignment gates fail.",
+  "immutable_inputs": {
+    "input_checkpoint": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "optimizer_state_must_be_none": true
+    },
+    "manifest": {
+      "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+      "sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393"
+    },
+    "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+    "on_policy_rows": 830,
+    "fixed_advantages_sha256": "B7F77DEBE545FDD5B7767C909E185904A52F161B6253D821950E6FDE6A79E53B",
+    "fixed_behavior_logprobabilities_sha256": "BF402ED36ECD78905597F562E8987927C2D74FD5AEE390F1D1E1426CE3D1DA98",
+    "prepare_source": {
+      "path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/test_outputs/phase1_iteration_006_prepare_v3/pretraining_probe_receipt.json",
+      "file_sha256": "1DE8718F771BBBDB08712666EA1BFBFA52B34260EC76178B5D0B59C232B14B52",
+      "receipt_sha256": "B2758162F79F6CDF892576DF963ED375FBA372F0919FE226A69510907BC3E385"
+    },
+    "source_implementation": {
+      "path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801",
+      "snapshot_definition": "Enumerate regular files recursively, excluding every path with a __pycache__ or test_outputs component and every .pyc suffix. Sort by the unsigned UTF-8 bytes of each relative POSIX path in ascending lexicographic order. Hash the concatenation, for each file, of relative_path UTF-8 bytes, NUL, decimal byte_size ASCII, NUL, uppercase_file_sha256 ASCII, and LF.",
+      "file_count": 51,
+      "snapshot_sha256": "2E6F7D1F134F9571C0064910BD6C0A56F8D39AC0965F8F36F4C9938D4D29DF35",
+      "actor_only_two_stage_pilot_py_sha256": "9FD277200591C3485072EBED346135456D99206DDEB2BF046D1E09BC93C4AA0F",
+      "conservative_ppo_pilot_py_sha256": "43CEC751457ED0329D4A8E10CF6491A13BF78BC28F89154A3BC8056371FD1DCC"
+    }
+  },
+  "isolated_implementation": {
+    "destination": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801",
+    "source_tree_must_remain_unchanged": true,
+    "copy_exclusions": [
+      "__pycache__",
+      "test_outputs",
+      "*.pyc"
+    ],
+    "required_module": "archaludon_rl.actor_only_interaction_maturation_pilot",
+    "required_test_module": "tests/test_actor_only_interaction_maturation_pilot.py",
+    "required_capabilities": [
+      "prepare one canonical no-training receipt without constructing an optimizer, changing parameters, or writing a checkpoint",
+      "validate the plan, parent rejection, initial checkpoint, manifest, dataset, source implementation, runtime, rows, memberships, and exact execution spec before optimizer construction",
+      "perform one output-readout bootstrap update followed by exactly 32 interaction-layer updates",
+      "retain one Adam object without reset across both stages while changing the trainable parameter set",
+      "evaluate safety after every update and record full diagnostics at the fixed milestones",
+      "publish one final or safety-stop checkpoint and one canonical accepted or rejected receipt without overwriting any input"
+    ]
+  },
+  "training_contract": {
+    "algorithm": "ppo_actor_only_frozen_readout_interaction_maturation",
+    "row_order": "manifest order",
+    "shuffle": false,
+    "minibatches": false,
+    "replay_mixing": false,
+    "device": "cpu",
+    "torch_version": "2.11.0+cu128",
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "fixed_training_inputs": {
+      "advantages": "Recompute GAE and float32 population normalization from the immutable initial checkpoint exactly once, require equality with the bound hashes, and hold all 830 values fixed for every update.",
+      "behavior_logprobabilities": "Use the same 830 stored behavior log-probabilities for every update.",
+      "value_targets": "Hold the initial-checkpoint targets fixed for diagnostics only; value loss is exactly zero.",
+      "row_order_and_sampled_indices": "Use the same manifest-order rows and sampled indices for every update."
+    },
+    "optimizer": {
+      "name": "Adam",
+      "fresh_state": true,
+      "single_object_across_stages": true,
+      "reset_between_stages": false,
+      "parameter_names_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "learning_rate": 0.0001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.0,
+      "amsgrad": false,
+      "foreach": null,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "fused": null,
+      "decoupled_weight_decay": false
+    },
+    "ppo_config": {
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "clip_ratio": 0.1,
+      "value_coef": 0.0,
+      "entropy_coef": 0.0,
+      "anchor_kl_coefficient": 0.1,
+      "anchor_kl_adaptation": false,
+      "gradient_clip": 0.25,
+      "full_batch_rows": 830,
+      "total_optimizer_steps": 33
+    },
+    "stage_1": {
+      "name": "output_readout_bootstrap",
+      "optimizer_step_count": 1,
+      "learning_rate": 0.0001,
+      "trainable_parameter_names_exact": [
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "frozen_parameter_names_include": [
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "state_encoder.*",
+        "action_encoder.*",
+        "value_head.*"
+      ],
+      "expected_optimizer_steps_after_stage": {
+        "residual_head.2.weight": 1,
+        "residual_head.2.bias": 1,
+        "residual_head.0.weight": "absent",
+        "residual_head.0.bias": "absent"
+      },
+      "global_safety_failure_hard_stops_before_stage_2": true
+    },
+    "stage_2": {
+      "name": "frozen_readout_interaction_maturation",
+      "optimizer_step_count": 32,
+      "learning_rate": 0.0001,
+      "same_optimizer_object_and_state": true,
+      "trainable_parameter_names_exact": [
+        "residual_head.0.weight",
+        "residual_head.0.bias"
+      ],
+      "frozen_parameter_names_include": [
+        "residual_head.2.weight",
+        "residual_head.2.bias",
+        "state_encoder.*",
+        "action_encoder.*",
+        "value_head.*"
+      ],
+      "diagnostic_update_ordinals": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "terminal_candidate_update_ordinal": 32,
+      "expected_optimizer_steps_at_terminal": {
+        "residual_head.2.weight": 1,
+        "residual_head.2.bias": 1,
+        "residual_head.0.weight": 32,
+        "residual_head.0.bias": 32
+      },
+      "no_directional_or_futility_early_stop_before_terminal": true
+    },
+    "value_contract": {
+      "value_loss_is_exact_zero": true,
+      "state_encoder_parameter_bytes_unchanged": true,
+      "action_encoder_parameter_bytes_unchanged": true,
+      "value_head_parameter_bytes_unchanged": true,
+      "all_encoder_and_value_optimizer_state_absent": true,
+      "value_outputs_all_830_rows_byte_exact_to_initial_at_every_diagnostic": true,
+      "raw_value_mse_exact_to_initial_at_every_diagnostic": true
+    }
+  },
+  "diagnostic_contract": {
+    "after_every_stage_2_update_record": [
+      "optimizer step ordinal and per-parameter optimizer step state",
+      "loss, policy loss, anchor KL loss, entropy diagnostic, total gradient norm, and per-parameter gradient norms",
+      "parameter hashes and maximum absolute changes from initial and stage start",
+      "global aligned, anti-aligned, neutral counts, alignment score, lower empirical median, mean and maximum anchor KL, maximum TV, unique argmax count, and nonfinite counts",
+      "value-output identity summary"
+    ],
+    "at_stage_1_and_fixed_stage_2_milestones_record_full_830_rows": true,
+    "full_row_fields": [
+      "public-state and legal-action-order identities",
+      "all policy probabilities",
+      "value output",
+      "sampled probability delta and oriented delta from the immutable initial checkpoint",
+      "unique argmax",
+      "anchor KL and TV"
+    ],
+    "lower_empirical_median": "Sort ascending and select index (n - 1) // 2 without averaging.",
+    "orientation_deadband_tau": 1e-07
+  },
+  "safety_gates": {
+    "apply_after_stage_1_and_every_stage_2_update": {
+      "mean_anchor_kl_maximum": 0.002,
+      "per_row_anchor_kl_maximum": 0.01,
+      "per_row_total_variation_from_initial_maximum": 0.02,
+      "unique_argmax_required_for_every_row": true,
+      "nonfinite_probability_value_loss_gradient_parameter_or_optimizer_count": 0,
+      "parameter_and_optimizer_contract_must_pass": true,
+      "value_contract_must_pass": true
+    },
+    "failure_action": "Stop immediately, retain exactly one checkpoint reflecting the completed safe or failing post-step state as specified by the exception contract, write only a canonical rejected receipt and REJECTED marker, and do not retry."
+  },
+  "terminal_offline_acceptance": {
+    "completed_optimizer_steps_exact": 33,
+    "all_safety_gates_pass_at_every_update": true,
+    "qualifying_action_families": [
+      "PLAY",
+      "ATTACH",
+      "EVOLVE",
+      "RETREAT",
+      "ATTACK",
+      "END"
+    ],
+    "all_12_family_polarity_lower_medians_at_update_32_strictly_greater_than": 1e-07,
+    "formerly_failing_groups": [
+      "PLAY:positive",
+      "ATTACH:negative",
+      "EVOLVE:negative",
+      "RETREAT:positive",
+      "ATTACK:negative",
+      "END:positive"
+    ],
+    "formerly_failing_group_requirements": {
+      "update_16_each_strictly_greater_than_stage_1_corresponding_median": true,
+      "update_32_each_strictly_greater_than_stage_1_corresponding_median": true,
+      "update_32_each_minimum": 1e-06
+    },
+    "terminal_global_alignment_score_minimum": 0.1,
+    "terminal_global_lower_median_minimum": 1e-05,
+    "inherited_end_gates": {
+      "four_negative_targets_all_pass": true,
+      "all_43_teacher_end_rows_preserve_teacher_unique_argmax": true,
+      "each_of_20_positive_normalized_teacher_and_sampled_end_rows_delta_minimum": 1e-06,
+      "positive_raw_teacher_and_sampled_end_lower_median_strictly_positive": true,
+      "maximum_individual_end_probability_decrease": 0.0025
+    },
+    "checkpoint_post_save_reload_and_exact_metadata_validation": true,
+    "accepted_marker_written_only_after_every_gate_passes": true
+  },
+  "prepare_receipt_must_bind": [
+    "plan and parent-result hashes",
+    "input checkpoint, manifest, dataset, source implementation, runtime, and thread hashes",
+    "all 830 ordered row identities, initial probabilities, fixed advantages, behavior log-probabilities, sampled indices, semantic identities, and option types",
+    "the frozen 4, 20, 31, and 43 END-control memberships and seven action-family memberships",
+    "the exact four-parameter optimizer universe, stage trainability, 1 plus 32 update schedule, diagnostic milestones, safety gates, terminal gates, and stop rules",
+    "initial parameter and value-output hashes",
+    "proof that no optimizer was constructed, no parameter changed, and no checkpoint was written"
+  ],
+  "implementation_tests": [
+    "prepare constructs no optimizer, changes no parameter, and writes no checkpoint",
+    "wrong plan, parent, rejected-checkpoint use, input, dataset, row, family, fixed-input, source, runtime, or execution-spec binding fails before optimizer construction",
+    "Stage 1 changes exactly residual_head.2 weight and bias and creates state only for those tensors",
+    "Stage 2 freezes residual_head.2 bytes and Adam moments while changing exactly residual_head.0 weight and bias for 32 steps",
+    "both encoders and the value head remain byte-exact with no optimizer state and all value outputs remain exactly equal to initial",
+    "the same Adam object persists across all 33 updates and terminal optimizer step counters are exact",
+    "full diagnostics occur exactly at Stage 1 and Stage 2 updates 1, 2, 4, 8, 16, and 32, while compact safety summaries cover all 32 Stage 2 updates",
+    "safety boundaries, lower-median boundaries, formerly failing group improvements, global practical thresholds, and inherited END gates are tested at and beyond each boundary",
+    "directional failure before update 32 does not cause an early stop, while any safety failure does",
+    "one terminal checkpoint and exactly one accepted or rejected receipt-marker pair are published without overwriting inputs or existing outputs"
+  ],
+  "forbidden_changes": [
+    "loading or continuing from the rejected iteration-005 or iteration-006 checkpoint",
+    "teacher-action imitation, behavior cloning, Gold-action labels, or replay-derived opponent-policy labels",
+    "END-specific loss, reward, duplication, reweighting, mask, or hand-coded protection",
+    "action-family-specific loss weights or training objectives",
+    "changes to reward, dataset, row order, sampled actions, fixed advantages, behavior log-probabilities, model architecture, features, teacher, deck, opponent population, behavior formula, PPO clip, or anchor formula",
+    "training either encoder or any value-head parameter",
+    "updating residual_head.2 during Stage 2",
+    "constructing a second optimizer, resetting Adam, changing the learning rate, or adapting the anchor coefficient",
+    "stopping early because a family, END, or practical-alignment gate has not yet passed",
+    "same-iteration retry, games, runtime smoke, packaging, promotion, Kaggle submission, or any strength claim"
+  ],
+  "output_semantics": {
+    "new_empty_output_directory_required": true,
+    "one_checkpoint_only": true,
+    "intermediate_diagnostics_are_receipt_evidence_not_deployable_checkpoints": true,
+    "accepted_marker_only_after_terminal_update_32_and_all_gates": true,
+    "rejected_checkpoint_retained_with_canonical_rejection_receipt": true,
+    "same_iteration_retry": false
+  },
+  "post_rejection_action_if_falsified": "Do not add optimizer steps. Perform a read-only identifiability audit of duplicate and near-identical public-state, legal-action-set, and semantic-action rows with opposing advantages, including trajectory and GAE decomposition. This would test the current representation and targets, not reject RL generally.",
+  "execution_stop_rule": "Implementation and a no-training prepare receipt must pass independent code and numerical-provenance audits before the root authors a separately hashed execution spec. This implementation plan itself runs no optimizer step and no game."
+}

@@ -1,0 +1,152 @@
+{
+  "schema_version": "actor-only-two-stage-execution-spec-v3",
+  "plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_implementation_plan.json",
+  "plan_sha256": "372B713B41649B42553953E3857C33258DBDD85F0DB460785525D8A0FE02C1B3",
+  "correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_plan_correction_v1.json",
+  "correction_sha256": "4A7F3EDE454603F843D874E05DBE4808C5AF0FA641F77750DB22867AD9CB90AA",
+  "remediation_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_prepare_audit_remediation_v1.json",
+  "remediation_sha256": "41F8A68EEE551CCF4139D2F3F905ADE807D48CFF3D1858BEFE7ED86E090F2C6D",
+  "remediation_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_006_actor_only_two_stage_bootstrap_prepare_audit_remediation_correction_v1.json",
+  "remediation_correction_sha256": "B173C031D77305DEA85A4DA29DA0CC02C39C92100DEBB04815BD95E9A9D2897C",
+  "prepare_receipt_path": "experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/test_outputs/phase1_iteration_006_prepare_v3/pretraining_probe_receipt.json",
+  "prepare_receipt_file_sha256": "1DE8718F771BBBDB08712666EA1BFBFA52B34260EC76178B5D0B59C232B14B52",
+  "prepare_receipt_sha256": "B2758162F79F6CDF892576DF963ED375FBA372F0919FE226A69510907BC3E385",
+  "implementation_snapshot_sha256": "2E6F7D1F134F9571C0064910BD6C0A56F8D39AC0965F8F36F4C9938D4D29DF35",
+  "input_checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+  "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+  "rejected_checkpoint_sha256": "E7D0CA4DCEEBE33C8043D3C8A45DD9119CFE0E06ACC58F343E9A60BB7F787088",
+  "manifest_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/run_manifest.json",
+  "manifest_sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+  "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+  "runtime_thread_receipt": {
+    "observed_thread_counts": {
+      "torch_num_interop_threads": 1,
+      "torch_num_threads": 1
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": {
+      "implementation": "CPython",
+      "version": "3.11.6"
+    },
+    "requested_thread_counts": {
+      "torch_num_interop_threads": 1,
+      "torch_num_threads": 1
+    },
+    "required_environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "torch_version": "2.11.0+cu128"
+  },
+  "training_contract": {
+    "advantage_source": "Compute GAE once from the immutable initial checkpoint and dataset, convert and normalize in the pinned trainer float32 domain, then hold every advantage and value target fixed across both stages.",
+    "algorithm": "ppo_actor_only_two_stage_bootstrap",
+    "behavior_ratio_source": "Use the immutable stored behavior log-probability for both stages.",
+    "device": "cpu",
+    "minibatches": false,
+    "optimizer": {
+      "amsgrad": false,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "capturable": false,
+      "decoupled_weight_decay": false,
+      "differentiable": false,
+      "eps": 1e-8,
+      "foreach": null,
+      "fresh_state": true,
+      "fused": null,
+      "maximize": false,
+      "name": "Adam",
+      "parameter_universe": "all state_encoder, action_encoder, and residual_head parameters; value_head is excluded",
+      "single_object_across_stages": true,
+      "weight_decay": 0.0
+    },
+    "ppo_config": {
+      "anchor_kl_hard_stop": 0.002,
+      "anchor_kl_initial_coef": 0.1,
+      "anchor_kl_target": 0.0005,
+      "clip_ratio": 0.1,
+      "entropy_coef": 0.0,
+      "epochs": 2,
+      "gae_lambda": 0.95,
+      "gamma": 0.99,
+      "gradient_clip": 0.25,
+      "learning_rate": 0.0001,
+      "optimizer_steps": 2,
+      "value_coef": 0.0
+    },
+    "replay_mixing": false,
+    "required_environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "row_order": "manifest order",
+    "shuffle": false,
+    "stage_1": {
+      "all_other_parameters_frozen": true,
+      "expected_changed_parameter_names_exact": [
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "optimizer_step_ordinal": 1,
+      "trainable_parameter_names": [
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ]
+    },
+    "stage_2": {
+      "expected_changed_parameter_names_exact_from_initial": [
+        "state_encoder.0.weight",
+        "state_encoder.0.bias",
+        "state_encoder.2.weight",
+        "state_encoder.2.bias",
+        "action_encoder.0.weight",
+        "action_encoder.0.bias",
+        "residual_head.0.weight",
+        "residual_head.0.bias",
+        "residual_head.2.weight",
+        "residual_head.2.bias"
+      ],
+      "expected_optimizer_step_state": {
+        "all_other_actor_parameters": 1,
+        "residual_head.2.bias": 2,
+        "residual_head.2.weight": 2,
+        "value_head_parameters": "absent"
+      },
+      "frozen_parameter_prefixes": [
+        "value_head."
+      ],
+      "optimizer_step_ordinal": 2,
+      "same_optimizer_object_and_state": true,
+      "trainable_parameter_prefixes": [
+        "state_encoder.",
+        "action_encoder.",
+        "residual_head."
+      ]
+    },
+    "torch_num_interop_threads": 1,
+    "torch_num_threads": 1,
+    "torch_version": "2.11.0+cu128",
+    "value_contract": {
+      "changed_value_outputs_must_not_be_interpreted_as_critic_improvement_or_reused_for_advantages": true,
+      "required_summary": [
+        "mean_change_from_initial",
+        "median_change_from_initial",
+        "maximum_absolute_change_from_initial",
+        "nonfinite_count"
+      ],
+      "shared_state_encoder_may_change_value_outputs": true,
+      "stage_1_and_stage_2_value_outputs_recorded_for_all_830_rows": true,
+      "value_head_optimizer_state_absent": true,
+      "value_head_parameter_bytes_unchanged": true,
+      "value_loss_is_exact_zero": true
+    }
+  },
+  "output_directory": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_006_actor_only_two_stage_20260801"
+}

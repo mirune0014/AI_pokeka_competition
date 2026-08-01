@@ -1,0 +1,196 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v6",
+  "remediation_id": "phase1-iteration-007-windows-held-checkpoint-inventory-fix-20260801",
+  "contract_chain": [
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+      "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+      "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+      "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+      "sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v2.json",
+      "sha256": "BD675A1DF53587A0E62270EBED46F1EA3D3531918F22B7F82C9063A3DCB612C0"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v3.json",
+      "sha256": "5D437C38386C7293E1EA6D9F3EE72766635EEB3E381BB982CAE3E6409C0E509E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v4.json",
+      "sha256": "B92D03A1715BC1FF4DBB98EEBE28F8065D4A9E40CD977A6A6DA261A89295A39F"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v5.json",
+      "sha256": "79832D0DE952FA8B7F31AF203AAD71492982ADF89F675E707D0AEA0B3FB691BE"
+    }
+  ],
+  "authority": "This remediation authorizes exactly one additional Windows production behavior fix: exact artifact inventory must validate an identity-held public candidate checkpoint from its transferred guard and readback evidence without reopening the delete-pending hardlinked name. It also requires restoration of one ineffective unapproved share-mode edit. It is execution-authoritative over prior iteration-007 contracts only where it specifies this held-checkpoint inventory path. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all nine contract file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "model_optimizer_schedule_or_threshold_change": false,
+  "real_optimizer_execution_authorized": false,
+  "confirmed_defect": {
+    "call_path": "_publish_checkpoint_exact -> _require_exact_output_artifacts -> _output_artifact_inventory -> inherited._win_open_handle(candidate.pt)",
+    "windows_error": "PermissionError: [WinError 5] Access is denied",
+    "cause": "The inherited exclusive publisher has already verified candidate.pt as a hard link to the staged checkpoint inode, then retains that inode through a staging handle marked delete-on-close. Windows can deny a new path open of candidate.pt while that held delete-pending file object exists, even though the held handle and readback remain valid.",
+    "failing_tests": [
+      "test_real_exact_accepted_rejected_and_zero_step_artifact_sets[accepted]",
+      "test_real_exact_accepted_rejected_and_zero_step_artifact_sets[rejected]",
+      "test_real_checkpoint_handoff_retains_identity_and_finishes_rejected",
+      "test_real_candidate_plus_extra_and_collisions_fail_closed"
+    ],
+    "prepare_v3_created": false,
+    "candidate_snapshot_after_ineffective_unapproved_edit": "C5154368C674EEEDF2C8875C3724EA01D072166A744FF19C75EA06BD13141385",
+    "primary_module_sha256_after_ineffective_unapproved_edit": "53A64B69140C80C2172EEA9ADBA9E9AD9EDDFBC1DE2D98896989473E6A491D5A",
+    "test_module_sha256": "CAF58FB9699AE92C7446691970C195910322B36C27FB8CB536D0540A146144A5",
+    "primary_module_sha256_before_ineffective_unapproved_edit": "E1AA56A17F44FAF858647485889AAE6B6A463F3DEC1ACC244CFF053A181E38C2"
+  },
+  "required_restoration": {
+    "scope": "Before applying the authorized fix, restore the non-held regular-file inventory open to its pre-incident share mode: FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE.",
+    "reason": "Changing this to FILE_SHARE_READ did not fix the delete-pending candidate reopen and was not root-authorized. Non-held receipt and marker validation must retain the broader audited sharing behavior.",
+    "no_other_reversion_or_inherited_file_change": true
+  },
+  "authorized_production_fix": {
+    "scope": "Make exact output-artifact validation two-phase and add a held-candidate evidence path. Enumerate and validate the direct artifact names and types first. For candidate.pt while its transferred checkpoint guard is live, authenticate size and SHA-256 from the exact held readback and guard instead of reopening candidate.pt by name. Continue path-opening and hashing non-held receipt and marker files with the restored share mode.",
+    "two_phase_inventory": [
+      "Hold and recheck the exact stable output-directory guard before enumeration, after enumeration, and after evidence validation.",
+      "Enumerate direct children without following links and record every name plus directory-entry type and link or reparse status.",
+      "Compare the complete sorted direct-child name set and every required regular-file type before opening or hashing any non-held file.",
+      "Any missing, extra, linked, reparse, directory, other-type, renamed, or opposite-status entry fails before publication or before a canonical postcheck can pass.",
+      "Only after the exact set and types pass may non-held receipt or marker bytes be reopened and hashed."
+    ],
+    "held_candidate_evidence": {
+      "canonical_name": "candidate.pt",
+      "required_fields": [
+        "exact public checkpoint path",
+        "expected uppercase SHA-256",
+        "transferred live StableFileGuard",
+        "exact serialized checkpoint readback bytes"
+      ],
+      "provenance": "Evidence is admissible only from the successful return or CheckpointPublicationHandoffError of inherited._publish_checkpoint_exclusive after it has verified candidate.pt against the held inode identity.",
+      "validation": [
+        "The public path is exactly output_directory/candidate.pt and has the guarded output directory as parent.",
+        "The checkpoint guard is live, remains bound to the same guarded parent, and retains its original verified inode identity.",
+        "The supplied readback is bytes, its length is the authoritative inventory byte_size, and its SHA-256 equals the exact expected checkpoint hash.",
+        "The direct directory enumeration contains exactly one candidate.pt entry classified as a non-linked, non-reparse regular file.",
+        "candidate.pt is not opened, read, stat-hashed, or otherwise reacquired by pathname while the transferred guard is live. Its inventory hash and size come only from the held readback after the name, type, guard, path, and provenance checks pass."
+      ],
+      "all_or_none": "A checkpoint path, hash, guard, and readback are an indivisible evidence tuple. Partial, inconsistent, forged, closed, wrong-parent, wrong-path, wrong-hash, or wrong-type evidence fails closed before status publication."
+    },
+    "publication_paths": [
+      "The successful checkpoint postcheck and the checkpoint-identity handoff postcheck use the held-candidate evidence path.",
+      "Accepted, rejected, and post-step-rejected status prechecks and postchecks use the same held-candidate evidence without reopening candidate.pt.",
+      "Zero-step rejection has no checkpoint evidence and continues to require an empty pre-set and exactly rejected_receipt.json plus REJECTED after publication.",
+      "On post-status contamination, remove only the newly owned receipt and marker after their independent identity and hash verification; preserve candidate.pt and every unexpected entry, then raise without a canonical terminal claim.",
+      "On post-checkpoint contamination, preserve the single identity-held candidate.pt, write no receipt or marker, create no replacement checkpoint, and raise unclaimed."
+    ],
+    "forbidden_changes": [
+      "reopening candidate.pt by pathname while its transferred guard is live",
+      "closing the transferred checkpoint guard before all matching status publication and postchecks complete",
+      "trusting only a filename or claimed hash without guard plus readback evidence",
+      "skipping the complete direct-child name and type comparison",
+      "deleting, renaming, overwriting, adopting, or ignoring an unexpected entry",
+      "weakening stable directory, publication identity, cleanup, artifact allowlist, checkpoint readback, or second-checkpoint protections",
+      "changing inherited conservative_ppo_pilot.py or any model, data, loss, optimizer, training, diagnostic, safety, acceptance, or schedule behavior",
+      "creating prepare v3, an execution spec, optimizer state, a checkpoint outside real filesystem tests, or games before every required test passes"
+    ]
+  },
+  "required_fix_tests": [
+    "On real Windows temporary filesystems, exact accepted, rejected, zero-step rejected, and checkpoint-handoff rejected publication sets all pass and match their exact allowlists.",
+    "Patch or instrument pathname opens so any attempt to reopen candidate.pt raises; successful checkpoint postcheck, status precheck/postcheck, and handoff rejection still pass using the held evidence, while receipt and marker files are independently opened and hashed.",
+    "candidate.pt plus EXTRA fails before the real status publisher writes a receipt or marker, preserves both candidate.pt and EXTRA, and never reopens candidate.pt.",
+    "An entry injected after status publication removes only the newly owned receipt and marker, preserves candidate.pt and the injected entry, and leaves no canonical terminal claim.",
+    "Missing, extra, directory, symlink, junction, reparse, renamed, opposite receipt or marker, collision, overwrite, and second-checkpoint cases remain fail-closed.",
+    "Each partial or invalid held tuple case fails: missing path, hash, guard, or readback; wrong public path or parent; closed or foreign guard; non-bytes readback; readback length or hash mismatch; wrong direct-entry type.",
+    "Non-held receipt and marker opens use FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, proving restoration of the ineffective unapproved edit.",
+    "prepare v1 and v2 remain byte-exact, no prepare v3 exists during tests, and no real 830-row optimizer update or game runs."
+  ],
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v3",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v3/pretraining_probe_receipt.json",
+    "publication": "Create exactly once with CREATE_NEW semantics only after the authorized membership, artifact, timing, and Windows held-checkpoint fixes, every remediation-v2/v3/v4/v5/v6 test, and all regressions pass. Preserve prepare v1 and v2 byte-exact.",
+    "must_bind_all_nine_contracts": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true,
+    "contract_binding_field_count": 18,
+    "top_level_key_count_exact": 48,
+    "top_level_additions_over_the_v5_prepare_contract": [
+      "prepare_audit_remediation_v6",
+      "prepare_audit_remediation_v6_path",
+      "prepare_audit_remediation_v6_sha256"
+    ],
+    "all_other_prepare_keys_unchanged": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v8",
+    "overrides_remediation_v5_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "prepare_audit_remediation_v2_path",
+      "prepare_audit_remediation_v2_sha256",
+      "prepare_audit_remediation_v3_path",
+      "prepare_audit_remediation_v3_sha256",
+      "prepare_audit_remediation_v4_path",
+      "prepare_audit_remediation_v4_sha256",
+      "prepare_audit_remediation_v5_path",
+      "prepare_audit_remediation_v5_sha256",
+      "prepare_audit_remediation_v6_path",
+      "prepare_audit_remediation_v6_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 40,
+    "loader_key_derivation": "Preserve the prior 38-key v7 set as EXECUTION_SPEC_V7_TOP_LEVEL_KEYS by excluding only the v6 path/hash pair from the new v8 set. The v5 remediation loader must compare its override against that preserved v7 set; derive all older sets transitively without changing them.",
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "all_v2_v3_v4_v5_v6_production_path_tests_pass": true,
+    "full_exact_name_iteration_007_suite_pass": true,
+    "source_baseline_full_suite_pass": true,
+    "destination_relocation_safe_suite_pass": true,
+    "only_the_same_five_source_root_confinement_tests_may_be_excluded": true,
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_code_and_test_changes": true
+  },
+  "stop_rule": "After restoring the unapproved share-mode edit and applying only the held-checkpoint inventory fix, all prior fixes and required tests must pass before prepare v3 is generated exactly once. Then stop for independent code and numerical-provenance audits before execution-spec authoring. If any further production defect appears, do not alter production behavior without another root-authored correction."
+}

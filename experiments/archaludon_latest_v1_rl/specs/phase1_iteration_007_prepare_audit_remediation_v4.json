@@ -1,0 +1,165 @@
+{
+  "schema_version": "archaludon-rl-iteration-007-prepare-audit-remediation-v4",
+  "remediation_id": "phase1-iteration-007-terminal-artifact-allowlist-fix-20260801",
+  "contract_chain": [
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_implementation_plan.json",
+      "sha256": "6214B61FBA4D702A2C1FBFCBFA7912288B621DF0EAF21183AA0AFAAD809F99DF"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v1.json",
+      "sha256": "C848D59B999F56FB184259180CA4B1AC98D63EA317D90D0F790BEC4271F41D09"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_frozen_readout_interaction_maturation_plan_correction_v2.json",
+      "sha256": "20FBE4B674FABBF4A9B0317C9F2ACF6612677566383532E0101A00D33CCB9184"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v1.json",
+      "sha256": "98D01B79F02AD7C01AFCE2DE05E177362D635734156A490F84DFBB8660CE726E"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v2.json",
+      "sha256": "BD675A1DF53587A0E62270EBED46F1EA3D3531918F22B7F82C9063A3DCB612C0"
+    },
+    {
+      "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_007_prepare_audit_remediation_v3.json",
+      "sha256": "5D437C38386C7293E1EA6D9F3EE72766635EEB3E381BB982CAE3E6409C0E509E"
+    }
+  ],
+  "authority": "This remediation authorizes exactly one additional production behavior fix exposed by remediation-v2 real-filesystem testing. It is execution-authoritative over all prior iteration-007 contracts where it adds detail. Every replacement prepare receipt, execution spec, checkpoint metadata, execution receipt, validator, and test must bind all seven contract file hashes.",
+  "hypothesis_change": false,
+  "training_data_or_objective_change": false,
+  "real_optimizer_execution_authorized": false,
+  "confirmed_defect": {
+    "observation": "With a real stable directory guard and real inherited status publisher, a pre-existing file named EXTRA was not rejected. Publication returned success and left ACCEPTED, EXTRA, and accepted_receipt.json.",
+    "candidate_snapshot_after_authorized_v3_partial_edits": "9A61CB48E276597D868614D52B1113899DF7F8957AC2E619867156887C06985B",
+    "primary_module_sha256_after_authorized_v3_partial_edits": "7230545E3F9B1CA21F65C0283D02410A6B58A9678FC0B5E66935AFD5A941BF87",
+    "test_module_sha256_unchanged": "D5106BD6A2D300214659EFDBB4B9F36C17DE6B8C7AC0E40CA41B4AF36894A2E5",
+    "publisher_behavior_changed_during_confirmation": false,
+    "tests_changed_during_confirmation": false,
+    "prepare_v3_created": false
+  },
+  "authorized_production_fix": {
+    "scope": "Add fail-closed exact direct-child artifact-set validation around every real checkpoint and status publication path used by iteration007.",
+    "filesystem_evidence": {
+      "enumeration": "Enumerate the real guarded output directory's direct children without following links. Record every name, file type, link/reparse status, byte size, and SHA-256 for regular files.",
+      "directory_guard": "Before and after every enumeration and publication, require the same stable directory guard to remain bound to the exact output directory and its verified parent identity.",
+      "entry_rules": "Every expected entry must be a direct regular file with the exact canonical name, must not be a directory, symlink, junction, or reparse point, and must match any held file identity/hash evidence available for it.",
+      "unexpected_entry": "Any missing, extra, wrong-type, linked, reparse, renamed, duplicate, or unverified entry is an output-artifact-set error."
+    },
+    "exact_sets_by_phase": {
+      "after_output_directory_creation_before_any_publication": [],
+      "before_checkpoint_publication": [],
+      "after_checkpoint_publication_before_status": [
+        "candidate.pt"
+      ],
+      "before_zero_step_rejected_status": [],
+      "after_zero_step_rejected_status": [
+        "rejected_receipt.json",
+        "REJECTED"
+      ],
+      "after_accepted_terminal": [
+        "candidate.pt",
+        "accepted_receipt.json",
+        "ACCEPTED"
+      ],
+      "after_rejected_terminal_or_post_step_rejection": [
+        "candidate.pt",
+        "rejected_receipt.json",
+        "REJECTED"
+      ]
+    },
+    "publication_wrapping": [
+      "Iteration007 must not call the inherited status publisher directly outside one exact-allowlist wrapper.",
+      "Every checkpoint-publication call must perform the exact empty-set precheck and candidate-only postcheck.",
+      "Every status-publication call must perform the appropriate exact precheck and terminal exact postcheck.",
+      "A precheck mismatch raises before creating a checkpoint, receipt, or marker and must not be converted into a canonical accepted or rejected result.",
+      "If a post-status check detects contamination introduced during publication, verify and remove only the receipt and marker newly owned by that call, preserve any already verified candidate checkpoint, and raise without a canonical terminal claim.",
+      "If a post-checkpoint check detects contamination after public checkpoint identity exists, preserve that one checkpoint, create no receipt or marker, create no replacement checkpoint, and raise as an unclaimed execution failure.",
+      "Never delete, rename, overwrite, or adopt an unexpected entry."
+    ],
+    "forbidden_changes": [
+      "weakening stable directory or stable file guards",
+      "ignoring an unexpected entry because its name is not reserved",
+      "cleaning an unexpected entry to make the allowlist pass",
+      "publishing a canonical status after an artifact-set mismatch",
+      "changing checkpoint, receipt, or marker contents or names",
+      "changing any training, model, gate, threshold, data, optimizer, or schedule behavior"
+    ]
+  },
+  "required_fix_tests": [
+    "The confirmed pre-existing EXTRA case raises before the real status publisher creates a receipt or marker.",
+    "Real temporary-filesystem publication produces each exact accepted, rejected, and zero-step artifact set and no extra entries.",
+    "An extra regular file, directory, symlink, junction, or reparse entry fails the real wrapper before publication.",
+    "An entry injected between precheck and postcheck causes cleanup of only newly owned status files and leaves no canonical terminal claim.",
+    "A checkpoint-identity handoff retains the same candidate.pt identity and never creates a second checkpoint.",
+    "A candidate.pt plus EXTRA cannot enter post-step rejection status publication.",
+    "Opposite receipt/marker, collision, overwrite, renamed file, and second-checkpoint cases fail closed."
+  ],
+  "all_remediation_v2_and_v3_tests_remain_required": true,
+  "replacement_prepare": {
+    "schema_version": "frozen-readout-interaction-maturation-prepare-v3",
+    "path": "experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/test_outputs/phase1_iteration_007_prepare_v3/pretraining_probe_receipt.json",
+    "publication": "Create exactly once with CREATE_NEW semantics only after both authorized production fixes, every remediation-v2/v3/v4 test, and all regressions pass. Preserve prepare v1 and v2 byte-exact.",
+    "must_bind_all_seven_contracts": true,
+    "same_no_training_proof_required": true,
+    "standalone_validation_with_adam_patched_to_raise": true
+  },
+  "execution_spec_override": {
+    "schema_version": "actor-only-interaction-maturation-execution-spec-v6",
+    "overrides_remediation_v3_exact_top_level_keys": true,
+    "exact_top_level_keys": [
+      "schema_version",
+      "implementation_plan_path",
+      "implementation_plan_sha256",
+      "plan_correction_path",
+      "plan_correction_sha256",
+      "plan_correction_v2_path",
+      "plan_correction_v2_sha256",
+      "prepare_audit_remediation_path",
+      "prepare_audit_remediation_sha256",
+      "prepare_audit_remediation_v2_path",
+      "prepare_audit_remediation_v2_sha256",
+      "prepare_audit_remediation_v3_path",
+      "prepare_audit_remediation_v3_sha256",
+      "prepare_audit_remediation_v4_path",
+      "prepare_audit_remediation_v4_sha256",
+      "parent_result_path",
+      "parent_result_sha256",
+      "prepare_receipt_path",
+      "prepare_receipt_file_sha256",
+      "prepare_receipt_sha256",
+      "implementation_path",
+      "implementation_snapshot_sha256",
+      "input_checkpoint_path",
+      "input_checkpoint_sha256",
+      "forbidden_rejected_checkpoint_sha256s",
+      "manifest_path",
+      "manifest_sha256",
+      "dataset_sha256",
+      "fixed_advantages_sha256",
+      "fixed_behavior_logprobabilities_sha256",
+      "runtime_thread_receipt",
+      "training_contract",
+      "diagnostic_contract",
+      "safety_gates",
+      "terminal_offline_acceptance",
+      "output_directory"
+    ],
+    "key_count_exact": 36,
+    "output_directory_exact": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_007_frozen_readout_interaction_maturation_20260801",
+    "all_other_execution_spec_contracts_unchanged": true
+  },
+  "verification_before_replacement_prepare": {
+    "all_v2_v3_v4_production_path_tests_pass": true,
+    "full_exact_name_iteration_007_suite_pass": true,
+    "source_baseline_full_suite_pass": true,
+    "destination_relocation_safe_suite_pass": true,
+    "only_the_same_five_source_root_confinement_tests_may_be_excluded": true,
+    "compileall_pass": true,
+    "source_51_common_files_byte_exact": true,
+    "strict_snapshot_recomputed_after_code_and_test_changes": true
+  },
+  "stop_rule": "After the single artifact-allowlist fix, the directional-membership fix, every required production-path test, and all regressions pass, generate prepare v3 exactly once and stop for independent code and numerical-provenance audits before execution-spec authoring."
+}

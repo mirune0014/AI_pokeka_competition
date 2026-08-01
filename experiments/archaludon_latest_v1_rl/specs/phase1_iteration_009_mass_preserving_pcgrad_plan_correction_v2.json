@@ -1,0 +1,162 @@
+{
+  "schema_version": "archaludon-rl-mass-preserving-pcgrad-plan-correction-v2",
+  "correction_id": "phase1-iteration-009-mass-preserving-pcgrad-raw-recomputation-remediation-20260801",
+  "base_plan_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_implementation_plan.json",
+  "base_plan_sha256": "6797A6D884B7B69D5C78A6BD964ACC8425B64063FA9F201905146E1B2D1FB9B8",
+  "superseded_correction_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_009_mass_preserving_pcgrad_plan_correction_v1.json",
+  "superseded_correction_sha256": "B08661C5F2905D6316D33066AC72D1A96CECE42EB8FB2C40EA29894E9AF8BB5B",
+  "reviewed_implementation_snapshot": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801",
+    "file_count": 55,
+    "sha256": "2B79AE25CB0AF473B79B851EA6FA6A9D8689BA72B7E036BC067691A0DDD8472D",
+    "module_sha256": "BD184675E8D47E72ADBAF4BEB37DFE11D3D88701B953557F191A39D45F109BF1",
+    "focused_test_sha256": "F88869F8CA0F4BC2666DD438F3290F9F6676E456BF52E1A17038C8C87418E765",
+    "disposition": "REJECT_FOR_EXECUTION_RETAIN_AS_REVIEW_EVIDENCE"
+  },
+  "purpose": "Make the pending-bundle audit and final acceptance fail closed by deriving every submission-relevant numerical and integrity gate from retained raw rows, tensors, checkpoint states, and immutable references. This correction authorizes implementation, focused tests, static review, and a new no-training prepare receipt only. It authorizes no optimizer construction or step, runtime smoke, game, packaging, promotion, or external write.",
+  "unchanged_hypothesis": "The sole hypothesis remains a matched two-arm experiment from iteration004: identical Stage1, then 64 full-batch Stage2 updates for vanilla control versus mass-preserving deterministic PCGrad treatment. No architecture, representation, target, reward, row mass, feature, opponent, runtime, or game change is authorized.",
+  "v1_contract_retained": [
+    "Specification-independent prepare and canonical byte-for-byte rebuild before Adam.",
+    "Immutable post-prepare execution specification with distinct confined pending and final directories.",
+    "Synchronized two-arm transaction and rollback rules.",
+    "Atomic PENDING_AUDIT publication with runtime-compatible checkpoints.",
+    "Separate load-only finalizer requiring numerical-audit and root-recomputation receipts.",
+    "Exact four-file terminal publication and no runtime or games before offline acceptance."
+  ],
+  "review_findings_to_remediate": [
+    "Corrected finalization called a shape checker rather than enforcing the numerical priority, treatment-minus-control, family, global, raw-GAE, Monte-Carlo, sign-stable, control-failure, and END thresholds.",
+    "The pending audit checked gradient keys and dtypes but did not recompute PCGrad, the seven-task sum, KL addition, clipping, Adam deltas, or the cumulative parameter chain.",
+    "Direct policy and anchor-KL gradients and exact post-clip gradients were not retained, so load-only recomputation was impossible.",
+    "Step safety, surgery/touched tasks, control-update32, and duplicate-treatment booleans remained caller-authoritative.",
+    "The pending checkpoints were loadable but were not cross-bound to the complete update chain and checkpoint-recomputed 830-row outputs.",
+    "Stage1 branch equality did not compare both record hashes, complete reports, safety/value evidence, optimizer/model state, and all 830 diagnostics before Stage2.",
+    "The prepare receipt path in the execution spec was not constrained to a canonical repository-relative candidate test_outputs child.",
+    "Focused tests mocked the critical publication/finalization path and did not demonstrate rejection of self-consistent malicious evidence."
+  ],
+  "non_authority_rule": {
+    "caller_booleans_are_informational_only": true,
+    "fields_not_authoritative": [
+      "safety_pass",
+      "hard_stop",
+      "surgery_nonzero",
+      "task_changed_by_surgery",
+      "control_update32_reference.passed",
+      "duplicate_treatment_canonical_outputs_identical",
+      "strict_offline_gates.offline_pass",
+      "terminal_END_controls.passed"
+    ],
+    "acceptance_source": "Only the load-only recomputation result derived from exact raw evidence and immutable references may drive final status. Any mismatch between a caller summary and recomputation is itself a rejection and an audit discrepancy."
+  },
+  "prepare_and_execution_spec_correction": {
+    "new_prepare_receipt_required": true,
+    "prior_prepare_receipt_disposition": "Retain as rejected implementation evidence and never bind it into an execution spec.",
+    "prepare_receipt_path_rule": "The execution spec must contain one canonical repository-relative POSIX path whose resolved target is exactly a direct child directory of experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs and whose filename is pretraining_probe_receipt.json. Absolute paths, backslashes, dot components, dot-dot components, aliases, links, alternate filenames, and paths outside that root fail before Adam.",
+    "execution_spec_must_bind": [
+      "base plan path and SHA-256",
+      "v1 correction path and SHA-256",
+      "this v2 correction path and SHA-256",
+      "final implementation snapshot definition, file count, and SHA-256",
+      "new prepare receipt repository-relative path, file SHA-256, and self SHA-256",
+      "the unchanged inputs, runtime, training contract, diagnostic milestones, thresholds, control references, pending schema, and terminal schema"
+    ],
+    "canonical_prepare_rebuild_before_optimizer": true
+  },
+  "stage1_branch_contract": {
+    "compare_before_stage2": [
+      "both Stage1 record hashes against the immutable reference and against each other",
+      "complete Stage1 reports",
+      "complete Stage1 safety evidence",
+      "complete Stage1 value-identity evidence",
+      "both model states and parameter hashes",
+      "both optimizer states and canonical hashes",
+      "all 830 ordered diagnostic rows and output hashes",
+      "all fixed-input identities and losses"
+    ],
+    "any_difference_rule": "Raise before Stage2 and restore both arms to zero synchronized optimizer steps.",
+    "pending_evidence": "Retain the complete compared Stage1 evidence and the byte-identical Stage1 model and optimizer state needed for load-only Stage2 replay."
+  },
+  "raw_evidence_contract": {
+    "every_completed_stage2_update_for_both_arms": [
+      "seven raw task-loss gradients in CPU float64, each retaining its original 1/830 mass",
+      "an independently computed direct full-batch policy gradient in CPU float64",
+      "the anchor-KL gradient in parameter dtype",
+      "for treatment, all seven cyclic-PCGrad projected gradients in CPU float64",
+      "the exact combined policy-plus-KL gradient in parameter dtype immediately before global clipping",
+      "the exact gradient tensors immediately after global clipping",
+      "the exact actual parameter delta from that Adam step",
+      "the exact cumulative parameter delta from the common Stage2 start",
+      "the ordered 830-row post-update behavior probabilities and values in their runtime dtype, stored as a deterministic concatenated tensor plus fixed offsets",
+      "optimizer step counters and the non-boolean scalar diagnostics needed to reproduce losses, ratios, KL, TV, clipping activity, and finite checks"
+    ],
+    "stage2_start_state": "Retain both byte-identical Stage1 model states and full optimizer states as weights-only-loadable tensor/primitive mappings.",
+    "control_update32_state": "Retain the control update32 model and optimizer mappings plus all inputs needed to reconstruct the immutable legacy record and compare every bound parameter, optimizer, probability, and value hash.",
+    "duplicate_treatment_state": "Retain the independently executed treatment terminal model state, optimizer state, ordered 830-row outputs, terminal step identity, and deterministic per-update record-chain hashes. A summary boolean or hashes without the underlying state/output tensors are insufficient.",
+    "weights_only_loadable": true,
+    "all_tensor_shapes_and_parameter_order_bound": true,
+    "exact_postclip_tensors_required": true,
+    "derived_clip_coefficient_alone_is_insufficient": true
+  },
+  "load_only_gradient_and_optimizer_recomputation": {
+    "for_every_completed_update": [
+      "Verify tensor key sets, parameter order, shapes, dtypes, finiteness, series completeness, update ordinals, and arm names.",
+      "Verify that the seven raw task gradients sum to the independent direct policy gradient within both immutable tolerances.",
+      "For control, verify the policy gradient is the direct gradient.",
+      "For treatment, rerun the exact cyclic original-g_j float64 PCGrad formula and byte/numerically compare every projected task vector and their sum.",
+      "Apply the one permitted float64-to-parameter-dtype cast, add the retained unchanged anchor-KL gradient, and compare the exact pre-clip gradient.",
+      "Recompute PyTorch-compatible global norm clipping including its epsilon behavior and compare the retained exact post-clip tensors.",
+      "Starting from the retained Stage1 Adam/model state, replay Adam numerically using only retained post-clip gradients; compare every per-update actual delta, cumulative delta, parameter tensor, optimizer counter, exp_avg, and exp_avg_sq.",
+      "Recompute the ordered output hashes and all scalar safety quantities from the retained 830-row output tensors and immutable prepare rows."
+    ],
+    "terminal_cross_binding": [
+      "The replayed final model and optimizer state must be byte-exact to each pending checkpoint.",
+      "Rebuild each checkpoint model through the checked loader, run all 830 fixed rows without training, and require byte-exact probability/value tensors and hashes to the retained update64 outputs.",
+      "The checkpoint metadata, source hashes, execution spec, prepare receipt, arm, synchronized step count, and zero-game claims must match the manifest and raw evidence."
+    ],
+    "failure_rule": "Any missing evidence, nonfinite value, tolerance failure, record-chain break, summary discrepancy, checkpoint mismatch, or replay mismatch forces offline_pass=false."
+  },
+  "strict_numerical_gate_recomputation": {
+    "source": "Recompute from the retained ordered 830-row outputs, immutable prepare rows, Monte-Carlo values, sign-stable ordinals, gradient tensors, replayed optimizer states, and checkpoint outputs.",
+    "required_gates": [
+      "All six treatment priority lower medians are at least +1e-6 at updates48 and64.",
+      "All six treatment-minus-control oriented lower medians are at least +1e-6 at updates48 and64.",
+      "At update64 every priority group passes ordinary, equal-state, and equal-trajectory lower medians at +1e-6.",
+      "The control still fails at least one priority direction at update64.",
+      "All 12 family-polarity medians strictly exceed +1e-7 at updates48 and64.",
+      "Global lower median is at least 1e-5 and alignment score at least 0.10 at updates48 and64.",
+      "Raw-GAE- and Monte-Carlo-oriented absolute-target-weighted global movement are nonnegative, and the 611 sign-stable rows have nonnegative lower medians.",
+      "All every-update KL, TV, finiteness, parameter, optimizer, value, unique-argmax, and configured PPO-clip gates pass; bound diagnostic milestones have zero clip-active rows.",
+      "Surgery is nonzero, touches each of the four audit-adverse tasks in updates1-16, and all six cumulative-delta projections are strictly favorable at updates48 and64.",
+      "Every END control is recomputed at its exact strict or inclusive boundary.",
+      "Stage1, control-update32, duplicate-treatment, pending-file, checkpoint, and transaction gates pass from raw evidence."
+    ],
+    "complete_key_sets_required_before_thresholds": true,
+    "shape_only_checker_may_not_set_offline_pass": true,
+    "old_summary_evaluate_terminal_gates_may_not_be_used_without_raw_reconstruction": true
+  },
+  "pending_and_finalization_correction": {
+    "pending_bundle_may_keep_existing_exact_filenames": true,
+    "gradient_tensors_file_must_contain_the_expanded_raw_contract": true,
+    "manifest_binds_every_file_size_and_sha256": true,
+    "numerical_audit_receipt_must_bind_complete_recomputed_gate_object": true,
+    "root_recomputation_receipt_must_independently_recompute_critical_numbers": true,
+    "finalizer_recomputes_raw_gates_itself_before_checking_authorities": true,
+    "accepted_requires_zero_summary_discrepancies": true,
+    "training_rerun_in_finalizer_forbidden": true,
+    "runtime_smoke_and_games_remain_forbidden": true
+  },
+  "additional_required_tests": [
+    "A complete-shaped raw bundle with every terminal numerical value just below its threshold is rejected one gate at a time.",
+    "Changing caller safety, surgery, touched-task, control32, duplicate, END, or offline-pass booleans cannot change the raw-derived decision and creates a discrepancy.",
+    "Changing one raw task-gradient element, projected element, direct-gradient element, KL element, pre-clip element, post-clip element, actual delta, cumulative delta, output probability, or value forces rejection.",
+    "The independent seven-task sum and all 64 cyclic PCGrad projections are recomputed and checked at exact tolerance boundaries.",
+    "A clip-active synthetic gradient verifies exact PyTorch epsilon-compatible post-clip tensors; the prior coefficient formula fails.",
+    "A retained Stage1 Adam state plus synthetic 64-update gradients replays to exact per-update deltas and final optimizer state; one-bit exp_avg or exp_avg_sq mutations fail.",
+    "A different valid 65-step checkpoint, a checkpoint with matching metadata but different tensors, and a checkpoint with matching tensors but different update64 outputs each fail.",
+    "A copied or fabricated duplicate summary fails unless the retained duplicate state, optimizer, outputs, and record chain equal the primary treatment evidence.",
+    "Both Stage1 record hashes, full reports, safety/value evidence, model/optimizer state, and all 830 rows must match before the production branch function reaches Stage2.",
+    "Absolute, aliased, backslash, dot, dot-dot, linked, outside-root, wrong-depth, and wrong-filename prepare receipt paths fail before optimizer construction.",
+    "Production pending publication and load-only finalization are exercised on deterministic lightweight tensor evidence without mocking the gate recomputation core.",
+    "Missing any required raw tensor, output row, offset, update, arm, parameter, task, checkpoint field, or authority binding forces rejection."
+  ],
+  "review_and_execution_stop_rule": "After implementation, all focused and inherited non-relocation tests, root hash/prepare verification, and independent math and safety reviews must pass. The root must then author a new immutable execution spec binding the final snapshot and new prepare hashes. Until that point, construct no optimizer and run no training, runtime smoke, or game."
+}

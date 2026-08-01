@@ -1,0 +1,138 @@
+{
+  "schema_version": "archaludon-rl-immutable-collection-execution-spec-v1",
+  "experiment_id": "phase1-iteration-003-margin3-single-thread-20260731",
+  "purpose": "One permitted duplicate-audited rerun of the margin-3 zero-residual collector under the reviewed single-thread runtime contract.",
+  "run_ppo": false,
+  "maximum_collection_attempts": 1,
+  "parent_runtime_change_spec": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_single_thread_runtime.json",
+    "sha256": "9DFBF9B9A15A6C454D66A2F852013C5D44CDBA20915268F665C30C807EBE8DB7"
+  },
+  "teacher_margin_change_spec": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_teacher_margin_recalibration.json",
+    "sha256": "AEE57AE492163BF7B1B0F7C7AE425E0BAD995D6E909A7FB9B1F70AF9F58AB5FD"
+  },
+  "failed_attempt": {
+    "collection_spec_path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_003_margin3_collection.json",
+    "collection_spec_sha256": "8E9B3C638FCF7D24EAAFEBD3273C72B8E30E9DE1143564E969DDE214C261F605",
+    "output_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/rollouts",
+    "collector_stderr_sha256": "5A9FFF432F53D0721E55236D4C0A0A18FF1DB565313663063B608A76B760AFC9",
+    "must_remain_separate": true
+  },
+  "implementation": {
+    "path": "experiments/archaludon_latest_v1_rl_single_thread_candidate_20260731",
+    "collect_rollouts_py_sha256": "8BE624F7492B43F098C7BBA1DDD9DED52D0F96CDA9E63C8AF06847C59C1B0119",
+    "collector_py_sha256": "BE5C118D9BD1CABC6BBB48D018DD28864940AB1BFE781D69A569EA8846F057CA",
+    "policy_py_sha256": "9823E785477FCCE631FBD83ECD9AF961B3CFBE2B9D4FE7753D57AD39FDF291AE",
+    "runtime_contract_py_sha256": "B3B848448962E884B8F0B09119BF356EF9D3C1BF90610C979EC55EE0CD8D45C9",
+    "train_ppo_py_sha256": "E3288E97AC860891E13FA72EECAAB84BBF2B49782C75A72566D29BD35C10B646",
+    "trajectory_py_sha256": "127E4F2D1E7B3D997E39BEA63A3FB67A71FA713D575A10B27BF840A8977A84BE",
+    "model_py_sha256": "BB02EB065D24A145F9B943D57C8BF1FFDA5FBC2750A7E92D0332918AFE566EC1",
+    "reference_policy_py_sha256": "2F3A480E0E21F420D8CC6063960CF79C14514BE32EBA2A2565825728E73CAEE9",
+    "engine_runtime_manifest_sha256": "DAAD95164512EA3F210B4679840FE2CD631300044A6E5F49C41642EABD823089"
+  },
+  "behavior_checkpoint": {
+    "path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_collection_20260731/initial_zero_margin3.pt",
+    "sha256": "6B84B2A7006D92CBC2477473E68CBC2E216612FF27511E1FBD471240100546BC",
+    "reference_prior_schema_sha256": "15E74D83F157224101865561339154CE0323929B2730B21606166807E1103FAE",
+    "residuals_must_be_exact_zero": true
+  },
+  "opponent_population": {
+    "path": "experiments/archaludon_latest_v1_rl/specs/phase1_iteration_002_population.json",
+    "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0",
+    "ordered_ids": [
+      "historical_silver",
+      "alakazam_public",
+      "alakazam_rmy_live",
+      "marnie_kazuki_live",
+      "mega_lucario_public",
+      "starmie_public",
+      "dragapult_live",
+      "ogerpon_cornerstone_public"
+    ]
+  },
+  "runtime": {
+    "python": ".venv-rl/Scripts/python.exe",
+    "device": "cpu",
+    "timeout_seconds": 0.05,
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "required_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "preflight": {
+      "prediction_calls": 600,
+      "option_counts": [
+        2,
+        3,
+        4,
+        7,
+        10,
+        19
+      ],
+      "calls_per_option_count": 100,
+      "maximum_latency_seconds": 0.025,
+      "timeout_seconds": 0.05,
+      "finite_outputs": true,
+      "zero_residuals": true
+    }
+  },
+  "schedule": {
+    "run_id": "phase1-iteration-003-margin3-single-thread-20260731",
+    "seed_base": 731200401,
+    "seeds": [
+      731200401,
+      731200402
+    ],
+    "episodes_per_seat": 2,
+    "seats": [
+      0,
+      1
+    ],
+    "opponent_count": 8,
+    "retained_episodes": 32,
+    "native_executions": 64,
+    "duplicate_audit": true,
+    "serial_execution": true,
+    "max_steps": 1000,
+    "expected_schedule_sha256": "0E585F7BE8909B65850909C34F8E55B1097429092DDF999BFED2D9449C733980"
+  },
+  "output": {
+    "root": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731",
+    "rollouts": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_003_margin3_single_thread_20260731/rollouts",
+    "must_not_exist_before_start": true,
+    "expected_retained_files": 32,
+    "expected_audit_files": 64,
+    "expected_final_manifests": 1,
+    "expected_failure_ledgers": 0
+  },
+  "expected_schemas": {
+    "policy": "residual-policy-v3",
+    "trajectory": "trajectory-v5",
+    "run_manifest": "run-manifest-v5",
+    "collection_spec": "collection-spec-v3",
+    "dataset": "trajectory-dataset-v2",
+    "runtime_receipt": "collection-runtime-receipt-v1",
+    "runtime_preflight": "collection-runtime-preflight-v1"
+  },
+  "acceptance_gates": {
+    "collector_exit_code": 0,
+    "complete_final_manifest": true,
+    "model_failure_count_all_replicas": 0,
+    "model_timeout_count_all_replicas": 0,
+    "action_errors_all_replicas": 0,
+    "max_step_hits_all_replicas": 0,
+    "exceptions_all_replicas": 0,
+    "duplicate_trace_mismatches": 0,
+    "duplicate_terminal_mismatches": 0,
+    "duplicate_engine_step_mismatches": 0,
+    "audit_receipt_hash_mismatches": 0,
+    "runtime_receipt_mismatches": 0,
+    "checkpoint_sha256_unchanged": true,
+    "trainer_manifest_validator_passes": true
+  },
+  "stop_rule": "On any failure, timeout, duplicate mismatch, integrity mismatch, or absent final manifest, stop without retry and without PPO."
+}
