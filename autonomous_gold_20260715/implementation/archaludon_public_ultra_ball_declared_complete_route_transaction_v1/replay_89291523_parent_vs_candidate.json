@@ -1,0 +1,74 @@
+{
+  "decisions": 59,
+  "difference_count": 1,
+  "differences": [
+    {
+      "context": 0,
+      "left": [
+        2
+      ],
+      "left_options": [
+        {
+          "index": 7,
+          "type": 7
+        }
+      ],
+      "recorded": [
+        2
+      ],
+      "recorded_options": [
+        {
+          "index": 7,
+          "type": 7
+        }
+      ],
+      "right": [
+        1
+      ],
+      "right_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 2,
+          "type": 8
+        }
+      ],
+      "step": 104,
+      "turn": 8
+    }
+  ],
+  "left_recorded_difference_count": 0,
+  "left_recorded_differences": [],
+  "replay": "autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89291523_replay.json",
+  "right_recorded_difference_count": 1,
+  "right_recorded_differences": [
+    {
+      "agent": [
+        1
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "inPlayArea": 5,
+          "inPlayIndex": 0,
+          "index": 2,
+          "type": 8
+        }
+      ],
+      "context": 0,
+      "recorded": [
+        2
+      ],
+      "recorded_options": [
+        {
+          "index": 7,
+          "type": 7
+        }
+      ],
+      "step": 104,
+      "turn": 8
+    }
+  ],
+  "target_seat": 0
+}

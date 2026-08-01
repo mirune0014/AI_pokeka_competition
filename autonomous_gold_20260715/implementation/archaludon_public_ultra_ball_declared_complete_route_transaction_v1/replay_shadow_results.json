@@ -1,0 +1,786 @@
+[
+  {
+    "decision_count": 58,
+    "difference_count": 1,
+    "differences": [
+      {
+        "left": [
+          2,
+          3
+        ],
+        "left_semantic": [
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1227,
+              106,
+              1
+            ],
+            null
+          ],
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1185,
+              103,
+              1
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          2,
+          3
+        ],
+        "right": [
+          5,
+          0
+        ],
+        "right_semantic": [
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              80,
+              1
+            ],
+            null
+          ],
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              81,
+              1
+            ],
+            null
+          ]
+        ],
+        "step": 8,
+        "task6_bindings": {
+          "alloy_allocations": [],
+          "attack_id": null,
+          "destination_serial": 0,
+          "discard_serials": [
+            80,
+            81
+          ],
+          "manual_attachment": null,
+          "source_serial": 83,
+          "target_card_id": 169,
+          "target_serial": null
+        },
+        "task6_purpose": "BASIC_SUCCESSOR",
+        "task6_rejection": "fresh_parent_after_rollback",
+        "task6_stage": "COSTS_EMITTED",
+        "task6_transition": "task6_ultra_committed",
+        "turn": 1
+      }
+    ],
+    "episode": "episode_89280661_replay",
+    "replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89280661_replay.json",
+    "target_seat": 1,
+    "task6_rows": [
+      {
+        "left": [
+          0
+        ],
+        "left_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              83,
+              1
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          0
+        ],
+        "right": [
+          0
+        ],
+        "right_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              83,
+              1
+            ],
+            null
+          ]
+        ],
+        "step": 7,
+        "task6_bindings": {
+          "alloy_allocations": [],
+          "attack_id": null,
+          "destination_serial": 0,
+          "discard_serials": [
+            80,
+            81
+          ],
+          "manual_attachment": null,
+          "source_serial": 83,
+          "target_card_id": 169,
+          "target_serial": null
+        },
+        "task6_purpose": "BASIC_SUCCESSOR",
+        "task6_rejection": null,
+        "task6_stage": "DECLARED",
+        "task6_transition": null,
+        "turn": 1
+      },
+      {
+        "left": [
+          2,
+          3
+        ],
+        "left_semantic": [
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1227,
+              106,
+              1
+            ],
+            null
+          ],
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1185,
+              103,
+              1
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          2,
+          3
+        ],
+        "right": [
+          5,
+          0
+        ],
+        "right_semantic": [
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              80,
+              1
+            ],
+            null
+          ],
+          [
+            3,
+            null,
+            2,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              81,
+              1
+            ],
+            null
+          ]
+        ],
+        "step": 8,
+        "task6_bindings": {
+          "alloy_allocations": [],
+          "attack_id": null,
+          "destination_serial": 0,
+          "discard_serials": [
+            80,
+            81
+          ],
+          "manual_attachment": null,
+          "source_serial": 83,
+          "target_card_id": 169,
+          "target_serial": null
+        },
+        "task6_purpose": "BASIC_SUCCESSOR",
+        "task6_rejection": "fresh_parent_after_rollback",
+        "task6_stage": "COSTS_EMITTED",
+        "task6_transition": "task6_ultra_committed",
+        "turn": 1
+      },
+      {
+        "left": [
+          2
+        ],
+        "left_semantic": [
+          [
+            3,
+            null,
+            1,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              169,
+              65,
+              1
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          2
+        ],
+        "right": [
+          2
+        ],
+        "right_semantic": [
+          [
+            3,
+            null,
+            1,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              169,
+              65,
+              1
+            ],
+            null
+          ]
+        ],
+        "step": 9,
+        "task6_bindings": {},
+        "task6_purpose": "BASIC_SUCCESSOR",
+        "task6_rejection": "fresh_parent_after_rollback",
+        "task6_stage": "CLEAR",
+        "task6_transition": "task6_cost_or_search_transition_failure",
+        "turn": 1
+      },
+      {
+        "left": [
+          0
+        ],
+        "left_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              80,
+              1
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          0
+        ],
+        "right": [
+          0
+        ],
+        "right_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              80,
+              1
+            ],
+            null
+          ]
+        ],
+        "step": 42,
+        "task6_bindings": {},
+        "task6_purpose": null,
+        "task6_rejection": "task6_no_admitted_role_or_safe_pair:none",
+        "task6_stage": "CLEAR",
+        "task6_transition": null,
+        "turn": 5
+      }
+    ]
+  },
+  {
+    "decision_count": 59,
+    "difference_count": 1,
+    "differences": [
+      {
+        "left": [
+          2
+        ],
+        "left_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              23,
+              0
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          2
+        ],
+        "right": [
+          1
+        ],
+        "right_semantic": [
+          [
+            8,
+            null,
+            2,
+            null,
+            null,
+            null,
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            [
+              8,
+              62,
+              0
+            ],
+            [
+              190,
+              9
+            ]
+          ]
+        ],
+        "step": 104,
+        "task6_bindings": {},
+        "task6_purpose": null,
+        "task6_rejection": "task6_no_admitted_role_or_safe_pair:reply_graph_unknown",
+        "task6_stage": "CLEAR",
+        "task6_transition": null,
+        "turn": 8
+      }
+    ],
+    "episode": "episode_89291523_replay",
+    "replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89291523_replay.json",
+    "target_seat": 0,
+    "task6_rows": [
+      {
+        "left": [
+          0
+        ],
+        "left_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              21,
+              0
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          0
+        ],
+        "right": [
+          0
+        ],
+        "right_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              21,
+              0
+            ],
+            null
+          ]
+        ],
+        "step": 21,
+        "task6_bindings": {},
+        "task6_purpose": null,
+        "task6_rejection": "task6_no_admitted_role_or_safe_pair:no_exact_fallback_attack",
+        "task6_stage": "CLEAR",
+        "task6_transition": null,
+        "turn": 2
+      },
+      {
+        "left": [
+          2
+        ],
+        "left_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              23,
+              0
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          2
+        ],
+        "right": [
+          1
+        ],
+        "right_semantic": [
+          [
+            8,
+            null,
+            2,
+            null,
+            null,
+            null,
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            [
+              8,
+              62,
+              0
+            ],
+            [
+              190,
+              9
+            ]
+          ]
+        ],
+        "step": 104,
+        "task6_bindings": {},
+        "task6_purpose": null,
+        "task6_rejection": "task6_no_admitted_role_or_safe_pair:reply_graph_unknown",
+        "task6_stage": "CLEAR",
+        "task6_transition": null,
+        "turn": 8
+      }
+    ]
+  },
+  {
+    "decision_count": 11,
+    "difference_count": 0,
+    "differences": [],
+    "episode": "89347400",
+    "replay": "C:\\Users\\amuam\\Downloads\\89347400.json",
+    "target_seat": 1,
+    "task6_rows": [
+      {
+        "left": [
+          0
+        ],
+        "left_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              80,
+              1
+            ],
+            null
+          ]
+        ],
+        "recorded": [
+          1
+        ],
+        "right": [
+          0
+        ],
+        "right_semantic": [
+          [
+            7,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              1121,
+              80,
+              1
+            ],
+            null
+          ]
+        ],
+        "step": 19,
+        "task6_bindings": {
+          "alloy_allocations": [],
+          "attack_id": 965,
+          "destination_serial": 0,
+          "discard_serials": [
+            67,
+            94
+          ],
+          "manual_attachment": null,
+          "source_serial": 80,
+          "target_card_id": 169,
+          "target_serial": null
+        },
+        "task6_purpose": "TURBO_SUCCESSOR",
+        "task6_rejection": null,
+        "task6_stage": "DECLARED",
+        "task6_transition": null,
+        "turn": 4
+      },
+      {
+        "left": [
+          0
+        ],
+        "left_semantic": [
+          [
+            3,
+            null,
+            6,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "recorded": [
+          0
+        ],
+        "right": [
+          0
+        ],
+        "right_semantic": [
+          [
+            3,
+            null,
+            6,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "step": 21,
+        "task6_bindings": {},
+        "task6_purpose": "TURBO_SUCCESSOR",
+        "task6_rejection": "fresh_parent_after_rollback",
+        "task6_stage": "CLEAR",
+        "task6_transition": "task6_identity_owner_or_action_count_discontinuity",
+        "turn": 4
+      }
+    ]
+  }
+]

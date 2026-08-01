@@ -1,0 +1,113 @@
+{
+  "decisions": 58,
+  "difference_count": 1,
+  "differences": [
+    {
+      "context": 8,
+      "left": [
+        2,
+        3
+      ],
+      "left_options": [
+        {
+          "area": 2,
+          "index": 2,
+          "playerIndex": 1,
+          "type": 3
+        },
+        {
+          "area": 2,
+          "index": 3,
+          "playerIndex": 1,
+          "type": 3
+        }
+      ],
+      "recorded": [
+        2,
+        3
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "index": 2,
+          "playerIndex": 1,
+          "type": 3
+        },
+        {
+          "area": 2,
+          "index": 3,
+          "playerIndex": 1,
+          "type": 3
+        }
+      ],
+      "right": [
+        5,
+        0
+      ],
+      "right_options": [
+        {
+          "area": 2,
+          "index": 5,
+          "playerIndex": 1,
+          "type": 3
+        },
+        {
+          "area": 2,
+          "index": 0,
+          "playerIndex": 1,
+          "type": 3
+        }
+      ],
+      "step": 8,
+      "turn": 1
+    }
+  ],
+  "left_recorded_difference_count": 0,
+  "left_recorded_differences": [],
+  "replay": "autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89280661_replay.json",
+  "right_recorded_difference_count": 1,
+  "right_recorded_differences": [
+    {
+      "agent": [
+        5,
+        0
+      ],
+      "agent_options": [
+        {
+          "area": 2,
+          "index": 5,
+          "playerIndex": 1,
+          "type": 3
+        },
+        {
+          "area": 2,
+          "index": 0,
+          "playerIndex": 1,
+          "type": 3
+        }
+      ],
+      "context": 8,
+      "recorded": [
+        2,
+        3
+      ],
+      "recorded_options": [
+        {
+          "area": 2,
+          "index": 2,
+          "playerIndex": 1,
+          "type": 3
+        },
+        {
+          "area": 2,
+          "index": 3,
+          "playerIndex": 1,
+          "type": 3
+        }
+      ],
+      "step": 8,
+      "turn": 1
+    }
+  ],
+  "target_seat": 1
+}

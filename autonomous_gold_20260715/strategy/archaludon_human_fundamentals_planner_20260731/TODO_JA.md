@@ -265,10 +265,25 @@ Task 5 実装結果（2026-08-02）:
 - Episode 89347400、89285518、89282820 の合計145 decisionでは親との行動差が0で、記録済みの通常進行を変えていない。両席の実エンジン smoke も action error 0 で終了した。
 - Task 5 は Poké Pad だけを所有する。Ultra Ball の捨て札2枚、検索対象、配置後の役割は Task 6 で別 transaction として実装する。
 
+#### Task 6: Ultra Ball の捨て札・検索計画
+
+- [x] Ultra Ball を使う前に、検索目的、検索対象、捨て札2枚、配置または進化、Assemble Alloy、手貼り、現在の攻撃、Turbo Flareへの引き渡しまでを一つの transaction として確定する。
+- [x] 手札の全ての異なる2枚組を比較し、重複札、Supporter、進化札、回収札、手札エネルギーの機会費用を固定カード点ではなく完成経路で比較する。Boss、進化、回収、Supporter、Stadium/Tool、手貼り・Turbo用エネルギー、次攻撃役に必要な物理カードまたは最低枚数は捨て札候補から除外する。
+- [x] トラッシュに鋼エネルギーが2枚以上ある場合、手札エネルギーを「Alloyで戻せる有用なコスト」として優遇しない。
+- [x] 攻撃役1エネ、トラッシュ1エネ、手札1エネでは、`Alloy 1枚＋手貼り1枚` と `手札エネを捨ててAlloy 2枚` の両経路を比較する。
+- [x] 検索対象不在、重複callback、option順変更、所有権競合では代替対象を捏造せず、安全に親へ制御を返す。
+
+Task 6 実装結果（2026-08-02）:
+
+- `archaludon_public_ultra_ball_declared_complete_route_transaction_v1` として、従来のUltra Ball個別評価を目的宣言型の完全transactionへ置き換えた。
+- 集中fixtureは210件すべて合格した。両席で5種類の検索目的、捨て札比較、Alloyと手貼りの配分、必要札の物理的保護、重複callback、空振り、所有権競合を確認した。
+- Episode 89280661ではLillieとExplorerではなく重複Ultra Ball 2枚を捨てる。Episode 89291523では目的のないUltra Ballを使わず、ベンチのArchaludon exへ手貼りする。Episode 89347400の記録済み11判断は不変だった。
+- 両席の実エンジンsmokeはaction error 0、手数上限到達なしで終了した。最初の最終監査で見つかったhard protection不足も修正し、再監査でTask 6のcommit/pushが承認された。これは破綻がないことの確認であり、勝率改善の主張ではない。
+
 ## P1: カード効果を理解した資源利用
 
 - [x] Poké Pad は検索前に実行可能な役割を宣言し、検索対象、Bench容量、配置、後続育成または同ターンの攻撃までを一つの transaction として所有する。Task 5 の `PUBLIC_POKE_PAD_DECLARED_EXECUTABLE_ROLE_TRANSACTION_V1` で完了した。
-- [-] Ultra Ball は検索対象と安全な捨て札2枚を使用前に確定する。Episode 89347400 で攻撃優先 wrapper に上書きされたため、捨て札・検索・配置・後続育成を含む完全な transaction は Task 6 で仕上げる。
+- [x] Ultra Ball は検索対象と安全な捨て札2枚を使用前に確定し、検索、配置または進化、Alloy、手貼り、攻撃またはTurbo Flareへの引き渡しまでを Task 6 の `PUBLIC_ULTRA_BALL_DECLARED_COMPLETE_ROUTE_TRANSACTION_V1` が所有する。具体的な既存経路に必要な物理カードと最低枚数も捨て札から保護する。
 - [-] Pokégear は必要な Supporter とその使用目的を決めてから使う。
 - [-] Explorer は取得札、捨て札、Assemble Alloy、残り山札を一緒に評価する。
 - [ ] Lillie は手札改善と山札回復を評価し、確定攻撃資源を戻す害も評価する。
