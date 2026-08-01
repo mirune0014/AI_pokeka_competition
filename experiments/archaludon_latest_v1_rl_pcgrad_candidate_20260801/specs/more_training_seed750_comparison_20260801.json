@@ -1,0 +1,62 @@
+{
+  "schema_version": "matched-more-training-comparison-v1",
+  "created_date": "2026-08-01",
+  "purpose": "Compare the latest-v1 zero-residual start, the checkpoint before two additional fresh PPO updates, and the checkpoint after those updates on an unused matched schedule.",
+  "analysis_mode": "exploratory_non_promotional",
+  "exploratory_gates": {
+    "continue_exact_configuration": "Post must have positive paired net wins versus both pre and zero, with no seat or opponent paired net regression.",
+    "runtime_safety": "Every arm must have 32 clean terminals, zero action errors, and zero max-step hits.",
+    "policy_effect": "Report action-trace and argmax changes; no post-hoc hard minimum is used.",
+    "failure_scope": "Failure does not reject RL; it only withholds support for continuing the exact same update configuration."
+  },
+  "schedule": {
+    "opponent_population_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "opponents": 8,
+    "seats": [0, 1],
+    "seeds": [731200750, 731200751],
+    "games_per_arm": 32,
+    "max_steps": 1000,
+    "timeout_seconds": 0.05,
+    "device": "cpu"
+  },
+  "arms": {
+    "zero": {
+      "checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_zero_seed750_20260801",
+      "manifest_sha256": "332E1093654A5A228B9382F1770DEEB37C89BE6B72164ACCC1C422A48584BD8B",
+      "dataset_sha256": "1ADC94919DB726F21CE40295F09B4A72EE1947B3B764A3C66E726918C073E0BB"
+    },
+    "pre": {
+      "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_003_20260801/trained.pt",
+      "checkpoint_sha256": "F87587785CF1C47E1399C9FEC761346341C7D9BDB47F1EBA778AD9FA5970912E",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_pre_seed750_20260801",
+      "manifest_sha256": "B3C8F2D8A95F6F62B77C6AF624E06D932053967AD3425C149DB13A78B0896131",
+      "dataset_sha256": "8240BD344A9318E32874F35CB4DCDA453389B80D4713215E211C20FBCE984552"
+    },
+    "post": {
+      "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_005_20260801/trained.pt",
+      "checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_20260801",
+      "manifest_sha256": "2F6D241FEFBA858611F9A8F440DA3F54122B02E724A1D1C8374BE806E912C5E4",
+      "dataset_sha256": "6D0EA78C0780EB3E2B5B3858C9CC661EB38706AD179B8E69FAE340001D91589D"
+    }
+  },
+  "duplicate_control": {
+    "arm": "post",
+    "checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+    "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_duplicate_20260801",
+    "manifest_sha256": "78AE6BD7D31F8516655549015BA1335CE80920BEEC2F632E063C353F63617DB1",
+    "dataset_sha256": "C7614BE0661C4E271B22AAA4DC265DA0C6440BDB364E5078F45AAD4FAD303DC9",
+    "required_equality": "Same 32 keys, terminal rewards, decision counts, encoded state vectors, action vectors, effect features, behavior action order, final actions, and final probabilities. Raw-observation hashes are excluded because they include run-variant material outside the encoded policy input."
+  },
+  "required_checks": [
+    "Recompute wins and losses from terminal_reward.",
+    "Require 32 unique opponent-seat-seed keys per arm and identical key sets.",
+    "Require 32 clean terminals, zero action errors, and zero max-step hits per arm.",
+    "Report paired outcome changes for zero-to-post and pre-to-post.",
+    "Report action-trace changes and probability movement only on state-and-action-order-aligned PPO decisions."
+  ],
+  "decision_question": "Did the two additional 32-game fresh-rollout PPO updates improve matched local strength enough to continue the same update configuration, or should the next iteration alter learning/exploration or credit design?",
+  "result_destination": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/MORE_TRAINING_PPO_RESULT.md"
+}

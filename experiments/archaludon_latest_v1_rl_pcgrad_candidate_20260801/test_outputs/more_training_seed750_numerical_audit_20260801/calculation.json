@@ -1,0 +1,1285 @@
+{
+  "absolute_rates": {
+    "post": {
+      "by_opponent": {
+        "alakazam_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "alakazam_rmy_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 2,
+          "win_rate": 0.5,
+          "wins": 2
+        },
+        "dragapult_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "historical_silver": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "marnie_kazuki_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "mega_lucario_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "ogerpon_cornerstone_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "starmie_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        }
+      },
+      "by_opponent_seat": {
+        "alakazam_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "alakazam_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "alakazam_rmy_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "alakazam_rmy_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 2,
+          "win_rate": 0.0,
+          "wins": 0
+        },
+        "dragapult_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "dragapult_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "historical_silver|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "historical_silver|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "marnie_kazuki_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "marnie_kazuki_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "mega_lucario_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "mega_lucario_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "ogerpon_cornerstone_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "ogerpon_cornerstone_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "starmie_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "starmie_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      },
+      "by_seat": {
+        "0": {
+          "draws": 0,
+          "games": 16,
+          "losses": 1,
+          "win_rate": 0.9375,
+          "wins": 15
+        },
+        "1": {
+          "draws": 0,
+          "games": 16,
+          "losses": 4,
+          "win_rate": 0.75,
+          "wins": 12
+        }
+      },
+      "by_seed": {
+        "731200750": {
+          "draws": 0,
+          "games": 16,
+          "losses": 4,
+          "win_rate": 0.75,
+          "wins": 12
+        },
+        "731200751": {
+          "draws": 0,
+          "games": 16,
+          "losses": 1,
+          "win_rate": 0.9375,
+          "wins": 15
+        }
+      }
+    },
+    "pre": {
+      "by_opponent": {
+        "alakazam_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "alakazam_rmy_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 2,
+          "win_rate": 0.5,
+          "wins": 2
+        },
+        "dragapult_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "historical_silver": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "marnie_kazuki_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "mega_lucario_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "ogerpon_cornerstone_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "starmie_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        }
+      },
+      "by_opponent_seat": {
+        "alakazam_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "alakazam_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "alakazam_rmy_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "alakazam_rmy_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 2,
+          "win_rate": 0.0,
+          "wins": 0
+        },
+        "dragapult_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "dragapult_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "historical_silver|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "historical_silver|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "marnie_kazuki_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "marnie_kazuki_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "mega_lucario_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "mega_lucario_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "ogerpon_cornerstone_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "ogerpon_cornerstone_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "starmie_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "starmie_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      },
+      "by_seat": {
+        "0": {
+          "draws": 0,
+          "games": 16,
+          "losses": 1,
+          "win_rate": 0.9375,
+          "wins": 15
+        },
+        "1": {
+          "draws": 0,
+          "games": 16,
+          "losses": 4,
+          "win_rate": 0.75,
+          "wins": 12
+        }
+      },
+      "by_seed": {
+        "731200750": {
+          "draws": 0,
+          "games": 16,
+          "losses": 4,
+          "win_rate": 0.75,
+          "wins": 12
+        },
+        "731200751": {
+          "draws": 0,
+          "games": 16,
+          "losses": 1,
+          "win_rate": 0.9375,
+          "wins": 15
+        }
+      }
+    },
+    "zero": {
+      "by_opponent": {
+        "alakazam_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "alakazam_rmy_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 2,
+          "win_rate": 0.5,
+          "wins": 2
+        },
+        "dragapult_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "historical_silver": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "marnie_kazuki_live": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "mega_lucario_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        },
+        "ogerpon_cornerstone_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 1,
+          "win_rate": 0.75,
+          "wins": 3
+        },
+        "starmie_public": {
+          "draws": 0,
+          "games": 4,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 4
+        }
+      },
+      "by_opponent_seat": {
+        "alakazam_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "alakazam_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "alakazam_rmy_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "alakazam_rmy_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 2,
+          "win_rate": 0.0,
+          "wins": 0
+        },
+        "dragapult_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "dragapult_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "historical_silver|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "historical_silver|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "marnie_kazuki_live|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "marnie_kazuki_live|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "mega_lucario_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "mega_lucario_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "ogerpon_cornerstone_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 1,
+          "win_rate": 0.5,
+          "wins": 1
+        },
+        "ogerpon_cornerstone_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "starmie_public|0": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        },
+        "starmie_public|1": {
+          "draws": 0,
+          "games": 2,
+          "losses": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      },
+      "by_seat": {
+        "0": {
+          "draws": 0,
+          "games": 16,
+          "losses": 1,
+          "win_rate": 0.9375,
+          "wins": 15
+        },
+        "1": {
+          "draws": 0,
+          "games": 16,
+          "losses": 4,
+          "win_rate": 0.75,
+          "wins": 12
+        }
+      },
+      "by_seed": {
+        "731200750": {
+          "draws": 0,
+          "games": 16,
+          "losses": 4,
+          "win_rate": 0.75,
+          "wins": 12
+        },
+        "731200751": {
+          "draws": 0,
+          "games": 16,
+          "losses": 1,
+          "win_rate": 0.9375,
+          "wins": 15
+        }
+      }
+    }
+  },
+  "acceptance": {
+    "artifact_integrity": true,
+    "continue_exact_configuration": false,
+    "duplicate_control_exact_required_fields": true,
+    "failure_scope": "a failed continuation gate withholds support for the exact update configuration; it does not reject RL",
+    "no_opponent_paired_net_regression_vs_zero_and_pre": true,
+    "no_seat_paired_net_regression_vs_zero_and_pre": true,
+    "observable_policy_effect_no_hard_minimum": true,
+    "positive_paired_net_vs_zero_and_pre": false,
+    "promotion_validity": false,
+    "promotion_validity_reason": "the parent designated this 32-game panel exploratory/non-promotional; it cannot support Kaggle submission or strength promotion",
+    "runtime_safety": true
+  },
+  "arms": {
+    "post": {
+      "action_errors": 0,
+      "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_005_20260801/trained.pt",
+      "checkpoint_sha256_expected": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+      "checkpoint_sha256_recomputed": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+      "clean_terminals": 32,
+      "collection_spec_sha256_manifest": "77B3D5D52A27DEDDABBAF57448BF65D2808E5F1537A56838484A1369D9F47BAD",
+      "collection_spec_sha256_recomputed": "77B3D5D52A27DEDDABBAF57448BF65D2808E5F1537A56838484A1369D9F47BAD",
+      "dataset_sha256_expected": "6D0EA78C0780EB3E2B5B3858C9CC661EB38706AD179B8E69FAE340001D91589D",
+      "dataset_sha256_manifest": "6D0EA78C0780EB3E2B5B3858C9CC661EB38706AD179B8E69FAE340001D91589D",
+      "dataset_sha256_recomputed": "6D0EA78C0780EB3E2B5B3858C9CC661EB38706AD179B8E69FAE340001D91589D",
+      "decision_checkpoint_binding_errors": 0,
+      "draws": 0,
+      "duplicate_mode": false,
+      "episode_receipts": 32,
+      "exception_episodes": 0,
+      "failures": [],
+      "integrity_pass": true,
+      "label": "post",
+      "losses": 5,
+      "manifest_checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+      "manifest_complete": true,
+      "manifest_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_20260801/run_manifest.json",
+      "manifest_sha256_expected": "2F6D241FEFBA858611F9A8F440DA3F54122B02E724A1D1C8374BE806E912C5E4",
+      "manifest_sha256_recomputed": "2F6D241FEFBA858611F9A8F440DA3F54122B02E724A1D1C8374BE806E912C5E4",
+      "max_step_hits": 0,
+      "policy_player_mapping_errors": 0,
+      "policy_to_player_mapping": "policy is player 0 when seat=0 and player 1 when seat=1; win iff terminal_reward=+1 and terminal_result=seat",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_20260801",
+      "receipt_failures": 0,
+      "runtime_receipt_sha256_manifest": "9B275ED29B21A5186A99EE9C72F87FDE2F8604A9D3BD62AD3D61C4AFB118CFA2",
+      "runtime_receipt_sha256_recomputed": "9B275ED29B21A5186A99EE9C72F87FDE2F8604A9D3BD62AD3D61C4AFB118CFA2",
+      "schedule_sha256_manifest": "430D5FE9878C88A62400BCD16BFC7D43253BFEB462D5A54503725B727068F194",
+      "schedule_sha256_recomputed": "430D5FE9878C88A62400BCD16BFC7D43253BFEB462D5A54503725B727068F194",
+      "terminal_reward_counts": {
+        "-1.0": 5,
+        "1.0": 27
+      },
+      "terminal_true": 32,
+      "total_decisions": 1577,
+      "total_engine_steps": 3161,
+      "unique_episode_keys": 32,
+      "unique_schedule_keys": 32,
+      "win_rate": 0.84375,
+      "wins": 27
+    },
+    "pre": {
+      "action_errors": 0,
+      "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_003_20260801/trained.pt",
+      "checkpoint_sha256_expected": "F87587785CF1C47E1399C9FEC761346341C7D9BDB47F1EBA778AD9FA5970912E",
+      "checkpoint_sha256_recomputed": "F87587785CF1C47E1399C9FEC761346341C7D9BDB47F1EBA778AD9FA5970912E",
+      "clean_terminals": 32,
+      "collection_spec_sha256_manifest": "19598357C3614E93F96F3F85A707D516C4F3116B367C3442E0A3C6A5497595C1",
+      "collection_spec_sha256_recomputed": "19598357C3614E93F96F3F85A707D516C4F3116B367C3442E0A3C6A5497595C1",
+      "dataset_sha256_expected": "8240BD344A9318E32874F35CB4DCDA453389B80D4713215E211C20FBCE984552",
+      "dataset_sha256_manifest": "8240BD344A9318E32874F35CB4DCDA453389B80D4713215E211C20FBCE984552",
+      "dataset_sha256_recomputed": "8240BD344A9318E32874F35CB4DCDA453389B80D4713215E211C20FBCE984552",
+      "decision_checkpoint_binding_errors": 0,
+      "draws": 0,
+      "duplicate_mode": false,
+      "episode_receipts": 32,
+      "exception_episodes": 0,
+      "failures": [],
+      "integrity_pass": true,
+      "label": "pre",
+      "losses": 5,
+      "manifest_checkpoint_sha256": "F87587785CF1C47E1399C9FEC761346341C7D9BDB47F1EBA778AD9FA5970912E",
+      "manifest_complete": true,
+      "manifest_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_pre_seed750_20260801/run_manifest.json",
+      "manifest_sha256_expected": "B3C8F2D8A95F6F62B77C6AF624E06D932053967AD3425C149DB13A78B0896131",
+      "manifest_sha256_recomputed": "B3C8F2D8A95F6F62B77C6AF624E06D932053967AD3425C149DB13A78B0896131",
+      "max_step_hits": 0,
+      "policy_player_mapping_errors": 0,
+      "policy_to_player_mapping": "policy is player 0 when seat=0 and player 1 when seat=1; win iff terminal_reward=+1 and terminal_result=seat",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_pre_seed750_20260801",
+      "receipt_failures": 0,
+      "runtime_receipt_sha256_manifest": "E09A9690AC57FBAC8F713AA3BD7482C703983F09290E393934276D1A3BF94E2F",
+      "runtime_receipt_sha256_recomputed": "E09A9690AC57FBAC8F713AA3BD7482C703983F09290E393934276D1A3BF94E2F",
+      "schedule_sha256_manifest": "8E1D8FCB8A53A0020258653931BA76F4AB9DD9C183BBE2B4970DF40DDB284DBF",
+      "schedule_sha256_recomputed": "8E1D8FCB8A53A0020258653931BA76F4AB9DD9C183BBE2B4970DF40DDB284DBF",
+      "terminal_reward_counts": {
+        "-1.0": 5,
+        "1.0": 27
+      },
+      "terminal_true": 32,
+      "total_decisions": 1580,
+      "total_engine_steps": 3164,
+      "unique_episode_keys": 32,
+      "unique_schedule_keys": 32,
+      "win_rate": 0.84375,
+      "wins": 27
+    },
+    "zero": {
+      "action_errors": 0,
+      "checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "checkpoint_sha256_expected": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "checkpoint_sha256_recomputed": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "clean_terminals": 32,
+      "collection_spec_sha256_manifest": "8E49060D616026562D12FB8E6ECE56C7101DE934A54CEBCA61679048EA6004D2",
+      "collection_spec_sha256_recomputed": "8E49060D616026562D12FB8E6ECE56C7101DE934A54CEBCA61679048EA6004D2",
+      "dataset_sha256_expected": "1ADC94919DB726F21CE40295F09B4A72EE1947B3B764A3C66E726918C073E0BB",
+      "dataset_sha256_manifest": "1ADC94919DB726F21CE40295F09B4A72EE1947B3B764A3C66E726918C073E0BB",
+      "dataset_sha256_recomputed": "1ADC94919DB726F21CE40295F09B4A72EE1947B3B764A3C66E726918C073E0BB",
+      "decision_checkpoint_binding_errors": 0,
+      "draws": 0,
+      "duplicate_mode": false,
+      "episode_receipts": 32,
+      "exception_episodes": 0,
+      "failures": [],
+      "integrity_pass": true,
+      "label": "zero",
+      "losses": 5,
+      "manifest_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "manifest_complete": true,
+      "manifest_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_zero_seed750_20260801/run_manifest.json",
+      "manifest_sha256_expected": "332E1093654A5A228B9382F1770DEEB37C89BE6B72164ACCC1C422A48584BD8B",
+      "manifest_sha256_recomputed": "332E1093654A5A228B9382F1770DEEB37C89BE6B72164ACCC1C422A48584BD8B",
+      "max_step_hits": 0,
+      "policy_player_mapping_errors": 0,
+      "policy_to_player_mapping": "policy is player 0 when seat=0 and player 1 when seat=1; win iff terminal_reward=+1 and terminal_result=seat",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_zero_seed750_20260801",
+      "receipt_failures": 0,
+      "runtime_receipt_sha256_manifest": "C3F6CCA30ACB6CFDDA91748836084D3EC4916C2D2E3268E4D4A022D0C1C14DB9",
+      "runtime_receipt_sha256_recomputed": "C3F6CCA30ACB6CFDDA91748836084D3EC4916C2D2E3268E4D4A022D0C1C14DB9",
+      "schedule_sha256_manifest": "C41C5A851D968CADE9DAC1DA3FFEC58B972170D41128B42253E60B9711A1BE5F",
+      "schedule_sha256_recomputed": "C41C5A851D968CADE9DAC1DA3FFEC58B972170D41128B42253E60B9711A1BE5F",
+      "terminal_reward_counts": {
+        "-1.0": 5,
+        "1.0": 27
+      },
+      "terminal_true": 32,
+      "total_decisions": 1580,
+      "total_engine_steps": 3164,
+      "unique_episode_keys": 32,
+      "unique_schedule_keys": 32,
+      "win_rate": 0.84375,
+      "wins": 27
+    }
+  },
+  "assumptions": [
+    "terminal_reward is candidate-relative: +1 is a policy win and -1 a policy loss; terminal_result was cross-checked against seat/player mapping",
+    "matched units are the 32 exact (opponent_id, seat, seed) keys",
+    "paired bootstrap resamples entire matched-game differences and the exact McNemar test conditions on discordant pairs",
+    "the extrapolative 95% no-discordance bound treats the 32 matched keys as independent/exchangeable; because this is a structured fixed panel with reused seed values, it is a sensitivity bound rather than promotional population inference",
+    "decision alignment uses the same matched game and decision_index plus exact encoded state/action-order fields; unaligned downstream states are excluded from TV and argmax calculations",
+    "raw_observation_sha256 is excluded only from duplicate alignment because it contains run-variant non-policy-input material; exact encoded inputs, actions, probabilities, and next-public-state hashes remain required",
+    "per-opponent cells contain four games and per-seat/per-seed cells contain sixteen; all subgroup rates are descriptive"
+  ],
+  "audit_schema_version": "matched-more-training-numerical-audit-v1",
+  "duplicate_arm": {
+    "action_errors": 0,
+    "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_005_20260801/trained.pt",
+    "checkpoint_sha256_expected": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+    "checkpoint_sha256_recomputed": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+    "clean_terminals": 32,
+    "collection_spec_sha256_manifest": "5C793DD25FF376053DA54983F33CF808A587226223C097A285A0050CF87A8717",
+    "collection_spec_sha256_recomputed": "5C793DD25FF376053DA54983F33CF808A587226223C097A285A0050CF87A8717",
+    "dataset_sha256_expected": "C7614BE0661C4E271B22AAA4DC265DA0C6440BDB364E5078F45AAD4FAD303DC9",
+    "dataset_sha256_manifest": "C7614BE0661C4E271B22AAA4DC265DA0C6440BDB364E5078F45AAD4FAD303DC9",
+    "dataset_sha256_recomputed": "C7614BE0661C4E271B22AAA4DC265DA0C6440BDB364E5078F45AAD4FAD303DC9",
+    "decision_checkpoint_binding_errors": 0,
+    "draws": 0,
+    "duplicate_mode": false,
+    "episode_receipts": 32,
+    "exception_episodes": 0,
+    "failures": [],
+    "integrity_pass": true,
+    "label": "post_duplicate",
+    "losses": 5,
+    "manifest_checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+    "manifest_complete": true,
+    "manifest_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_duplicate_20260801/run_manifest.json",
+    "manifest_sha256_expected": "78AE6BD7D31F8516655549015BA1335CE80920BEEC2F632E063C353F63617DB1",
+    "manifest_sha256_recomputed": "78AE6BD7D31F8516655549015BA1335CE80920BEEC2F632E063C353F63617DB1",
+    "max_step_hits": 0,
+    "policy_player_mapping_errors": 0,
+    "policy_to_player_mapping": "policy is player 0 when seat=0 and player 1 when seat=1; win iff terminal_reward=+1 and terminal_result=seat",
+    "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_duplicate_20260801",
+    "receipt_failures": 0,
+    "runtime_receipt_sha256_manifest": "FD604E71908C2267223F12AD03DC7747ABFB0E32CAF22B6A9C9E58BA2C01B833",
+    "runtime_receipt_sha256_recomputed": "FD604E71908C2267223F12AD03DC7747ABFB0E32CAF22B6A9C9E58BA2C01B833",
+    "schedule_sha256_manifest": "B813BA67BA830741F3E854A916254D73CD55EBEC36D7C629DA2F45346FE1FBE9",
+    "schedule_sha256_recomputed": "B813BA67BA830741F3E854A916254D73CD55EBEC36D7C629DA2F45346FE1FBE9",
+    "terminal_reward_counts": {
+      "-1.0": 5,
+      "1.0": 27
+    },
+    "terminal_true": 32,
+    "total_decisions": 1577,
+    "total_engine_steps": 3161,
+    "unique_episode_keys": 32,
+    "unique_schedule_keys": 32,
+    "win_rate": 0.84375,
+    "wins": 27
+  },
+  "duplicate_control_comparison": {
+    "excluded_raw_observation_sha256_differences": 337,
+    "matched_decisions": 1577,
+    "raw_hash_exclusion_reason": "raw observation hashes contain run-variant material outside the exact encoded policy input; encoded policy inputs and downstream states are checked separately",
+    "required_difference_counts": {
+      "action_vectors": 0,
+      "behavior_action_order": 0,
+      "decision_count": 0,
+      "effect_features": 0,
+      "encoded_alignment_fields": 0,
+      "engine_steps": 0,
+      "final_action": 0,
+      "final_probabilities": 0,
+      "next_public_state_sha256": 0,
+      "outcome": 0,
+      "state_vector": 0,
+      "terminal_result": 0
+    },
+    "same_32_keys": true,
+    "valid": true
+  },
+  "floors": {
+    "caveat": "each opponent cell has four games and each opponent-seat cell only two, so floors are descriptive and highly discrete",
+    "post_minimum_opponent_seat_cells": [
+      "alakazam_rmy_live|1"
+    ],
+    "post_minimum_opponent_seat_win_rate": 0.0,
+    "post_minimum_opponent_win_rate": 0.5,
+    "post_minimum_opponents": [
+      "alakazam_rmy_live"
+    ],
+    "post_opponents_at_or_below_25_percent": [],
+    "recurring_at_or_below_25_percent_in_zero_pre_post": [],
+    "recurring_zero_percent_opponent_seat_cells_in_zero_pre_post": [
+      "alakazam_rmy_live|1"
+    ]
+  },
+  "opponent_population": {
+    "opponent_ids": [
+      "historical_silver",
+      "alakazam_public",
+      "alakazam_rmy_live",
+      "marnie_kazuki_live",
+      "mega_lucario_public",
+      "starmie_public",
+      "dragapult_live",
+      "ogerpon_cornerstone_public"
+    ],
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "population_id": "phase1-iteration-002-broad-eight-20260731",
+    "sha256": "03BEC83E1259F03F81C7A7191469572AF28890354EF7AA9B7E3EAEC3923DC1C0"
+  },
+  "outcome_comparisons": {
+    "pre_to_post": {
+      "baseline_wins": 27,
+      "by_opponent": {
+        "alakazam_public": {
+          "baseline_wins": 3,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 3,
+          "win_rate_delta": 0.0
+        },
+        "alakazam_rmy_live": {
+          "baseline_wins": 2,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 2,
+          "win_rate_delta": 0.0
+        },
+        "dragapult_live": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        },
+        "historical_silver": {
+          "baseline_wins": 3,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 3,
+          "win_rate_delta": 0.0
+        },
+        "marnie_kazuki_live": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        },
+        "mega_lucario_public": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        },
+        "ogerpon_cornerstone_public": {
+          "baseline_wins": 3,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 3,
+          "win_rate_delta": 0.0
+        },
+        "starmie_public": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "baseline_wins": 15,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 15,
+          "win_rate_delta": 0.0
+        },
+        "1": {
+          "baseline_wins": 12,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 12,
+          "win_rate_delta": 0.0
+        }
+      },
+      "by_seed": {
+        "731200750": {
+          "baseline_wins": 12,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 12,
+          "win_rate_delta": 0.0
+        },
+        "731200751": {
+          "baseline_wins": 15,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 15,
+          "win_rate_delta": 0.0
+        }
+      },
+      "comparison": "pre_to_post",
+      "conservative_paired_difference_95ci": {
+        "confidence_level": 0.95,
+        "coverage_note": "because |paired win-rate difference| cannot exceed the discordance probability, this interval has at least the stated coverage",
+        "discordance_probability_upper": 0.0893681989862648,
+        "lower": -0.0893681989862648,
+        "method": "conservative paired-difference interval from the exact one-sided Clopper-Pearson upper bound on discordance probability",
+        "observed_discordant_pairs": 0,
+        "upper": 0.0893681989862648
+      },
+      "exact_mcnemar": {
+        "discordant_pairs": 0,
+        "method": "exact two-sided McNemar/sign test on discordant pairs",
+        "p_value": 1.0
+      },
+      "matched_games": 32,
+      "no_opponent_paired_net_regression": true,
+      "no_seat_paired_net_regression": true,
+      "paired_bootstrap_95ci": {
+        "confidence_level": 0.95,
+        "estimate": 0.0,
+        "lower": 0.0,
+        "method": "exact percentile paired bootstrap over 32 matched-game differences",
+        "support_max": 0.0,
+        "support_min": 0.0,
+        "upper": 0.0
+      },
+      "paired_gains": 0,
+      "paired_losses": 0,
+      "paired_net_wins": 0,
+      "positive_paired_net": false,
+      "post_wins": 27,
+      "unchanged_losses": 5,
+      "unchanged_wins": 27,
+      "win_rate_delta": 0.0
+    },
+    "zero_to_post": {
+      "baseline_wins": 27,
+      "by_opponent": {
+        "alakazam_public": {
+          "baseline_wins": 3,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 3,
+          "win_rate_delta": 0.0
+        },
+        "alakazam_rmy_live": {
+          "baseline_wins": 2,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 2,
+          "win_rate_delta": 0.0
+        },
+        "dragapult_live": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        },
+        "historical_silver": {
+          "baseline_wins": 3,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 3,
+          "win_rate_delta": 0.0
+        },
+        "marnie_kazuki_live": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        },
+        "mega_lucario_public": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        },
+        "ogerpon_cornerstone_public": {
+          "baseline_wins": 3,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 3,
+          "win_rate_delta": 0.0
+        },
+        "starmie_public": {
+          "baseline_wins": 4,
+          "games": 4,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 4,
+          "win_rate_delta": 0.0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "baseline_wins": 15,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 15,
+          "win_rate_delta": 0.0
+        },
+        "1": {
+          "baseline_wins": 12,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 12,
+          "win_rate_delta": 0.0
+        }
+      },
+      "by_seed": {
+        "731200750": {
+          "baseline_wins": 12,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 12,
+          "win_rate_delta": 0.0
+        },
+        "731200751": {
+          "baseline_wins": 15,
+          "games": 16,
+          "paired_gains": 0,
+          "paired_losses": 0,
+          "paired_net_wins": 0,
+          "post_wins": 15,
+          "win_rate_delta": 0.0
+        }
+      },
+      "comparison": "zero_to_post",
+      "conservative_paired_difference_95ci": {
+        "confidence_level": 0.95,
+        "coverage_note": "because |paired win-rate difference| cannot exceed the discordance probability, this interval has at least the stated coverage",
+        "discordance_probability_upper": 0.0893681989862648,
+        "lower": -0.0893681989862648,
+        "method": "conservative paired-difference interval from the exact one-sided Clopper-Pearson upper bound on discordance probability",
+        "observed_discordant_pairs": 0,
+        "upper": 0.0893681989862648
+      },
+      "exact_mcnemar": {
+        "discordant_pairs": 0,
+        "method": "exact two-sided McNemar/sign test on discordant pairs",
+        "p_value": 1.0
+      },
+      "matched_games": 32,
+      "no_opponent_paired_net_regression": true,
+      "no_seat_paired_net_regression": true,
+      "paired_bootstrap_95ci": {
+        "confidence_level": 0.95,
+        "estimate": 0.0,
+        "lower": 0.0,
+        "method": "exact percentile paired bootstrap over 32 matched-game differences",
+        "support_max": 0.0,
+        "support_min": 0.0,
+        "upper": 0.0
+      },
+      "paired_gains": 0,
+      "paired_losses": 0,
+      "paired_net_wins": 0,
+      "positive_paired_net": false,
+      "post_wins": 27,
+      "unchanged_losses": 5,
+      "unchanged_wins": 27,
+      "win_rate_delta": 0.0
+    }
+  },
+  "schedule_validation": {
+    "all_arm_and_duplicate_key_sets_exactly_equal": true,
+    "expected_unique_keys": 32,
+    "key_definition": "(opponent_id, seat, seed)"
+  },
+  "spec": {
+    "analysis_mode": "exploratory_non_promotional",
+    "exploratory_gates": {
+      "continue_exact_configuration": "Post must have positive paired net wins versus both pre and zero, with no seat or opponent paired net regression.",
+      "failure_scope": "Failure does not reject RL; it only withholds support for continuing the exact same update configuration.",
+      "policy_effect": "Report action-trace and argmax changes; no post-hoc hard minimum is used.",
+      "runtime_safety": "Every arm must have 32 clean terminals, zero action errors, and zero max-step hits."
+    },
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/more_training_seed750_comparison_20260801.json",
+    "schedule": {
+      "device": "cpu",
+      "games_per_arm": 32,
+      "max_steps": 1000,
+      "opponent_population_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+      "opponents": 8,
+      "seats": [
+        0,
+        1
+      ],
+      "seeds": [
+        731200750,
+        731200751
+      ],
+      "timeout_seconds": 0.05
+    },
+    "sha256": "70B2CDAE9DA8CC8F0BFFA233E9849409186F52618932F3326C4B00AED9574766"
+  },
+  "trace_probability_comparisons": {
+    "pre_to_post": {
+      "aligned_final_action_changes_all_decisions": 1,
+      "aligned_ppo_argmax_change_rate": 0.0,
+      "aligned_ppo_decisions": 772,
+      "aligned_ppo_eligibility_mismatches": 0,
+      "aligned_ppo_final_action_changes": 1,
+      "aligned_ppo_nonunique_argmax_pairs": 0,
+      "aligned_ppo_probability_tv": {
+        "maximum": 0.0047972805808389795,
+        "mean": 0.0010213223907050552,
+        "median": 0.0007881699365070664,
+        "minimum": 1.6983856256806706e-05,
+        "q25": 0.00034570724549166346,
+        "q75": 0.001543579350883753
+      },
+      "aligned_ppo_probability_vectors_changed": 772,
+      "aligned_ppo_unique_argmax_changes": 0,
+      "alignment_rule": "same opponent-seat-seed and decision_index, with exact state_vector, action_vectors, effect_features, behavior_action_order_sha256, behavior_option_order, actor_option_mask, and legal_option_mask",
+      "baseline_ppo_eligible_decisions": 779,
+      "baseline_total_decisions": 1580,
+      "changed_action_trace_episodes": 1,
+      "comparison": "pre_to_post",
+      "decision_count_changed_episodes": 1,
+      "encoded_aligned_decision_slots": 1567,
+      "exact_action_trace_episodes": 31,
+      "exact_encoded_trajectory_episodes": 31,
+      "paired_decision_index_slots": 1577,
+      "post_ppo_eligible_decisions": 779,
+      "post_total_decisions": 1577,
+      "unmatched_decisions_from_count_difference": 3
+    },
+    "zero_to_post": {
+      "aligned_final_action_changes_all_decisions": 1,
+      "aligned_ppo_argmax_change_rate": 0.0,
+      "aligned_ppo_decisions": 772,
+      "aligned_ppo_eligibility_mismatches": 0,
+      "aligned_ppo_final_action_changes": 1,
+      "aligned_ppo_nonunique_argmax_pairs": 0,
+      "aligned_ppo_probability_tv": {
+        "maximum": 0.0058366004198449,
+        "mean": 0.0013551897340930864,
+        "median": 0.0011393013553084664,
+        "minimum": 2.8058111704436575e-05,
+        "q25": 0.0007949185563354011,
+        "q75": 0.0017294917386725113
+      },
+      "aligned_ppo_probability_vectors_changed": 772,
+      "aligned_ppo_unique_argmax_changes": 0,
+      "alignment_rule": "same opponent-seat-seed and decision_index, with exact state_vector, action_vectors, effect_features, behavior_action_order_sha256, behavior_option_order, actor_option_mask, and legal_option_mask",
+      "baseline_ppo_eligible_decisions": 779,
+      "baseline_total_decisions": 1580,
+      "changed_action_trace_episodes": 1,
+      "comparison": "zero_to_post",
+      "decision_count_changed_episodes": 1,
+      "encoded_aligned_decision_slots": 1567,
+      "exact_action_trace_episodes": 31,
+      "exact_encoded_trajectory_episodes": 31,
+      "paired_decision_index_slots": 1577,
+      "post_ppo_eligible_decisions": 779,
+      "post_total_decisions": 1577,
+      "unmatched_decisions_from_count_difference": 3
+    }
+  }
+}
