@@ -1,0 +1,61 @@
+{
+  "schema_version": "matched-epochs12-comparison-v1",
+  "created_date": "2026-08-01",
+  "analysis_mode": "exploratory_non_promotional",
+  "hypothesis": "Changing only fresh-batch PPO epochs from 4 to 12 produces observable and favorable paired outcomes without runtime or subgroup regression.",
+  "training": {
+    "input_checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+    "rollout_manifest_sha256": "AF9B1D29B873A9DB09EB5111F310927E077A5DC4EC3C972738814ED4A3C6BC7B",
+    "rollout_dataset_sha256": "41559FF57AB24F3CE7C8859F3470753D6990E52B6BDD94F357B95770AF8D0AFC",
+    "fresh_games": 32,
+    "ppo_rows": 748,
+    "epochs": 12,
+    "output_checkpoint_sha256": "27B57A8CE0A9A7862651732C850294E5ED48930563994CF3DE1320A40F7D0302"
+  },
+  "schedule": {
+    "opponent_population_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "opponents": 8,
+    "seats": [0, 1],
+    "seeds": [731200760, 731200761],
+    "games_per_arm": 32,
+    "max_steps": 1000,
+    "timeout_seconds": 0.05,
+    "device": "cpu"
+  },
+  "arms": {
+    "zero": {
+      "checkpoint_path": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+      "checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epochs12_eval_zero_seed760_20260801",
+      "manifest_sha256": "D04988C9072A51966FE78CEC7B557EF3425F849A84264BF481AFD259C535171D",
+      "dataset_sha256": "A9E2DB1B46C3B50A75FF8C7AFB6774D3C0F1CF8A942708BBC24BBCEE3FC962C7"
+    },
+    "pre": {
+      "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_005_20260801/trained.pt",
+      "checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epochs12_eval_pre_seed760_20260801",
+      "manifest_sha256": "A5295A808F2568E8F3FFB2FDF0BD28AAF69773EEEBD2FFB116AA81FD5B5D1F9C",
+      "dataset_sha256": "14803514F4CC3976DF4B793587E9729FD5018D67ED4649A4DFC10166B1750F37"
+    },
+    "post": {
+      "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_006_epochs12_20260801/trained.pt",
+      "checkpoint_sha256": "27B57A8CE0A9A7862651732C850294E5ED48930563994CF3DE1320A40F7D0302",
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epochs12_eval_post_seed760_20260801",
+      "manifest_sha256": "CE94A85FA6294AD96B2581BCDF0940FD837756B3678826BE98CA2752B9F53BBE",
+      "dataset_sha256": "41E1355123A4A5D1286C7A2C1C51ED76712CFF78C6E66C4E404D85CA6A438398"
+    }
+  },
+  "duplicate_control": {
+    "arm": "post",
+    "checkpoint_sha256": "27B57A8CE0A9A7862651732C850294E5ED48930563994CF3DE1320A40F7D0302",
+    "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epochs12_eval_post_seed760_duplicate_20260801",
+    "manifest_sha256": "9019AD9FD0E100F1086E7F1C708DE5A6E545AEDD241044F01C1F0AC0D48F2947",
+    "dataset_sha256": "8A9949CB62953E276DBF0B374B14152FB52F590D9BE95E1C8A9B612D96AC9416"
+  },
+  "gates": {
+    "runtime_safety": "Every arm and duplicate must have 32 clean terminals, zero action errors, and zero max-step hits.",
+    "continue_epochs12": "Post must have positive paired net wins versus pre and zero, with no negative opponent-seat cell delta.",
+    "policy_effect": "Report aligned probability TV, argmax, sampled-action, trace, and outcome changes.",
+    "failure_scope": "Failure rejects only continuing blind epoch increases; it does not reject RL."
+  }
+}

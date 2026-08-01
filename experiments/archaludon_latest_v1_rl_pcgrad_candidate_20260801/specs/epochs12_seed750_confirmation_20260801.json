@@ -1,0 +1,38 @@
+{
+  "schema_version": "epochs12-seed750-confirmation-v1",
+  "created_date": "2026-08-01",
+  "analysis_mode": "exploratory_confirmation_non_promotional",
+  "purpose": "Reuse the existing clean seed-750 zero and D376 arms and run only the new epochs-12 checkpoint, then combine with the separately bound seed-760 panel for 64 matched keys.",
+  "schedule": {
+    "opponents": 8,
+    "seats": [0, 1],
+    "seeds": [731200750, 731200751],
+    "games_per_arm": 32
+  },
+  "existing_arms": {
+    "zero": {
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_zero_seed750_20260801",
+      "checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "manifest_sha256": "332E1093654A5A228B9382F1770DEEB37C89BE6B72164ACCC1C422A48584BD8B",
+      "dataset_sha256": "1ADC94919DB726F21CE40295F09B4A72EE1947B3B764A3C66E726918C073E0BB"
+    },
+    "pre": {
+      "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/more_training_eval_post_seed750_20260801",
+      "checkpoint_sha256": "D376294BFB405224185828A6BAB1EAE8D17D57972B0A55CE922A700D10AAB5D4",
+      "manifest_sha256": "2F6D241FEFBA858611F9A8F440DA3F54122B02E724A1D1C8374BE806E912C5E4",
+      "dataset_sha256": "6D0EA78C0780EB3E2B5B3858C9CC661EB38706AD179B8E69FAE340001D91589D"
+    }
+  },
+  "new_post": {
+    "checkpoint_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/fresh_ppo_update_006_epochs12_20260801/trained.pt",
+    "checkpoint_sha256": "27B57A8CE0A9A7862651732C850294E5ED48930563994CF3DE1320A40F7D0302",
+    "raw_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epochs12_eval_post_seed750_confirmation_20260801",
+    "manifest_sha256": "50CCD6406EE5A1E8F3B40B3F477D4F94F4FBD579FBF420FF96CD0B64B6444B45",
+    "dataset_sha256": "7E0604C693DBD7702535DAE9CC2DC5B2ED737785276231F366AF5758A9A0F142",
+    "duplicate_output_path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/epochs12_eval_post_seed750_confirmation_duplicate_20260801",
+    "duplicate_manifest_sha256": "713B4C0A01BE2781A16D5DE0D45BA4BE853E640B7D007C7E44CEA5F7A078CB4A",
+    "duplicate_dataset_sha256": "C212F99353AF4990C798BAF149FCF80645CC46526F74BB39CC6A41AE6E015E04"
+  },
+  "precommitted_combined_gate": "Across the 64 seed-750 and seed-760 matched keys, post must have positive paired net wins versus both zero and pre, zero runtime errors/max-step hits, an exact duplicate control, and no Historical Silver paired-net regression.",
+  "failure_scope": "Failure stops blind epoch increases but does not reject RL. Passing supports another fresh epochs-12 update, not checkpoint promotion."
+}
