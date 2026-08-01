@@ -58,10 +58,8 @@ def _canonical_copy(payload: Mapping[str, Any]) -> dict[str, Any]:
 def canonical_preflight_configuration(
     *, require_zero_residuals: bool
 ) -> dict[str, Any]:
-    if require_zero_residuals is not True:
-        raise ValueError(
-            "collection-runtime-receipt-v1 requires exact zero residuals"
-        )
+    if not isinstance(require_zero_residuals, bool):
+        raise ValueError("require_zero_residuals must be boolean")
     return {
         "schema_version": PREFLIGHT_SCHEMA_VERSION,
         "prediction_calls": PREFLIGHT_PREDICTION_CALLS,
@@ -70,7 +68,7 @@ def canonical_preflight_configuration(
         "timeout_seconds": PREFLIGHT_TIMEOUT_SECONDS,
         "maximum_latency_seconds": PREFLIGHT_MAXIMUM_LATENCY_SECONDS,
         "finite_outputs_required": True,
-        "require_zero_residuals": True,
+        "require_zero_residuals": require_zero_residuals,
     }
 
 
@@ -162,7 +160,7 @@ def run_model_preflight(
 
     config = dict(configuration)
     expected_config = canonical_preflight_configuration(
-        require_zero_residuals=True
+        require_zero_residuals=config.get("require_zero_residuals")
     )
     if config != expected_config:
         raise ValueError("preflight configuration is not canonical")
@@ -247,7 +245,7 @@ def validate_preflight(
 ) -> None:
     config = dict(configuration)
     expected_config = canonical_preflight_configuration(
-        require_zero_residuals=True
+        require_zero_residuals=config.get("require_zero_residuals")
     )
     if config != expected_config:
         raise ValueError("runtime receipt preflight configuration mismatch")
@@ -356,7 +354,7 @@ def validate_preflight(
             or row_nonfinite != 0
             or row_above_timeout != 0
             or row_above_maximum != 0
-            or row_nonzero != 0
+            or (config["require_zero_residuals"] and row_nonzero != 0)
             or isinstance(row_maximum, bool)
             or not isinstance(row_maximum, (int, float))
             or not math.isfinite(float(row_maximum))
@@ -387,7 +385,7 @@ def validate_preflight(
         or above_timeout != 0
         or above_maximum != 0
         or float(maximum_latency) > float(config["maximum_latency_seconds"])
-        or nonzero != 0
+        or (config["require_zero_residuals"] and nonzero != 0)
     ):
         raise ValueError("runtime preflight aggregate gate failed")
 

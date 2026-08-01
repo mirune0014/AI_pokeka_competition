@@ -233,10 +233,15 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
         )
     if args.device != "cpu":
         raise ValueError("single-thread collection runtime requires device cpu")
-    if not args.preflight_require_zero_residuals:
+    require_zero_residuals = bool(args.preflight_require_zero_residuals)
+    allow_trained_residuals = bool(
+        getattr(args, "preflight_allow_trained_residuals", False)
+    )
+    if require_zero_residuals == allow_trained_residuals:
         raise ValueError(
-            "approved zero-checkpoint collection requires the explicit "
-            "--preflight-require-zero-residuals gate"
+            "collection requires exactly one preflight mode: "
+            "--preflight-require-zero-residuals or "
+            "--preflight-allow-trained-residuals"
         )
     configured_runtime = configure_single_thread_runtime()
     # Importing the checkpoint/model module imports Torch.  Keep that import
@@ -273,7 +278,7 @@ def collect(args: argparse.Namespace) -> dict[str, Any]:
         metadata["behavior_policy_schema_sha256"]
     )
     preflight_configuration = canonical_preflight_configuration(
-        require_zero_residuals=True
+        require_zero_residuals=require_zero_residuals
     )
     preflight_results = run_model_preflight(
         model,
@@ -519,6 +524,14 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "explicit fail-closed gate for the approved zero-residual "
             "behavior checkpoint"
+        ),
+    )
+    parser.add_argument(
+        "--preflight-allow-trained-residuals",
+        action="store_true",
+        help=(
+            "require finite, timely predictions while allowing learned "
+            "nonzero residuals"
         ),
     )
     return parser

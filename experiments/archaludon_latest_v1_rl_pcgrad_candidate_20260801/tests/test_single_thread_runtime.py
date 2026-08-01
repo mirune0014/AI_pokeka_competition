@@ -248,19 +248,17 @@ class SingleThreadRuntimeTests(unittest.TestCase):
         self.assertEqual(results["calls_above_timeout"], 0)
         self.assertLessEqual(results["maximum_latency_seconds"], 0.025)
 
-    def test_v1_preflight_cannot_disable_exact_zero_residuals(self):
-        with self.assertRaisesRegex(ValueError, "requires exact zero residuals"):
-            canonical_preflight_configuration(require_zero_residuals=False)
+    def test_trained_preflight_allows_finite_nonzero_residuals(self):
         configuration = canonical_preflight_configuration(
-            require_zero_residuals=True
+            require_zero_residuals=False
         )
-        configuration["require_zero_residuals"] = False
-        with self.assertRaisesRegex(ValueError, "configuration is not canonical"):
-            run_model_preflight(
-                _PreflightModel(residual=1.0),
-                configuration=configuration,
-                clock=_TickClock(0.001),
-            )
+        results = run_model_preflight(
+            _PreflightModel(residual=1.0),
+            configuration=configuration,
+            clock=_TickClock(0.001),
+        )
+        self.assertFalse(results["zero_residuals"])
+        self.assertGreater(results["nonzero_residual_count"], 0)
 
     def test_preflight_latency_finite_and_zero_residual_gates(self):
         configuration = canonical_preflight_configuration(
