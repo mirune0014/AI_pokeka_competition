@@ -1,0 +1,37 @@
+{
+  "schema_version": "locked-trajectory-split-v1",
+  "algorithm_id": "archaludon-episode-split-v1",
+  "selection_seed": "20260801",
+  "selection_digest": "001FDDF47C1B38C12FA053D4D1B58728294EFF7B150737274FCA80D57C179BBE",
+  "manifest_sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+  "dataset_sha256": "3D714FC248B597ADD412B1D9B4BAD60DDF6BDEB3DFA652264D763D7A843AC41B",
+  "validation_episode_ids": [
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_historical_silver_seat0_seed731200402",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_alakazam_public_seat1_seed731200401",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_alakazam_rmy_live_seat0_seed731200401",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_marnie_kazuki_live_seat1_seed731200401",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_mega_lucario_public_seat0_seed731200402",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_starmie_public_seat1_seed731200401",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_dragapult_live_seat0_seed731200402",
+    "phase1-iteration-004-temperature065-single-thread-20260731_opponent_ogerpon_cornerstone_public_seat1_seed731200402"
+  ],
+  "expected": {
+    "train_episode_count": 24,
+    "validation_episode_count": 8,
+    "train_ppo_row_count": 618,
+    "validation_ppo_row_count": 212,
+    "validation_opponent_count": 8,
+    "validation_seat_counts": {
+      "0": 4,
+      "1": 4
+    },
+    "validation_seed_counts": {
+      "731200401": 4,
+      "731200402": 4
+    },
+    "validation_outcome_counts": {
+      "loss": 2,
+      "win": 6
+    }
+  }
+}

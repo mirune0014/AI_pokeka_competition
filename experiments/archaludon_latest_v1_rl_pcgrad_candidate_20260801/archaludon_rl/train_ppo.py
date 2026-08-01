@@ -65,6 +65,7 @@ from .trajectory import (
     json_sha256,
     load_opponent_population_spec,
 )
+from .trajectory_split import load_locked_trajectory_split
 
 _RUN_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}")
 
@@ -1365,11 +1366,98 @@ def _mean_anchor_kl(
     return float(measured.detach().cpu())
 
 
+def _ppo_batch_objective(
+    model: Any,
+    rows: list[tuple[dict[str, Any], dict[str, Any]]],
+    advantages: Mapping[tuple[str, int], tuple[float, float]],
+    normalized_advantages: torch.Tensor,
+    *,
+    config: PPOConfig,
+    kl_coef: float,
+    device: str,
+    reference_config: ReferencePolicyConfig,
+) -> dict[str, torch.Tensor]:
+    """Build one PPO objective over exactly the supplied partition."""
+
+    if not rows or int(normalized_advantages.numel()) != len(rows):
+        raise ValueError("PPO batch rows/advantages mismatch")
+    losses: list[torch.Tensor] = []
+    kls: list[torch.Tensor] = []
+    entropies: list[torch.Tensor] = []
+    policy_losses: list[torch.Tensor] = []
+    value_losses: list[torch.Tensor] = []
+    ratios: list[torch.Tensor] = []
+    for row_index, (episode, row) in enumerate(rows):
+        state = torch.tensor(row["state_vector"], dtype=torch.float32, device=device)
+        actions = torch.tensor(
+            row["action_vectors"], dtype=torch.float32, device=device
+        )
+        residuals, value = model(state, actions)
+        probs, log_probs = _torch_behavior_distribution(
+            residuals,
+            teacher_index=int(row["teacher_action"][0]),
+            reference_config=reference_config,
+        )
+        anchor_kl = _torch_behavior_anchor_kl(
+            residuals,
+            teacher_index=int(row["teacher_action"][0]),
+            reference_config=reference_config,
+        )
+        selected = int(row["final_action"][0])
+        old_logprob = torch.tensor(
+            float(row["behavior_logprob"]), dtype=torch.float32, device=device
+        )
+        ratio = torch.exp(log_probs[selected] - old_logprob)
+        advantage = normalized_advantages[row_index]
+        unclipped = ratio * advantage
+        clipped = torch.clamp(
+            ratio, 1.0 - config.clip_ratio, 1.0 + config.clip_ratio
+        ) * advantage
+        policy_loss = -torch.minimum(unclipped, clipped)
+        target = advantages[
+            (str(episode["episode_id"]), int(row["decision_index"]))
+        ][1]
+        value_loss = (value - float(target)).pow(2)
+        entropy = -(probs * log_probs).sum()
+        loss = (
+            policy_loss
+            + config.value_coef * value_loss
+            - config.entropy_coef * entropy
+            + kl_coef * anchor_kl
+        )
+        losses.append(loss)
+        kls.append(anchor_kl)
+        entropies.append(entropy)
+        policy_losses.append(policy_loss)
+        value_losses.append(value_loss)
+        ratios.append(ratio)
+    result = {
+        "loss": torch.stack(losses).mean(),
+        "policy_loss": torch.stack(policy_losses).mean(),
+        "value_loss": torch.stack(value_losses).mean(),
+        "entropy": torch.stack(entropies).mean(),
+        "anchor_kl": torch.stack(kls).mean(),
+        "ratio_minimum": torch.stack(ratios).min(),
+        "ratio_maximum": torch.stack(ratios).max(),
+    }
+    if any(not torch.isfinite(value) for value in result.values()):
+        raise ValueError("non-finite PPO objective")
+    return result
+
+
+def _batch_report(batch: Mapping[str, torch.Tensor]) -> dict[str, float]:
+    return {
+        name: float(value.detach().cpu())
+        for name, value in batch.items()
+    }
+
+
 def train(
     *,
     input_checkpoint: Path,
     manifest_path: Path,
     output_checkpoint: Path,
+    split_spec_path: Path | None = None,
     config: PPOConfig | None = None,
     device: str = "cpu",
 ) -> dict[str, Any]:
@@ -1409,9 +1497,16 @@ def train(
         expected_behavior_policy_schema_sha256=behavior_hash,
     )
     source_hashes = current_source_hashes
-    episodes = list(dataset.episodes)
-    rows = _validate_rows(
-        episodes,
+    if split_spec_path is None:
+        split = None
+        train_episodes = list(dataset.episodes)
+        validation_episodes: list[dict[str, Any]] = []
+    else:
+        split = load_locked_trajectory_split(dataset, split_spec_path)
+        train_episodes = list(split.train_episodes)
+        validation_episodes = list(split.validation_episodes)
+    train_rows = _validate_rows(
+        train_episodes,
         checkpoint_sha256=input_hash,
         source_hashes=source_hashes,
         expected_encoder=metadata.get("encoder") or {},
@@ -1421,86 +1516,102 @@ def train(
         behavior_policy_receipt=behavior_receipt,
         behavior_policy_schema_sha256=behavior_hash,
     )
-    advantages = _gae(episodes, cfg)
-    advantage_values = torch.tensor(
+    validation_rows = (
+        _validate_rows(
+            validation_episodes,
+            checkpoint_sha256=input_hash,
+            source_hashes=source_hashes,
+            expected_encoder=metadata.get("encoder") or {},
+            behavior_model=model,
+            reference_prior_receipt=prior_receipt,
+            reference_prior_schema_sha256=prior_hash,
+            behavior_policy_receipt=behavior_receipt,
+            behavior_policy_schema_sha256=behavior_hash,
+        )
+        if validation_episodes
+        else []
+    )
+    train_advantages = _gae(train_episodes, cfg)
+    train_advantage_values = torch.tensor(
         [
-            advantages[(str(episode["episode_id"]), int(row["decision_index"]))][0]
-            for episode, row in rows
+            train_advantages[
+                (str(episode["episode_id"]), int(row["decision_index"]))
+            ][0]
+            for episode, row in train_rows
         ],
         dtype=torch.float32,
         device=device,
     )
-    advantage_mean = advantage_values.mean()
-    advantage_std = advantage_values.std(unbiased=False).clamp_min(1e-8)
-    normalized_advantages = (advantage_values - advantage_mean) / advantage_std
+    train_advantage_mean = train_advantage_values.mean()
+    train_advantage_std = train_advantage_values.std(unbiased=False).clamp_min(1e-8)
+    train_normalized_advantages = (
+        train_advantage_values - train_advantage_mean
+    ) / train_advantage_std
+    validation_advantages = _gae(validation_episodes, cfg) if validation_episodes else {}
+    if validation_rows:
+        validation_advantage_values = torch.tensor(
+            [
+                validation_advantages[
+                    (str(episode["episode_id"]), int(row["decision_index"]))
+                ][0]
+                for episode, row in validation_rows
+            ],
+            dtype=torch.float32,
+            device=device,
+        )
+        validation_advantage_mean = validation_advantage_values.mean()
+        validation_advantage_std = validation_advantage_values.std(
+            unbiased=False
+        ).clamp_min(1e-8)
+        validation_normalized_advantages = (
+            validation_advantage_values - validation_advantage_mean
+        ) / validation_advantage_std
+    else:
+        validation_normalized_advantages = torch.empty(
+            0, dtype=torch.float32, device=device
+        )
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.learning_rate)
     if optimizer_state is not None:
         optimizer.load_state_dict(optimizer_state)
     kl_coef = cfg.anchor_kl_initial_coef
     stopped_early = False
     epoch_reports: list[dict[str, float]] = []
+    validation_reports: list[dict[str, float]] = []
+    if validation_rows:
+        with torch.no_grad():
+            initial_validation = _ppo_batch_objective(
+                model,
+                validation_rows,
+                validation_advantages,
+                validation_normalized_advantages,
+                config=cfg,
+                kl_coef=kl_coef,
+                device=device,
+                reference_config=reference_config,
+            )
+        validation_reports.append(
+            {"after_epoch": -1.0, "kl_coef": kl_coef, **_batch_report(initial_validation)}
+        )
 
     for epoch in range(cfg.epochs):
         optimizer.zero_grad()
-        losses: list[torch.Tensor] = []
-        kls: list[torch.Tensor] = []
-        entropies: list[torch.Tensor] = []
-        policy_losses: list[torch.Tensor] = []
-        value_losses: list[torch.Tensor] = []
-        for row_index, (episode, row) in enumerate(rows):
-            state = torch.tensor(row["state_vector"], dtype=torch.float32, device=device)
-            actions = torch.tensor(
-                row["action_vectors"], dtype=torch.float32, device=device
-            )
-            residuals, value = model(state, actions)
-            probs, log_probs = _torch_behavior_distribution(
-                residuals,
-                teacher_index=int(row["teacher_action"][0]),
-                reference_config=reference_config,
-            )
-            anchor_kl = _torch_behavior_anchor_kl(
-                residuals,
-                teacher_index=int(row["teacher_action"][0]),
-                reference_config=reference_config,
-            )
-            selected = int(row["final_action"][0])
-            new_logprob = log_probs[selected]
-            old_logprob = torch.tensor(
-                float(row["behavior_logprob"]), dtype=torch.float32, device=device
-            )
-            ratio = torch.exp(new_logprob - old_logprob)
-            advantage = normalized_advantages[row_index]
-            unclipped = ratio * advantage
-            clipped = torch.clamp(
-                ratio, 1.0 - cfg.clip_ratio, 1.0 + cfg.clip_ratio
-            ) * advantage
-            policy_loss = -torch.minimum(unclipped, clipped)
-            target = advantages[
-                (str(episode["episode_id"]), int(row["decision_index"]))
-            ][1]
-            value_loss = (value - float(target)).pow(2)
-            entropy = -(probs * log_probs).sum()
-            loss = (
-                policy_loss
-                + cfg.value_coef * value_loss
-                - cfg.entropy_coef * entropy
-                + kl_coef * anchor_kl
-            )
-            losses.append(loss)
-            kls.append(anchor_kl)
-            entropies.append(entropy)
-            policy_losses.append(policy_loss)
-            value_losses.append(value_loss)
-        total_loss = torch.stack(losses).mean()
-        mean_kl = torch.stack(kls).mean()
-        if not torch.isfinite(total_loss) or not torch.isfinite(mean_kl):
-            raise ValueError("non-finite PPO objective")
-        if float(mean_kl.detach().cpu()) > cfg.anchor_kl_hard_stop:
+        train_batch = _ppo_batch_objective(
+            model,
+            train_rows,
+            train_advantages,
+            train_normalized_advantages,
+            config=cfg,
+            kl_coef=kl_coef,
+            device=device,
+            reference_config=reference_config,
+        )
+        total_loss = train_batch["loss"]
+        if float(train_batch["anchor_kl"].detach().cpu()) > cfg.anchor_kl_hard_stop:
             stopped_early = True
             epoch_reports.append(
                 {
                     "epoch": float(epoch),
-                    "anchor_kl": float(mean_kl.detach().cpu()),
+                    "anchor_kl": float(train_batch["anchor_kl"].detach().cpu()),
                     "early_stop": 1.0,
                 }
             )
@@ -1512,7 +1623,7 @@ def train(
         optimizer.step()
         measured_kl = _mean_anchor_kl(
             model,
-            rows,
+            train_rows,
             device=device,
             reference_config=reference_config,
         )
@@ -1532,16 +1643,32 @@ def train(
         epoch_reports.append(
             {
                 "epoch": float(epoch),
-                "loss": float(total_loss.detach().cpu()),
-                "policy_loss": float(torch.stack(policy_losses).mean().detach().cpu()),
-                "value_loss": float(torch.stack(value_losses).mean().detach().cpu()),
-                "entropy": float(torch.stack(entropies).mean().detach().cpu()),
+                **_batch_report(train_batch),
                 "anchor_kl": measured_kl,
                 "kl_coef": kl_coef,
                 "early_stop": 0.0,
                 "rolled_back": 0.0,
             }
         )
+        if validation_rows:
+            with torch.no_grad():
+                validation_batch = _ppo_batch_objective(
+                    model,
+                    validation_rows,
+                    validation_advantages,
+                    validation_normalized_advantages,
+                    config=cfg,
+                    kl_coef=kl_coef,
+                    device=device,
+                    reference_config=reference_config,
+                )
+            validation_reports.append(
+                {
+                    "after_epoch": float(epoch),
+                    "kl_coef": kl_coef,
+                    **_batch_report(validation_batch),
+                }
+            )
         if measured_kl > cfg.anchor_kl_target * 1.5:
             kl_coef *= 2.0
         elif measured_kl < cfg.anchor_kl_target / 1.5:
@@ -1574,11 +1701,25 @@ def train(
             ],
             "opponent_table": dataset.manifest["opponent_table"],
             "episode_receipts": dataset.manifest["episode_receipts"],
-            "on_policy_rows": len(rows),
+            "on_policy_rows": len(train_rows),
+            "train_episode_count": len(train_episodes),
+            "validation_episode_count": len(validation_episodes),
+            "train_on_policy_rows": len(train_rows),
+            "validation_on_policy_rows": len(validation_rows),
+            "total_on_policy_rows": len(train_rows) + len(validation_rows),
+            "trajectory_split": None if split is None else dict(split.receipt),
+            "advantage_normalization": {
+                "train_mean_float32": float(train_advantage_mean.detach().cpu()),
+                "train_std_float32": float(train_advantage_std.detach().cpu()),
+                "validation_domain": (
+                    None if not validation_rows else "validation_local"
+                ),
+            },
             "ppo_config": asdict(cfg),
             "stopped_early": stopped_early,
             "final_kl_coef": kl_coef,
             "epoch_reports": epoch_reports,
+            "validation_reports": validation_reports,
         },
     )
     output_hash = save_checkpoint(
@@ -1589,11 +1730,18 @@ def train(
         "output_checkpoint_sha256": output_hash,
         "manifest_sha256": dataset.manifest_sha256,
         "dataset_sha256": dataset.manifest["dataset_sha256"],
-        "on_policy_rows": len(rows),
+        "on_policy_rows": len(train_rows),
+        "train_episode_count": len(train_episodes),
+        "validation_episode_count": len(validation_episodes),
+        "train_on_policy_rows": len(train_rows),
+        "validation_on_policy_rows": len(validation_rows),
+        "total_on_policy_rows": len(train_rows) + len(validation_rows),
+        "trajectory_split": None if split is None else dict(split.receipt),
         "stopped_early": stopped_early,
         "behavior_policy_schema_sha256": behavior_hash,
         "anchor_kl_id": BEHAVIOR_ANCHOR_KL_ID,
         "epoch_reports": epoch_reports,
+        "validation_reports": validation_reports,
     }
 
 
@@ -1602,6 +1750,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input-checkpoint", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output-checkpoint", type=Path, required=True)
+    parser.add_argument("--split-spec", type=Path)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--epochs", type=int, default=PPOConfig.epochs)
     return parser
@@ -1614,6 +1763,7 @@ def main(argv: list[str] | None = None) -> int:
         input_checkpoint=args.input_checkpoint,
         manifest_path=args.manifest,
         output_checkpoint=args.output_checkpoint,
+        split_spec_path=args.split_spec,
         config=config,
         device=args.device,
     )
