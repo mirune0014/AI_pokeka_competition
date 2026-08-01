@@ -1,0 +1,44 @@
+{
+  "schema_version": "complete-action-candidate-gate-spec-v1",
+  "experiment_id": "archaludon-complete-action-existing-data-gate-20260802",
+  "created_date": "2026-08-02",
+  "objective": "Replace only the actor action-output unit with complete legal engine actions, then test representability and practicality on the existing teacher data before any new rollout or BC.",
+  "fixed_constraints": {
+    "state_encoder_changed": false,
+    "reward_changed": false,
+    "ppo_changed_or_run": false,
+    "pcgrad_changed_or_run": false,
+    "teacher_fallback_for_missing_candidate": false,
+    "candidate_unit": "one complete engine list[int] action",
+    "unordered_multiple_selection": "canonical semantic option identity multiset",
+    "multiple_selection_encoding": "sum set pooling of selected option embeddings",
+    "final_selection": "softmax over complete-action candidate indices"
+  },
+  "inputs": {
+    "episodes_dir": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731/rollouts/episodes",
+    "episode_count": 32,
+    "decision_count": 1685,
+    "teacher_rollout_manifest_sha256": "30BF22BE56E73E8790A40135DD78080217FFAB7598D9646887FD8742D0FCF393",
+    "initial_checkpoint": "analysis_outputs/archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731/initial_zero_temperature065.pt",
+    "initial_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04"
+  },
+  "reported_metrics": [
+    "candidate count median, p95, p99, maximum",
+    "teacher canonical representability rate",
+    "optional and multiple teacher-action rates",
+    "duplicate canonical action count",
+    "candidate generation time",
+    "inference tensor memory"
+  ],
+  "pass_thresholds": {
+    "teacher_canonical_representability_rate": 1.0,
+    "maximum_candidate_count": 4096,
+    "p99_candidate_count": 1024,
+    "p99_candidate_generation_ms": 10.0,
+    "maximum_variable_inference_tensor_mib": 64.0
+  },
+  "conditional_next_step": {
+    "on_pass": "prepare and collect 2000 new teacher-rule games across 8 opponents, both seats, and dispersed seeds",
+    "on_fail": "stop before new rollout and fix complete-action representability"
+  }
+}
