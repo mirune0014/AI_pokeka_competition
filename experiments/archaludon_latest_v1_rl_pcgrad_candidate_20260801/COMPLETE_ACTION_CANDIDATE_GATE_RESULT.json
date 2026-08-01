@@ -1,0 +1,124 @@
+{
+  "schema_version": "complete-action-existing-data-gate-v1",
+  "generated_at_utc": "2026-08-01T16:49:45.705792+00:00",
+  "status": "passed",
+  "scope": {
+    "read_only_existing_data": true,
+    "new_rollout_collected": false,
+    "bc_training_performed": false,
+    "ppo_training_performed": false,
+    "state_encoder_changed": false,
+    "reward_changed": false,
+    "episode_count": 32,
+    "decision_count": 1685
+  },
+  "action_structure": {
+    "schema_version": "complete-legal-action-candidate-v1",
+    "unit": "one_complete_engine_list_int_action",
+    "unordered_canonicalization": "sorted semantic option identity multiset",
+    "set_pooling": "sum_of_selected_option_embeddings",
+    "teacher_fallback_on_missing": false,
+    "missing_teacher_action_is_representability_failure": true
+  },
+  "inputs": {
+    "episodes_dir": "..\\..\\analysis_outputs\\archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731\\rollouts\\episodes",
+    "checkpoint_path": "..\\..\\analysis_outputs\\archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731\\initial_zero_temperature065.pt",
+    "checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04"
+  },
+  "candidate_counts_after_canonical_deduplication": {
+    "median": 4.0,
+    "p95": 11.0,
+    "p99": 15.0,
+    "maximum": 25.0,
+    "total": 7478
+  },
+  "candidate_counts_before_canonical_deduplication": {
+    "median": 5.0,
+    "p95": 15.0,
+    "p99": 35.0,
+    "maximum": 176.0,
+    "total": 11462
+  },
+  "teacher_representability": {
+    "canonical_action_present_count": 1685,
+    "canonical_action_present_rate": 1.0,
+    "exact_representative_engine_tuple_count": 1628,
+    "exact_representative_engine_tuple_rate": 0.9661721068249258,
+    "representability_failure_count": 0,
+    "failure_examples": [],
+    "interpretation": "Canonical-equivalent actions are one candidate by design; exact duplicate-card indices and unordered permutations need not equal the retained representative."
+  },
+  "teacher_action_surface": {
+    "optional_surface_count": 164,
+    "optional_surface_rate": 0.0973293768545994,
+    "optional_empty_teacher_action_count": 14,
+    "optional_empty_teacher_action_rate": 0.00830860534124629,
+    "multiple_selection_teacher_action_count": 198,
+    "multiple_selection_teacher_action_rate": 0.11750741839762611,
+    "optional_or_multiple_count": 346,
+    "optional_or_multiple_rate": 0.2053412462908012,
+    "teacher_action_family_counts": {
+      "0": 10,
+      "1": 57,
+      "10": 1,
+      "12": 17,
+      "13": 144,
+      "14": 54,
+      "2": 31,
+      "3": 679,
+      "6": 30,
+      "7": 447,
+      "8": 133,
+      "9": 68,
+      "empty": 14
+    },
+    "order_sensitive_surface_count": 0
+  },
+  "canonical_duplicates": {
+    "duplicate_canonical_action_count": 3984,
+    "rows_with_duplicate_canonical_actions": 814,
+    "row_rate": 0.4830860534124629
+  },
+  "candidate_generation_time_ms": {
+    "median": 0.0458,
+    "p95": 0.1262,
+    "p99": 0.3385,
+    "maximum": 6.3482,
+    "total": 103.85400000000004
+  },
+  "scorer_inference_time_ms_cpu_single_thread": {
+    "median": 0.1958,
+    "p95": 0.4055,
+    "p99": 0.6217,
+    "maximum": 3.5642,
+    "total": 377.02440000000024
+  },
+  "inference_memory": {
+    "method": "analytical_live_float32_tensor_upper_bound_excluding_python_metadata_and_allocator_cache",
+    "model_parameter_bytes": 229256,
+    "model_parameter_mib": 0.21863555908203125,
+    "variable_tensor_bytes": {
+      "median": 10208.0,
+      "p95": 26288.0,
+      "p99": 32048.0,
+      "maximum": 49212.0
+    },
+    "maximum_variable_tensor_mib": 0.046932220458984375,
+    "maximum_model_plus_variable_mib": 0.2655677795410156
+  },
+  "gate_thresholds": {
+    "maximum_candidate_count": 4096,
+    "p99_candidate_count": 1024,
+    "p99_generation_ms": 10.0,
+    "maximum_variable_tensor_mib": 64.0
+  },
+  "gate": {
+    "teacher_canonical_representability_100_percent": true,
+    "maximum_candidate_count_at_most_threshold": true,
+    "p99_candidate_count_at_most_threshold": true,
+    "p99_generation_ms_at_most_threshold": true,
+    "maximum_variable_tensor_mib_at_most_threshold": true,
+    "overall_pass": true
+  },
+  "next_step": "collect_new_2000_teacher_games"
+}
