@@ -1,0 +1,1121 @@
+{
+  "schema_version": "archaludon-independent-bc-actor-result-v1",
+  "experiment_id": "archaludon-independent-bc-actor-3seeds-20260802",
+  "generated_at_utc": "2026-08-01T15:56:07.188393+00:00",
+  "material_passport": {
+    "origin_skill": "experiment-agent",
+    "origin_mode": "run",
+    "origin_date": "2026-08-02",
+    "verification_status": "VERIFIED",
+    "version_label": "exp_result_v1"
+  },
+  "status": "completed_failed_provisional_gate",
+  "scope": {
+    "new_teacher_rollout_collected": false,
+    "ppo_training_performed": false,
+    "pcgrad_used": false,
+    "reward_changed": false,
+    "actor_representation_changed": false,
+    "teacher_fixed_margin_used": false,
+    "training_seeds": [
+      2026080201,
+      2026080202,
+      2026080203
+    ],
+    "fixed_games_per_seed": 320
+  },
+  "receipts": {
+    "spec": {
+      "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/bc_actor_minimal_v1_20260802.json",
+      "sha256": "1B217BE00D4CF747EC846C35FFF1A49A72F216C53F6BA40BBEDD4F895CC3C390"
+    },
+    "evaluation_summary": {
+      "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/bc_actor_minimal_20260802/fixed_evaluation/evaluation_summary.json",
+      "sha256": "E81D894651420B633B321DE2D57F55E5213679D6307FEA361F9CA58ABB4DA4A0"
+    },
+    "training_reports": [
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/bc_actor_minimal_20260802/training/bc_seed2026080201.json",
+        "sha256": "11FEFF8C858D93D9B00FD1A3D5E46BC384C5784A5F14FC04DA72EECC522DF086"
+      },
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/bc_actor_minimal_20260802/training/bc_seed2026080202.json",
+        "sha256": "8E7FDD76833CE604AE8217BCFDE0472DC621E065763B23DB8008A6AB9F96B718"
+      },
+      {
+        "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/test_outputs/bc_actor_minimal_20260802/training/bc_seed2026080203.json",
+        "sha256": "C0B79D75BD3932F198737DFACCCED64418021050EE66351D5FA5BF8188BDEDB1"
+      }
+    ]
+  },
+  "dataset": {
+    "train_episodes": 24,
+    "validation_episodes": 8,
+    "episode_overlap_count": 0,
+    "train_supervised_rows": 955,
+    "validation_supervised_rows": 347,
+    "train_excluded": {
+      "fewer_than_two_options": 122,
+      "teacher_action_not_single_index": 151
+    },
+    "validation_excluded": {
+      "fewer_than_two_options": 49,
+      "teacher_action_not_single_index": 61
+    },
+    "additional_rollout": false
+  },
+  "offline_seed_results": [
+    {
+      "seed": 2026080201,
+      "checkpoint": {
+        "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\experiments\\archaludon_latest_v1_rl_pcgrad_candidate_20260801\\test_outputs\\bc_actor_minimal_20260802\\checkpoints\\bc_seed2026080201.pt",
+        "sha256": "683B8929400286C52B0265393292E2DB2C82675A3CA7F2159E80A397319417FB",
+        "actor_state_sha256": "C802D22F7045000446C1F10827D1357F809952AE6B8BC02F86F8378C0D19AE6C",
+        "future_ppo_kl_reference": true,
+        "reload_actor_state_sha256": "C802D22F7045000446C1F10827D1357F809952AE6B8BC02F86F8378C0D19AE6C",
+        "reload_predictions_match": true,
+        "metadata_training": {
+          "schema_version": "behavior-cloning-training-v1",
+          "algorithm": "teacher_action_behavior_cloning",
+          "actor_logits_only": true,
+          "teacher_fixed_margin": 0.0,
+          "legal_action_mask": true,
+          "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+          "dataset_sha256": "E1E22BC69390469739ED6A34EFAA5473D6DA88256D55ADC5A29B0501599E11EC",
+          "split_spec_sha256": "67435BD52C0B6F0693A33C1855AC2BC7B5C212D444E19ADE453DE50BFCB8FE23",
+          "seed": 2026080201,
+          "epochs": 120,
+          "batch_size": 64,
+          "learning_rate": 0.001,
+          "actor_state_sha256": "C802D22F7045000446C1F10827D1357F809952AE6B8BC02F86F8378C0D19AE6C",
+          "future_ppo_kl_reference": true,
+          "value_head_used": false
+        }
+      },
+      "train_teacher_top1_accuracy": 0.987434554973822,
+      "validation_teacher_top1_correct": 238,
+      "validation_rows": 347,
+      "validation_teacher_top1_accuracy": 0.6858789625360231,
+      "cross_entropy": 2.42344065289676,
+      "entropy": 0.39229285820073284,
+      "illegal_action_count": 0,
+      "offline_fallback_count": 0,
+      "locked_validation_rows": 212,
+      "locked_validation_teacher_argmax_matches": 137,
+      "locked_validation_teacher_argmax_accuracy": 0.6462264150943396,
+      "by_option_type": {
+        "0": {
+          "rows": 3,
+          "teacher_top1_correct": 3,
+          "teacher_top1_accuracy": 1.0
+        },
+        "1": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "2": {
+          "rows": 8,
+          "teacher_top1_correct": 8,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 95,
+          "teacher_top1_correct": 67,
+          "teacher_top1_accuracy": 0.7052631578947368
+        },
+        "6": {
+          "rows": 8,
+          "teacher_top1_correct": 6,
+          "teacher_top1_accuracy": 0.75
+        },
+        "7": {
+          "rows": 126,
+          "teacher_top1_correct": 87,
+          "teacher_top1_accuracy": 0.6904761904761905
+        },
+        "8": {
+          "rows": 29,
+          "teacher_top1_correct": 14,
+          "teacher_top1_accuracy": 0.4827586206896552
+        },
+        "9": {
+          "rows": 19,
+          "teacher_top1_correct": 10,
+          "teacher_top1_accuracy": 0.5263157894736842
+        },
+        "12": {
+          "rows": 4,
+          "teacher_top1_correct": 1,
+          "teacher_top1_accuracy": 0.25
+        },
+        "13": {
+          "rows": 34,
+          "teacher_top1_correct": 23,
+          "teacher_top1_accuracy": 0.6764705882352942
+        },
+        "14": {
+          "rows": 5,
+          "teacher_top1_correct": 3,
+          "teacher_top1_accuracy": 0.6
+        }
+      },
+      "major_family_validation": {
+        "1": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 95,
+          "teacher_top1_correct": 67,
+          "teacher_top1_accuracy": 0.7052631578947368
+        },
+        "7": {
+          "rows": 126,
+          "teacher_top1_correct": 87,
+          "teacher_top1_accuracy": 0.6904761904761905
+        },
+        "8": {
+          "rows": 29,
+          "teacher_top1_correct": 14,
+          "teacher_top1_accuracy": 0.4827586206896552
+        },
+        "9": {
+          "rows": 19,
+          "teacher_top1_correct": 10,
+          "teacher_top1_accuracy": 0.5263157894736842
+        },
+        "13": {
+          "rows": 34,
+          "teacher_top1_correct": 23,
+          "teacher_top1_accuracy": 0.6764705882352942
+        }
+      },
+      "offline_provisional_pass": false
+    },
+    {
+      "seed": 2026080202,
+      "checkpoint": {
+        "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\experiments\\archaludon_latest_v1_rl_pcgrad_candidate_20260801\\test_outputs\\bc_actor_minimal_20260802\\checkpoints\\bc_seed2026080202.pt",
+        "sha256": "FB752B158A86B19EBC669FF76B3D39D82A9D6E7BC82BD884DD2FADC16651CF53",
+        "actor_state_sha256": "F63294FAD8308F0E68182391E355919D782F03E898DFEFAD36475C66F9F0393B",
+        "future_ppo_kl_reference": true,
+        "reload_actor_state_sha256": "F63294FAD8308F0E68182391E355919D782F03E898DFEFAD36475C66F9F0393B",
+        "reload_predictions_match": true,
+        "metadata_training": {
+          "schema_version": "behavior-cloning-training-v1",
+          "algorithm": "teacher_action_behavior_cloning",
+          "actor_logits_only": true,
+          "teacher_fixed_margin": 0.0,
+          "legal_action_mask": true,
+          "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+          "dataset_sha256": "E1E22BC69390469739ED6A34EFAA5473D6DA88256D55ADC5A29B0501599E11EC",
+          "split_spec_sha256": "67435BD52C0B6F0693A33C1855AC2BC7B5C212D444E19ADE453DE50BFCB8FE23",
+          "seed": 2026080202,
+          "epochs": 120,
+          "batch_size": 64,
+          "learning_rate": 0.001,
+          "actor_state_sha256": "F63294FAD8308F0E68182391E355919D782F03E898DFEFAD36475C66F9F0393B",
+          "future_ppo_kl_reference": true,
+          "value_head_used": false
+        }
+      },
+      "train_teacher_top1_accuracy": 0.9842931937172775,
+      "validation_teacher_top1_correct": 244,
+      "validation_rows": 347,
+      "validation_teacher_top1_accuracy": 0.7031700288184438,
+      "cross_entropy": 2.1758644038043724,
+      "entropy": 0.41535252178093196,
+      "illegal_action_count": 0,
+      "offline_fallback_count": 0,
+      "locked_validation_rows": 212,
+      "locked_validation_teacher_argmax_matches": 144,
+      "locked_validation_teacher_argmax_accuracy": 0.6792452830188679,
+      "by_option_type": {
+        "0": {
+          "rows": 3,
+          "teacher_top1_correct": 3,
+          "teacher_top1_accuracy": 1.0
+        },
+        "1": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "2": {
+          "rows": 8,
+          "teacher_top1_correct": 8,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 95,
+          "teacher_top1_correct": 63,
+          "teacher_top1_accuracy": 0.6631578947368421
+        },
+        "6": {
+          "rows": 8,
+          "teacher_top1_correct": 7,
+          "teacher_top1_accuracy": 0.875
+        },
+        "7": {
+          "rows": 126,
+          "teacher_top1_correct": 89,
+          "teacher_top1_accuracy": 0.7063492063492064
+        },
+        "8": {
+          "rows": 29,
+          "teacher_top1_correct": 17,
+          "teacher_top1_accuracy": 0.5862068965517241
+        },
+        "9": {
+          "rows": 19,
+          "teacher_top1_correct": 9,
+          "teacher_top1_accuracy": 0.47368421052631576
+        },
+        "12": {
+          "rows": 4,
+          "teacher_top1_correct": 1,
+          "teacher_top1_accuracy": 0.25
+        },
+        "13": {
+          "rows": 34,
+          "teacher_top1_correct": 27,
+          "teacher_top1_accuracy": 0.7941176470588235
+        },
+        "14": {
+          "rows": 5,
+          "teacher_top1_correct": 4,
+          "teacher_top1_accuracy": 0.8
+        }
+      },
+      "major_family_validation": {
+        "1": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 95,
+          "teacher_top1_correct": 63,
+          "teacher_top1_accuracy": 0.6631578947368421
+        },
+        "7": {
+          "rows": 126,
+          "teacher_top1_correct": 89,
+          "teacher_top1_accuracy": 0.7063492063492064
+        },
+        "8": {
+          "rows": 29,
+          "teacher_top1_correct": 17,
+          "teacher_top1_accuracy": 0.5862068965517241
+        },
+        "9": {
+          "rows": 19,
+          "teacher_top1_correct": 9,
+          "teacher_top1_accuracy": 0.47368421052631576
+        },
+        "13": {
+          "rows": 34,
+          "teacher_top1_correct": 27,
+          "teacher_top1_accuracy": 0.7941176470588235
+        }
+      },
+      "offline_provisional_pass": false
+    },
+    {
+      "seed": 2026080203,
+      "checkpoint": {
+        "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\experiments\\archaludon_latest_v1_rl_pcgrad_candidate_20260801\\test_outputs\\bc_actor_minimal_20260802\\checkpoints\\bc_seed2026080203.pt",
+        "sha256": "8794714EF2DEF7C925E77CB694AA2C3EBD00A96231595F2AA780EBB9C5DB877C",
+        "actor_state_sha256": "C724049D6A8E23134D5C7DFDAA046F5CCDCB40D2097D4403A76C40A4DB2E676E",
+        "future_ppo_kl_reference": true,
+        "reload_actor_state_sha256": "C724049D6A8E23134D5C7DFDAA046F5CCDCB40D2097D4403A76C40A4DB2E676E",
+        "reload_predictions_match": true,
+        "metadata_training": {
+          "schema_version": "behavior-cloning-training-v1",
+          "algorithm": "teacher_action_behavior_cloning",
+          "actor_logits_only": true,
+          "teacher_fixed_margin": 0.0,
+          "legal_action_mask": true,
+          "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+          "dataset_sha256": "E1E22BC69390469739ED6A34EFAA5473D6DA88256D55ADC5A29B0501599E11EC",
+          "split_spec_sha256": "67435BD52C0B6F0693A33C1855AC2BC7B5C212D444E19ADE453DE50BFCB8FE23",
+          "seed": 2026080203,
+          "epochs": 120,
+          "batch_size": 64,
+          "learning_rate": 0.001,
+          "actor_state_sha256": "C724049D6A8E23134D5C7DFDAA046F5CCDCB40D2097D4403A76C40A4DB2E676E",
+          "future_ppo_kl_reference": true,
+          "value_head_used": false
+        }
+      },
+      "train_teacher_top1_accuracy": 0.9863874345549738,
+      "validation_teacher_top1_correct": 232,
+      "validation_rows": 347,
+      "validation_teacher_top1_accuracy": 0.6685878962536023,
+      "cross_entropy": 2.5219026724955533,
+      "entropy": 0.43884557674528885,
+      "illegal_action_count": 0,
+      "offline_fallback_count": 0,
+      "locked_validation_rows": 212,
+      "locked_validation_teacher_argmax_matches": 131,
+      "locked_validation_teacher_argmax_accuracy": 0.6179245283018868,
+      "by_option_type": {
+        "0": {
+          "rows": 3,
+          "teacher_top1_correct": 3,
+          "teacher_top1_accuracy": 1.0
+        },
+        "1": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "2": {
+          "rows": 8,
+          "teacher_top1_correct": 8,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 95,
+          "teacher_top1_correct": 66,
+          "teacher_top1_accuracy": 0.6947368421052632
+        },
+        "6": {
+          "rows": 8,
+          "teacher_top1_correct": 5,
+          "teacher_top1_accuracy": 0.625
+        },
+        "7": {
+          "rows": 126,
+          "teacher_top1_correct": 86,
+          "teacher_top1_accuracy": 0.6825396825396826
+        },
+        "8": {
+          "rows": 29,
+          "teacher_top1_correct": 15,
+          "teacher_top1_accuracy": 0.5172413793103449
+        },
+        "9": {
+          "rows": 19,
+          "teacher_top1_correct": 8,
+          "teacher_top1_accuracy": 0.42105263157894735
+        },
+        "12": {
+          "rows": 4,
+          "teacher_top1_correct": 0,
+          "teacher_top1_accuracy": 0.0
+        },
+        "13": {
+          "rows": 34,
+          "teacher_top1_correct": 22,
+          "teacher_top1_accuracy": 0.6470588235294118
+        },
+        "14": {
+          "rows": 5,
+          "teacher_top1_correct": 3,
+          "teacher_top1_accuracy": 0.6
+        }
+      },
+      "major_family_validation": {
+        "1": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 95,
+          "teacher_top1_correct": 66,
+          "teacher_top1_accuracy": 0.6947368421052632
+        },
+        "7": {
+          "rows": 126,
+          "teacher_top1_correct": 86,
+          "teacher_top1_accuracy": 0.6825396825396826
+        },
+        "8": {
+          "rows": 29,
+          "teacher_top1_correct": 15,
+          "teacher_top1_accuracy": 0.5172413793103449
+        },
+        "9": {
+          "rows": 19,
+          "teacher_top1_correct": 8,
+          "teacher_top1_accuracy": 0.42105263157894735
+        },
+        "13": {
+          "rows": 34,
+          "teacher_top1_correct": 22,
+          "teacher_top1_accuracy": 0.6470588235294118
+        }
+      },
+      "offline_provisional_pass": false
+    }
+  ],
+  "offline_seed_variability": {
+    "validation_teacher_top1_accuracy": {
+      "mean": 0.6858789625360231,
+      "population_stddev": 0.01411809650019125,
+      "minimum": 0.6685878962536023,
+      "maximum": 0.7031700288184438
+    },
+    "cross_entropy": {
+      "mean": 2.3737359097322286,
+      "population_stddev": 0.1455759640634092,
+      "minimum": 2.1758644038043724,
+      "maximum": 2.5219026724955533
+    },
+    "entropy": {
+      "mean": 0.41549698557565123,
+      "population_stddev": 0.01900534228952745,
+      "minimum": 0.39229285820073284,
+      "maximum": 0.43884557674528885
+    },
+    "locked_validation_teacher_argmax_accuracy": {
+      "mean": 0.6477987421383647,
+      "population_stddev": 0.02505876957627234,
+      "minimum": 0.6179245283018868,
+      "maximum": 0.6792452830188679
+    },
+    "train_teacher_top1_accuracy": {
+      "mean": 0.9860383944153578,
+      "population_stddev": 0.0013059886166750226,
+      "minimum": 0.9842931937172775,
+      "maximum": 0.987434554973822
+    }
+  },
+  "major_family_seed_variability": {
+    "1": {
+      "rows_per_seed": [
+        16,
+        16,
+        16
+      ],
+      "accuracy": {
+        "mean": 1.0,
+        "population_stddev": 0.0,
+        "minimum": 1.0,
+        "maximum": 1.0
+      },
+      "all_seeds_at_least_95_percent": true
+    },
+    "3": {
+      "rows_per_seed": [
+        95,
+        95,
+        95
+      ],
+      "accuracy": {
+        "mean": 0.6877192982456141,
+        "population_stddev": 0.01789129653892207,
+        "minimum": 0.6631578947368421,
+        "maximum": 0.7052631578947368
+      },
+      "all_seeds_at_least_95_percent": false
+    },
+    "7": {
+      "rows_per_seed": [
+        126,
+        126,
+        126
+      ],
+      "accuracy": {
+        "mean": 0.6931216931216931,
+        "population_stddev": 0.009898564515274991,
+        "minimum": 0.6825396825396826,
+        "maximum": 0.7063492063492064
+      },
+      "all_seeds_at_least_95_percent": false
+    },
+    "8": {
+      "rows_per_seed": [
+        29,
+        29,
+        29
+      ],
+      "accuracy": {
+        "mean": 0.5287356321839081,
+        "population_stddev": 0.043007556169815386,
+        "minimum": 0.4827586206896552,
+        "maximum": 0.5862068965517241
+      },
+      "all_seeds_at_least_95_percent": false
+    },
+    "9": {
+      "rows_per_seed": [
+        19,
+        19,
+        19
+      ],
+      "accuracy": {
+        "mean": 0.47368421052631576,
+        "population_stddev": 0.042973504259354,
+        "minimum": 0.42105263157894735,
+        "maximum": 0.5263157894736842
+      },
+      "all_seeds_at_least_95_percent": false
+    },
+    "13": {
+      "rows_per_seed": [
+        34,
+        34,
+        34
+      ],
+      "accuracy": {
+        "mean": 0.7058823529411765,
+        "population_stddev": 0.06353667351380252,
+        "minimum": 0.6470588235294118,
+        "maximum": 0.7941176470588235
+      },
+      "all_seeds_at_least_95_percent": false
+    }
+  },
+  "iteration004_baseline": {
+    "arm_id": "iteration004",
+    "by_opponent": {
+      "alakazam_public": {
+        "action_errors": 0,
+        "decision_count": 2253,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 11.975,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.825,
+        "wins": 33
+      },
+      "alakazam_rmy_live": {
+        "action_errors": 0,
+        "decision_count": 1964,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 10.675,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.9,
+        "wins": 36
+      },
+      "dragapult_live": {
+        "action_errors": 0,
+        "decision_count": 1841,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 11.1,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.85,
+        "wins": 34
+      },
+      "historical_silver": {
+        "action_errors": 0,
+        "decision_count": 2245,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 13.475,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.575,
+        "wins": 23
+      },
+      "marnie_kazuki_live": {
+        "action_errors": 0,
+        "decision_count": 2377,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 13.5,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.85,
+        "wins": 34
+      },
+      "mega_lucario_public": {
+        "action_errors": 0,
+        "decision_count": 2143,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 12.575,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.975,
+        "wins": 39
+      },
+      "ogerpon_cornerstone_public": {
+        "action_errors": 0,
+        "decision_count": 1744,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 13.95,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.675,
+        "wins": 27
+      },
+      "starmie_public": {
+        "action_errors": 0,
+        "decision_count": 2000,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 11.65,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.875,
+        "wins": 35
+      }
+    },
+    "by_seat": {
+      "0": {
+        "action_errors": 0,
+        "decision_count": 8471,
+        "games": 160,
+        "max_step_hits": 0,
+        "mean_turns": 12.65,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.825,
+        "wins": 132
+      },
+      "1": {
+        "action_errors": 0,
+        "decision_count": 8096,
+        "games": 160,
+        "max_step_hits": 0,
+        "mean_turns": 12.075,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.80625,
+        "wins": 129
+      }
+    },
+    "checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+    "epochs": 0,
+    "overall": {
+      "action_errors": 0,
+      "decision_count": 16567,
+      "games": 320,
+      "max_step_hits": 0,
+      "mean_turns": 12.3625,
+      "paired_delta_win_rate": 0.0,
+      "paired_delta_wins": 0,
+      "severe_abnormal_action_rate": 0.0,
+      "severe_abnormal_actions": 0,
+      "win_rate": 0.815625,
+      "wins": 261
+    },
+    "replicate": "baseline",
+    "training_seed_base": null
+  },
+  "fixed_320_seed_results": [
+    {
+      "seed": 2026080201,
+      "checkpoint_sha256": "683B8929400286C52B0265393292E2DB2C82675A3CA7F2159E80A397319417FB",
+      "overall": {
+        "games": 320,
+        "wins": 169,
+        "win_rate": 0.528125,
+        "mean_turns": 14.51875,
+        "action_errors": 0,
+        "max_step_hits": 0
+      },
+      "by_opponent": {
+        "alakazam_public": {
+          "games": 40,
+          "wins": 23,
+          "win_rate": 0.575,
+          "mean_turns": 14.1,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "alakazam_rmy_live": {
+          "games": 40,
+          "wins": 18,
+          "win_rate": 0.45,
+          "mean_turns": 10.55,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "dragapult_live": {
+          "games": 40,
+          "wins": 30,
+          "win_rate": 0.75,
+          "mean_turns": 15.55,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "historical_silver": {
+          "games": 40,
+          "wins": 6,
+          "win_rate": 0.15,
+          "mean_turns": 14.85,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "marnie_kazuki_live": {
+          "games": 40,
+          "wins": 20,
+          "win_rate": 0.5,
+          "mean_turns": 14.875,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "mega_lucario_public": {
+          "games": 40,
+          "wins": 30,
+          "win_rate": 0.75,
+          "mean_turns": 15.725,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "ogerpon_cornerstone_public": {
+          "games": 40,
+          "wins": 17,
+          "win_rate": 0.425,
+          "mean_turns": 17.05,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "starmie_public": {
+          "games": 40,
+          "wins": 25,
+          "win_rate": 0.625,
+          "mean_turns": 13.45,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "games": 160,
+          "wins": 90,
+          "win_rate": 0.5625,
+          "mean_turns": 14.71875,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "1": {
+          "games": 160,
+          "wins": 79,
+          "win_rate": 0.49375,
+          "mean_turns": 14.31875,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "decision_count": 17879,
+      "fallback_count": 3254,
+      "fallback_rate": 0.1820012304938755,
+      "fallback_categories": {
+        "model_or_selection_failure": 1,
+        "other_explicit_major_safety": 24,
+        "unsupported_cardinality": 3229
+      },
+      "model_failure_count": 1,
+      "comparison_to_iteration004": {
+        "overall_win_rate_delta": -0.2875000000000001,
+        "by_opponent_win_rate_delta": {
+          "alakazam_public": -0.25,
+          "alakazam_rmy_live": -0.45,
+          "dragapult_live": -0.09999999999999998,
+          "historical_silver": -0.42499999999999993,
+          "marnie_kazuki_live": -0.35,
+          "mega_lucario_public": -0.22499999999999998,
+          "ogerpon_cornerstone_public": -0.25000000000000006,
+          "starmie_public": -0.25
+        },
+        "by_seat_win_rate_delta": {
+          "0": -0.26249999999999996,
+          "1": -0.3125
+        }
+      },
+      "fixed_320_no_clear_collapse": false
+    },
+    {
+      "seed": 2026080202,
+      "checkpoint_sha256": "FB752B158A86B19EBC669FF76B3D39D82A9D6E7BC82BD884DD2FADC16651CF53",
+      "overall": {
+        "games": 320,
+        "wins": 163,
+        "win_rate": 0.509375,
+        "mean_turns": 14.21875,
+        "action_errors": 0,
+        "max_step_hits": 0
+      },
+      "by_opponent": {
+        "alakazam_public": {
+          "games": 40,
+          "wins": 27,
+          "win_rate": 0.675,
+          "mean_turns": 13.325,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "alakazam_rmy_live": {
+          "games": 40,
+          "wins": 22,
+          "win_rate": 0.55,
+          "mean_turns": 10.625,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "dragapult_live": {
+          "games": 40,
+          "wins": 31,
+          "win_rate": 0.775,
+          "mean_turns": 13.475,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "historical_silver": {
+          "games": 40,
+          "wins": 6,
+          "win_rate": 0.15,
+          "mean_turns": 14.275,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "marnie_kazuki_live": {
+          "games": 40,
+          "wins": 19,
+          "win_rate": 0.475,
+          "mean_turns": 14.025,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "mega_lucario_public": {
+          "games": 40,
+          "wins": 28,
+          "win_rate": 0.7,
+          "mean_turns": 15.225,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "ogerpon_cornerstone_public": {
+          "games": 40,
+          "wins": 8,
+          "win_rate": 0.2,
+          "mean_turns": 20.175,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "starmie_public": {
+          "games": 40,
+          "wins": 22,
+          "win_rate": 0.55,
+          "mean_turns": 12.625,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "games": 160,
+          "wins": 75,
+          "win_rate": 0.46875,
+          "mean_turns": 14.35625,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "1": {
+          "games": 160,
+          "wins": 88,
+          "win_rate": 0.55,
+          "mean_turns": 14.08125,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "decision_count": 17013,
+      "fallback_count": 2997,
+      "fallback_rate": 0.17615940751190265,
+      "fallback_categories": {
+        "model_or_selection_failure": 1,
+        "other_explicit_major_safety": 22,
+        "unsupported_cardinality": 2974
+      },
+      "model_failure_count": 1,
+      "comparison_to_iteration004": {
+        "overall_win_rate_delta": -0.30625,
+        "by_opponent_win_rate_delta": {
+          "alakazam_public": -0.1499999999999999,
+          "alakazam_rmy_live": -0.35,
+          "dragapult_live": -0.07499999999999996,
+          "historical_silver": -0.42499999999999993,
+          "marnie_kazuki_live": -0.375,
+          "mega_lucario_public": -0.275,
+          "ogerpon_cornerstone_public": -0.47500000000000003,
+          "starmie_public": -0.32499999999999996
+        },
+        "by_seat_win_rate_delta": {
+          "0": -0.35624999999999996,
+          "1": -0.25625
+        }
+      },
+      "fixed_320_no_clear_collapse": false
+    },
+    {
+      "seed": 2026080203,
+      "checkpoint_sha256": "8794714EF2DEF7C925E77CB694AA2C3EBD00A96231595F2AA780EBB9C5DB877C",
+      "overall": {
+        "games": 320,
+        "wins": 157,
+        "win_rate": 0.490625,
+        "mean_turns": 15.246875,
+        "action_errors": 0,
+        "max_step_hits": 0
+      },
+      "by_opponent": {
+        "alakazam_public": {
+          "games": 40,
+          "wins": 24,
+          "win_rate": 0.6,
+          "mean_turns": 13.7,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "alakazam_rmy_live": {
+          "games": 40,
+          "wins": 20,
+          "win_rate": 0.5,
+          "mean_turns": 10.925,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "dragapult_live": {
+          "games": 40,
+          "wins": 24,
+          "win_rate": 0.6,
+          "mean_turns": 15.8,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "historical_silver": {
+          "games": 40,
+          "wins": 4,
+          "win_rate": 0.1,
+          "mean_turns": 14.825,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "marnie_kazuki_live": {
+          "games": 40,
+          "wins": 20,
+          "win_rate": 0.5,
+          "mean_turns": 15.5,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "mega_lucario_public": {
+          "games": 40,
+          "wins": 27,
+          "win_rate": 0.675,
+          "mean_turns": 16.175,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "ogerpon_cornerstone_public": {
+          "games": 40,
+          "wins": 15,
+          "win_rate": 0.375,
+          "mean_turns": 20.225,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "starmie_public": {
+          "games": 40,
+          "wins": 23,
+          "win_rate": 0.575,
+          "mean_turns": 14.825,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "games": 160,
+          "wins": 78,
+          "win_rate": 0.4875,
+          "mean_turns": 15.70625,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "1": {
+          "games": 160,
+          "wins": 79,
+          "win_rate": 0.49375,
+          "mean_turns": 14.7875,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "decision_count": 17792,
+      "fallback_count": 3230,
+      "fallback_rate": 0.18154226618705036,
+      "fallback_categories": {
+        "other_explicit_major_safety": 34,
+        "unsupported_cardinality": 3196
+      },
+      "model_failure_count": 0,
+      "comparison_to_iteration004": {
+        "overall_win_rate_delta": -0.32500000000000007,
+        "by_opponent_win_rate_delta": {
+          "alakazam_public": -0.22499999999999998,
+          "alakazam_rmy_live": -0.4,
+          "dragapult_live": -0.25,
+          "historical_silver": -0.475,
+          "marnie_kazuki_live": -0.35,
+          "mega_lucario_public": -0.29999999999999993,
+          "ogerpon_cornerstone_public": -0.30000000000000004,
+          "starmie_public": -0.30000000000000004
+        },
+        "by_seat_win_rate_delta": {
+          "0": -0.33749999999999997,
+          "1": -0.3125
+        }
+      },
+      "fixed_320_no_clear_collapse": false
+    }
+  ],
+  "fixed_320_seed_variability": {
+    "win_rate": {
+      "mean": 0.509375,
+      "population_stddev": 0.015309310892394854,
+      "minimum": 0.490625,
+      "maximum": 0.528125
+    },
+    "overall_delta_from_iteration004": {
+      "mean": -0.3062500000000001,
+      "population_stddev": 0.015309310892394854,
+      "minimum": -0.32500000000000007,
+      "maximum": -0.2875000000000001
+    },
+    "fallback_rate": {
+      "mean": 0.17990096806427616,
+      "population_stddev": 0.0026523095073342044,
+      "minimum": 0.17615940751190265,
+      "maximum": 0.1820012304938755
+    }
+  },
+  "provisional_gate": {
+    "validation_top1_98_percent_all_seeds": false,
+    "major_family_95_percent_all_seeds": false,
+    "illegal_action_zero_all_seeds": true,
+    "offline_fallback_zero_all_seeds": true,
+    "runtime_fallback_zero_all_seeds": false,
+    "fixed_320_no_clear_collapse_all_seeds": false,
+    "action_errors_zero_all_seeds": true,
+    "overall_pass": false
+  },
+  "failure_split": {
+    "primary_blocker": "actor_action_representation_insufficient",
+    "primary_evidence": "17.6%-18.2% of live decisions required teacher fallback; about 99% of fallbacks were unsupported optional/multiple selection cardinalities that the current single-index actor cannot express.",
+    "secondary_blocker": "teacher_data_coverage_insufficient_for_episode_generalization",
+    "secondary_evidence": "train top-1 was 98.43%-98.74% while episode-held-out validation was only 66.86%-70.32%, so the unchanged actor can fit observed single-choice rows but does not generalize from 24 training episodes.",
+    "why_not_more_same_format_rollout_now": "More single-index labels cannot remove the action-cardinality representation blocker, so no additional rollout was collected in this experiment."
+  },
+  "decision": {
+    "bc_checkpoint_accepted_as_frozen_ppo_reference": false,
+    "ppo_next_stage_allowed": false,
+    "additional_training_or_games_requested": false,
+    "recommendation": "Do not start PPO. First decide how the actor represents optional/multiple selections; after that, collect broader episode-level teacher data and repeat BC only."
+  }
+}

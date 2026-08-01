@@ -1,0 +1,243 @@
+{
+  "schema_version": "behavior-cloning-training-v1",
+  "seed": 2026080201,
+  "configuration": {
+    "epochs": 120,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "device": "cpu",
+    "teacher_fixed_margin": 0.0,
+    "actor_logits_only": true,
+    "legal_action_mask": true,
+    "major_family_min_validation_rows": 10
+  },
+  "inputs": {
+    "input_checkpoint": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731\\initial_zero_temperature065.pt",
+    "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+    "input_actor_state_sha256": "9BD61B0E8252DCBA1E3D5BC0E685E551074AA0773CCF309A60442A8CA5444E9A",
+    "episodes_dir": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_latest_v1_rl_phase1_iteration_004_temperature065_single_thread_20260731\\rollouts\\episodes",
+    "dataset_sha256": "E1E22BC69390469739ED6A34EFAA5473D6DA88256D55ADC5A29B0501599E11EC",
+    "split_spec": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\experiments\\archaludon_latest_v1_rl_pcgrad_candidate_20260801\\specs\\phase1_locked_trajectory_split_v1.json",
+    "split_spec_sha256": "67435BD52C0B6F0693A33C1855AC2BC7B5C212D444E19ADE453DE50BFCB8FE23",
+    "train_episode_count": 24,
+    "validation_episode_count": 8,
+    "episode_overlap_count": 0
+  },
+  "dataset": {
+    "train_supervised_rows": 955,
+    "validation_supervised_rows": 347,
+    "train_excluded": {
+      "fewer_than_two_options": 122,
+      "teacher_action_not_single_index": 151
+    },
+    "validation_excluded": {
+      "fewer_than_two_options": 49,
+      "teacher_action_not_single_index": 61
+    }
+  },
+  "training": {
+    "first_epoch_cross_entropy": 1.5281548035706525,
+    "final_epoch_cross_entropy": 0.26377384005728816,
+    "train_metrics": {
+      "rows": 955,
+      "teacher_top1_correct": 943,
+      "teacher_top1_accuracy": 0.987434554973822,
+      "cross_entropy": 0.26111904563704086,
+      "entropy": 0.33784585123910954,
+      "illegal_action_count": 0,
+      "fallback_count": 0,
+      "locked_validation_rows": 0,
+      "locked_validation_teacher_argmax_matches": 0,
+      "locked_validation_teacher_argmax_accuracy": null,
+      "by_option_type": {
+        "0": {
+          "rows": 7,
+          "teacher_top1_correct": 6,
+          "teacher_top1_accuracy": 0.8571428571428571
+        },
+        "1": {
+          "rows": 41,
+          "teacher_top1_correct": 41,
+          "teacher_top1_accuracy": 1.0
+        },
+        "2": {
+          "rows": 23,
+          "teacher_top1_correct": 23,
+          "teacher_top1_accuracy": 1.0
+        },
+        "3": {
+          "rows": 232,
+          "teacher_top1_correct": 227,
+          "teacher_top1_accuracy": 0.978448275862069
+        },
+        "6": {
+          "rows": 16,
+          "teacher_top1_correct": 16,
+          "teacher_top1_accuracy": 1.0
+        },
+        "7": {
+          "rows": 321,
+          "teacher_top1_correct": 316,
+          "teacher_top1_accuracy": 0.9844236760124611
+        },
+        "8": {
+          "rows": 104,
+          "teacher_top1_correct": 104,
+          "teacher_top1_accuracy": 1.0
+        },
+        "9": {
+          "rows": 49,
+          "teacher_top1_correct": 48,
+          "teacher_top1_accuracy": 0.9795918367346939
+        },
+        "10": {
+          "rows": 1,
+          "teacher_top1_correct": 1,
+          "teacher_top1_accuracy": 1.0
+        },
+        "12": {
+          "rows": 13,
+          "teacher_top1_correct": 13,
+          "teacher_top1_accuracy": 1.0
+        },
+        "13": {
+          "rows": 110,
+          "teacher_top1_correct": 110,
+          "teacher_top1_accuracy": 1.0
+        },
+        "14": {
+          "rows": 38,
+          "teacher_top1_correct": 38,
+          "teacher_top1_accuracy": 1.0
+        }
+      }
+    }
+  },
+  "validation": {
+    "rows": 347,
+    "teacher_top1_correct": 238,
+    "teacher_top1_accuracy": 0.6858789625360231,
+    "cross_entropy": 2.42344065289676,
+    "entropy": 0.39229285820073284,
+    "illegal_action_count": 0,
+    "fallback_count": 0,
+    "locked_validation_rows": 212,
+    "locked_validation_teacher_argmax_matches": 137,
+    "locked_validation_teacher_argmax_accuracy": 0.6462264150943396,
+    "by_option_type": {
+      "0": {
+        "rows": 3,
+        "teacher_top1_correct": 3,
+        "teacher_top1_accuracy": 1.0
+      },
+      "1": {
+        "rows": 16,
+        "teacher_top1_correct": 16,
+        "teacher_top1_accuracy": 1.0
+      },
+      "2": {
+        "rows": 8,
+        "teacher_top1_correct": 8,
+        "teacher_top1_accuracy": 1.0
+      },
+      "3": {
+        "rows": 95,
+        "teacher_top1_correct": 67,
+        "teacher_top1_accuracy": 0.7052631578947368
+      },
+      "6": {
+        "rows": 8,
+        "teacher_top1_correct": 6,
+        "teacher_top1_accuracy": 0.75
+      },
+      "7": {
+        "rows": 126,
+        "teacher_top1_correct": 87,
+        "teacher_top1_accuracy": 0.6904761904761905
+      },
+      "8": {
+        "rows": 29,
+        "teacher_top1_correct": 14,
+        "teacher_top1_accuracy": 0.4827586206896552
+      },
+      "9": {
+        "rows": 19,
+        "teacher_top1_correct": 10,
+        "teacher_top1_accuracy": 0.5263157894736842
+      },
+      "12": {
+        "rows": 4,
+        "teacher_top1_correct": 1,
+        "teacher_top1_accuracy": 0.25
+      },
+      "13": {
+        "rows": 34,
+        "teacher_top1_correct": 23,
+        "teacher_top1_accuracy": 0.6764705882352942
+      },
+      "14": {
+        "rows": 5,
+        "teacher_top1_correct": 3,
+        "teacher_top1_accuracy": 0.6
+      }
+    }
+  },
+  "major_family_validation": {
+    "1": {
+      "rows": 16,
+      "teacher_top1_correct": 16,
+      "teacher_top1_accuracy": 1.0
+    },
+    "3": {
+      "rows": 95,
+      "teacher_top1_correct": 67,
+      "teacher_top1_accuracy": 0.7052631578947368
+    },
+    "7": {
+      "rows": 126,
+      "teacher_top1_correct": 87,
+      "teacher_top1_accuracy": 0.6904761904761905
+    },
+    "8": {
+      "rows": 29,
+      "teacher_top1_correct": 14,
+      "teacher_top1_accuracy": 0.4827586206896552
+    },
+    "9": {
+      "rows": 19,
+      "teacher_top1_correct": 10,
+      "teacher_top1_accuracy": 0.5263157894736842
+    },
+    "13": {
+      "rows": 34,
+      "teacher_top1_correct": 23,
+      "teacher_top1_accuracy": 0.6764705882352942
+    }
+  },
+  "checkpoint": {
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\experiments\\archaludon_latest_v1_rl_pcgrad_candidate_20260801\\test_outputs\\bc_actor_minimal_20260802\\checkpoints\\bc_seed2026080201.pt",
+    "sha256": "683B8929400286C52B0265393292E2DB2C82675A3CA7F2159E80A397319417FB",
+    "actor_state_sha256": "C802D22F7045000446C1F10827D1357F809952AE6B8BC02F86F8378C0D19AE6C",
+    "future_ppo_kl_reference": true,
+    "reload_actor_state_sha256": "C802D22F7045000446C1F10827D1357F809952AE6B8BC02F86F8378C0D19AE6C",
+    "reload_predictions_match": true,
+    "metadata_training": {
+      "schema_version": "behavior-cloning-training-v1",
+      "algorithm": "teacher_action_behavior_cloning",
+      "actor_logits_only": true,
+      "teacher_fixed_margin": 0.0,
+      "legal_action_mask": true,
+      "input_checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+      "dataset_sha256": "E1E22BC69390469739ED6A34EFAA5473D6DA88256D55ADC5A29B0501599E11EC",
+      "split_spec_sha256": "67435BD52C0B6F0693A33C1855AC2BC7B5C212D444E19ADE453DE50BFCB8FE23",
+      "seed": 2026080201,
+      "epochs": 120,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "actor_state_sha256": "C802D22F7045000446C1F10827D1357F809952AE6B8BC02F86F8378C0D19AE6C",
+      "future_ppo_kl_reference": true,
+      "value_head_used": false
+    }
+  },
+  "offline_provisional_pass": false
+}
