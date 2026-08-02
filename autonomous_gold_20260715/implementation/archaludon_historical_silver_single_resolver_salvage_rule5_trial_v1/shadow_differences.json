@@ -1,0 +1,282 @@
+[
+  {
+    "classification": "DIRECT_EXACT_CURRENT_WIN",
+    "context": 0,
+    "materialization_evidence": {
+      "active_card_id": 190,
+      "active_serial": 70,
+      "energy_attached": false,
+      "opponent_prize_count": 5,
+      "selected_card_id": null,
+      "selected_card_serial": null,
+      "stadium_count": 0,
+      "supporter_played": false,
+      "target_appear_this_turn": null,
+      "target_card_id": null,
+      "target_energy_ids": [],
+      "target_energy_serials": [],
+      "target_serial": null
+    },
+    "parent_card_id": null,
+    "parent_card_serial": null,
+    "replay": "episode_89273754_replay.json",
+    "rule4_action": [
+      9
+    ],
+    "rule5_action": [
+      15
+    ],
+    "seat": 1,
+    "step": 73,
+    "telemetry": {
+      "duplicate_retry": false,
+      "option_permuted": false,
+      "owner_after": null,
+      "owner_before": null,
+      "parent_call_count": 1,
+      "parent_semantic": [
+        [
+          8,
+          8,
+          116,
+          null,
+          null
+        ]
+      ],
+      "proof_gates": {
+        "attack_id": 253,
+        "attacker": [
+          190,
+          70,
+          200,
+          300,
+          false,
+          [
+            8,
+            8,
+            8
+          ],
+          [
+            [
+              8,
+              93,
+              1
+            ],
+            [
+              8,
+              112,
+              1
+            ],
+            [
+              8,
+              114,
+              1
+            ]
+          ],
+          [],
+          [
+            [
+              169,
+              65,
+              1
+            ]
+          ]
+        ],
+        "current_take": 2,
+        "damage": 440,
+        "gates": {
+          "normal_main": true,
+          "option_bindings_exact": true,
+          "owner_empty": true,
+          "snapshot_exact": true,
+          "supporter_unused": true
+        },
+        "remaining_prize": 2,
+        "target": [
+          723,
+          11,
+          350,
+          350,
+          false,
+          [
+            3
+          ],
+          [
+            [
+              3,
+              60,
+              0
+            ]
+          ],
+          [],
+          [
+            [
+              722,
+              6,
+              0
+            ]
+          ]
+        ]
+      },
+      "proposal_semantic": [
+        [
+          13,
+          null,
+          null,
+          253,
+          null
+        ]
+      ],
+      "rejection_reason": null,
+      "rule_id": "PARENT_EXACT_ATTACK_WIN_OR_UNIQUE_HIGHER_PRIZE_BOSS_TRANSACTION_V1",
+      "selected_source": "PARENT_EXACT_ATTACK_WIN_OR_UNIQUE_HIGHER_PRIZE_BOSS_TRANSACTION_V1",
+      "setup_active_card_id": null,
+      "setup_active_serial": null,
+      "setup_bench_serial": null
+    },
+    "turn": 8
+  },
+  {
+    "classification": "DIRECT_EXACT_CURRENT_WIN",
+    "context": 0,
+    "materialization_evidence": {
+      "active_card_id": 190,
+      "active_serial": 70,
+      "energy_attached": false,
+      "opponent_prize_count": 1,
+      "selected_card_id": null,
+      "selected_card_serial": null,
+      "stadium_count": 1,
+      "supporter_played": false,
+      "target_appear_this_turn": null,
+      "target_card_id": null,
+      "target_energy_ids": [],
+      "target_energy_serials": [],
+      "target_serial": null
+    },
+    "parent_card_id": null,
+    "parent_card_serial": null,
+    "replay": "episode_89280169_replay.json",
+    "rule4_action": [
+      6
+    ],
+    "rule5_action": [
+      8
+    ],
+    "seat": 1,
+    "step": 161,
+    "telemetry": {
+      "duplicate_retry": false,
+      "option_permuted": false,
+      "owner_after": null,
+      "owner_before": null,
+      "parent_call_count": 1,
+      "parent_semantic": [
+        [
+          9,
+          190,
+          67,
+          null,
+          null
+        ]
+      ],
+      "proof_gates": {
+        "attack_id": 253,
+        "attacker": [
+          190,
+          70,
+          200,
+          300,
+          false,
+          [
+            8,
+            8,
+            8
+          ],
+          [
+            [
+              8,
+              114,
+              1
+            ],
+            [
+              8,
+              115,
+              1
+            ],
+            [
+              8,
+              122,
+              1
+            ]
+          ],
+          [],
+          [
+            [
+              169,
+              65,
+              1
+            ]
+          ]
+        ],
+        "current_take": 1,
+        "damage": 220,
+        "gates": {
+          "normal_main": true,
+          "option_bindings_exact": true,
+          "owner_empty": true,
+          "snapshot_exact": true,
+          "supporter_unused": true
+        },
+        "remaining_prize": 1,
+        "target": [
+          1031,
+          25,
+          110,
+          330,
+          false,
+          [
+            3,
+            3
+          ],
+          [
+            [
+              3,
+              5,
+              0
+            ],
+            [
+              3,
+              10,
+              0
+            ]
+          ],
+          [],
+          [
+            [
+              1030,
+              20,
+              0
+            ]
+          ]
+        ]
+      },
+      "proposal_semantic": [
+        [
+          13,
+          null,
+          null,
+          253,
+          null
+        ]
+      ],
+      "rejection_reason": null,
+      "rule_id": "PARENT_EXACT_ATTACK_WIN_OR_UNIQUE_HIGHER_PRIZE_BOSS_TRANSACTION_V1",
+      "selected_source": "PARENT_EXACT_ATTACK_WIN_OR_UNIQUE_HIGHER_PRIZE_BOSS_TRANSACTION_V1",
+      "setup_active_card_id": null,
+      "setup_active_serial": null,
+      "setup_bench_serial": null
+    },
+    "turn": 22
+  }
+]

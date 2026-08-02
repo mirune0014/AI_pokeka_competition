@@ -1,0 +1,26 @@
+{
+  "action_differences": 2,
+  "all_differences_allowed": true,
+  "all_differences_rule5": true,
+  "callbacks": 4262,
+  "confirmed_transactions": 0,
+  "current_path_count": 46,
+  "difference_class_counts": {
+    "BOSS_UNIQUE_STRICT_HIGHER_PRIZE_SAME_ATTACK": 0,
+    "DIRECT_EXACT_CURRENT_WIN": 2
+  },
+  "exceptions": [],
+  "historical_path_count": 32,
+  "invalid_actions": [],
+  "malformed_replays": [
+    {
+      "exception": "JSONDecodeError",
+      "message": "Expecting value: line 1 column 3145726 (char 3145725)",
+      "replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89287701_replay.json"
+    }
+  ],
+  "natural_starts": 0,
+  "ordered_corpus_sha256": "B88C25BC8F26F959F85D00D27FD7B148D22034D71B2588DF73AAF8C8E0B15004",
+  "readable_replays": 77,
+  "source_path_count": 78
+}
