@@ -1,0 +1,89 @@
+{
+  "schema_version": "complete-action-bc-dagger1-experiment-v1",
+  "experiment_id": "archaludon-complete-action-bc-dagger1-20260802",
+  "fixed_constraints": {
+    "dagger_rounds": 1,
+    "state_encoder_changed": false,
+    "action_encoding_changed": false,
+    "reward_changed": false,
+    "ppo_performed": false,
+    "pcgrad_performed": false,
+    "teacher_fixed_margin": 0.0,
+    "locked_validation_reused_without_training": true
+  },
+  "dagger_collection": {
+    "actor_checkpoints": 3,
+    "opponents": 8,
+    "seats": [0, 1],
+    "seed_base": 731400000,
+    "episodes_per_opponent_seat_checkpoint": 20,
+    "episodes": 960,
+    "labels": "iteration004 teacher labels on complete-action BC actor-visited states",
+    "split": "train-only"
+  },
+  "training": {
+    "initialization": "iteration004 zero-residual checkpoint",
+    "seeds": [2026080211, 2026080212, 2026080213],
+    "epochs": 20,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "gradient_clip": 1.0,
+    "validation_model_selection": false
+  },
+  "deployment": {
+    "policy_dir": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/runtime_agent_complete_bc",
+    "checkpoint_env": "ARCHALUDON_COMPLETE_BC_CHECKPOINT",
+    "device_env": "ARCHALUDON_COMPLETE_BC_DEVICE",
+    "training_report_glob": "dagger1_seed*.json",
+    "arm_prefix": "dagger1_seed"
+  },
+  "fixed_evaluation": {
+    "baseline": "iteration004",
+    "opponents_spec": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "seed_base": 731202000,
+    "seeds": [
+      731202000,
+      731202001,
+      731202002,
+      731202003,
+      731202004,
+      731202005,
+      731202006,
+      731202007,
+      731202008,
+      731202009,
+      731202010,
+      731202011,
+      731202012,
+      731202013,
+      731202014,
+      731202015,
+      731202016,
+      731202017,
+      731202018,
+      731202019
+    ],
+    "seats": [0, 1],
+    "opponents": 8,
+    "games_per_checkpoint": 320,
+    "same_schedule_for_all_seeds": true,
+    "workers": 4
+  },
+  "provisional_pass": {
+    "validation_teacher_top1_accuracy_minimum": 0.98,
+    "major_action_family_top1_accuracy_minimum": 0.95,
+    "illegal_action_count": 0,
+    "representability_fallback_count": 0,
+    "fixed_320_no_clear_collapse": {
+      "overall_drop_from_iteration004_maximum_percentage_points": 5.0,
+      "opponent_drop_maximum_percentage_points": 20.0,
+      "seat_drop_maximum_percentage_points": 10.0,
+      "action_errors": 0
+    }
+  },
+  "post_dagger_rule": {
+    "ppo_allowed_only_after_all_provisional_gates": true,
+    "investigate_state_or_action_representation_if_reproducible_overall_drop_is_at_least_percentage_points": 5.0,
+    "additional_dagger_rounds": 0
+  }
+}
