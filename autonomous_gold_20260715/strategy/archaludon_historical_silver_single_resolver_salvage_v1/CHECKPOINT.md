@@ -28,13 +28,18 @@ Updated: 2026-08-03 JST
 
 ## Failed or deferred rules
 
-- None.
+- Rule 2 `EXACT_LONE_ACTIVE_REPLY_KO_CONTINUITY_V1`: `DEFER-DORMANT`。
+  - focused 9/9、両席smoke、実行fault 0。
+  - shadow 4,262 callbackで差分0。
+  - fixed160は親100、候補100、G/R/T 0/0/160、trace差分0。
+  - 合計自然発火0のため統合しない。条件を広げない。
 
 ## Current step
 
-Implement Rule 2, pre-attack successor and board continuity, as the only new
-behavior change from the accepted Rule 1 parent.
+Implement Rule 3, the complete Ultra Ball route, as the only new behavior
+change from the accepted Rule 1 parent.  Rule 2 is not part of that parent.
 
 ## Next step after acceptance
 
-Rule 3, Ultra Ball complete route, from the last accepted Silver-based parent.
+Rule 4, pre-Lillie exact materialization, from the last accepted Silver-based
+parent.
