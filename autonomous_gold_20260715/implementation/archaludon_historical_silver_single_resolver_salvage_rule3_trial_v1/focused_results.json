@@ -1,0 +1,294 @@
+{
+  "failed": 0,
+  "passed": 80,
+  "results": [
+    {
+      "name": "active_start_seat0"
+    },
+    {
+      "name": "active_retain_metal_seat0"
+    },
+    {
+      "name": "active_reordered_retry_seat0"
+    },
+    {
+      "name": "active_cost_seat0"
+    },
+    {
+      "name": "active_search_seat0"
+    },
+    {
+      "name": "active_evolve_seat0"
+    },
+    {
+      "name": "active_alloy_yes_seat0"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "active_alloy_energy_seat0",
+      "telemetry": {
+        "cost_pair": [
+          [
+            1121,
+            11
+          ],
+          [
+            1121,
+            12
+          ]
+        ],
+        "duplicate_retry": false,
+        "natural_start": false,
+        "option_permuted": false,
+        "reason": null,
+        "route": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "rule_id": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_V1",
+        "selected_source": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_V1",
+        "stage": "ALLOY_ENERGIES_EMITTED",
+        "target_serial": 50
+      }
+    },
+    {
+      "name": "active_alloy_target_seat0"
+    },
+    {
+      "name": "active_manual_seat0"
+    },
+    {
+      "name": "active_parent_equal_attack_seat0"
+    },
+    {
+      "name": "turbo_start_seat0_m0"
+    },
+    {
+      "name": "turbo_place_seat0_m0"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat0_m0"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m0"
+    },
+    {
+      "name": "turbo_start_seat0_m1"
+    },
+    {
+      "name": "turbo_place_seat0_m1"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat0_m1"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m1"
+    },
+    {
+      "name": "turbo_target_seat0_m1_0"
+    },
+    {
+      "name": "turbo_start_seat0_m2"
+    },
+    {
+      "name": "turbo_place_seat0_m2"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat0_m2"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m2"
+    },
+    {
+      "name": "turbo_target_seat0_m2_0"
+    },
+    {
+      "name": "turbo_target_seat0_m2_1"
+    },
+    {
+      "name": "turbo_start_seat0_m3"
+    },
+    {
+      "name": "turbo_place_seat0_m3"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat0_m3"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m3"
+    },
+    {
+      "name": "turbo_target_seat0_m3_0"
+    },
+    {
+      "name": "turbo_target_seat0_m3_1"
+    },
+    {
+      "name": "turbo_target_seat0_m3_2"
+    },
+    {
+      "name": "non_ultra_parent_seat0"
+    },
+    {
+      "name": "boss_veto_seat0"
+    },
+    {
+      "name": "discard2_metal_forbidden_seat0"
+    },
+    {
+      "name": "productive_metal_seat0"
+    },
+    {
+      "name": "whiff_empty_seat0"
+    },
+    {
+      "name": "whiff_release_seat0"
+    },
+    {
+      "name": "parent_prefix_release_seat0"
+    },
+    {
+      "name": "active_start_seat1"
+    },
+    {
+      "name": "active_retain_metal_seat1"
+    },
+    {
+      "name": "active_reordered_retry_seat1"
+    },
+    {
+      "name": "active_cost_seat1"
+    },
+    {
+      "name": "active_search_seat1"
+    },
+    {
+      "name": "active_evolve_seat1"
+    },
+    {
+      "name": "active_alloy_yes_seat1"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "active_alloy_energy_seat1",
+      "telemetry": {
+        "cost_pair": [
+          [
+            1121,
+            11
+          ],
+          [
+            1121,
+            12
+          ]
+        ],
+        "duplicate_retry": false,
+        "natural_start": false,
+        "option_permuted": false,
+        "reason": null,
+        "route": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "rule_id": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_V1",
+        "selected_source": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_V1",
+        "stage": "ALLOY_ENERGIES_EMITTED",
+        "target_serial": 50
+      }
+    },
+    {
+      "name": "active_alloy_target_seat1"
+    },
+    {
+      "name": "active_manual_seat1"
+    },
+    {
+      "name": "active_parent_equal_attack_seat1"
+    },
+    {
+      "name": "turbo_start_seat1_m0"
+    },
+    {
+      "name": "turbo_place_seat1_m0"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat1_m0"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m0"
+    },
+    {
+      "name": "turbo_start_seat1_m1"
+    },
+    {
+      "name": "turbo_place_seat1_m1"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat1_m1"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m1"
+    },
+    {
+      "name": "turbo_target_seat1_m1_0"
+    },
+    {
+      "name": "turbo_start_seat1_m2"
+    },
+    {
+      "name": "turbo_place_seat1_m2"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat1_m2"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m2"
+    },
+    {
+      "name": "turbo_target_seat1_m2_0"
+    },
+    {
+      "name": "turbo_target_seat1_m2_1"
+    },
+    {
+      "name": "turbo_start_seat1_m3"
+    },
+    {
+      "name": "turbo_place_seat1_m3"
+    },
+    {
+      "name": "turbo_parent_equal_attack_seat1_m3"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m3"
+    },
+    {
+      "name": "turbo_target_seat1_m3_0"
+    },
+    {
+      "name": "turbo_target_seat1_m3_1"
+    },
+    {
+      "name": "turbo_target_seat1_m3_2"
+    },
+    {
+      "name": "non_ultra_parent_seat1"
+    },
+    {
+      "name": "boss_veto_seat1"
+    },
+    {
+      "name": "discard2_metal_forbidden_seat1"
+    },
+    {
+      "name": "productive_metal_seat1"
+    },
+    {
+      "name": "whiff_empty_seat1"
+    },
+    {
+      "name": "whiff_release_seat1"
+    },
+    {
+      "name": "parent_prefix_release_seat1"
+    }
+  ]
+}

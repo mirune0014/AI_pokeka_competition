@@ -33,13 +33,19 @@ Updated: 2026-08-03 JST
   - shadow 4,262 callbackで差分0。
   - fixed160は親100、候補100、G/R/T 0/0/160、trace差分0。
   - 合計自然発火0のため統合しない。条件を広げない。
+- Rule 3 `SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_V1`: `REJECT`。
+  - focused 80/80、両席smoke、実行fault 0。
+  - fixed160は親100、候補99、G/R/T 0/1/159。
+  - action-observable start 3、完結transaction 0。
+  - Arch Peak・seat 0・seed 271958318でmechanism-first loss 1件。
+  - 補修・条件拡張は行わず、Rule 1親へ戻す。
 
 ## Current step
 
-Implement Rule 3, the complete Ultra Ball route, as the only new behavior
-change from the accepted Rule 1 parent.  Rule 2 is not part of that parent.
+Implement Rule 4, pre-Lillie exact materialization, as the only new behavior
+change from the accepted Rule 1 parent. Rules 2 and 3 are not part of that parent.
 
 ## Next step after acceptance
 
-Rule 4, pre-Lillie exact materialization, from the last accepted Silver-based
-parent.
+Rule 5, exact win and Boss prize conversion, from the last accepted
+Silver-based parent.

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "policy": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_V1",
+  "schedule_base": {
+    "path": "autonomous_gold_20260715/evaluation_specs/archaludon_historical_silver_single_resolver_salvage_v1_rule1/fixed160_spec.json",
+    "sha256": "E2B8986663A43A7F6F52888E487F39B8D059CDCDDF441A3E87D8C093DF15274C"
+  },
+  "strategy": {
+    "path": "autonomous_gold_20260715/strategy/archaludon_historical_silver_single_resolver_salvage_v1/REQUIREMENTS.md",
+    "sha256": "24282FA6A0EF91D936E2E5B2AAD725904EF3223FCFBDF9BEEA16C62C726038C9"
+  },
+  "verification": {
+    "path": "autonomous_gold_20260715/root_verification/archaludon_historical_silver_single_resolver_salvage_rule3_trial_v1/ROOT_RULE3_VERIFICATION.md",
+    "sha256": "7B0DD96B6E5F94837A49989B5E58351552FFC116DB60B9F46586CEF0A656A39C"
+  },
+  "baseline": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_v1",
+    "main_sha256": "153D8461FB66927DB9731CBE614B71FF5398B8EAE8980AE0BB4D46ADD0E8792A",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "candidate": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_rule3_trial_v1",
+    "main_sha256": "3F05F353B868307E91A38FA62ED460D4BFB9A82B85400E2D98B3DBB5CE67A0FC",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "output_root": "autonomous_gold_20260715/evaluations/archaludon_historical_silver_single_resolver_salvage_rule3_trial_v1/fixed160_raw",
+  "gates": {
+    "minimum_natural_starts": 1,
+    "dormant_if_shadow_plus_fixed160_starts": 0
+  }
+}
