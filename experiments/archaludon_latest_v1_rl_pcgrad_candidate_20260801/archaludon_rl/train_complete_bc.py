@@ -83,39 +83,44 @@ def _collate(
         int(decision_candidate_offsets[index + 1] - decision_candidate_offsets[index])
         for index in indices
     )
-    states = tensors["states"][list(indices)].to(device)
+    # Assemble the ragged batch on CPU, then perform one transfer per tensor.
+    # Moving every option/candidate slice separately creates thousands of tiny
+    # CUDA transfers per batch and makes the GPU wait on Python bookkeeping.
+    states = tensors["states"][list(indices)].to(device="cpu")
     options = torch.zeros(
         (len(indices), maximum_options, ACTION_DIM),
         dtype=torch.float32,
-        device=device,
     )
     membership = torch.zeros(
         (len(indices), maximum_candidates, maximum_options),
         dtype=torch.float32,
-        device=device,
     )
     mask = torch.zeros(
         (len(indices), maximum_candidates),
         dtype=torch.bool,
-        device=device,
     )
-    targets = tensors["targets"][list(indices)].to(device)
+    targets = tensors["targets"][list(indices)].to(device="cpu")
     for batch_index, row_index in enumerate(indices):
         option_start = int(option_offsets[row_index])
         option_end = int(option_offsets[row_index + 1])
         option_count = option_end - option_start
         if option_count:
-            options[batch_index, :option_count] = tensors["option_vectors"][option_start:option_end].to(device)
+            options[batch_index, :option_count] = tensors["option_vectors"][
+                option_start:option_end
+            ]
         candidate_start = int(decision_candidate_offsets[row_index])
         candidate_end = int(decision_candidate_offsets[row_index + 1])
         mask[batch_index, : candidate_end - candidate_start] = True
         for local_candidate, candidate_index in enumerate(range(candidate_start, candidate_end)):
             member_start = int(candidate_member_offsets[candidate_index])
             member_end = int(candidate_member_offsets[candidate_index + 1])
-            members = candidate_members[member_start:member_end].to(device=device, dtype=torch.int64)
+            members = candidate_members[member_start:member_end].to(dtype=torch.int64)
             if len(members):
                 membership[batch_index, local_candidate, members] = 1.0
-    return states, options, membership, mask, targets
+    return tuple(
+        tensor.to(device)
+        for tensor in (states, options, membership, mask, targets)
+    )
 
 
 def _logits(
