@@ -1,0 +1,18 @@
+{
+  "ace_spec_count": 1,
+  "cache_count": 0,
+  "candidate_byte_count": 1374663,
+  "candidate_main_sha256": "0A9F0052095257B08CC5C5ABACAA0E912D7E02A9842145B48E2192A6F50ED4AE",
+  "deck_count": 60,
+  "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
+  "entries": [
+    "deck.csv",
+    "main.py",
+    "requirements.txt"
+  ],
+  "last_top_level_node": "agent",
+  "parent_main_sha256": "74C20CCA851E6BCADB62382314656AE7506BD964C29DCE38A80BB5F665A0E971",
+  "parent_prefix_byte_count": 1311640,
+  "status": "PASS",
+  "top_level_agent_count": 14
+}

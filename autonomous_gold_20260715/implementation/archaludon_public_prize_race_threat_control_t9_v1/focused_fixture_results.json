@@ -1,0 +1,374 @@
+{
+  "candidate_main_sha256": "0A9F0052095257B08CC5C5ABACAA0E912D7E02A9842145B48E2192A6F50ED4AE",
+  "failed": 0,
+  "fixture_count": 52,
+  "passed": 52,
+  "results": [
+    {
+      "name": "boss_fixture_inventory_exact",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "name": "boss_begin_valid_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_begin_duplicate_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "boss_target_bound_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_target_duplicate_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        6
+      ],
+      "name": "boss_attack_bound_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_conservation_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_mirrored_inventory_exact",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "name": "boss_begin_valid_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_begin_duplicate_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "boss_target_bound_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_target_duplicate_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        6
+      ],
+      "name": "boss_attack_bound_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_conservation_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        4
+      ],
+      "name": "wrapper_turbo_flare_boss_play_seat0",
+      "owners": [
+        [
+          "_t9_transaction",
+          "ac03e277424d36e74aa82a92526f2dcda2657aebeb9fce2196ce4cedf44235a3"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "name": "wrapper_turbo_flare_boss_target_seat0",
+      "owners": [
+        [
+          "_t9_transaction",
+          "aecace514ba96d08395d045b72783c9f2e5f2c19b137e26707ecf80389574c91"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        5
+      ],
+      "name": "wrapper_turbo_flare_bound_attack_and_release_seat0",
+      "owners": [],
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "wrapper_turbo_flare_aftereffect_owner_seat0",
+      "owners": [
+        [
+          "_dper_active_callback",
+          "ce6a1795d21c9044dfdd31501dfa47cbe9fc97f276fe9938f18421eadd2d9c8c"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        4
+      ],
+      "name": "wrapper_turbo_flare_boss_play_seat1",
+      "owners": [
+        [
+          "_t9_transaction",
+          "476d23833bb5a1a649566438373ec6c942150f27be62efd9f36edfeadcd19c26"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "name": "wrapper_turbo_flare_boss_target_seat1",
+      "owners": [
+        [
+          "_t9_transaction",
+          "a77b6dbfcb0e3cea9b97df68027b954b7b046f68b096c4bb72791d29af157a86"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        5
+      ],
+      "name": "wrapper_turbo_flare_bound_attack_and_release_seat1",
+      "owners": [],
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "wrapper_turbo_flare_aftereffect_owner_seat1",
+      "owners": [
+        [
+          "_dper_active_callback",
+          "05a38ebcbe67b11cbea7f34c505b705cbeaea0f8af823f7af2a9e10cbb782fa4"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "name": "wrapper_metal_defender_boss_play_seat0",
+      "owners": [
+        [
+          "_t9_transaction",
+          "6f30d7585b842110d4e2ae3cfa0d9af10be6102a4141cb5e349412e3fddc272f"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "wrapper_metal_defender_boss_target_seat0",
+      "owners": [
+        [
+          "_t9_transaction",
+          "c1e87798b0486bd0660bc5e7e4c7ac5dff176d7e2c05c39cdbfb5a94ed605f18"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        7
+      ],
+      "name": "wrapper_metal_defender_bound_attack_and_release_seat0",
+      "owners": [],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "name": "wrapper_metal_defender_boss_play_seat1",
+      "owners": [
+        [
+          "_t9_transaction",
+          "337b075f41113a93347df3730cf084196f3efde1ed16cb363804d7b096c0dd4d"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "wrapper_metal_defender_boss_target_seat1",
+      "owners": [
+        [
+          "_t9_transaction",
+          "dc58600ebe19d2f48d6b519b6ca21506a52ede665714bfce06260192cd43b71e"
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "action": [
+        7
+      ],
+      "name": "wrapper_metal_defender_bound_attack_and_release_seat1",
+      "owners": [],
+      "status": "PASS"
+    },
+    {
+      "name": "boss_option_order_semantic_invariance",
+      "original": [
+        3
+      ],
+      "permuted": [
+        6
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "stale_boss_target_aborts",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_owner_collision_aborts",
+      "status": "PASS"
+    },
+    {
+      "name": "terminal_boss_parent_invariance",
+      "status": "PASS"
+    },
+    {
+      "name": "harmful_ko_positive",
+      "status": "PASS"
+    },
+    {
+      "name": "harmful_ko_negative_safe_trade",
+      "status": "PASS"
+    },
+    {
+      "name": "reset_wall_one_shot",
+      "status": "PASS"
+    },
+    {
+      "name": "reset_wall_boss_bypass",
+      "status": "PASS"
+    },
+    {
+      "name": "reset_wall_fallback_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lone_dudunsparce_not_reset_wall",
+      "status": "PASS"
+    },
+    {
+      "name": "bench_damage_wipe_avoidance",
+      "status": "PASS"
+    },
+    {
+      "name": "three_prize_boss_conversion",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_conversion_rejects_worse_reply",
+      "status": "PASS"
+    },
+    {
+      "name": "ready_threat_removal_positive",
+      "status": "PASS"
+    },
+    {
+      "name": "ready_threat_removal_negative_unbound",
+      "status": "PASS"
+    },
+    {
+      "name": "structured_serial_references_positive",
+      "references": [
+        13,
+        30,
+        39
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "structured_serial_collision_negative_3",
+      "references": [
+        13,
+        30,
+        39
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "structured_serial_collision_negative_253",
+      "references": [
+        13,
+        30,
+        39
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "structured_serial_collision_negative_139",
+      "references": [
+        13,
+        30,
+        39
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "all_losing_comeback_order",
+      "status": "PASS"
+    },
+    {
+      "name": "unknown_effect_fail_closed",
+      "reason": "reply_graph_unknown",
+      "status": "PASS"
+    },
+    {
+      "name": "bench_metal_successor_complete_plans",
+      "status": "PASS"
+    },
+    {
+      "name": "bench_evolve_alloy_successor_complete_plans",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        2
+      ],
+      "name": "bench_evolve_pcrd_handoff_valid",
+      "status": "PASS"
+    }
+  ],
+  "t9_conservation": {
+    "aborts": 2,
+    "completes": 6,
+    "holds": true,
+    "live": 0,
+    "settled": 8,
+    "starts": 8
+  }
+}

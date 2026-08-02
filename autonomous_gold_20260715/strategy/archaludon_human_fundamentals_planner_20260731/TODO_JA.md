@@ -291,7 +291,7 @@ Task 6 実装結果（2026-08-02）:
 - [ ] Jumbo Ice Cream は生存ターン増加と Raging Hammer 火力低下を比較する。
 - [ ] Hero's Cape は被KO回数または Prize 経路が変わる対象に付ける。
 - [ ] Full Metal Lab は自分と相手の鋼ポケモン双方のダメージを30軽減して再計算する。
-- [ ] Boss は終端勝利、高Prize KO、準備済み脅威除去、確実な1ターン獲得に使う。
+- [x] Boss は終端勝利、高Prize KO、準備済み脅威除去、確実な1ターン獲得に使う。Task 7の終端BossとTask 9の非終端Prize変換・脅威除去で目的別に扱う。
 
 ### Pokégear / Boss transaction 第1段階
 
@@ -351,6 +351,32 @@ Task 7 の exact-terminal 層は完了した。一般 Lillie は Task 8、非終
 
 Task 8 は完了した。非終端Boss、有害KO、公開された返しによる確定敗北回避、
 reset壁、全経路が負ける場合の逆転分岐はTask 9が引き継ぐ。
+
+### Task 9: 有害KO・Boss対象・逆転分岐
+
+`PUBLIC_PRIZE_RACE_THREAT_CONTROL_T9_V1` を Task 8 の最終wrapperとして実装した。
+六つの目的を別々のスコアルールとして重ねず、同じ完全ターンプラン、戦闘証明、
+相手の公開された返し、資源台帳を共有する一つのプランナーで比較する。
+
+- 確定勝利、確定敗北・全滅回避、現在Prize、確定返し、次アタッカー、資源の順を
+  ハードな辞書順にし、下位の盤面点で上位判断を相殺しない。
+- KO後の昇格で確定敗北する場合だけ有害KOとして、KOしない、Boss、壁、脅威除去を
+  比較する。非終端で後続が残る通常のPrize交換は拒否しない。
+- Run Away Draw等で消える非致死ダメージは持続進捗0とし、一撃KO、Boss bypass、
+  親維持を比較する。
+- 非終端Bossは、より多いPrize、準備済み攻撃役または公開エンジン除去が、返しと
+  自分の勝利ターンを悪化させない場合だけ使う。
+- 全計画が負ける場合は、敗北までのターン、相手に追加要求する公開資源、残る
+  逆転経路、山札切れ、消費資源の順で選ぶ。
+- Bossの使用から対象指定、gust後MAIN、確定攻撃まで単一ownerで完走し、攻撃後は
+  Turbo Flare等の後処理ownerへ解放する。
+
+52 focused fixturesと32 effect-registry tests、両席smokeを通過した。全最新46履歴と
+固定した過去32履歴のshadowでは5差分が発火し、確定敗北回避1件、非終端Bossの
+1 Prize変換4件だった。invalid、例外、owner collision、明白な破壊的差分は0。
+
+実装は完了したが、自然発火は六目的中二目的だけである。Task 8を正式baselineとして
+残し、Task 9は実戦で発火後のtransaction完走と勝敗因果を確認する探索候補とする。
 
 Root verification:
 `implementation/archaludon_purpose_first_pokegear_boss_transaction_v1/ROOT_VERIFICATION.md`
@@ -439,18 +465,18 @@ epochal版 failure report:
 
 ## P1: Prize race と固定条件分岐
 
-- [ ] 今ターンの確定勝利はハード分岐で取る。
-- [ ] 次の相手ターンの確定敗北を回避できる手があるならハード分岐で回避する。
-- [ ] KO後に準備済みベンチが最終Prizeを取る場合、KOしない、Boss、
+- [x] 今ターンの確定勝利はハード分岐で取る。
+- [x] 次の相手ターンの確定敗北を回避できる手があるならハード分岐で回避する。
+- [x] KO後に準備済みベンチが最終Prizeを取る場合、KOしない、Boss、
   一Prize壁、準備済み脅威除去を比較する。
-- [ ] 目の前のActiveよりBenchの進化エンジンや準備済み高Prize脅威を
+- [x] 目の前のActiveよりBenchの進化エンジンや準備済み高Prize脅威を
   攻撃・Bossする方が勝利ターンを短縮する場合はそちらを選ぶ。
-- [ ] 全て負け筋なら盤面点ではなく、敗北までのターン、
+- [x] 全て負け筋なら盤面点ではなく、敗北までのターン、
   相手に追加要求する資源、自分に残る逆転経路の順で選ぶ。
 
 ## 判定方式
 
-- [ ] legality、engine context、確定勝利、確定敗北回避、
+- [x] legality、engine context、確定勝利、確定敗北回避、
   継続中 transaction はハード条件分岐にする。
 - [x] v2 が扱う明確な支配関係ではスコアを使わない。
 - [x] v2 が追加する判断では、スコアを完全なターンプラン同士の
