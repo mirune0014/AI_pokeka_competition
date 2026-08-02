@@ -1,0 +1,276 @@
+{
+  "schema_version": "complete-action-bc-dagger1-result-v1",
+  "experiment_id": "archaludon-complete-action-bc-dagger1-20260802",
+  "status": "completed_not_accepted",
+  "decision": {
+    "retained_agent": "iteration004",
+    "ppo_reference_accepted": false,
+    "additional_dagger_rounds": 0,
+    "validation_gate_passed": false,
+    "fixed_320_gate_passed_seeds": 2,
+    "fixed_320_gate_total_seeds": 3,
+    "reproducible_five_point_drop_triggered": false,
+    "reason": "DAgger improved all three initial BC checkpoints, but all locked-validation top-1 rates remain far below 98% and one fixed-320 seed remains 5.3125 percentage points below iteration004."
+  },
+  "inputs": {
+    "base_dataset_sha256": "E91E0C757519CB72D9B302A7A9088B5AB8444AA72EFB98138648C75B871A39CD",
+    "initial_bc_checkpoint_sha256": {
+      "2026080211": "52A9C8E80E6F2C717320058A3DA6DC44AAFD2AFB784B149D6629DC5356F38F24",
+      "2026080212": "2AA80CF49421A14F389A2B67FD19DD751B52F3F679BBC27E573ACC8ACC28BA6D",
+      "2026080213": "F27AE4866794E00864E15F6A057855880514C9CC46B1404F5680F041E6D8EDF6"
+    },
+    "work_root": "C:\\ptcg\\d1"
+  },
+  "dagger_collection": {
+    "episodes": 960,
+    "decisions": 48582,
+    "representability_failures": 0,
+    "fallback_count": 126,
+    "model_failure_count": 3,
+    "model_timeout_count": 3,
+    "parts": [
+      {
+        "actor_id": "a11",
+        "episodes": 320,
+        "decisions": 16859,
+        "fallback_count": 40,
+        "model_failure_count": 0,
+        "model_timeout_count": 0,
+        "dataset_sha256": "D747685022DE872BC266F05A124397199FADE5DCFFAB6AF1FC2DBF75C2D3F022",
+        "report_sha256": "839FCFAF6D3D073083C8E7AC8F42E3D491DCB8ED734A0E7C55F8DB8D5F4A8AB3"
+      },
+      {
+        "actor_id": "a12",
+        "episodes": 320,
+        "decisions": 15968,
+        "fallback_count": 45,
+        "model_failure_count": 2,
+        "model_timeout_count": 2,
+        "dataset_sha256": "196DD4BD781DD73F5FF6562E5EC8B34BCB832456DDFB8E5337C063112199438B",
+        "report_sha256": "C05A12DE07FF5F9756622A2E5F01C74E42F81D7A68EF32F1307A206015957175"
+      },
+      {
+        "actor_id": "a13",
+        "episodes": 320,
+        "decisions": 15755,
+        "fallback_count": 41,
+        "model_failure_count": 1,
+        "model_timeout_count": 1,
+        "dataset_sha256": "BD0A3592B0E03F98F45FBCB640AD5CFEBBC5E949A389ED26ACB5C9763FCFE7F9",
+        "report_sha256": "607A99E2F10B3A844D5FB4689E617B2A8AC28924635D264D032516B6828ED75D"
+      }
+    ]
+  },
+  "merged_dataset": {
+    "sha256": "8AF7CAE51CF96B3B51800FE10ADEADC45D8A4613A43A5C8CF831374D01EE9C5F",
+    "report_sha256": "6493B44C7ED1098738EC3C5EEA6FFA6C184D89D56C1DC5FB463CA62B934079B5",
+    "episodes": 2960,
+    "train_episodes": 2560,
+    "locked_validation_episodes": 400,
+    "decisions": 152507,
+    "representability_failures": 0,
+    "base_locked_validation_preserved": true
+  },
+  "arms": [
+    {
+      "seed": 2026080211,
+      "checkpoint_sha256": "7AC19ECD882F2E4FED01EF98270F36AD670408BFB9D6446724A31555E49480CC",
+      "training_report_sha256": "252B052278B108637CF3BE474401DEB64726D4F6AE3C716FA5BFE388C02D9315",
+      "validation": {
+        "rows": 20933,
+        "teacher_top1": 0.8653800219748722,
+        "cross_entropy": 0.36721381344752174,
+        "entropy": 0.3326987057564074,
+        "optional_top1": 0.9271070615034168,
+        "multiple_top1": 0.7481481481481481,
+        "illegal_actions": 0,
+        "representability_fallbacks": 0,
+        "by_action_family_top1": {
+          "0": 0.9344262295081968,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 0.8964824120603015,
+          "6": 1.0,
+          "7": 0.820613542835765,
+          "8": 0.8282703037817731,
+          "9": 0.7389659520807061,
+          "10": 0.13333333333333333,
+          "12": 0.7630662020905923,
+          "13": 0.8620224719101124,
+          "14": 0.8237704918032787,
+          "empty": 0.9554455445544554
+        }
+      },
+      "fixed_320": {
+        "wins": 244,
+        "games": 320,
+        "win_rate": 0.7625,
+        "initial_bc_wins": 241,
+        "gain_from_initial_bc": 0.009375,
+        "delta_from_iteration004": -0.053125,
+        "mean_turns": 13.25625,
+        "action_errors": 0,
+        "max_step_hits": 0,
+        "fallback_count": 44,
+        "model_failure_count": 1,
+        "fixed_no_clear_collapse": false,
+        "by_seat_win_rate": {"0": 0.76875, "1": 0.75625},
+        "by_opponent_win_rate": {
+          "alakazam_public": 0.775,
+          "alakazam_rmy_live": 0.825,
+          "dragapult_live": 0.825,
+          "historical_silver": 0.425,
+          "marnie_kazuki_live": 0.8,
+          "mega_lucario_public": 0.9,
+          "ogerpon_cornerstone_public": 0.675,
+          "starmie_public": 0.875
+        }
+      }
+    },
+    {
+      "seed": 2026080212,
+      "checkpoint_sha256": "4C69E3FCCB748394C12DE537904B76DE37413D2F10F191A4286AC2CC7AFD9052",
+      "training_report_sha256": "9AD276E60790B5DAB630409E89CF3501D6EA3654E6E399507801E58A5B98A4D7",
+      "validation": {
+        "rows": 20933,
+        "teacher_top1": 0.8641857354416471,
+        "cross_entropy": 0.36750049834346393,
+        "entropy": 0.3430322903953074,
+        "optional_top1": 0.9143507972665148,
+        "multiple_top1": 0.7504873294346979,
+        "illegal_actions": 0,
+        "representability_fallbacks": 0,
+        "by_action_family_top1": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 0.8925739810161921,
+          "6": 1.0,
+          "7": 0.7974186307519641,
+          "8": 0.8530688158710478,
+          "9": 0.8083228247162674,
+          "10": 0.2,
+          "12": 0.8048780487804879,
+          "13": 0.8674157303370786,
+          "14": 0.8565573770491803,
+          "empty": 0.9455445544554455
+        }
+      },
+      "fixed_320": {
+        "wins": 247,
+        "games": 320,
+        "win_rate": 0.771875,
+        "initial_bc_wins": 229,
+        "gain_from_initial_bc": 0.05625,
+        "delta_from_iteration004": -0.04375,
+        "mean_turns": 12.9625,
+        "action_errors": 0,
+        "max_step_hits": 0,
+        "fallback_count": 35,
+        "model_failure_count": 0,
+        "fixed_no_clear_collapse": true,
+        "by_seat_win_rate": {"0": 0.7875, "1": 0.75625},
+        "by_opponent_win_rate": {
+          "alakazam_public": 0.825,
+          "alakazam_rmy_live": 0.75,
+          "dragapult_live": 0.9,
+          "historical_silver": 0.425,
+          "marnie_kazuki_live": 0.8,
+          "mega_lucario_public": 0.95,
+          "ogerpon_cornerstone_public": 0.675,
+          "starmie_public": 0.85
+        }
+      }
+    },
+    {
+      "seed": 2026080213,
+      "checkpoint_sha256": "6BF80238797634228F50A70D030EEEAD441F890414C938DC8C66B8CDE6E5E411",
+      "training_report_sha256": "443D856317C7A3A550D2C20F33346EB195B75FA8619E4D6A90E5B2F66AB41210",
+      "validation": {
+        "rows": 20933,
+        "teacher_top1": 0.8732623130941576,
+        "cross_entropy": 0.3504054387015642,
+        "entropy": 0.32746471422705964,
+        "optional_top1": 0.9230068337129841,
+        "multiple_top1": 0.7524366471734892,
+        "illegal_actions": 0,
+        "representability_fallbacks": 0,
+        "by_action_family_top1": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 0.8959240647682859,
+          "6": 1.0,
+          "7": 0.8329592218481108,
+          "8": 0.8326100433973962,
+          "9": 0.7465321563682219,
+          "10": 0.13333333333333333,
+          "12": 0.8222996515679443,
+          "13": 0.8826966292134831,
+          "14": 0.8975409836065574,
+          "empty": 0.9653465346534653
+        }
+      },
+      "fixed_320": {
+        "wins": 254,
+        "games": 320,
+        "win_rate": 0.79375,
+        "initial_bc_wins": 248,
+        "gain_from_initial_bc": 0.01875,
+        "delta_from_iteration004": -0.021875,
+        "mean_turns": 13.259375,
+        "action_errors": 0,
+        "max_step_hits": 0,
+        "fallback_count": 50,
+        "model_failure_count": 0,
+        "fixed_no_clear_collapse": true,
+        "by_seat_win_rate": {"0": 0.81875, "1": 0.76875},
+        "by_opponent_win_rate": {
+          "alakazam_public": 0.8,
+          "alakazam_rmy_live": 0.85,
+          "dragapult_live": 0.9,
+          "historical_silver": 0.425,
+          "marnie_kazuki_live": 0.85,
+          "mega_lucario_public": 0.95,
+          "ogerpon_cornerstone_public": 0.7,
+          "starmie_public": 0.875
+        }
+      }
+    }
+  ],
+  "pooled_fixed_evaluation": {
+    "wins": 745,
+    "games": 960,
+    "win_rate": 0.7760416666666666,
+    "initial_bc_wins": 718,
+    "initial_bc_win_rate": 0.7479166666666667,
+    "gain_from_initial_bc": 0.028125,
+    "iteration004_win_rate": 0.815625,
+    "delta_from_iteration004": -0.0395833333333333,
+    "action_errors": 0,
+    "max_step_hits": 0,
+    "fallback_count": 129,
+    "model_failure_count": 1,
+    "by_seat": {
+      "0": {"wins": 380, "games": 480, "win_rate": 0.7916666666666666, "delta_from_iteration004": -0.0333333333333333},
+      "1": {"wins": 365, "games": 480, "win_rate": 0.7604166666666666, "delta_from_iteration004": -0.0458333333333333}
+    },
+    "by_opponent": {
+      "alakazam_public": {"wins": 96, "games": 120, "win_rate": 0.8, "delta_from_iteration004": -0.025},
+      "alakazam_rmy_live": {"wins": 97, "games": 120, "win_rate": 0.8083333333333333, "delta_from_iteration004": -0.0916666666666667},
+      "dragapult_live": {"wins": 105, "games": 120, "win_rate": 0.875, "delta_from_iteration004": 0.025},
+      "historical_silver": {"wins": 51, "games": 120, "win_rate": 0.425, "delta_from_iteration004": -0.15},
+      "marnie_kazuki_live": {"wins": 98, "games": 120, "win_rate": 0.8166666666666667, "delta_from_iteration004": -0.0333333333333333},
+      "mega_lucario_public": {"wins": 112, "games": 120, "win_rate": 0.9333333333333333, "delta_from_iteration004": -0.0416666666666667},
+      "ogerpon_cornerstone_public": {"wins": 82, "games": 120, "win_rate": 0.6833333333333333, "delta_from_iteration004": 0.0083333333333333},
+      "starmie_public": {"wins": 104, "games": 120, "win_rate": 0.8666666666666667, "delta_from_iteration004": -0.0083333333333333}
+    }
+  },
+  "verification": {
+    "raw_evaluation_summary_sha256": "448B882BC461714350C861D88B260B07FD982C48C0947C3253E30D81019EBDA1",
+    "raw_rows": 960,
+    "unique_arm_opponent_seat_seed_keys": 960,
+    "aggregate_matches_raw_recomputation": true,
+    "baseline_raw_rows_available": false
+  }
+}
