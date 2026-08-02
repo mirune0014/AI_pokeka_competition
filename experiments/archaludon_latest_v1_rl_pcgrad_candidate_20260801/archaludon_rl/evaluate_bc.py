@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -123,6 +124,21 @@ def _fallback_category(reason: Any) -> str:
     return "other"
 
 
+def _compact_audit_directory(output_root: Path, arm_id: str, cell_id: str) -> Path:
+    """Keep deployment-audit filenames below the legacy Windows path limit."""
+
+    identity = hashlib.sha256(f"{arm_id}\0{cell_id}".encode("utf-8")).hexdigest()[:16]
+    return output_root / "audit" / identity
+
+
+def _baseline_from_result(source: Mapping[str, Any]) -> dict[str, Any]:
+    for key in ("baseline", "iteration004_baseline"):
+        value = source.get(key)
+        if isinstance(value, Mapping):
+            return dict(value)
+    raise ValueError("baseline result has neither baseline nor iteration004_baseline")
+
+
 def _run_cell(
     *,
     spec: Mapping[str, Any],
@@ -136,7 +152,7 @@ def _run_cell(
     cell_id = f"{opponent_id}_seat{seat}"
     cell_root = output_root / "evaluation" / arm_id
     summary_path = cell_root / "summaries" / f"{cell_id}.jsonl"
-    audit_dir = cell_root / "audits" / cell_id
+    audit_dir = _compact_audit_directory(output_root, arm_id, cell_id)
     log_path = output_root / "logs" / f"{arm_id}_{cell_id}.log"
     receipt_path = cell_root / "receipts" / f"{cell_id}.json"
     if any(path.exists() for path in (summary_path, audit_dir, log_path, receipt_path)):
@@ -330,45 +346,51 @@ def _aggregate_arm(
 def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     spec = _load_json(Path(args.spec))
     output_root = Path(args.output_dir).resolve()
-    if output_root.exists():
-        raise FileExistsError("BC evaluation output directory already exists")
-    output_root.mkdir(parents=True)
+    aggregate_existing = bool(getattr(args, "aggregate_existing", False))
+    if aggregate_existing:
+        if not output_root.is_dir():
+            raise FileNotFoundError("BC evaluation output directory does not exist")
+    else:
+        if output_root.exists():
+            raise FileExistsError("BC evaluation output directory already exists")
+        output_root.mkdir(parents=True)
     arms = _training_arms(
         Path(args.training_root),
         report_glob=str(spec["deployment"].get("training_report_glob", "bc_seed*.json")),
         arm_prefix=str(spec["deployment"].get("arm_prefix", "bc_seed")),
     )
     opponents = _opponents(spec)
-    jobs = [
-        (arm, opponent, seat)
-        for arm in arms
-        for opponent in opponents
-        for seat in (0, 1)
-    ]
-    completed_jobs = 0
-    with ThreadPoolExecutor(max_workers=args.workers) as executor:
-        futures = {
-            executor.submit(
-                _run_cell,
-                spec=spec,
-                arm=arm,
-                opponent=opponent,
-                seat=seat,
-                output_root=output_root,
-            ): (arm["arm_id"], opponent["id"], seat)
-            for arm, opponent, seat in jobs
-        }
-        for future in as_completed(futures):
-            label = futures[future]
-            future.result()
-            completed_jobs += 1
-            print(
-                json.dumps(
-                    {"completed_cells": completed_jobs, "total_cells": len(jobs), "last": label},
-                    ensure_ascii=False,
-                ),
-                flush=True,
-            )
+    if not aggregate_existing:
+        jobs = [
+            (arm, opponent, seat)
+            for arm in arms
+            for opponent in opponents
+            for seat in (0, 1)
+        ]
+        completed_jobs = 0
+        with ThreadPoolExecutor(max_workers=args.workers) as executor:
+            futures = {
+                executor.submit(
+                    _run_cell,
+                    spec=spec,
+                    arm=arm,
+                    opponent=opponent,
+                    seat=seat,
+                    output_root=output_root,
+                ): (arm["arm_id"], opponent["id"], seat)
+                for arm, opponent, seat in jobs
+            }
+            for future in as_completed(futures):
+                label = futures[future]
+                future.result()
+                completed_jobs += 1
+                print(
+                    json.dumps(
+                        {"completed_cells": completed_jobs, "total_cells": len(jobs), "last": label},
+                        ensure_ascii=False,
+                    ),
+                    flush=True,
+                )
     arm_results = [
         _aggregate_arm(
             spec=spec,
@@ -379,7 +401,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
         for arm in arms
     ]
     baseline_source = _load_json(Path(args.baseline_result))
-    baseline = dict(baseline_source["baseline"])
+    baseline = _baseline_from_result(baseline_source)
     thresholds = spec["provisional_pass"]["fixed_320_no_clear_collapse"]
     for arm in arm_results:
         arm["comparison_to_iteration004"] = {
@@ -425,6 +447,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--baseline-result", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument(
+        "--aggregate-existing",
+        action="store_true",
+        help="validate and aggregate an already completed 48-cell evaluation",
+    )
     return parser
 
 

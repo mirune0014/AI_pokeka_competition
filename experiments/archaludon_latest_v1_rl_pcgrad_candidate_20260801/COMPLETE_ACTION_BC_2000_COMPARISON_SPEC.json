@@ -1,0 +1,67 @@
+{
+  "schema_version": "ptcg-immutable-comparison-spec-v1",
+  "comparison_id": "complete-action-bc-2000-fixed-320-three-seed-20260802",
+  "experiment_spec": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/complete_action_bc_2000_v1_20260802.json",
+    "sha256": "7E91EFB2F78F634FF647983211D7AF0A057FAE1EDF2573CA81F4658F5BB0C6B9"
+  },
+  "population_spec": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/specs/phase1_iteration_002_population.json",
+    "sha256": "EBFFBA03926D87E4D2B36A4EE603C5AC7A4DD6710CBB329E081006E1A57CBAE5"
+  },
+  "raw_snapshot": {
+    "root": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/fixed_evaluation",
+    "included": ["evaluation/**/summaries/*.jsonl", "evaluation/**/receipts/*.json", "audit/*/deployment-audit-*.jsonl"],
+    "file_count": 144,
+    "manifest_sha256": "D1EFEE28EF92CD205152E9CDE1D70096342AED0DE2E60FC3906A20833709F543",
+    "manifest_algorithm": "UTF-8 rows sorted by full path: root-relative POSIX path NUL byte_length NUL uppercase_sha256 LF",
+    "freeze_discrepancy": {
+      "original_recorded_sha256": "7D52AE760C0D8383DDB50870438E6E7105882AA7A347BB98316406C81B1719BC",
+      "status": "rejected_and_corrected_before_numerical_audit_completion",
+      "cause": "The original PowerShell format string was single-quoted and hashed literal backtick-zero/backtick-n characters instead of NUL/LF.",
+      "corrected_sha256": "D1EFEE28EF92CD205152E9CDE1D70096342AED0DE2E60FC3906A20833709F543"
+    }
+  },
+  "baseline": {
+    "path": "experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/BC_ACTOR_MINIMAL_RESULT.json",
+    "sha256": "6772442FCC7B80942D19E8854A075343D3F29CB1F832DB4EB7D1BC557E6F0A59",
+    "json_key": "iteration004_baseline"
+  },
+  "candidates": [
+    {
+      "arm_id": "complete_bc_seed2026080211",
+      "path": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/bc/checkpoints/complete_bc_seed2026080211.pt",
+      "sha256": "52A9C8E80E6F2C717320058A3DA6DC44AAFD2AFB784B149D6629DC5356F38F24"
+    },
+    {
+      "arm_id": "complete_bc_seed2026080212",
+      "path": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/bc/checkpoints/complete_bc_seed2026080212.pt",
+      "sha256": "2AA80CF49421A14F389A2B67FD19DD751B52F3F679BBC27E573ACC8ACC28BA6D"
+    },
+    {
+      "arm_id": "complete_bc_seed2026080213",
+      "path": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/bc/checkpoints/complete_bc_seed2026080213.pt",
+      "sha256": "F27AE4866794E00864E15F6A057855880514C9CC46B1404F5680F041E6D8EDF6"
+    }
+  ],
+  "engine": {
+    "path": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+    "runtime_manifest_sha256": "DAAD95164512EA3F210B4679840FE2CD631300044A6E5F49C41642EABD823089"
+  },
+  "schedule": {
+    "opponents": ["historical_silver", "alakazam_public", "alakazam_rmy_live", "marnie_kazuki_live", "mega_lucario_public", "starmie_public", "dragapult_live", "ogerpon_cornerstone_public"],
+    "seats": [0, 1],
+    "seeds": [731202000, 731202001, 731202002, 731202003, 731202004, 731202005, 731202006, 731202007, 731202008, 731202009, 731202010, 731202011, 731202012, 731202013, 731202014, 731202015, 731202016, 731202017, 731202018, 731202019],
+    "games_per_cell": 20,
+    "cells_per_candidate": 16,
+    "games_per_candidate": 320,
+    "total_candidate_games": 960,
+    "max_steps": 1000
+  },
+  "raw_summary_schema": ["game", "seed", "started", "hit_max_steps", "result", "turn", "action_errors", "your_index"],
+  "required_checks": ["unique_arm_opponent_seat_seed_keys", "exact_schedule_equality", "baseline_and_candidate_wins", "row_totals", "action_errors", "max_step_hits", "duplicate_controls", "receipt_and_summary_hash_consistency"],
+  "aggregated_result": {
+    "path": "analysis_outputs/archaludon_complete_action_bc_teacher_2000_20260802/fixed_evaluation/evaluation_summary.json",
+    "sha256": "C172943077C5882AE3D9DAF7A2FC86752E301A269C64AB5BA880B373706D0B01"
+  }
+}

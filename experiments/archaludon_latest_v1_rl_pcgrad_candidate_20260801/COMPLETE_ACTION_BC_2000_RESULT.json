@@ -1,0 +1,513 @@
+{
+  "schema_version": "behavior-cloning-fixed-evaluation-v1",
+  "fixed_schedule_games_per_checkpoint": 320,
+  "baseline": {
+    "arm_id": "iteration004",
+    "by_opponent": {
+      "alakazam_public": {
+        "action_errors": 0,
+        "decision_count": 2253,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 11.975,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.825,
+        "wins": 33
+      },
+      "alakazam_rmy_live": {
+        "action_errors": 0,
+        "decision_count": 1964,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 10.675,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.9,
+        "wins": 36
+      },
+      "dragapult_live": {
+        "action_errors": 0,
+        "decision_count": 1841,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 11.1,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.85,
+        "wins": 34
+      },
+      "historical_silver": {
+        "action_errors": 0,
+        "decision_count": 2245,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 13.475,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.575,
+        "wins": 23
+      },
+      "marnie_kazuki_live": {
+        "action_errors": 0,
+        "decision_count": 2377,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 13.5,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.85,
+        "wins": 34
+      },
+      "mega_lucario_public": {
+        "action_errors": 0,
+        "decision_count": 2143,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 12.575,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.975,
+        "wins": 39
+      },
+      "ogerpon_cornerstone_public": {
+        "action_errors": 0,
+        "decision_count": 1744,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 13.95,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.675,
+        "wins": 27
+      },
+      "starmie_public": {
+        "action_errors": 0,
+        "decision_count": 2000,
+        "games": 40,
+        "max_step_hits": 0,
+        "mean_turns": 11.65,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.875,
+        "wins": 35
+      }
+    },
+    "by_seat": {
+      "0": {
+        "action_errors": 0,
+        "decision_count": 8471,
+        "games": 160,
+        "max_step_hits": 0,
+        "mean_turns": 12.65,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.825,
+        "wins": 132
+      },
+      "1": {
+        "action_errors": 0,
+        "decision_count": 8096,
+        "games": 160,
+        "max_step_hits": 0,
+        "mean_turns": 12.075,
+        "severe_abnormal_action_rate": 0.0,
+        "severe_abnormal_actions": 0,
+        "win_rate": 0.80625,
+        "wins": 129
+      }
+    },
+    "checkpoint_sha256": "24D8A4EACD9D7B699D327D3F2436F4DA21AC79433038E6FA96F9AE0E50F8FB04",
+    "epochs": 0,
+    "overall": {
+      "action_errors": 0,
+      "decision_count": 16567,
+      "games": 320,
+      "max_step_hits": 0,
+      "mean_turns": 12.3625,
+      "paired_delta_win_rate": 0.0,
+      "paired_delta_wins": 0,
+      "severe_abnormal_action_rate": 0.0,
+      "severe_abnormal_actions": 0,
+      "win_rate": 0.815625,
+      "wins": 261
+    },
+    "replicate": "baseline",
+    "training_seed_base": null
+  },
+  "arms": [
+    {
+      "arm_id": "complete_bc_seed2026080211",
+      "seed": 2026080211,
+      "checkpoint": "C:\\Users\\students\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_complete_action_bc_teacher_2000_20260802\\bc\\checkpoints\\complete_bc_seed2026080211.pt",
+      "checkpoint_sha256": "52A9C8E80E6F2C717320058A3DA6DC44AAFD2AFB784B149D6629DC5356F38F24",
+      "training_report": "C:\\Users\\students\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_complete_action_bc_teacher_2000_20260802\\bc\\training\\complete_bc_seed2026080211.json",
+      "overall": {
+        "games": 320,
+        "wins": 241,
+        "win_rate": 0.753125,
+        "mean_turns": 13.4625,
+        "action_errors": 0,
+        "max_step_hits": 0
+      },
+      "by_opponent": {
+        "alakazam_public": {
+          "games": 40,
+          "wins": 34,
+          "win_rate": 0.85,
+          "mean_turns": 12.4,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "alakazam_rmy_live": {
+          "games": 40,
+          "wins": 31,
+          "win_rate": 0.775,
+          "mean_turns": 10.75,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "dragapult_live": {
+          "games": 40,
+          "wins": 34,
+          "win_rate": 0.85,
+          "mean_turns": 13.65,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "historical_silver": {
+          "games": 40,
+          "wins": 16,
+          "win_rate": 0.4,
+          "mean_turns": 13.825,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "marnie_kazuki_live": {
+          "games": 40,
+          "wins": 31,
+          "win_rate": 0.775,
+          "mean_turns": 12.975,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "mega_lucario_public": {
+          "games": 40,
+          "wins": 38,
+          "win_rate": 0.95,
+          "mean_turns": 13.45,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "ogerpon_cornerstone_public": {
+          "games": 40,
+          "wins": 22,
+          "win_rate": 0.55,
+          "mean_turns": 18.4,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "starmie_public": {
+          "games": 40,
+          "wins": 35,
+          "win_rate": 0.875,
+          "mean_turns": 12.25,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "games": 160,
+          "wins": 125,
+          "win_rate": 0.78125,
+          "mean_turns": 13.94375,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "1": {
+          "games": 160,
+          "wins": 116,
+          "win_rate": 0.725,
+          "mean_turns": 12.98125,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "decision_count": 17601,
+      "fallback_count": 48,
+      "fallback_rate": 0.0027271177773990113,
+      "fallback_categories": {
+        "model_or_selection_failure": 3,
+        "other_explicit_major_safety": 45
+      },
+      "model_failure_count": 3,
+      "comparison_to_iteration004": {
+        "overall_win_rate_delta": -0.0625,
+        "by_opponent_win_rate_delta": {
+          "alakazam_public": 0.025000000000000022,
+          "alakazam_rmy_live": -0.125,
+          "dragapult_live": 0.0,
+          "historical_silver": -0.17499999999999993,
+          "marnie_kazuki_live": -0.07499999999999996,
+          "mega_lucario_public": -0.025000000000000022,
+          "ogerpon_cornerstone_public": -0.125,
+          "starmie_public": 0.0
+        },
+        "by_seat_win_rate_delta": {
+          "0": -0.043749999999999956,
+          "1": -0.08125000000000004
+        }
+      },
+      "fixed_320_no_clear_collapse": false
+    },
+    {
+      "arm_id": "complete_bc_seed2026080212",
+      "seed": 2026080212,
+      "checkpoint": "C:\\Users\\students\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_complete_action_bc_teacher_2000_20260802\\bc\\checkpoints\\complete_bc_seed2026080212.pt",
+      "checkpoint_sha256": "2AA80CF49421A14F389A2B67FD19DD751B52F3F679BBC27E573ACC8ACC28BA6D",
+      "training_report": "C:\\Users\\students\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_complete_action_bc_teacher_2000_20260802\\bc\\training\\complete_bc_seed2026080212.json",
+      "overall": {
+        "games": 320,
+        "wins": 229,
+        "win_rate": 0.715625,
+        "mean_turns": 13.10625,
+        "action_errors": 0,
+        "max_step_hits": 0
+      },
+      "by_opponent": {
+        "alakazam_public": {
+          "games": 40,
+          "wins": 28,
+          "win_rate": 0.7,
+          "mean_turns": 12.2,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "alakazam_rmy_live": {
+          "games": 40,
+          "wins": 32,
+          "win_rate": 0.8,
+          "mean_turns": 10.6,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "dragapult_live": {
+          "games": 40,
+          "wins": 35,
+          "win_rate": 0.875,
+          "mean_turns": 13.35,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "historical_silver": {
+          "games": 40,
+          "wins": 11,
+          "win_rate": 0.275,
+          "mean_turns": 13.55,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "marnie_kazuki_live": {
+          "games": 40,
+          "wins": 30,
+          "win_rate": 0.75,
+          "mean_turns": 12.575,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "mega_lucario_public": {
+          "games": 40,
+          "wins": 36,
+          "win_rate": 0.9,
+          "mean_turns": 13.05,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "ogerpon_cornerstone_public": {
+          "games": 40,
+          "wins": 24,
+          "win_rate": 0.6,
+          "mean_turns": 17.55,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "starmie_public": {
+          "games": 40,
+          "wins": 33,
+          "win_rate": 0.825,
+          "mean_turns": 11.975,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "games": 160,
+          "wins": 124,
+          "win_rate": 0.775,
+          "mean_turns": 13.5125,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "1": {
+          "games": 160,
+          "wins": 105,
+          "win_rate": 0.65625,
+          "mean_turns": 12.7,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "decision_count": 16328,
+      "fallback_count": 50,
+      "fallback_rate": 0.0030622243998040177,
+      "fallback_categories": {
+        "other_explicit_major_safety": 50
+      },
+      "model_failure_count": 0,
+      "comparison_to_iteration004": {
+        "overall_win_rate_delta": -0.10000000000000009,
+        "by_opponent_win_rate_delta": {
+          "alakazam_public": -0.125,
+          "alakazam_rmy_live": -0.09999999999999998,
+          "dragapult_live": 0.025000000000000022,
+          "historical_silver": -0.29999999999999993,
+          "marnie_kazuki_live": -0.09999999999999998,
+          "mega_lucario_public": -0.07499999999999996,
+          "ogerpon_cornerstone_public": -0.07500000000000007,
+          "starmie_public": -0.050000000000000044
+        },
+        "by_seat_win_rate_delta": {
+          "0": -0.04999999999999993,
+          "1": -0.15000000000000002
+        }
+      },
+      "fixed_320_no_clear_collapse": false
+    },
+    {
+      "arm_id": "complete_bc_seed2026080213",
+      "seed": 2026080213,
+      "checkpoint": "C:\\Users\\students\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_complete_action_bc_teacher_2000_20260802\\bc\\checkpoints\\complete_bc_seed2026080213.pt",
+      "checkpoint_sha256": "F27AE4866794E00864E15F6A057855880514C9CC46B1404F5680F041E6D8EDF6",
+      "training_report": "C:\\Users\\students\\project\\AI_pokeka_competition\\analysis_outputs\\archaludon_complete_action_bc_teacher_2000_20260802\\bc\\training\\complete_bc_seed2026080213.json",
+      "overall": {
+        "games": 320,
+        "wins": 248,
+        "win_rate": 0.775,
+        "mean_turns": 12.865625,
+        "action_errors": 0,
+        "max_step_hits": 0
+      },
+      "by_opponent": {
+        "alakazam_public": {
+          "games": 40,
+          "wins": 36,
+          "win_rate": 0.9,
+          "mean_turns": 12.45,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "alakazam_rmy_live": {
+          "games": 40,
+          "wins": 29,
+          "win_rate": 0.725,
+          "mean_turns": 10.725,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "dragapult_live": {
+          "games": 40,
+          "wins": 34,
+          "win_rate": 0.85,
+          "mean_turns": 11.975,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "historical_silver": {
+          "games": 40,
+          "wins": 13,
+          "win_rate": 0.325,
+          "mean_turns": 13.2,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "marnie_kazuki_live": {
+          "games": 40,
+          "wins": 32,
+          "win_rate": 0.8,
+          "mean_turns": 13.575,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "mega_lucario_public": {
+          "games": 40,
+          "wins": 39,
+          "win_rate": 0.975,
+          "mean_turns": 13.175,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "ogerpon_cornerstone_public": {
+          "games": 40,
+          "wins": 28,
+          "win_rate": 0.7,
+          "mean_turns": 15.85,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "starmie_public": {
+          "games": 40,
+          "wins": 37,
+          "win_rate": 0.925,
+          "mean_turns": 11.975,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "by_seat": {
+        "0": {
+          "games": 160,
+          "wins": 129,
+          "win_rate": 0.80625,
+          "mean_turns": 13.44375,
+          "action_errors": 0,
+          "max_step_hits": 0
+        },
+        "1": {
+          "games": 160,
+          "wins": 119,
+          "win_rate": 0.74375,
+          "mean_turns": 12.2875,
+          "action_errors": 0,
+          "max_step_hits": 0
+        }
+      },
+      "decision_count": 15964,
+      "fallback_count": 40,
+      "fallback_rate": 0.0025056376847907794,
+      "fallback_categories": {
+        "other_explicit_major_safety": 40
+      },
+      "model_failure_count": 0,
+      "comparison_to_iteration004": {
+        "overall_win_rate_delta": -0.04062500000000002,
+        "by_opponent_win_rate_delta": {
+          "alakazam_public": 0.07500000000000007,
+          "alakazam_rmy_live": -0.17500000000000004,
+          "dragapult_live": 0.0,
+          "historical_silver": -0.24999999999999994,
+          "marnie_kazuki_live": -0.04999999999999993,
+          "mega_lucario_public": 0.0,
+          "ogerpon_cornerstone_public": 0.02499999999999991,
+          "starmie_public": 0.050000000000000044
+        },
+        "by_seat_win_rate_delta": {
+          "0": -0.018749999999999933,
+          "1": -0.0625
+        }
+      },
+      "fixed_320_no_clear_collapse": false
+    }
+  ]
+}

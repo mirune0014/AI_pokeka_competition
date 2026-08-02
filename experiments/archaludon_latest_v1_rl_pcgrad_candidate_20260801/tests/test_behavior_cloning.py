@@ -14,6 +14,7 @@ from archaludon_rl.bc_actor import (
     batched_actor_logits,
 )
 from archaludon_rl.frozen_sources import checkpoint_source_hashes
+from archaludon_rl.evaluate_bc import _baseline_from_result, _compact_audit_directory
 from archaludon_rl.model import (
     ResidualActorCritic,
     checkpoint_metadata,
@@ -26,6 +27,37 @@ from .helpers import FakeModel, StubTeacher, observation
 
 
 class BehaviorCloningTests(unittest.TestCase):
+    def test_evaluation_accepts_both_baseline_result_schemas(self):
+        baseline = {"arm_id": "iteration004", "overall": {"win_rate": 0.5}}
+        self.assertEqual(_baseline_from_result({"baseline": baseline}), baseline)
+        self.assertEqual(
+            _baseline_from_result({"iteration004_baseline": baseline}), baseline
+        )
+        with self.assertRaisesRegex(ValueError, "neither baseline"):
+            _baseline_from_result({})
+
+    def test_evaluation_audit_directory_is_compact_and_deterministic(self):
+        output_root = Path("C:/workspace/analysis_outputs/fixed_evaluation")
+        first = _compact_audit_directory(
+            output_root,
+            "complete_bc_seed2026080211",
+            "ogerpon_cornerstone_public_seat0",
+        )
+        repeated = _compact_audit_directory(
+            output_root,
+            "complete_bc_seed2026080211",
+            "ogerpon_cornerstone_public_seat0",
+        )
+        other = _compact_audit_directory(
+            output_root,
+            "complete_bc_seed2026080211",
+            "ogerpon_cornerstone_public_seat1",
+        )
+        self.assertEqual(first, repeated)
+        self.assertNotEqual(first, other)
+        self.assertEqual(first.parent, output_root / "audit")
+        self.assertEqual(len(first.name), 16)
+
     def test_actor_logits_have_no_teacher_margin(self):
         teacher = StubTeacher(action=(0,))
         decision = BehaviorCloningPolicy(
