@@ -13,8 +13,8 @@ Updated: 2026-08-03 JST
 
 ## Accepted parent
 
-- Rule 1 accepted: `archaludon_historical_silver_single_resolver_salvage_v1`.
-- `main.py`: `153D8461FB66927DB9731CBE614B71FF5398B8EAE8980AE0BB4D46ADD0E8792A`
+- Rules 1 and 4 accepted: `archaludon_historical_silver_single_resolver_salvage_rule4_trial_v1`.
+- `main.py`: `F6B6266D870D3F134544A91616C27673620557D149C0496CC2034E7674F010D9`
 - Stored exact Historical-Silver parent: `F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E`
 - `deck.csv`: `08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A`
 
@@ -25,6 +25,10 @@ Updated: 2026-08-03 JST
   - fixed160: Silver 100, candidate 100, G/R/T 0/0/160;
   - natural starts: 28, seat 0 = 11, seat 1 = 17;
   - execution faults: 0.
+- Rule 4 `PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1`: accepted as a safe neutral rule.
+  - focused 22/22、shadow 4,262 callback、自然発火2、許可差分2、fault 0。
+  - fixed160: 親100、候補100、G/R/T 0/0/160、trace 160/160一致。
+  - 2差分はいずれも親Lillie前のattack-ready bench evolution。
 
 ## Failed or deferred rules
 
@@ -42,10 +46,10 @@ Updated: 2026-08-03 JST
 
 ## Current step
 
-Implement Rule 4, pre-Lillie exact materialization, as the only new behavior
-change from the accepted Rule 1 parent. Rules 2 and 3 are not part of that parent.
+Implement Rule 5, exact win and Boss prize conversion, as the only new behavior
+change from the accepted Rule 4 parent. Rules 2 and 3 are not part of that parent.
 
 ## Next step after acceptance
 
-Rule 5, exact win and Boss prize conversion, from the last accepted
+Rule 6, the complete Poke Pad route, from the last accepted
 Silver-based parent.

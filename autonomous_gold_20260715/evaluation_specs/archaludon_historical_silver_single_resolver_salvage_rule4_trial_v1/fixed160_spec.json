@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "policy": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+  "schedule_base": {
+    "path": "autonomous_gold_20260715/evaluation_specs/archaludon_historical_silver_single_resolver_salvage_v1_rule1/fixed160_spec.json",
+    "sha256": "E2B8986663A43A7F6F52888E487F39B8D059CDCDDF441A3E87D8C093DF15274C"
+  },
+  "strategy": {
+    "path": "autonomous_gold_20260715/strategy/archaludon_historical_silver_single_resolver_salvage_rule4_selection_v1/STRATEGY_SELECTION.md",
+    "sha256": "136526EB9D2435A7E5822D3A6EE106078267365EDFB5801DCDE15A7737F7A269"
+  },
+  "verification": {
+    "path": "autonomous_gold_20260715/root_verification/archaludon_historical_silver_single_resolver_salvage_rule4_trial_v1/ROOT_RULE4_VERIFICATION.md",
+    "sha256": "192C5D9146BA5E16FEE61411FB6C402E213841B92F151666FE8A89367E70BDB8"
+  },
+  "baseline": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_v1",
+    "main_sha256": "153D8461FB66927DB9731CBE614B71FF5398B8EAE8980AE0BB4D46ADD0E8792A",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "candidate": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_rule4_trial_v1",
+    "main_sha256": "F6B6266D870D3F134544A91616C27673620557D149C0496CC2034E7674F010D9",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "output_root": "autonomous_gold_20260715/evaluations/archaludon_historical_silver_single_resolver_salvage_rule4_trial_v1/fixed160_raw",
+  "gates": {
+    "minimum_natural_starts": 1,
+    "dormant_if_shadow_plus_fixed160_starts": 0
+  }
+}

@@ -1,0 +1,200 @@
+[
+  {
+    "classification": "BENCH_EVOLUTION_BEFORE_LILLIE",
+    "context": 0,
+    "materialization_evidence": {
+      "active_card_id": 169,
+      "active_serial": 63,
+      "energy_attached": true,
+      "opponent_prize_count": 6,
+      "selected_card_id": 190,
+      "selected_card_serial": 68,
+      "stadium_count": 1,
+      "supporter_played": false,
+      "target_appear_this_turn": false,
+      "target_card_id": 169,
+      "target_energy_ids": [
+        8,
+        8,
+        8
+      ],
+      "target_energy_serials": [
+        113,
+        115,
+        112
+      ],
+      "target_serial": 66
+    },
+    "parent_card_id": 1227,
+    "parent_card_serial": 108,
+    "replay": "episode_89279065_replay.json",
+    "rule1_action": [
+      0
+    ],
+    "rule4_action": [
+      2
+    ],
+    "seat": 1,
+    "step": 41,
+    "telemetry": {
+      "duplicate_retry": false,
+      "option_permuted": false,
+      "owner_after": {
+        "owner": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+        "route_kind": "BENCH_EVOLUTION_BEFORE_LILLIE",
+        "selected_serial": 68,
+        "stage": "MATERIALIZATION_EMITTED"
+      },
+      "owner_before": null,
+      "parent_call_count": 1,
+      "parent_semantic": [
+        [
+          7,
+          1227,
+          108,
+          null,
+          null
+        ]
+      ],
+      "proof_gates": {
+        "gates": {
+          "normal_main": true,
+          "option_bindings_exact": true,
+          "owner_empty": true,
+          "parent_exact_lillie": true,
+          "public_board_exact": true,
+          "supporter_unused": true
+        },
+        "parent_lillie_ref": [
+          1227,
+          108,
+          1
+        ],
+        "payable_attacks": [
+          253
+        ],
+        "route_kind": "BENCH_EVOLUTION_BEFORE_LILLIE",
+        "selected_ref": [
+          190,
+          68,
+          1
+        ]
+      },
+      "proposal_semantic": [
+        [
+          9,
+          190,
+          68,
+          null,
+          null
+        ]
+      ],
+      "rejection_reason": null,
+      "rule_id": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+      "selected_source": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+      "setup_active_card_id": null,
+      "setup_active_serial": null,
+      "setup_bench_serial": null
+    },
+    "turn": 8
+  },
+  {
+    "classification": "BENCH_EVOLUTION_BEFORE_LILLIE",
+    "context": 0,
+    "materialization_evidence": {
+      "active_card_id": 169,
+      "active_serial": 63,
+      "energy_attached": false,
+      "opponent_prize_count": 6,
+      "selected_card_id": 840,
+      "selected_card_serial": 91,
+      "stadium_count": 0,
+      "supporter_played": false,
+      "target_appear_this_turn": false,
+      "target_card_id": 169,
+      "target_energy_ids": [
+        8,
+        8,
+        8
+      ],
+      "target_energy_serials": [
+        93,
+        119,
+        122
+      ],
+      "target_serial": 64
+    },
+    "parent_card_id": 1227,
+    "parent_card_serial": 107,
+    "replay": "episode_89283885_replay.json",
+    "rule1_action": [
+      3
+    ],
+    "rule4_action": [
+      1
+    ],
+    "seat": 1,
+    "step": 34,
+    "telemetry": {
+      "duplicate_retry": false,
+      "option_permuted": false,
+      "owner_after": {
+        "owner": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+        "route_kind": "BENCH_EVOLUTION_BEFORE_LILLIE",
+        "selected_serial": 91,
+        "stage": "MATERIALIZATION_EMITTED"
+      },
+      "owner_before": null,
+      "parent_call_count": 1,
+      "parent_semantic": [
+        [
+          7,
+          1227,
+          107,
+          null,
+          null
+        ]
+      ],
+      "proof_gates": {
+        "gates": {
+          "normal_main": true,
+          "option_bindings_exact": true,
+          "owner_empty": true,
+          "parent_exact_lillie": true,
+          "public_board_exact": true,
+          "supporter_unused": true
+        },
+        "parent_lillie_ref": [
+          1227,
+          107,
+          1
+        ],
+        "payable_attacks": [
+          1212
+        ],
+        "route_kind": "BENCH_EVOLUTION_BEFORE_LILLIE",
+        "selected_ref": [
+          840,
+          91,
+          1
+        ]
+      },
+      "proposal_semantic": [
+        [
+          9,
+          840,
+          91,
+          null,
+          null
+        ]
+      ],
+      "rejection_reason": null,
+      "rule_id": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+      "selected_source": "PARENT_LILLIE_EXACT_CURRENT_MATERIALIZATION_V1",
+      "setup_active_card_id": null,
+      "setup_active_serial": null,
+      "setup_bench_serial": null
+    },
+    "turn": 5
+  }
+]
