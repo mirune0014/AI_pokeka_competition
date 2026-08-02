@@ -313,6 +313,25 @@ Root が独立再検証した。
 確定勝利より Gear を優先する固定スコアは除去したが、
 generic item `20000` と無目的 Gear を一般にはまだ除去していない。
 
+### Task 7: 完全目的による Supporter 選択
+
+`PUBLIC_COMPLETE_SUPPORTER_PURPOSE_ARBITRATION_T7_V1` を Task 6 の直系子として
+実装し、直接手札と Pokégear の双方で、公開情報だけで同一ターンの最終 Prize
+まで証明できる Boss を Explorer / Lillie より先に使うようにした。
+
+- Episode 89292594 は Explorer ではなく Boss、確定KO対象、Metal Defender の順で
+  完走する。
+- Lunar Cycle は正確な本文一致時だけ被攻撃計算と無関係な手札補充特性として扱い、
+  Lunatone を不必要に対象外にしない。
+- 94 focused fixtures、252 replay / 13,829 decisions の shadow、両席 smoke を通過。
+- shadow の10差分はすべて `FINISH_NOW_EXACT_BOSS`、想定外差分0。
+- Supporter purpose certificate はoption順・重複callbackに対して決定的で、Task 8/9
+  が同じschemaを再利用できる。
+
+Task 7 の exact-terminal 層は完了した。一般 Lillie は Task 8、非終端 Boss・有害KO・
+逆転分岐は Task 9 が引き継ぐため、上位のPokégear総合項目は統合完了まで `[-]`
+のままとする。
+
 Root verification:
 `implementation/archaludon_purpose_first_pokegear_boss_transaction_v1/ROOT_VERIFICATION.md`
 

@@ -1,0 +1,584 @@
+{
+  "anchor_replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89292594_replay.json",
+  "anchor_seat": 1,
+  "failed": 0,
+  "fixture_count": 94,
+  "passed": 94,
+  "pfgear_conservation": {
+    "parent_gear": {
+      "classified": 0,
+      "holds": true,
+      "parent_gear_selected": 0
+    },
+    "positive": {
+      "holds": true,
+      "live_transactions": 0,
+      "settled": 24,
+      "starts": 24
+    }
+  },
+  "results": [
+    {
+      "action": [
+        1
+      ],
+      "name": "anchor_seat0_boss",
+      "status": "PASS",
+      "target_serial": 3
+    },
+    {
+      "name": "anchor_seat0_boss_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat0_canonical_target",
+      "status": "PASS",
+      "target_serial": 3,
+      "tie_break": [
+        -1,
+        -140,
+        "(673, None, 80, 80, False, ((6, 6), (6, 6), (6, 6)), (), ())",
+        3,
+        253
+      ]
+    },
+    {
+      "name": "anchor_seat0_target_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat0_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 0,
+        "completes": 1,
+        "holds": true,
+        "live": 0,
+        "settled": 1,
+        "starts": 1
+      },
+      "name": "anchor_seat0_complete",
+      "status": "PASS"
+    },
+    {
+      "name": "hp221_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "current_terminal_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "supporter_used_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_illegal_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "prize_insufficient_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "no_bench_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_plus_exact_seat0",
+      "reason": null,
+      "status": "PASS"
+    },
+    {
+      "name": "all_target_metadata_unknown_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_combat_invariance_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_global_scope_restored_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_one_char_mismatch_unknown_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_collision_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "hidden_hand_invariance_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_empty_seat0",
+      "status": "PASS",
+      "subset": []
+    },
+    {
+      "name": "gear_subset_empty_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_empty_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_L_seat0",
+      "status": "PASS",
+      "subset": [
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_L_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_L_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_E_seat0",
+      "status": "PASS",
+      "subset": [
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_E_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_E_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_EL_seat0",
+      "status": "PASS",
+      "subset": [
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_EL_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_EL_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_B_seat0",
+      "status": "PASS",
+      "subset": [
+        1182
+      ]
+    },
+    {
+      "name": "gear_subset_B_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BL_seat0",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BL_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BE_seat0",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_BE_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BEL_seat0",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BEL_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "bosses": [
+        3000,
+        3003
+      ],
+      "name": "gear_duplicate_boss_min_serial_seat0",
+      "selected": 3000,
+      "status": "PASS"
+    },
+    {
+      "name": "gear_option_only_reversal_shape_seat0",
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "1154ea032fe756ab2d5a95d0b610bd36fde4f3ba3452c26be233c6effffac230",
+      "name": "gear_option_only_reversal_certificate_seat0",
+      "selected_boss": [
+        1182,
+        3000
+      ],
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "e91c6c6d558b479424e6fa887e6e6a00245b64de750909d81f9a75600a7a4886",
+      "name": "gear_option_only_reversal_duplicate_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat0_boss_play",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat0_canonical_target",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat0_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "holds": true,
+        "live_transactions": 0,
+        "settled": 12,
+        "starts": 12
+      },
+      "name": "gear_hit_seat0_complete",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        9
+      ],
+      "name": "anchor_seat1_boss",
+      "status": "PASS",
+      "target_serial": 3
+    },
+    {
+      "name": "anchor_seat1_boss_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat1_canonical_target",
+      "status": "PASS",
+      "target_serial": 3,
+      "tie_break": [
+        -1,
+        -140,
+        "(673, None, 80, 80, False, ((6, 6), (6, 6), (6, 6)), (), ())",
+        3,
+        253
+      ]
+    },
+    {
+      "name": "anchor_seat1_target_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat1_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 0,
+        "completes": 2,
+        "holds": true,
+        "live": 0,
+        "settled": 2,
+        "starts": 2
+      },
+      "name": "anchor_seat1_complete",
+      "status": "PASS"
+    },
+    {
+      "name": "hp221_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "current_terminal_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "supporter_used_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_illegal_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "prize_insufficient_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "no_bench_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_plus_exact_seat1",
+      "reason": null,
+      "status": "PASS"
+    },
+    {
+      "name": "all_target_metadata_unknown_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_combat_invariance_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_global_scope_restored_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_one_char_mismatch_unknown_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_collision_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "hidden_hand_invariance_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_empty_seat1",
+      "status": "PASS",
+      "subset": []
+    },
+    {
+      "name": "gear_subset_empty_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_empty_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_L_seat1",
+      "status": "PASS",
+      "subset": [
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_L_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_L_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_E_seat1",
+      "status": "PASS",
+      "subset": [
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_E_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_E_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_EL_seat1",
+      "status": "PASS",
+      "subset": [
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_EL_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_EL_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_B_seat1",
+      "status": "PASS",
+      "subset": [
+        1182
+      ]
+    },
+    {
+      "name": "gear_subset_B_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BL_seat1",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BL_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BE_seat1",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_BE_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BEL_seat1",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BEL_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "bosses": [
+        3100,
+        3103
+      ],
+      "name": "gear_duplicate_boss_min_serial_seat1",
+      "selected": 3100,
+      "status": "PASS"
+    },
+    {
+      "name": "gear_option_only_reversal_shape_seat1",
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "6c1cc69eb6015756183baefc98f5709da54bb2dd55d27156b060a60295041ee0",
+      "name": "gear_option_only_reversal_certificate_seat1",
+      "selected_boss": [
+        1182,
+        3100
+      ],
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "38c842832a4dd670da1f641da12d1394cd4bd182cf6985925f8eb1d2dd48629e",
+      "name": "gear_option_only_reversal_duplicate_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat1_boss_play",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat1_canonical_target",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat1_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "holds": true,
+        "live_transactions": 0,
+        "settled": 24,
+        "starts": 24
+      },
+      "name": "gear_hit_seat1_complete",
+      "status": "PASS"
+    }
+  ],
+  "t7_conservation": {
+    "aborts": 0,
+    "completes": 2,
+    "holds": true,
+    "live": 0,
+    "settled": 2,
+    "starts": 2
+  },
+  "t7_counters": {
+    "direct_aborts": 0,
+    "direct_attacks": 2,
+    "direct_boss_plays": 2,
+    "direct_completes": 2,
+    "direct_duplicates": 4,
+    "direct_overrides": 2,
+    "direct_starts": 2,
+    "direct_targets": 2,
+    "exceptions": 0,
+    "gear_certificates": 0,
+    "invalid_fallbacks": 0,
+    "owner_collisions": 0,
+    "owner_holds": 2,
+    "parent_holds": 16
+  }
+}
