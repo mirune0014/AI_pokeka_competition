@@ -286,7 +286,7 @@ Task 6 実装結果（2026-08-02）:
 - [x] Ultra Ball は検索対象と安全な捨て札2枚を使用前に確定し、検索、配置または進化、Alloy、手貼り、攻撃またはTurbo Flareへの引き渡しまでを Task 6 の `PUBLIC_ULTRA_BALL_DECLARED_COMPLETE_ROUTE_TRANSACTION_V1` が所有する。具体的な既存経路に必要な物理カードと最低枚数も捨て札から保護する。
 - [-] Pokégear は必要な Supporter とその使用目的を決めてから使う。
 - [-] Explorer は取得札、捨て札、Assemble Alloy、残り山札を一緒に評価する。
-- [ ] Lillie は手札改善と山札回復を評価し、確定攻撃資源を戻す害も評価する。
+- [x] Lillie は手札改善と山札回復を評価し、確定攻撃資源を戻す害も評価する。Task 8 の物理カード最低枚数・即時materialize・温存・Gear経由の4分岐で完了した。
 - [ ] Night Stretcher は回収対象と回収後の具体的な攻撃経路を確定する。
 - [ ] Jumbo Ice Cream は生存ターン増加と Raging Hammer 火力低下を比較する。
 - [ ] Hero's Cape は被KO回数または Prize 経路が変わる対象に付ける。
@@ -331,6 +331,26 @@ generic item `20000` と無目的 Gear を一般にはまだ除去していな�
 Task 7 の exact-terminal 層は完了した。一般 Lillie は Task 8、非終端 Boss・有害KO・
 逆転分岐は Task 9 が引き継ぐため、上位のPokégear総合項目は統合完了まで `[-]`
 のままとする。
+
+### Task 8: Lillie の使用・温存
+
+`PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1` を Task 7 の直系子として
+実装し、Lillie の使用を単なる手札枚数ではなく、公開情報上の枚数変換と、失う
+物理的な完成経路で判断するようにした。
+
+- `PLAY_LILLIE`、`MATERIALIZE_THEN_REEVALUATE`、`HOLD_LILLIE`、
+  `GEAR_LILLIE` の4方向を所有する。
+- 進化、手貼り、次アタッカー、回収、Stadium/Tool、宣言済みBoss/Explorerを
+  物理serialまたは最低必要枚数で保護し、今使える経路はLillieより先に実行する。
+- Jumbo Ice Cream の確定80回復も先に実行し、回復札をLillieで山札へ戻さない。
+- Pokégear公開時の`CARD`と取得後MAINの`PLAY`を区別し、重複Boss/Explorerでも
+  同じカード群の最低1枚を決定論的に保護する。
+- 268 focused fixtures、252 replay / 9,306 decisions の完全shadow、両席smokeを
+  通過した。115 first differencesに想定外0、親Boss/Explorerを上書きするGear差分0、
+  invalid action 0、max-step到達0だった。
+
+Task 8 は完了した。非終端Boss、有害KO、公開された返しによる確定敗北回避、
+reset壁、全経路が負ける場合の逆転分岐はTask 9が引き継ぐ。
 
 Root verification:
 `implementation/archaludon_purpose_first_pokegear_boss_transaction_v1/ROOT_VERIFICATION.md`

@@ -1,0 +1,5500 @@
+{
+  "anchor_replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89292594_replay.json",
+  "anchor_seat": 1,
+  "failed": 0,
+  "fixture_count": 268,
+  "passed": 268,
+  "pfgear_conservation": {
+    "parent_gear": {
+      "classified": 80,
+      "holds": true,
+      "parent_gear_selected": 80
+    },
+    "positive": {
+      "holds": true,
+      "live_transactions": 0,
+      "settled": 24,
+      "starts": 24
+    }
+  },
+  "results": [
+    {
+      "action": [
+        1
+      ],
+      "name": "anchor_seat0_boss",
+      "status": "PASS",
+      "target_serial": 3
+    },
+    {
+      "name": "anchor_seat0_boss_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat0_canonical_target",
+      "status": "PASS",
+      "target_serial": 3,
+      "tie_break": [
+        -1,
+        -140,
+        "(673, None, 80, 80, False, ((6, 6), (6, 6), (6, 6)), (), ())",
+        3,
+        253
+      ]
+    },
+    {
+      "name": "anchor_seat0_target_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat0_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 0,
+        "completes": 1,
+        "holds": true,
+        "live": 0,
+        "settled": 1,
+        "starts": 1
+      },
+      "name": "anchor_seat0_complete",
+      "status": "PASS"
+    },
+    {
+      "name": "hp221_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "current_terminal_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "supporter_used_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_illegal_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "prize_insufficient_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "no_bench_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_plus_exact_seat0",
+      "reason": null,
+      "status": "PASS"
+    },
+    {
+      "name": "all_target_metadata_unknown_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_combat_invariance_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_global_scope_restored_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_one_char_mismatch_unknown_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_collision_seat0_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "hidden_hand_invariance_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_empty_seat0",
+      "status": "PASS",
+      "subset": []
+    },
+    {
+      "name": "gear_subset_empty_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_empty_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_L_seat0",
+      "status": "PASS",
+      "subset": [
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_L_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_L_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_E_seat0",
+      "status": "PASS",
+      "subset": [
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_E_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_E_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_EL_seat0",
+      "status": "PASS",
+      "subset": [
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_EL_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_EL_miss_clear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_B_seat0",
+      "status": "PASS",
+      "subset": [
+        1182
+      ]
+    },
+    {
+      "name": "gear_subset_B_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BL_seat0",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BL_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BE_seat0",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_BE_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BEL_seat0",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BEL_retry_seat0",
+      "status": "PASS"
+    },
+    {
+      "bosses": [
+        3000,
+        3003
+      ],
+      "name": "gear_duplicate_boss_min_serial_seat0",
+      "selected": 3000,
+      "status": "PASS"
+    },
+    {
+      "name": "gear_option_only_reversal_shape_seat0",
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "1154ea032fe756ab2d5a95d0b610bd36fde4f3ba3452c26be233c6effffac230",
+      "name": "gear_option_only_reversal_certificate_seat0",
+      "selected_boss": [
+        1182,
+        3000
+      ],
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "e91c6c6d558b479424e6fa887e6e6a00245b64de750909d81f9a75600a7a4886",
+      "name": "gear_option_only_reversal_duplicate_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat0_boss_play",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat0_canonical_target",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat0_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "holds": true,
+        "live_transactions": 0,
+        "settled": 12,
+        "starts": 12
+      },
+      "name": "gear_hit_seat0_complete",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        9
+      ],
+      "name": "anchor_seat1_boss",
+      "status": "PASS",
+      "target_serial": 3
+    },
+    {
+      "name": "anchor_seat1_boss_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat1_canonical_target",
+      "status": "PASS",
+      "target_serial": 3,
+      "tie_break": [
+        -1,
+        -140,
+        "(673, None, 80, 80, False, ((6, 6), (6, 6), (6, 6)), (), ())",
+        3,
+        253
+      ]
+    },
+    {
+      "name": "anchor_seat1_target_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "anchor_seat1_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 0,
+        "completes": 2,
+        "holds": true,
+        "live": 0,
+        "settled": 2,
+        "starts": 2
+      },
+      "name": "anchor_seat1_complete",
+      "status": "PASS"
+    },
+    {
+      "name": "hp221_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "current_terminal_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "supporter_used_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "boss_illegal_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "prize_insufficient_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "no_bench_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_plus_exact_seat1",
+      "reason": null,
+      "status": "PASS"
+    },
+    {
+      "name": "all_target_metadata_unknown_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_combat_invariance_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_global_scope_restored_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "lunar_cycle_one_char_mismatch_unknown_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_collision_seat1_parent",
+      "status": "PASS"
+    },
+    {
+      "name": "hidden_hand_invariance_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_empty_seat1",
+      "status": "PASS",
+      "subset": []
+    },
+    {
+      "name": "gear_subset_empty_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_empty_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_L_seat1",
+      "status": "PASS",
+      "subset": [
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_L_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_L_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_E_seat1",
+      "status": "PASS",
+      "subset": [
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_E_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_E_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "gear_subset_EL_seat1",
+      "status": "PASS",
+      "subset": [
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_EL_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_subset_EL_miss_clear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_B_seat1",
+      "status": "PASS",
+      "subset": [
+        1182
+      ]
+    },
+    {
+      "name": "gear_subset_B_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BL_seat1",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BL_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BE_seat1",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185
+      ]
+    },
+    {
+      "name": "gear_subset_BE_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "gear_subset_BEL_seat1",
+      "status": "PASS",
+      "subset": [
+        1182,
+        1185,
+        1227
+      ]
+    },
+    {
+      "name": "gear_subset_BEL_retry_seat1",
+      "status": "PASS"
+    },
+    {
+      "bosses": [
+        3100,
+        3103
+      ],
+      "name": "gear_duplicate_boss_min_serial_seat1",
+      "selected": 3100,
+      "status": "PASS"
+    },
+    {
+      "name": "gear_option_only_reversal_shape_seat1",
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "6c1cc69eb6015756183baefc98f5709da54bb2dd55d27156b060a60295041ee0",
+      "name": "gear_option_only_reversal_certificate_seat1",
+      "selected_boss": [
+        1182,
+        3100
+      ],
+      "status": "PASS"
+    },
+    {
+      "certificate_hash": "38c842832a4dd670da1f641da12d1394cd4bd182cf6985925f8eb1d2dd48629e",
+      "name": "gear_option_only_reversal_duplicate_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat1_boss_play",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat1_canonical_target",
+      "status": "PASS"
+    },
+    {
+      "name": "gear_hit_seat1_metal_defender",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "holds": true,
+        "live_transactions": 0,
+        "settled": 24,
+        "starts": 24
+      },
+      "name": "gear_hit_seat1_complete",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_direct_play_draw6_seat0",
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "HAND_RENEWAL_EXACT_COUNT"
+        ],
+        "draw_n": 6,
+        "negatives": [],
+        "own_prizes": 5,
+        "post_deck_count": 25,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 2,
+        "shuffle_count": 1,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_direct_retry_seat0_prizes5",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 0,
+        "completes": 1,
+        "holds": true,
+        "live": 0,
+        "settled": 1,
+        "starts": 1,
+        "whiffs": 0
+      },
+      "name": "t8_direct_complete_seat0_prizes5",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_direct_play_draw8_seat0",
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "HAND_RENEWAL_EXACT_COUNT"
+        ],
+        "draw_n": 8,
+        "negatives": [],
+        "own_prizes": 6,
+        "post_deck_count": 23,
+        "post_hand_count": 8,
+        "pre_deck_count": 30,
+        "pre_hand_count": 2,
+        "shuffle_count": 1,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_direct_retry_seat0_prizes6",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 0,
+        "completes": 2,
+        "holds": true,
+        "live": 0,
+        "settled": 2,
+        "starts": 2,
+        "whiffs": 0
+      },
+      "name": "t8_direct_complete_seat0_prizes6",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_hidden_redraw_identity_invariance_seat0",
+      "status": "PASS",
+      "variants": [
+        [
+          [
+            [
+              7,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              [
+                1227,
+                6000,
+                0
+              ],
+              null
+            ]
+          ],
+          "e6ea823c0668dd81e8cd333d2e7d7d5da4be3df34c2db0c0e3e06d500abe6bd8"
+        ],
+        [
+          [
+            [
+              7,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              [
+                1227,
+                6000,
+                0
+              ],
+              null
+            ]
+          ],
+          "e6ea823c0668dd81e8cd333d2e7d7d5da4be3df34c2db0c0e3e06d500abe6bd8"
+        ]
+      ]
+    },
+    {
+      "name": "t8_zero_bench_materialize_seat0",
+      "required_refs": [
+        [
+          169,
+          6001
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "t8_zero_bench_materializer_complete_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_one_metal_materialize_seat0",
+      "status": "PASS"
+    },
+    {
+      "materializer": {
+        "action": [
+          1
+        ],
+        "option_type": 9,
+        "role": [
+          9,
+          840,
+          6001,
+          null,
+          169,
+          66,
+          null,
+          null
+        ],
+        "route": {
+          "available_copy_count": 1,
+          "card_id": 840,
+          "destination_serial": 66,
+          "materializable_now": true,
+          "materializer": {
+            "action": [
+              1
+            ],
+            "option_type": 9,
+            "role": [
+              9,
+              840,
+              6001,
+              null,
+              169,
+              66,
+              null,
+              null
+            ],
+            "target_serial": 66
+          },
+          "minimum_count": 1,
+          "owner_handoff_required": false,
+          "reason": "EXACT_EVOLUTION_ROUTE",
+          "required_ref": [
+            840,
+            6001
+          ],
+          "serial": 6001
+        },
+        "target_serial": 66
+      },
+      "name": "t8_exact_evolution_materialize_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_recovery_physical_hold_seat0",
+      "reasons": [
+        "NIGHT_STRETCHER_RECOVERY_ROUTE"
+      ],
+      "rejection": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_ready_backup_physical_hold_seat0",
+      "reasons": [
+        "CERTIFIED_NEXT_ATTACKER_METAL"
+      ],
+      "rejection": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_declared_boss_physical_hold_seat0",
+      "reasons": [
+        "CONCRETE_BOSS_TARGET_ROUTE"
+      ],
+      "rejection": null,
+      "status": "PASS"
+    },
+    {
+      "gear_reason": "direct_lillie_has_priority",
+      "name": "t8_direct_lillie_precedes_gear_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "direction": "HOLD_LILLIE",
+      "hand": [
+        {
+          "id": 1227,
+          "playerIndex": 0,
+          "serial": 6000
+        },
+        {
+          "id": 840,
+          "playerIndex": 0,
+          "serial": 6001
+        },
+        {
+          "id": 840,
+          "playerIndex": 0,
+          "serial": 6002
+        }
+      ],
+      "name": "t8_future_evolution_hold_seat0",
+      "rejection": null,
+      "required_refs": [
+        [
+          840,
+          6001
+        ]
+      ],
+      "routes": {
+        "exact_serials": [],
+        "fallback_reason": "reply_graph_unknown",
+        "held": [
+          {
+            "available_copy_count": 2,
+            "card_id": 840,
+            "copy_count": 2,
+            "materializable_now": false,
+            "materializer": null,
+            "minimum_count": 1,
+            "owner_handoff_required": false,
+            "reason": "FUTURE_EVOLUTION_ATTACK_ROUTE",
+            "required_ref": [
+              840,
+              6001
+            ],
+            "serial": 6001,
+            "target_serial": 66
+          }
+        ],
+        "immediate": [],
+        "minimum_counts": {},
+        "required_refs": [
+          [
+            840,
+            6001
+          ]
+        ],
+        "routes": [
+          {
+            "available_copy_count": 2,
+            "card_id": 840,
+            "copy_count": 2,
+            "materializable_now": false,
+            "materializer": null,
+            "minimum_count": 1,
+            "owner_handoff_required": false,
+            "reason": "FUTURE_EVOLUTION_ATTACK_ROUTE",
+            "required_ref": [
+              840,
+              6001
+            ],
+            "serial": 6001,
+            "target_serial": 66
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "copies": [
+        6001,
+        6002
+      ],
+      "name": "t8_duplicate_minimum_only_seat0",
+      "selected": 6001,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_neutral_count_hold_seat0",
+      "status": "PASS",
+      "transform": {
+        "benefits": [],
+        "draw_n": 6,
+        "negatives": [],
+        "own_prizes": 5,
+        "post_deck_count": 29,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 6,
+        "shuffle_count": 5,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_post_deck_zero_hold_seat0",
+      "status": "PASS",
+      "transform": {
+        "benefits": [],
+        "draw_n": 6,
+        "negatives": [
+          "POST_LILLIE_DECK_BELOW_ONE"
+        ],
+        "own_prizes": 5,
+        "post_deck_count": 0,
+        "post_hand_count": 6,
+        "pre_deck_count": 1,
+        "pre_hand_count": 6,
+        "shuffle_count": 5,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "direction": "PLAY_LILLIE",
+      "name": "t8_mind_ruler_survival_seat0",
+      "rejection": null,
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "DECKOUT_MARGIN_EXACT_COUNT",
+          "RETURN_SURVIVAL_EXACT_HAND_COUNT"
+        ],
+        "draw_n": 6,
+        "negatives": [],
+        "own_prizes": 5,
+        "post_deck_count": 31,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 8,
+        "shuffle_count": 7,
+        "survival": {
+          "attack_id": 123,
+          "post_certain_ko": false,
+          "post_damage": 360,
+          "pre_certain_ko": true,
+          "pre_damage": 480,
+          "target_hp": 400
+        },
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "action": [
+        1
+      ],
+      "direction": "HOLD_LILLIE",
+      "name": "t8_mind_ruler_worsening_seat0",
+      "rejection": null,
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "HAND_RENEWAL_EXACT_COUNT"
+        ],
+        "draw_n": 6,
+        "negatives": [
+          "HAND_SIZE_ATTACK_WORSENS_TO_CERTAIN_KO"
+        ],
+        "own_prizes": 5,
+        "post_deck_count": 26,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 3,
+        "shuffle_count": 2,
+        "survival": {
+          "attack_id": 123,
+          "post_certain_ko": true,
+          "post_damage": 360,
+          "pre_certain_ko": false,
+          "pre_damage": 180,
+          "target_hp": 300
+        },
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_existing_pad_owner_handoff_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_ultra_owner_handoff_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_stretcher_owner_handoff_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_tool_owner_handoff_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_stadium_owner_handoff_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_metadata_mismatch_fail_close_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_incomplete_route_fail_close_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_empty_seat0",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_empty_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_1182_seat0",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_1182_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_1185_seat0",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_1185_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "t8_gear_subset_1227_seat0",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_1227_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_1227_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_11821185_seat0",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_11821185_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "name": "t8_gear_subset_11821227_seat0",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_11821227_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_11821227_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "name": "t8_gear_subset_11851227_seat0",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_11851227_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_11851227_seat0",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        2
+      ],
+      "name": "t8_gear_subset_118211851227_seat0",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_118211851227_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_118211851227_seat0",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_duplicate_min_order_retry_seat0",
+      "status": "PASS",
+      "variants": [
+        [
+          2999,
+          "7e59653885ce63dda3e8de5bea312850151ce68639827650205ae964ae75d129",
+          [
+            [
+              1185,
+              3001,
+              "purpose_not_declared_in_task8",
+              [
+                3,
+                1185,
+                3001,
+                null,
+                null,
+                null,
+                null,
+                0
+              ]
+            ],
+            [
+              1227,
+              2999,
+              "selected",
+              [
+                3,
+                1227,
+                2999,
+                null,
+                null,
+                null,
+                null,
+                0
+              ]
+            ],
+            [
+              1227,
+              3000,
+              "duplicate_lillie_higher_serial",
+              [
+                3,
+                1227,
+                3000,
+                null,
+                null,
+                null,
+                null,
+                0
+              ]
+            ]
+          ],
+          true,
+          1
+        ],
+        [
+          2999,
+          "7e59653885ce63dda3e8de5bea312850151ce68639827650205ae964ae75d129",
+          [
+            [
+              1185,
+              3001,
+              "purpose_not_declared_in_task8",
+              [
+                3,
+                1185,
+                3001,
+                null,
+                null,
+                null,
+                null,
+                0
+              ]
+            ],
+            [
+              1227,
+              2999,
+              "selected",
+              [
+                3,
+                1227,
+                2999,
+                null,
+                null,
+                null,
+                null,
+                0
+              ]
+            ],
+            [
+              1227,
+              3000,
+              "duplicate_lillie_higher_serial",
+              [
+                3,
+                1227,
+                3000,
+                null,
+                null,
+                null,
+                null,
+                0
+              ]
+            ]
+          ],
+          true,
+          1
+        ]
+      ]
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "t8_gear_acquired_parent_explorer_fail_close_seat0_reverse0",
+      "parent": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 6001,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          7,
+          1185,
+          6001,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selected_serial": 6001,
+        "semantic_context": 0,
+        "semantic_option_type": 7,
+        "serial": 6001
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "name": "t8_gear_acquired_parent_explorer_fail_close_seat0_reverse1",
+      "parent": [
+        3
+      ],
+      "protected": {
+        "canonical_serial": 6001,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          7,
+          1185,
+          6002,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selected_serial": 6002,
+        "semantic_context": 0,
+        "semantic_option_type": 7,
+        "serial": 6001
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "t8_direct_play_draw6_seat1",
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "HAND_RENEWAL_EXACT_COUNT"
+        ],
+        "draw_n": 6,
+        "negatives": [],
+        "own_prizes": 5,
+        "post_deck_count": 25,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 2,
+        "shuffle_count": 1,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_direct_retry_seat1_prizes5",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 9,
+        "completes": 10,
+        "holds": true,
+        "live": 0,
+        "settled": 23,
+        "starts": 23,
+        "whiffs": 4
+      },
+      "name": "t8_direct_complete_seat1_prizes5",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_direct_play_draw8_seat1",
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "HAND_RENEWAL_EXACT_COUNT"
+        ],
+        "draw_n": 8,
+        "negatives": [],
+        "own_prizes": 6,
+        "post_deck_count": 23,
+        "post_hand_count": 8,
+        "pre_deck_count": 30,
+        "pre_hand_count": 2,
+        "shuffle_count": 1,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_direct_retry_seat1_prizes6",
+      "status": "PASS"
+    },
+    {
+      "conservation": {
+        "aborts": 9,
+        "completes": 11,
+        "holds": true,
+        "live": 0,
+        "settled": 24,
+        "starts": 24,
+        "whiffs": 4
+      },
+      "name": "t8_direct_complete_seat1_prizes6",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_hidden_redraw_identity_invariance_seat1",
+      "status": "PASS",
+      "variants": [
+        [
+          [
+            [
+              7,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              [
+                1227,
+                6100,
+                1
+              ],
+              null
+            ]
+          ],
+          "5d448b88138aeaf14970fdc8666cab7fbefded8f7b594080b9ae2b9bc3e93a33"
+        ],
+        [
+          [
+            [
+              7,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              [
+                1227,
+                6100,
+                1
+              ],
+              null
+            ]
+          ],
+          "5d448b88138aeaf14970fdc8666cab7fbefded8f7b594080b9ae2b9bc3e93a33"
+        ]
+      ]
+    },
+    {
+      "name": "t8_zero_bench_materialize_seat1",
+      "required_refs": [
+        [
+          169,
+          6101
+        ]
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "t8_zero_bench_materializer_complete_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_one_metal_materialize_seat1",
+      "status": "PASS"
+    },
+    {
+      "materializer": {
+        "action": [
+          1
+        ],
+        "option_type": 9,
+        "role": [
+          9,
+          840,
+          6101,
+          null,
+          169,
+          66,
+          null,
+          null
+        ],
+        "route": {
+          "available_copy_count": 1,
+          "card_id": 840,
+          "destination_serial": 66,
+          "materializable_now": true,
+          "materializer": {
+            "action": [
+              1
+            ],
+            "option_type": 9,
+            "role": [
+              9,
+              840,
+              6101,
+              null,
+              169,
+              66,
+              null,
+              null
+            ],
+            "target_serial": 66
+          },
+          "minimum_count": 1,
+          "owner_handoff_required": false,
+          "reason": "EXACT_EVOLUTION_ROUTE",
+          "required_ref": [
+            840,
+            6101
+          ],
+          "serial": 6101
+        },
+        "target_serial": 66
+      },
+      "name": "t8_exact_evolution_materialize_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_recovery_physical_hold_seat1",
+      "reasons": [
+        "NIGHT_STRETCHER_RECOVERY_ROUTE"
+      ],
+      "rejection": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_ready_backup_physical_hold_seat1",
+      "reasons": [
+        "CERTIFIED_NEXT_ATTACKER_METAL"
+      ],
+      "rejection": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_declared_boss_physical_hold_seat1",
+      "reasons": [
+        "CONCRETE_BOSS_TARGET_ROUTE"
+      ],
+      "rejection": null,
+      "status": "PASS"
+    },
+    {
+      "gear_reason": "direct_lillie_has_priority",
+      "name": "t8_direct_lillie_precedes_gear_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "direction": "HOLD_LILLIE",
+      "hand": [
+        {
+          "id": 1227,
+          "playerIndex": 1,
+          "serial": 6100
+        },
+        {
+          "id": 840,
+          "playerIndex": 1,
+          "serial": 6101
+        },
+        {
+          "id": 840,
+          "playerIndex": 1,
+          "serial": 6102
+        }
+      ],
+      "name": "t8_future_evolution_hold_seat1",
+      "rejection": null,
+      "required_refs": [
+        [
+          840,
+          6101
+        ]
+      ],
+      "routes": {
+        "exact_serials": [],
+        "fallback_reason": "reply_graph_unknown",
+        "held": [
+          {
+            "available_copy_count": 2,
+            "card_id": 840,
+            "copy_count": 2,
+            "materializable_now": false,
+            "materializer": null,
+            "minimum_count": 1,
+            "owner_handoff_required": false,
+            "reason": "FUTURE_EVOLUTION_ATTACK_ROUTE",
+            "required_ref": [
+              840,
+              6101
+            ],
+            "serial": 6101,
+            "target_serial": 66
+          }
+        ],
+        "immediate": [],
+        "minimum_counts": {},
+        "required_refs": [
+          [
+            840,
+            6101
+          ]
+        ],
+        "routes": [
+          {
+            "available_copy_count": 2,
+            "card_id": 840,
+            "copy_count": 2,
+            "materializable_now": false,
+            "materializer": null,
+            "minimum_count": 1,
+            "owner_handoff_required": false,
+            "reason": "FUTURE_EVOLUTION_ATTACK_ROUTE",
+            "required_ref": [
+              840,
+              6101
+            ],
+            "serial": 6101,
+            "target_serial": 66
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "copies": [
+        6101,
+        6102
+      ],
+      "name": "t8_duplicate_minimum_only_seat1",
+      "selected": 6101,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_neutral_count_hold_seat1",
+      "status": "PASS",
+      "transform": {
+        "benefits": [],
+        "draw_n": 6,
+        "negatives": [],
+        "own_prizes": 5,
+        "post_deck_count": 29,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 6,
+        "shuffle_count": 5,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_post_deck_zero_hold_seat1",
+      "status": "PASS",
+      "transform": {
+        "benefits": [],
+        "draw_n": 6,
+        "negatives": [
+          "POST_LILLIE_DECK_BELOW_ONE"
+        ],
+        "own_prizes": 5,
+        "post_deck_count": 0,
+        "post_hand_count": 6,
+        "pre_deck_count": 1,
+        "pre_hand_count": 6,
+        "shuffle_count": 5,
+        "survival": null,
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "direction": "PLAY_LILLIE",
+      "name": "t8_mind_ruler_survival_seat1",
+      "rejection": null,
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "DECKOUT_MARGIN_EXACT_COUNT",
+          "RETURN_SURVIVAL_EXACT_HAND_COUNT"
+        ],
+        "draw_n": 6,
+        "negatives": [],
+        "own_prizes": 5,
+        "post_deck_count": 31,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 8,
+        "shuffle_count": 7,
+        "survival": {
+          "attack_id": 123,
+          "post_certain_ko": false,
+          "post_damage": 360,
+          "pre_certain_ko": true,
+          "pre_damage": 480,
+          "target_hp": 400
+        },
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "action": [
+        1
+      ],
+      "direction": "HOLD_LILLIE",
+      "name": "t8_mind_ruler_worsening_seat1",
+      "rejection": null,
+      "status": "PASS",
+      "transform": {
+        "benefits": [
+          "HAND_RENEWAL_EXACT_COUNT"
+        ],
+        "draw_n": 6,
+        "negatives": [
+          "HAND_SIZE_ATTACK_WORSENS_TO_CERTAIN_KO"
+        ],
+        "own_prizes": 5,
+        "post_deck_count": 26,
+        "post_hand_count": 6,
+        "pre_deck_count": 30,
+        "pre_hand_count": 3,
+        "shuffle_count": 2,
+        "survival": {
+          "attack_id": 123,
+          "post_certain_ko": true,
+          "post_damage": 360,
+          "pre_certain_ko": false,
+          "pre_damage": 180,
+          "target_hp": 300
+        },
+        "unknown_redraw_identity_assumed": false
+      }
+    },
+    {
+      "name": "t8_existing_pad_owner_handoff_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_ultra_owner_handoff_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_stretcher_owner_handoff_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_tool_owner_handoff_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_existing_stadium_owner_handoff_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_metadata_mismatch_fail_close_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_incomplete_route_fail_close_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_empty_seat1",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_empty_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_1182_seat1",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_1182_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_1185_seat1",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_1185_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "t8_gear_subset_1227_seat1",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_1227_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_1227_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [],
+      "name": "t8_gear_subset_11821185_seat1",
+      "selected_id": null,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_whiff_clear_11821185_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "name": "t8_gear_subset_11821227_seat1",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_11821227_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_11821227_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "name": "t8_gear_subset_11851227_seat1",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_11851227_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_11851227_seat1",
+      "status": "PASS"
+    },
+    {
+      "action": [
+        2
+      ],
+      "name": "t8_gear_subset_118211851227_seat1",
+      "selected_id": 1227,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_play_118211851227_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_lillie_complete_118211851227_seat1",
+      "status": "PASS"
+    },
+    {
+      "name": "t8_gear_duplicate_min_order_retry_seat1",
+      "status": "PASS",
+      "variants": [
+        [
+          2999,
+          "289a52946b9e6f06e43a1408684843656083ffb52444f58cb1fac643d6311b45",
+          [
+            [
+              1185,
+              3101,
+              "purpose_not_declared_in_task8",
+              [
+                3,
+                1185,
+                3101,
+                null,
+                null,
+                null,
+                null,
+                1
+              ]
+            ],
+            [
+              1227,
+              2999,
+              "selected",
+              [
+                3,
+                1227,
+                2999,
+                null,
+                null,
+                null,
+                null,
+                1
+              ]
+            ],
+            [
+              1227,
+              3100,
+              "duplicate_lillie_higher_serial",
+              [
+                3,
+                1227,
+                3100,
+                null,
+                null,
+                null,
+                null,
+                1
+              ]
+            ]
+          ],
+          true,
+          1
+        ],
+        [
+          2999,
+          "289a52946b9e6f06e43a1408684843656083ffb52444f58cb1fac643d6311b45",
+          [
+            [
+              1185,
+              3101,
+              "purpose_not_declared_in_task8",
+              [
+                3,
+                1185,
+                3101,
+                null,
+                null,
+                null,
+                null,
+                1
+              ]
+            ],
+            [
+              1227,
+              2999,
+              "selected",
+              [
+                3,
+                1227,
+                2999,
+                null,
+                null,
+                null,
+                null,
+                1
+              ]
+            ],
+            [
+              1227,
+              3100,
+              "duplicate_lillie_higher_serial",
+              [
+                3,
+                1227,
+                3100,
+                null,
+                null,
+                null,
+                null,
+                1
+              ]
+            ]
+          ],
+          true,
+          1
+        ]
+      ]
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "t8_gear_acquired_parent_explorer_fail_close_seat1_reverse0",
+      "parent": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 6101,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          7,
+          1185,
+          6101,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selected_serial": 6101,
+        "semantic_context": 0,
+        "semantic_option_type": 7,
+        "serial": 6101
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "name": "t8_gear_acquired_parent_explorer_fail_close_seat1_reverse1",
+      "parent": [
+        3
+      ],
+      "protected": {
+        "canonical_serial": 6101,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          7,
+          1185,
+          6102,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selected_serial": 6102,
+        "semantic_context": 0,
+        "semantic_option_type": 7,
+        "serial": 6101
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        6
+      ],
+      "direction": "MATERIALIZE_THEN_REEVALUATE",
+      "expected_action": [
+        6
+      ],
+      "name": "t8_exact_reject_episode_88035562_replay_step30",
+      "rejection": null,
+      "seat": 0,
+      "status": "PASS"
+    },
+    {
+      "action": [
+        6
+      ],
+      "chosen_card": 840,
+      "name": "t8_exact_reject_episode_88035562_replay_seat0_reverse0",
+      "route": {
+        "available_copy_count": 1,
+        "card_id": 840,
+        "destination_serial": 3,
+        "materializable_now": true,
+        "materializer": {
+          "action": [
+            6
+          ],
+          "option_type": 9,
+          "role": [
+            9,
+            840,
+            32,
+            null,
+            169,
+            3,
+            null,
+            null
+          ],
+          "target_serial": 3
+        },
+        "minimum_count": 1,
+        "owner_handoff_required": false,
+        "reason": "EXACT_EVOLUTION_ROUTE",
+        "required_ref": [
+          840,
+          32
+        ],
+        "serial": 32
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "92210c07e2f94e632e2a12f2ac4939e2c2942215721cfac06046b07801651881",
+        "conservation": {
+          "aborts": 19,
+          "completes": 18,
+          "holds": true,
+          "live": 1,
+          "settled": 46,
+          "starts": 46,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 19,
+          "completes": 18,
+          "direct_starts": 12,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 10,
+          "materializer_starts": 10,
+          "owner_handoffs": 26,
+          "parent_holds": 58,
+          "play_directions": 20,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": "MATERIALIZER_EMITTED"
+      }
+    },
+    {
+      "action": [
+        6
+      ],
+      "chosen_card": 840,
+      "name": "t8_exact_reject_episode_88035562_replay_seat1_reverse0",
+      "route": {
+        "available_copy_count": 1,
+        "card_id": 840,
+        "destination_serial": 3,
+        "materializable_now": true,
+        "materializer": {
+          "action": [
+            6
+          ],
+          "option_type": 9,
+          "role": [
+            9,
+            840,
+            32,
+            null,
+            169,
+            3,
+            null,
+            null
+          ],
+          "target_serial": 3
+        },
+        "minimum_count": 1,
+        "owner_handoff_required": false,
+        "reason": "EXACT_EVOLUTION_ROUTE",
+        "required_ref": [
+          840,
+          32
+        ],
+        "serial": 32
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "3baffb03bf0ddc11ad02991798de60cafe29a3cac685a381a00fba7562379c0c",
+        "conservation": {
+          "aborts": 20,
+          "completes": 18,
+          "holds": true,
+          "live": 1,
+          "settled": 47,
+          "starts": 47,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 20,
+          "completes": 18,
+          "direct_starts": 12,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 11,
+          "materializer_starts": 11,
+          "owner_handoffs": 26,
+          "parent_holds": 58,
+          "play_directions": 20,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": "MATERIALIZER_EMITTED"
+      }
+    },
+    {
+      "action": [
+        2
+      ],
+      "direction": "MATERIALIZE_THEN_REEVALUATE",
+      "expected_action": [
+        2
+      ],
+      "name": "t8_exact_reject_episode_88357830_replay_step69",
+      "rejection": null,
+      "seat": 1,
+      "status": "PASS"
+    },
+    {
+      "action": [
+        2
+      ],
+      "chosen_card": 190,
+      "name": "t8_exact_reject_episode_88357830_replay_seat1_reverse0",
+      "route": {
+        "available_copy_count": 1,
+        "card_id": 190,
+        "destination_serial": 64,
+        "materializable_now": true,
+        "materializer": {
+          "action": [
+            2
+          ],
+          "option_type": 9,
+          "role": [
+            9,
+            190,
+            68,
+            null,
+            169,
+            64,
+            null,
+            null
+          ],
+          "target_serial": 64
+        },
+        "minimum_count": 1,
+        "owner_handoff_required": false,
+        "reason": "EXACT_EVOLUTION_ROUTE",
+        "required_ref": [
+          190,
+          68
+        ],
+        "serial": 68
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "e7e087f8aadb66aa513992c3989ae8a28498550bf3d58dbadc98a0ac4c367bef",
+        "conservation": {
+          "aborts": 23,
+          "completes": 19,
+          "holds": true,
+          "live": 1,
+          "settled": 51,
+          "starts": 51,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 23,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 14,
+          "materializer_starts": 14,
+          "owner_handoffs": 29,
+          "parent_holds": 85,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": "MATERIALIZER_EMITTED"
+      }
+    },
+    {
+      "action": [
+        2
+      ],
+      "chosen_card": 190,
+      "name": "t8_exact_reject_episode_88357830_replay_seat0_reverse0",
+      "route": {
+        "available_copy_count": 1,
+        "card_id": 190,
+        "destination_serial": 64,
+        "materializable_now": true,
+        "materializer": {
+          "action": [
+            2
+          ],
+          "option_type": 9,
+          "role": [
+            9,
+            190,
+            68,
+            null,
+            169,
+            64,
+            null,
+            null
+          ],
+          "target_serial": 64
+        },
+        "minimum_count": 1,
+        "owner_handoff_required": false,
+        "reason": "EXACT_EVOLUTION_ROUTE",
+        "required_ref": [
+          190,
+          68
+        ],
+        "serial": 68
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "b610464e014c2c7cb1eac66e43df7e77f37de4dd8b975dc9e7c3548ab687b530",
+        "conservation": {
+          "aborts": 24,
+          "completes": 19,
+          "holds": true,
+          "live": 1,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 24,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 15,
+          "materializer_starts": 15,
+          "owner_handoffs": 29,
+          "parent_holds": 85,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": "MATERIALIZER_EMITTED"
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "direction": null,
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_reject_episode_89289898_replay_step31",
+      "rejection": "direct_lillie_not_legal",
+      "seat": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "t8_exact_reject_episode_89289898_replay_seat0_reverse0",
+      "protected": {},
+      "reveal_action": [
+        0
+      ],
+      "rollback": "exact_reject_fixture_settle",
+      "start_action": [
+        2
+      ],
+      "status": "PASS",
+      "task8_certificate": true,
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 15,
+          "materializer_starts": 15,
+          "owner_handoffs": 29,
+          "parent_holds": 95,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "direct_lillie_not_legal",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "name": "t8_exact_reject_episode_89289898_replay_seat0_reverse1",
+      "protected": {},
+      "reveal_action": [
+        1
+      ],
+      "rollback": "exact_reject_fixture_settle",
+      "start_action": [
+        3
+      ],
+      "status": "PASS",
+      "task8_certificate": true,
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 15,
+          "materializer_starts": 15,
+          "owner_handoffs": 29,
+          "parent_holds": 100,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "direct_lillie_not_legal",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "name": "t8_exact_reject_episode_89289898_replay_seat1_reverse0",
+      "protected": {},
+      "reveal_action": [
+        0
+      ],
+      "rollback": "exact_reject_fixture_settle",
+      "start_action": [
+        2
+      ],
+      "status": "PASS",
+      "task8_certificate": true,
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 15,
+          "materializer_starts": 15,
+          "owner_handoffs": 29,
+          "parent_holds": 105,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "direct_lillie_not_legal",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "name": "t8_exact_reject_episode_89289898_replay_seat1_reverse1",
+      "protected": {},
+      "reveal_action": [
+        1
+      ],
+      "rollback": "exact_reject_fixture_settle",
+      "start_action": [
+        3
+      ],
+      "status": "PASS",
+      "task8_certificate": true,
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 15,
+          "materializer_starts": 15,
+          "owner_handoffs": 29,
+          "parent_holds": 110,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "direct_lillie_not_legal",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_ice_episode_89288811_replay_seat0_reverse0",
+      "route": {
+        "active_serial": 8,
+        "canonical_serial": 35,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          0
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          35
+        ],
+        "serial": 35,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 15,
+          "materializer_starts": 15,
+          "owner_handoffs": 35,
+          "parent_holds": 137,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        6
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89288811_replay_seat0_reverse1",
+      "route": {
+        "active_serial": 8,
+        "canonical_serial": 35,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          6
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          35
+        ],
+        "serial": 35,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "046b281ba34cc053e3e34f360ab851be59e4437c1975c9bd967a5bdd05dd22fe",
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 16,
+          "materializer_starts": 15,
+          "owner_handoffs": 41,
+          "parent_holds": 163,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89288811_replay_seat1_reverse0",
+      "route": {
+        "active_serial": 8,
+        "canonical_serial": 35,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          0
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          35
+        ],
+        "serial": 35,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 16,
+          "materializer_starts": 15,
+          "owner_handoffs": 47,
+          "parent_holds": 190,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        6
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89288811_replay_seat1_reverse1",
+      "route": {
+        "active_serial": 8,
+        "canonical_serial": 35,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          6
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          35
+        ],
+        "serial": 35,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "941d23ce32321712232f1553fe1d34326addf44e9cfb70127b34809ae74da343",
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 14,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 17,
+          "materializer_starts": 15,
+          "owner_handoffs": 53,
+          "parent_holds": 216,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        2
+      ],
+      "expected_action": [
+        2
+      ],
+      "name": "t8_exact_ice_episode_89286075_replay_seat0_reverse0",
+      "route": {
+        "active_serial": 10,
+        "canonical_serial": 36,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          2
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          36
+        ],
+        "serial": 36,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 15,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 17,
+          "materializer_starts": 15,
+          "owner_handoffs": 60,
+          "parent_holds": 280,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        4
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89286075_replay_seat0_reverse1",
+      "route": {
+        "active_serial": 10,
+        "canonical_serial": 34,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          4
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          34
+        ],
+        "serial": 34,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "57d11b312f34cc0e04be61a55094879a81a7eee304e29d5df7ff7a5fff28c5dd",
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 16,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 18,
+          "materializer_starts": 15,
+          "owner_handoffs": 67,
+          "parent_holds": 343,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        2
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89286075_replay_seat1_reverse0",
+      "route": {
+        "active_serial": 10,
+        "canonical_serial": 36,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          2
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          36
+        ],
+        "serial": 36,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 17,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 18,
+          "materializer_starts": 15,
+          "owner_handoffs": 74,
+          "parent_holds": 407,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        4
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89286075_replay_seat1_reverse1",
+      "route": {
+        "active_serial": 10,
+        "canonical_serial": 34,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          4
+        ],
+        "post_hp": 140,
+        "pre_hp": 60,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          34
+        ],
+        "serial": 34,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": "c79c3a8a5cac390a5659ea5d2111b247fc7d5cabe1cfe4d4f8e20b8e38879949",
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 18,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 81,
+          "parent_holds": 470,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": "MATERIALIZE_THEN_REEVALUATE",
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_ice_episode_89308835_replay_seat1_reverse0",
+      "route": {
+        "active_serial": 70,
+        "canonical_serial": 95,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 400,
+        "minimum_count": 1,
+        "parent_action": [
+          0
+        ],
+        "post_hp": 260,
+        "pre_hp": 180,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          95
+        ],
+        "serial": 95,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 18,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 84,
+          "parent_holds": 526,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        6
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89308835_replay_seat1_reverse1",
+      "route": {
+        "active_serial": 70,
+        "canonical_serial": 95,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 400,
+        "minimum_count": 1,
+        "parent_action": [
+          6
+        ],
+        "post_hp": 260,
+        "pre_hp": 180,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          95
+        ],
+        "serial": 95,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 18,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 87,
+          "parent_holds": 582,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89308835_replay_seat0_reverse0",
+      "route": {
+        "active_serial": 70,
+        "canonical_serial": 95,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 400,
+        "minimum_count": 1,
+        "parent_action": [
+          0
+        ],
+        "post_hp": 260,
+        "pre_hp": 180,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          95
+        ],
+        "serial": 95,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 18,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 90,
+          "parent_holds": 638,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        6
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_89308835_replay_seat0_reverse1",
+      "route": {
+        "active_serial": 70,
+        "canonical_serial": 95,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 400,
+        "minimum_count": 1,
+        "parent_action": [
+          6
+        ],
+        "post_hp": 260,
+        "pre_hp": 180,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          95
+        ],
+        "serial": 95,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 18,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 93,
+          "parent_holds": 694,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        2
+      ],
+      "expected_action": [
+        2
+      ],
+      "name": "t8_exact_ice_episode_88397927_replay_seat0_reverse0",
+      "route": {
+        "active_serial": 7,
+        "canonical_serial": 36,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          2
+        ],
+        "post_hp": 120,
+        "pre_hp": 40,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          36
+        ],
+        "serial": 36,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 19,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 101,
+          "parent_holds": 731,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        3
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88397927_replay_seat0_reverse1",
+      "route": {
+        "active_serial": 7,
+        "canonical_serial": 36,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          3
+        ],
+        "post_hp": 120,
+        "pre_hp": 40,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          36
+        ],
+        "serial": 36,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 20,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 109,
+          "parent_holds": 768,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        2
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88397927_replay_seat1_reverse0",
+      "route": {
+        "active_serial": 7,
+        "canonical_serial": 36,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          2
+        ],
+        "post_hp": 120,
+        "pre_hp": 40,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          36
+        ],
+        "serial": 36,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 21,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 117,
+          "parent_holds": 805,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        3
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88397927_replay_seat1_reverse1",
+      "route": {
+        "active_serial": 7,
+        "canonical_serial": 36,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          3
+        ],
+        "post_hp": 120,
+        "pre_hp": 40,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          36
+        ],
+        "serial": 36,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 19,
+          "holds": true,
+          "live": 0,
+          "settled": 52,
+          "starts": 52,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 19,
+          "direct_starts": 13,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 125,
+          "parent_holds": 842,
+          "play_directions": 21,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        4
+      ],
+      "expected_action": [
+        4
+      ],
+      "name": "t8_exact_ice_episode_88482123_replay_seat0_reverse0",
+      "route": {
+        "active_serial": 9,
+        "canonical_serial": 34,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          4
+        ],
+        "post_hp": 170,
+        "pre_hp": 90,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          34
+        ],
+        "serial": 34,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 20,
+          "holds": true,
+          "live": 0,
+          "settled": 53,
+          "starts": 53,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 20,
+          "direct_starts": 14,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 132,
+          "parent_holds": 887,
+          "play_directions": 22,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        8
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88482123_replay_seat0_reverse1",
+      "route": {
+        "active_serial": 9,
+        "canonical_serial": 34,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          8
+        ],
+        "post_hp": 170,
+        "pre_hp": 90,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          34
+        ],
+        "serial": 34,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 21,
+          "holds": true,
+          "live": 0,
+          "settled": 54,
+          "starts": 54,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 21,
+          "direct_starts": 15,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 139,
+          "parent_holds": 932,
+          "play_directions": 23,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        4
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88482123_replay_seat1_reverse0",
+      "route": {
+        "active_serial": 9,
+        "canonical_serial": 34,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          4
+        ],
+        "post_hp": 170,
+        "pre_hp": 90,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          34
+        ],
+        "serial": 34,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 22,
+          "holds": true,
+          "live": 0,
+          "settled": 55,
+          "starts": 55,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 22,
+          "direct_starts": 16,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 146,
+          "parent_holds": 977,
+          "play_directions": 24,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        8
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88482123_replay_seat1_reverse1",
+      "route": {
+        "active_serial": 9,
+        "canonical_serial": 34,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          8
+        ],
+        "post_hp": 170,
+        "pre_hp": 90,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          34
+        ],
+        "serial": 34,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 23,
+          "holds": true,
+          "live": 0,
+          "settled": 56,
+          "starts": 56,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 23,
+          "direct_starts": 17,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 153,
+          "parent_holds": 1022,
+          "play_directions": 25,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_ice_episode_88579549_replay_seat1_reverse0",
+      "route": {
+        "active_serial": 69,
+        "canonical_serial": 96,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          0
+        ],
+        "post_hp": 220,
+        "pre_hp": 140,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          96
+        ],
+        "serial": 96,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 24,
+          "holds": true,
+          "live": 0,
+          "settled": 57,
+          "starts": 57,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 24,
+          "direct_starts": 18,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 166,
+          "parent_holds": 1089,
+          "play_directions": 26,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        7
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88579549_replay_seat1_reverse1",
+      "route": {
+        "active_serial": 69,
+        "canonical_serial": 96,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          7
+        ],
+        "post_hp": 220,
+        "pre_hp": 140,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          96
+        ],
+        "serial": 96,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 25,
+          "holds": true,
+          "live": 0,
+          "settled": 58,
+          "starts": 58,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 25,
+          "direct_starts": 19,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 179,
+          "parent_holds": 1156,
+          "play_directions": 27,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        0
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88579549_replay_seat0_reverse0",
+      "route": {
+        "active_serial": 69,
+        "canonical_serial": 96,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          0
+        ],
+        "post_hp": 220,
+        "pre_hp": 140,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          96
+        ],
+        "serial": 96,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 26,
+          "holds": true,
+          "live": 0,
+          "settled": 59,
+          "starts": 59,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 26,
+          "direct_starts": 20,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 192,
+          "parent_holds": 1223,
+          "play_directions": 28,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        7
+      ],
+      "expected_action": null,
+      "name": "t8_exact_ice_episode_88579549_replay_seat0_reverse1",
+      "route": {
+        "active_serial": 69,
+        "canonical_serial": 96,
+        "card_id": 1147,
+        "exact_healing": 80,
+        "inherited_owner": "PCRD_JUMBO_ICE_CREAM",
+        "max_hp": 300,
+        "minimum_count": 1,
+        "parent_action": [
+          7
+        ],
+        "post_hp": 220,
+        "pre_hp": 140,
+        "reason": "PARENT_JUMBO_ICE_CREAM",
+        "required_ref": [
+          1147,
+          96
+        ],
+        "serial": 96,
+        "skip_reason": ""
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 27,
+          "holds": true,
+          "live": 0,
+          "settled": 60,
+          "starts": 60,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 27,
+          "direct_starts": 21,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 205,
+          "parent_holds": 1290,
+          "play_directions": 29,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": null,
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "explorer_action": [
+        0
+      ],
+      "gear_action": [
+        1
+      ],
+      "name": "t8_exact_duplicate_explorer_episode_87868636_replay_seat0_reverse0",
+      "route": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "inherited_score": 16000,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "serial": 43
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 28,
+          "holds": true,
+          "live": 0,
+          "settled": 61,
+          "starts": 61,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 28,
+          "direct_starts": 22,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 208,
+          "parent_holds": 1320,
+          "play_directions": 30,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "complete_parent_route_precedes_lillie",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "explorer_action": [
+        5
+      ],
+      "gear_action": [
+        5
+      ],
+      "name": "t8_exact_duplicate_explorer_episode_87868636_replay_seat0_reverse1",
+      "route": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "inherited_score": 16000,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "serial": 43
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 29,
+          "holds": true,
+          "live": 0,
+          "settled": 62,
+          "starts": 62,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 29,
+          "direct_starts": 23,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 211,
+          "parent_holds": 1350,
+          "play_directions": 31,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "complete_parent_route_precedes_lillie",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "explorer_action": [
+        0
+      ],
+      "gear_action": [
+        1
+      ],
+      "name": "t8_exact_duplicate_explorer_episode_87868636_replay_seat1_reverse0",
+      "route": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "inherited_score": 16000,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "serial": 43
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 30,
+          "holds": true,
+          "live": 0,
+          "settled": 63,
+          "starts": 63,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 30,
+          "direct_starts": 24,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 214,
+          "parent_holds": 1380,
+          "play_directions": 32,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "complete_parent_route_precedes_lillie",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "explorer_action": [
+        5
+      ],
+      "gear_action": [
+        5
+      ],
+      "name": "t8_exact_duplicate_explorer_episode_87868636_replay_seat1_reverse1",
+      "route": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 2,
+        "inherited_score": 16000,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "serial": 43
+      },
+      "status": "PASS",
+      "telemetry": {
+        "certificate_hash": null,
+        "conservation": {
+          "aborts": 25,
+          "completes": 31,
+          "holds": true,
+          "live": 0,
+          "settled": 64,
+          "starts": 64,
+          "whiffs": 8
+        },
+        "counters": {
+          "aborts": 25,
+          "completes": 31,
+          "direct_starts": 25,
+          "duplicates": 8,
+          "exceptions": 0,
+          "gear_lillie_directions": 24,
+          "gear_starts": 24,
+          "hold_directions": 22,
+          "invalid_fallbacks": 0,
+          "materialize_directions": 19,
+          "materializer_starts": 15,
+          "owner_handoffs": 217,
+          "parent_holds": 1410,
+          "play_directions": 33,
+          "terminal_holds": 0,
+          "whiffs": 8
+        },
+        "direction": null,
+        "post_owners": [],
+        "pre_owners": [],
+        "rejection_reason": "complete_parent_route_precedes_lillie",
+        "rule_id": "PUBLIC_LILLIE_PHYSICAL_MINIMUM_ROUTE_ARBITRATION_T8_V1",
+        "selected_source": "DIRECT_PARENT",
+        "transaction_stage": null
+      }
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": true,
+      "expected_action": [
+        1
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_89291523_replay_seat0_reverse0",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 45,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          45,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 45,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 45
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_89291523_replay_seat0_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 45,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          45,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 45,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 45
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_89291523_replay_seat1_reverse0",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 45,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          45,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 45,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 45
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_89291523_replay_seat1_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 45,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          45,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 45,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 45
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_87672938_replay_seat1_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 98,
+        "card_id": 1182,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          98,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 98,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 98
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_87672938_replay_seat1_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 98,
+        "card_id": 1182,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          98,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 98,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 98
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_87672938_replay_seat0_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 98,
+        "card_id": 1182,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          98,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 98,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 98
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_87672938_replay_seat0_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 98,
+        "card_id": 1182,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          98,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 98,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 98
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": false,
+      "expected_action": [
+        1
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_88197270_replay_seat0_reverse0",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 42,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          42,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 42,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 42
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88197270_replay_seat0_reverse1",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 42,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          42,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 42,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 42
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88197270_replay_seat1_reverse0",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 42,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          42,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 42,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 42
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88197270_replay_seat1_reverse1",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 42,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          42,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 42,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 42
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_88338429_replay_seat0_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 40,
+        "card_id": 1182,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          41,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 41,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 40
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88338429_replay_seat0_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 40,
+        "card_id": 1182,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          40,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 40,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 40
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88338429_replay_seat1_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 40,
+        "card_id": 1182,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          41,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 41,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 40
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88338429_replay_seat1_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 40,
+        "card_id": 1182,
+        "declared_family_count": 2,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1182,
+          40,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 40,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 40
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": true,
+      "expected_action": [
+        1
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_88507294_replay_seat0_reverse0",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 44,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          44,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 44,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 44
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88507294_replay_seat0_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 44,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          44,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 44,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 44
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88507294_replay_seat1_reverse0",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 44,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          44,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 44,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 44
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88507294_replay_seat1_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 44,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          44,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 44,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 44
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_88589778_replay_seat0_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          43,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 43,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 43
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88589778_replay_seat0_reverse1",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          43,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 43,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 43
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88589778_replay_seat1_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          43,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 43,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 43
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88589778_replay_seat1_reverse1",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 43,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          43,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 43,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 43
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": [
+        0
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_88660007_replay_seat1_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88660007_replay_seat1_reverse1",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88660007_replay_seat0_reverse0",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        1
+      ],
+      "contains_lillie": false,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88660007_replay_seat0_reverse1",
+      "parent_action": [
+        1
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "contains_lillie": true,
+      "expected_action": [
+        3
+      ],
+      "name": "t8_exact_gear_reveal_parent_episode_88682711_replay_seat1_reverse0",
+      "parent_action": [
+        3
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88682711_replay_seat1_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          1
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        3
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88682711_replay_seat0_reverse0",
+      "parent_action": [
+        3
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "action": [
+        0
+      ],
+      "contains_lillie": true,
+      "expected_action": null,
+      "name": "t8_exact_gear_reveal_parent_episode_88682711_replay_seat0_reverse1",
+      "parent_action": [
+        0
+      ],
+      "protected": {
+        "canonical_serial": 104,
+        "card_id": 1185,
+        "declared_family_count": 1,
+        "minimum_count": 1,
+        "reason": "PARENT_DECLARED_SUPPORTER",
+        "role": [
+          3,
+          1185,
+          104,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "selected_serial": 104,
+        "semantic_context": 7,
+        "semantic_option_type": 3,
+        "serial": 104
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "t8_exact_gear_reveal_with_and_without_lillie_covered",
+      "reveal_kinds": [
+        false,
+        true
+      ],
+      "status": "PASS"
+    }
+  ],
+  "t7_conservation": {
+    "aborts": 0,
+    "completes": 2,
+    "holds": true,
+    "live": 0,
+    "settled": 2,
+    "starts": 2
+  },
+  "t7_counters": {
+    "direct_aborts": 0,
+    "direct_attacks": 2,
+    "direct_boss_plays": 2,
+    "direct_completes": 2,
+    "direct_duplicates": 4,
+    "direct_overrides": 2,
+    "direct_starts": 2,
+    "direct_targets": 2,
+    "exceptions": 0,
+    "gear_certificates": 0,
+    "invalid_fallbacks": 0,
+    "owner_collisions": 0,
+    "owner_holds": 383,
+    "parent_holds": 1909
+  },
+  "t8_conservation": {
+    "aborts": 57,
+    "completes": 39,
+    "holds": true,
+    "live": 0,
+    "settled": 104,
+    "starts": 104,
+    "whiffs": 8
+  },
+  "t8_counters": {
+    "aborts": 57,
+    "completes": 39,
+    "direct_starts": 33,
+    "duplicates": 8,
+    "exceptions": 0,
+    "gear_lillie_directions": 56,
+    "gear_starts": 56,
+    "hold_directions": 22,
+    "invalid_fallbacks": 0,
+    "materialize_directions": 19,
+    "materializer_starts": 15,
+    "owner_handoffs": 405,
+    "parent_holds": 2098,
+    "play_directions": 41,
+    "terminal_holds": 0,
+    "whiffs": 8
+  }
+}
