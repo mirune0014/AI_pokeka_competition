@@ -48,13 +48,19 @@ Updated: 2026-08-03 JST
   - action-observable start 3、完結transaction 0。
   - Arch Peak・seat 0・seed 271958318でmechanism-first loss 1件。
   - 補修・条件拡張は行わず、Rule 1親へ戻す。
+- Rule 6 `PARENT_POKE_PAD_EMPTY_BENCH_DURALUDON_ONE_METAL_READY_SUCCESSOR_TRANSACTION_V1`: `REJECT`。
+  - focused/inherited 35/35、shadow 4,262 callback、自然start 1、fault 0。
+  - fixed160は親100、候補100、G/R/T 0/0/160、trace 160/160一致。
+  - ready完結0、whiff完結0のため凍結coverage gateを失敗。
+  - 条件を広げず、補修をstackせず、Rule 5親を維持する。
 
 ## Current step
 
-Implement Rule 6, the complete Poke Pad route, as the only new behavior change
-from the accepted Rule 5 parent. Rules 2 and 3 are not part of that parent.
+Implement Rule 7, Turbo Flare energy concentration, as the only new behavior
+change from the accepted Rule 5 parent. Rules 2, 3, and 6 are not part of that
+parent.
 
 ## Next step after acceptance
 
-Rule 7, Turbo Flare energy concentration, from the last accepted Silver-based
+Rule 8, exact same-Active attack dominance, from the last accepted Silver-based
 parent.

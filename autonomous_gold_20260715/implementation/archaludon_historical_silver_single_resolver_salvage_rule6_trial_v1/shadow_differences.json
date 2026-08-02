@@ -1,0 +1,105 @@
+[
+  {
+    "classification": "POKE_PAD_DURALUDON_TARGET",
+    "context": 7,
+    "materialization_evidence": {
+      "active_card_id": 190,
+      "active_serial": 70,
+      "energy_attached": false,
+      "opponent_prize_count": 5,
+      "selected_card_id": null,
+      "selected_card_serial": null,
+      "stadium_count": 0,
+      "supporter_played": true,
+      "target_appear_this_turn": null,
+      "target_card_id": null,
+      "target_energy_ids": [],
+      "target_energy_serials": [],
+      "target_serial": null
+    },
+    "parent_card_id": null,
+    "parent_card_serial": null,
+    "replay": "episode_89288308_replay.json",
+    "rule5_action": [
+      0
+    ],
+    "rule6_action": [
+      1
+    ],
+    "seat": 1,
+    "step": 45,
+    "telemetry": {
+      "duplicate_retry": false,
+      "option_permuted": false,
+      "owner_after": {
+        "attack_id": 253,
+        "current_take": null,
+        "metal_serial": 112,
+        "owner": "PARENT_POKE_PAD_EMPTY_BENCH_DURALUDON_ONE_METAL_READY_SUCCESSOR_TRANSACTION_V1",
+        "pad_serial": 76,
+        "route_kind": "DURALUDON_ONE_METAL_READY_SUCCESSOR",
+        "selected_serial": 65,
+        "stage": "PAD_TARGET_EMITTED",
+        "target_serial": null,
+        "target_take": null
+      },
+      "owner_before": {
+        "attack_id": 253,
+        "current_take": null,
+        "metal_serial": 112,
+        "owner": "PARENT_POKE_PAD_EMPTY_BENCH_DURALUDON_ONE_METAL_READY_SUCCESSOR_TRANSACTION_V1",
+        "pad_serial": 76,
+        "route_kind": "DURALUDON_ONE_METAL_READY_SUCCESSOR",
+        "selected_serial": null,
+        "stage": "PAD_PLAY_EMITTED",
+        "target_serial": null,
+        "target_take": null
+      },
+      "parent_call_count": 1,
+      "parent_semantic": [
+        [
+          3,
+          169,
+          66,
+          null,
+          null
+        ]
+      ],
+      "proof_gates": {
+        "attack_id": 253,
+        "metal_ref": [
+          8,
+          112,
+          1
+        ],
+        "pad_ref": [
+          1152,
+          76,
+          1
+        ],
+        "role": "DURALUDON_ONE_METAL_READY_SUCCESSOR",
+        "selected_ref": [
+          169,
+          65,
+          1
+        ]
+      },
+      "proposal_semantic": [
+        [
+          3,
+          169,
+          65,
+          null,
+          null
+        ]
+      ],
+      "rejection_reason": null,
+      "rule_id": "PARENT_POKE_PAD_EMPTY_BENCH_DURALUDON_ONE_METAL_READY_SUCCESSOR_TRANSACTION_V1",
+      "selected_source": "PARENT_POKE_PAD_EMPTY_BENCH_DURALUDON_ONE_METAL_READY_SUCCESSOR_TRANSACTION_V1",
+      "setup_active_card_id": null,
+      "setup_active_serial": null,
+      "setup_bench_serial": null
+    },
+    "turn": 4
+  }
+]
