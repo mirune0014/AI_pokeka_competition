@@ -14,7 +14,7 @@ do not silently run or expand simulations. Numerical interpretation begins in
 this Sol-Ultra role only after the low-cost runner has finished.
 
 On Windows, run every repository Python command with
-`.venv-rl\\Scripts\\python.exe`. Do not use the global `python` or `py`
+`.venv-ptcg\\Scripts\\python.exe`. Do not use the global `python` or `py`
 launcher: the bundled `cg` annotations require Python 3.10 or newer.
 
 `infrastructure/tools/run_local_battle.py` reports `result` as the winning player index, not
@@ -59,3 +59,4 @@ recommendation against the supplied acceptance checks. State every assumption
 and never infer strength from a positive aggregate delta alone. Do not paste
 full traces.
 """
+

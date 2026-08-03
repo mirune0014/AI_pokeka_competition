@@ -42,7 +42,7 @@ stable positive advantage over the frozen rule action.
 - Git commit SHA: unavailable. The repository has no initial commit and
   `git rev-parse HEAD` fails. Until a commit exists, experiment manifests must
   record content hashes for every source, policy, deck, and engine artifact.
-- Python: `3.11.6` from `.venv-rl`.
+- Python: `3.11.6` from `.venv-ptcg`.
 - Test runner: standard-library `unittest`; `pytest` is not installed in the
   workspace venv.
 - Baseline test result: `104` tests passed.
@@ -52,8 +52,8 @@ stable positive advantage over the frozen rule action.
 ```powershell
 git rev-parse --show-toplevel
 git rev-parse HEAD
-.venv-rl\Scripts\python.exe --version
-.venv-rl\Scripts\python.exe -m unittest discover -s rl_ptcg\tests
+.venv-ptcg\Scripts\python.exe --version
+.venv-ptcg\Scripts\python.exe -m unittest discover -s rl_ptcg\tests
 ```
 
 ### Reusable Foundations
@@ -290,8 +290,8 @@ hashes. It reads no blind decision content.
 ### Commands
 
 ```powershell
-.venv-rl\Scripts\python.exe -m unittest discover -s rl_ptcg\tests
-.venv-rl\Scripts\python.exe tools\build_gold_replay_dataset.py `
+.venv-ptcg\Scripts\python.exe -m unittest discover -s rl_ptcg\tests
+.venv-ptcg\Scripts\python.exe tools\build_gold_replay_dataset.py `
   --seat-metadata-csv analysis_outputs\gold_replay_inventory_20260711\all_local_replay_seats.csv `
   --gold-selection-csv analysis_outputs\gold_replay_inventory_20260711\gold_seat_candidates_rank20.csv `
   --output-dir analysis_outputs\gold_replay_phase1\catalog_rank20_multisnapshot_ranker_v2_privatehistory `
@@ -300,14 +300,14 @@ hashes. It reads no blind decision content.
   --blind-date-period 2026-07-11 --development-date-period 2026-07-10 `
   --blind-fraction 0 --development-fraction 0
 
-.venv-rl\Scripts\python.exe tools\run_gold_disagreement_audit.py `
+.venv-ptcg\Scripts\python.exe tools\run_gold_disagreement_audit.py `
   --dataset-dir analysis_outputs\gold_replay_phase1\catalog_rank20_multisnapshot_ranker_v2_privatehistory `
   --engine-dir analysis_outputs\gold_replay_phase2\frozen_baselines_v1\archaludon_agentlast_relic1 `
   --baseline-map analysis_outputs\gold_replay_phase2\frozen_baselines_v1\baseline_map.json `
   --output-dir analysis_outputs\gold_replay_phase2\disagreement_audit_512_v2 `
   --seed gold-disagreement-512-v1 --target-count 512 --max-complete-actions 4096
 
-.venv-rl\Scripts\python.exe tools\verify_gold_disagreement_audit.py `
+.venv-ptcg\Scripts\python.exe tools\verify_gold_disagreement_audit.py `
   --audit-output-dir analysis_outputs\gold_replay_phase2\disagreement_audit_512_v2 `
   --dataset-dir analysis_outputs\gold_replay_phase1\catalog_rank20_multisnapshot_ranker_v2_privatehistory `
   --baseline-map analysis_outputs\gold_replay_phase2\frozen_baselines_v1\baseline_map.json `
@@ -1463,43 +1463,43 @@ The server-downloaded manifest file matches the local file at SHA256
 ### Verification Commands
 
 ```powershell
-.venv-rl\Scripts\python.exe tools\build_gold_oracle_states.py `
+.venv-ptcg\Scripts\python.exe tools\build_gold_oracle_states.py `
   --verify-only analysis_outputs\gold_replay_phase3\oracle_states_23_v1 `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\build_gold_oracle_states.py `
+.venv-ptcg\Scripts\python.exe tools\build_gold_oracle_states.py `
   --verify-only analysis_outputs\gold_replay_phase3\candidate_coverage_arch104_v1 `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\run_gold_oracle_teacher.py `
+.venv-ptcg\Scripts\python.exe tools\run_gold_oracle_teacher.py `
   --verify-only analysis_outputs\gold_replay_phase3\oracle_teacher_population4_b2_p1_v2 `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\run_gold_oracle_teacher.py `
+.venv-ptcg\Scripts\python.exe tools\run_gold_oracle_teacher.py `
   --verify-only analysis_outputs\gold_replay_phase3\oracle_teacher_step242_full_b2_p32_v1 `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\build_gold_upper_tier_states.py `
+.venv-ptcg\Scripts\python.exe tools\build_gold_upper_tier_states.py `
   --verify-only analysis_outputs\gold_replay_phase3\upper_tier_target_states5_v1 `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\run_gold_oracle_teacher.py `
+.venv-ptcg\Scripts\python.exe tools\run_gold_oracle_teacher.py `
   --verify-only analysis_outputs\gold_replay_phase3\upper_tier_teacher_85035844_b1_p1_v1 `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\verify_kaggle_gold_rollout_execution.py `
+.venv-ptcg\Scripts\python.exe tools\verify_kaggle_gold_rollout_execution.py `
   --execution-manifest analysis_outputs\kaggle_compute\ptcg_gold_rollout_full_v3\ptcg_gold_workspace\kaggle_execution_manifest.json `
   --workspace-root analysis_outputs\kaggle_compute\ptcg_gold_rollout_full_v3\ptcg_gold_workspace
 
-.venv-rl\Scripts\python.exe tools\build_gold_teacher_refinement_selection.py `
+.venv-ptcg\Scripts\python.exe tools\build_gold_teacher_refinement_selection.py `
   --verify-only analysis_outputs\gold_replay_phase3\upper_tier_promising2_p4_selection_v1.json `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe tools\build_gold_particle_convergence.py `
+.venv-ptcg\Scripts\python.exe tools\build_gold_particle_convergence.py `
   --verify-only analysis_outputs\gold_replay_phase3\upper_tier_85056873_p2_p4_p8_convergence_v1.json `
   --workspace-root .
 
-.venv-rl\Scripts\python.exe -m unittest discover -s rl_ptcg\tests -q
+.venv-ptcg\Scripts\python.exe -m unittest discover -s rl_ptcg\tests -q
 ```
 
 The current full suite passes `346` tests.
@@ -1522,7 +1522,7 @@ Every new experiment must record:
 
 ## What Failed
 
-- `python -m pytest` is not available in `.venv-rl`; use `unittest` unless the
+- `python -m pytest` is not available in `.venv-ptcg`; use `unittest` unless the
   dependency policy is deliberately changed.
 - Current Alakazam teacher stability is insufficient for ranker training.
 - The original Gold-oracle report stability reducer inspected only the first
@@ -1605,3 +1605,4 @@ public trigger appears in additional live evidence and paired guards pass.
 The visible-Alakazam backup rule and Hero's Cape remain excluded. Keep the
 sealed blind split unopened until every policy, threshold, and ensemble is
 frozen.
+

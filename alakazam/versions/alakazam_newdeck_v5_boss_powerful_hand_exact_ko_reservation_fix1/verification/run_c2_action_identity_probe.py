@@ -233,7 +233,7 @@ def run_probe(repo_root: Path) -> dict[str, Any]:
     )
     if str(engine) not in sys.path:
         sys.path.insert(0, str(engine))
-    python = repo_root / ".venv-rl" / "Scripts" / "python.exe"
+    python = repo_root / ".venv-ptcg" / "Scripts" / "python.exe"
     script = Path(__file__).resolve()
     parent_rows = _subprocess_worker(
         script, python, engine, parent_dir, repo_root
@@ -321,3 +321,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

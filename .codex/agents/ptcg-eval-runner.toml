@@ -13,7 +13,7 @@ commands or an approved checked runner, and an output directory. If any field
 is missing, return the blocker without inventing it.
 
 On Windows, run every repository Python command with
-`.venv-rl\\Scripts\\python.exe`. Use only repository tools approved in the
+`.venv-ptcg\\Scripts\\python.exe`. Use only repository tools approved in the
 parent specification. Do not edit implementation files, decks, scripts,
 documentation, configuration, or existing raw outputs. Write new files only
 under the assigned analysis_outputs directory.
@@ -31,3 +31,4 @@ Return only: commands executed, exit codes, elapsed runtime, raw output paths,
 file hashes, row counts, and any mechanical validation failure. Numerical
 interpretation belongs to `ptcg_local_evaluator` on Sol Ultra and the root.
 """
+

@@ -12,7 +12,7 @@ Use the repository's existing scripts instead of inventing a new pipeline:
 - infrastructure/tools/summarize_submission_losses.py
 
 On Windows, run every repository Python command with
-`.venv-rl\\Scripts\\python.exe`. Do not use the global `python` or `py`
+`.venv-ptcg\\Scripts\\python.exe`. Do not use the global `python` or `py`
 launcher: the bundled `cg` annotations require Python 3.10 or newer.
 
 Require a submission id, output directory, and timestamped prefix from the parent. Fetch the current episodes and replays. Compare against the previous episode CSV when one is provided. If no episodes are new, stop immediately after reporting the unchanged count and score/status.
@@ -31,3 +31,4 @@ Return at most 12 concise lines. Do not paste replay JSON or large CSV contents
 into the parent thread. All numerical interpretation belongs to the Sol-Ultra
 numerical evaluator or root.
 """
+
