@@ -36,23 +36,23 @@ Updated: 2026-08-03 JST
 - Rule 6 Poké Pad: `REJECT`; one start but no naturally completed route.
 - Rule 7 Turbo Flare concentration: `REJECT`; fixed160 `100 -> 98`, G/R/T
   `3/5/152`, seat 1 `-3`; fixed760 forbidden.
-- Rule 8 same-Active attack dominance: `DEFER-DORMANT`; shadow 30,977
-  callbacks plus fixed160 produced zero starts and zero differences. Fixed160
-  was `100=100`, G/R/T `0/0/160`, with all 160 traces byte-identical. It is not
-  integrated and fixed760 is forbidden.
+- Rule 8 same-Active attack dominance: `DEFER-DORMANT`; shadow plus fixed160
+  produced zero starts and zero differences. Fixed160 was `100=100`, G/R/T
+  `0/0/160`, with all 160 traces byte-identical.
 - Rule 9 Pokégear/Supporter complete plan: `DEFER-DORMANT`; fixed160 was
-  `100=100`, G/R/T `0/0/160`, faults zero and all traces byte-identical. The
-  raw format did not persist entry telemetry, and independent trace audit found
-  zero proven complete natural Gear-to-Boss terminal transactions. It is not
-  integrated or widened; fixed760 is forbidden.
+  `100=100`, G/R/T `0/0/160`, but no complete natural Gear-to-Boss terminal
+  transaction was proven.
+- Rule 10 proactive FML exact exchange: `DEFER-DORMANT`; shadow 30,977
+  callbacks plus fixed160 produced zero starts and completions. Fixed160 was
+  `100=100`, G/R/T `0/0/160`, with all 160 traces byte-identical.
 
 ## Current step
 
-Implement Rule 10, Full Metal Lab and exact harmful-KO/comeback control, as the
-only new behavior from the accepted Rule 5 parent.
+Freeze accepted Rule 5 as the named final candidate and execute the one allowed
+fixed760 against exact Historical-Silver.
 
 ## Next
 
-After Rule 10 adoption or rejection, freeze the last accepted Silver-based
-parent as the named final candidate and run the one allowed fixed760. Do not
-carry Rules 7, 8, or 9 forward.
+Independently audit fixed760, root-recompute every adoption gate, classify all
+changed-result keys and first differences, and issue the final completion
+judgment. No further per-rule implementation is planned.

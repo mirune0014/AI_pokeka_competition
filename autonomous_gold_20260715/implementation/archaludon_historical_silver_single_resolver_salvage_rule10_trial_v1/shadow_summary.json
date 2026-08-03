@@ -1,0 +1,30 @@
+{
+  "action_differences": 0,
+  "activity": {
+    "aborts": 0,
+    "completions": 0,
+    "faults": 0,
+    "starts": 0
+  },
+  "activity_event_count": 0,
+  "all_differences_allowed": true,
+  "allowed_differences": 0,
+  "callbacks": 30977,
+  "current_path_count": 46,
+  "exceptions": [],
+  "first_differences": 0,
+  "historical_path_count": 207,
+  "invalid_actions": [],
+  "malformed_replays": [
+    {
+      "corpus": "current",
+      "exception": "JSONDecodeError",
+      "message": "Expecting value: line 1 column 3145726 (char 3145725)",
+      "replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89287701_replay.json"
+    }
+  ],
+  "ordered_corpus_sha256": "A29B61F31A84401404BF1701DDC5CF959A330EA6894C9283C533017B99ED4C9D",
+  "readable_replays": 252,
+  "seats_per_replay": 2,
+  "source_path_count": 253
+}

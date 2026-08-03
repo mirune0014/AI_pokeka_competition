@@ -1,0 +1,18 @@
+{
+  "candidate_p0": {
+    "action_errors": 0,
+    "hit_max_steps": false,
+    "seed": 803210001,
+    "started": true,
+    "steps": 149,
+    "summary_sha256": "F7863FB1B535AF86C8D3F87ECE008D29DAC49B8BAF24B0A1A918126265C3045B"
+  },
+  "candidate_p1": {
+    "action_errors": 0,
+    "hit_max_steps": false,
+    "seed": 803210002,
+    "started": true,
+    "steps": 158,
+    "summary_sha256": "367FAD6FF57819F5649339B39DECE2A14EC87A93CBE85E6036238ACE544CABA3"
+  }
+}
