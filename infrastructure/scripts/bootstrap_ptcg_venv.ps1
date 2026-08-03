@@ -4,9 +4,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location (Join-Path $repoRoot '..')
-$repoRoot = Get-Location
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
+Set-Location $repoRoot
 $ptcgVenv = Join-Path $repoRoot '.venv-ptcg'
 $reqFile = Join-Path $repoRoot 'infrastructure\ptcg-venv-requirements.txt'
 $ptcgPython = Join-Path $ptcgVenv 'Scripts\python.exe'
