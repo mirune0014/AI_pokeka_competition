@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "policy": "H6_ATTACK_COMPLETING_ENERGY_RESERVATION_V2",
+  "strategy": {
+    "path": "autonomous_gold_20260715/strategy/archaludon_hierarchical_rules_20260729/STRATEGY_SELECTION_H6_ATTACK_COMPLETING_ENERGY.md",
+    "sha256": "CF154A409B13FB985226EB1D68B291BBB2C31E46F704C4FCD971A979513D198D"
+  },
+  "verification": {
+    "path": "autonomous_gold_20260715/root_verification/archaludon_attack_completing_energy_reservation_v2_20260729/ROOT_IMPLEMENTATION_VERIFICATION.md",
+    "sha256": "40751E8768A39534D5DD5EBC35DC7EADA0C5D22DB34EAFDF4346FC7B1BCB1026"
+  },
+  "baseline": {
+    "path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+    "main_sha256": "F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "candidate": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_attack_completing_energy_reservation_v2",
+    "main_sha256": "C2B2E6E2A3170A1E90853CD0128075EA023831C17F2B7263744E371FC826E530",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "python": ".venv-rl/Scripts/python.exe",
+  "engine": {
+    "path": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+    "canonical_11_file_sha256": "466638706BD5C6915E25D1B3CB9E3D966390FBC263F4ED3153108E29C0194FFF",
+    "files": {
+      "cg/__init__.py": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "cg/api.py": "C31AA24E63BF0E71779D97F6286D10A2BF23CB4A3B9449C977F63577704FBE6C",
+      "cg/cg.dll": "0C6153F9206366F2588E5C601AB086EA997A66E80E4FEB6D95635B2987C9929B",
+      "cg/cg.pdb": "79072C72B247E175A52B7F8C9DC8BBEA545CA896A24E131F9BF5A4A7C87C5E6C",
+      "cg/Export.lib": "2758FBAAA51557D72E1EBBEF71AFBA1F6FCE9BB73162154301A322A4515C0223",
+      "cg/game.py": "B88E6E0223FF8FCB789F6B2B094B9556B2725A624AC69AE5C367CE822F1E3BC2",
+      "cg/libcg-arm64.so": "030B4728CE9FB9E90B75830B7CF7236F71859732A05EC4A377078EEE0421BBE5",
+      "cg/libcg.dylib": "77BB978A8129B094452679E0DAF0DA69593AFDA7331685F4642C0D4A94D39D82",
+      "cg/libcg.so": "FFD89BF923525A3E6FEB5E6201E96A866C0F456895499ED5C4A566303CAAE67C",
+      "cg/sim.py": "3096ED0CBB13CAEB1FA6DFBC78515642F833DC5D3F6847F757937CFDCB5410D4",
+      "cg/utils.py": "60F29665CEE0A88525D6F0383BC45959A6262D16FE35EF380AECE1E0EA13C49B"
+    }
+  },
+  "runners": {
+    "checked_paired": {
+      "path": "tools/run_seeded_paired_suite.py",
+      "sha256": "5EC25C98F2777FF61DE2DBD0A03A08519A7FEA4B2B4C510B5B8895BC2000E000"
+    },
+    "checked_battle": {
+      "path": "tools/run_local_battle.py",
+      "sha256": "E1ABA0151CDAEE425B858511AA760CE5C5647D555DDEFBD69D7319C29C5B773B"
+    },
+    "trace_preservation_wrapper": {
+      "path": "autonomous_gold_20260715/implementation/archaludon_exact_inherited_attack_locked_unique_higher_prize_boss_ko_v3/run_checked_suite_keep_traces.py",
+      "sha256": "9DCD5949CA5E251A1EA2B8978AEAE44ED76637EDE636D52E4FB02BDE7D8C745F"
+    }
+  },
+  "opponents": [
+    {
+      "label": "arch_peak",
+      "path": "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710",
+      "main_sha256": "9F4A35D7CC2365AC2A9A5B1A684E4C66618FEF08E6DD0635D75EA49AF423313D",
+      "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+    },
+    {
+      "label": "arch_shumpei",
+      "path": "meta_agents/archaludon_shumpei_current_v3",
+      "main_sha256": "A0567DB9CA05121C432A9A0C9833958EEDA595EC4EB64515510805647DA094F8",
+      "deck_sha256": "4695E1BE02192385E72D739E40C5BB847BF3D90CE099E55EF189A3CBC80F8CF2"
+    },
+    {
+      "label": "alakazam_capbloo_gold",
+      "path": "meta_agents/alakazam_capbloo_gold_85357128_simple",
+      "main_sha256": "9BD4FDBCCBD43786F689232B36D01A107BE16B4423EB91966DC964846031A2DC",
+      "deck_sha256": "68BE63D49356B55E9A077481E97A42A2BCF134DF4304C757561590C4077176C8"
+    },
+    {
+      "label": "marnie_kazuki_live",
+      "path": "meta_agents/marnie_kazuki_live_85083586_simple",
+      "main_sha256": "B2317C6CD6A031912BCFE89D5498B33A056F1D9583C7631E046E4F8ABAD9E59D",
+      "deck_sha256": "F75CB0C32939525FF083FCB5C4D6052D413E21644FDAFF81DE717F9121EAEE1B"
+    },
+    {
+      "label": "mega_lucario_public",
+      "path": "meta_agents/mega_lucario_public_simple",
+      "main_sha256": "A5732DD50FA0F0BC872B6CFC92227B9A61D48F989D97BB282C06F9509E68158F",
+      "deck_sha256": "026F160E0BC581BA97004047CEF3FE0986C7D49FA3B77D6956226E9A70D3252D"
+    },
+    {
+      "label": "kang_crustle",
+      "path": "meta_agents/kangaskhan_crustle_mpgaming_v23_heal_role_missing160_guard",
+      "main_sha256": "F3DBBBE854759F7C187C116D6D8705F559E11EEFDEDD3822AAD048BC4E77CA28",
+      "deck_sha256": "9FCDEEA4F2E741489261EFCFBC19DA81D88DE9079ED01C076EA7F361F07E993E"
+    },
+    {
+      "label": "cynthia_v23",
+      "path": "meta_agents/cynthia_garchomp_nasuo445_v23_allcall_before_evolve",
+      "main_sha256": "1BEEB2EE1B5E82E268459665E37C16996590B4701702ACC0A869A1671148065F",
+      "deck_sha256": "606B44F7D6181C57C6CCDD7EE493C72BAF39E684B264886BC01631DBEE8D349C"
+    }
+  ],
+  "max_steps": 1000,
+  "output_root": "autonomous_gold_20260715/evaluations/archaludon_attack_completing_energy_reservation_v2/fixed760_raw_20260729",
+  "panels": [
+    {
+      "label": "historical_silver",
+      "output": "historical_silver",
+      "games_per_seat": 100,
+      "seed_base": 271828182,
+      "expected_rows": 200,
+      "opponents": [
+        {
+          "label": "historical_silver",
+          "path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
+        }
+      ]
+    },
+    {
+      "label": "adjacent_population",
+      "output": "adjacent_population",
+      "games_per_seat": 40,
+      "seed_base": 271958313,
+      "expected_rows": 560,
+      "opponents": [
+        {
+          "label": "arch_peak",
+          "path": "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710"
+        },
+        {
+          "label": "arch_shumpei",
+          "path": "meta_agents/archaludon_shumpei_current_v3"
+        },
+        {
+          "label": "alakazam_capbloo_gold",
+          "path": "meta_agents/alakazam_capbloo_gold_85357128_simple"
+        },
+        {
+          "label": "marnie_kazuki_live",
+          "path": "meta_agents/marnie_kazuki_live_85083586_simple"
+        },
+        {
+          "label": "mega_lucario_public",
+          "path": "meta_agents/mega_lucario_public_simple"
+        },
+        {
+          "label": "kang_crustle",
+          "path": "meta_agents/kangaskhan_crustle_mpgaming_v23_heal_role_missing160_guard"
+        },
+        {
+          "label": "cynthia_v23",
+          "path": "meta_agents/cynthia_garchomp_nasuo445_v23_allcall_before_evolve"
+        }
+      ]
+    }
+  ],
+  "expected_total_rows": 760,
+  "expected_shadow_first_difference": {
+    "episode": 88584180,
+    "row": 91,
+    "parent_discard_serials": [120, 90],
+    "candidate_discard_serials": [90, 94],
+    "reserved_energy_serial": 120,
+    "completed_attack_id": 253
+  },
+  "required_output_schema": [
+    "panel",
+    "opponent",
+    "seat",
+    "seed",
+    "baseline_win",
+    "candidate_win",
+    "baseline_result",
+    "candidate_result",
+    "baseline_steps",
+    "candidate_steps"
+  ],
+  "gates": {
+    "unique_schedule_keys": 760,
+    "duplicate_summary_matches": 760,
+    "duplicate_byte_trace_matches": 760,
+    "execution_faults": 0,
+    "start_faults": 0,
+    "action_errors": 0,
+    "exceptions": 0,
+    "max_step_hits": 0,
+    "panel_seat_opponent_cell_regressions": 0
+  }
+}

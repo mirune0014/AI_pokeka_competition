@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "purpose": "NATURAL_MECHANISM_COVERAGE_ONLY",
+  "runner_sha256": "0A40C62185B26794768947EE7904E77E3FCF624080E524E3325B45742EBA691B",
+  "schedule_base": {
+    "path": "autonomous_gold_20260715/evaluation_specs/archaludon_historical_silver_single_resolver_salvage_v1_rule1/fixed160_spec.json",
+    "sha256": "E2B8986663A43A7F6F52888E487F39B8D059CDCDDF441A3E87D8C093DF15274C"
+  },
+  "strategy": {
+    "path": "autonomous_gold_20260715/strategy/archaludon_historical_silver_single_resolver_salvage_v1/REQUIREMENTS_AMENDMENT_RULE3_CERTIFIED_LATE_BOUNDARY_V3.md",
+    "sha256": "E677FBEA220C60A367BAF1E32B2C1C24243234DAEC9816BD884EF89AE924FA0A"
+  },
+  "verification": {
+    "path": "autonomous_gold_20260715/root_verification/archaludon_certified_late_boundary_ultra_ball_route_v3_repair1_20260803/ROOT_FIXED160_VERIFICATION.md",
+    "sha256": "C19C08FE9990C28AD8E22A96CF3548EBF6CC42ECAFBA9FB692A09FA544720F52"
+  },
+  "independent_numerical": {
+    "path": "autonomous_gold_20260715/root_verification/archaludon_certified_late_boundary_ultra_ball_route_v3_repair1_20260803/independent_numerical/INDEPENDENT_NUMERICAL_AUDIT.md",
+    "sha256": "8098FEBDEBEA9519795B12261330058D75D586E6531A3CF055A246818A5472D1"
+  },
+  "parent": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_rule3_repair_v2",
+    "main_sha256": "4287A616E1611F5697964D9F4065978EED1CEA72CDB48C9F63F1430D69106C35",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "candidate": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_certified_late_boundary_ultra_ball_route_v3_repair1",
+    "main_sha256": "3D95357E75E0B00CB679C1A31F6612AD1FA0EF44914E8ECA8C272CE9220027C3",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "diagnostic_candidate": {
+    "path": "autonomous_gold_20260715/implementation/archaludon_certified_late_boundary_ultra_ball_route_v3_repair1/diagnostic_agent",
+    "main_sha256": "24B28C41BF65B0CA5E4069895BD7DDA2322D0DAE5BA2B6A4DED7E5A431A981D8",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "opponents": [
+    {
+      "label": "historical_silver",
+      "path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+      "main_sha256": "F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E",
+      "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+    },
+    {
+      "label": "arch_peak",
+      "path": "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710",
+      "main_sha256": "9F4A35D7CC2365AC2A9A5B1A684E4C66618FEF08E6DD0635D75EA49AF423313D",
+      "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+    },
+    {
+      "label": "alakazam_capbloo_gold",
+      "path": "meta_agents/alakazam_capbloo_gold_85357128_simple",
+      "main_sha256": "9BD4FDBCCBD43786F689232B36D01A107BE16B4423EB91966DC964846031A2DC",
+      "deck_sha256": "68BE63D49356B55E9A077481E97A42A2BCF134DF4304C757561590C4077176C8"
+    },
+    {
+      "label": "marnie_kazuki_live",
+      "path": "meta_agents/marnie_kazuki_live_85083586_simple",
+      "main_sha256": "B2317C6CD6A031912BCFE89D5498B33A056F1D9583C7631E046E4F8ABAD9E59D",
+      "deck_sha256": "F75CB0C32939525FF083FCB5C4D6052D413E21644FDAFF81DE717F9121EAEE1B"
+    }
+  ],
+  "seed_first": 314159265,
+  "seed_last": 314159304,
+  "seats": [0, 1],
+  "max_primary_keys": 320,
+  "max_steps": 1000,
+  "output_root": "autonomous_gold_20260715/evaluations/archaludon_certified_late_boundary_ultra_ball_route_v3_repair1/coverage_extension_314159265_314159304",
+  "fixed160_carry_in": {
+    "natural_starts": 2,
+    "completed_starts": 2,
+    "completed_active_ex": true,
+    "completed_turbo": false,
+    "attack_or_end_first_difference": false,
+    "completed_seats": [0, 1],
+    "faults": 0
+  },
+  "stop_gates": {
+    "minimum_cumulative_starts": 4,
+    "require_active_ex_completion": true,
+    "require_turbo_completion": true,
+    "require_attack_or_end_first_difference": true,
+    "require_both_seats": true,
+    "require_completion_rate": 1.0,
+    "maximum_faults": 0
+  },
+  "interpretation": "Coverage only. Do not use extension win rates as strength evidence."
+}
