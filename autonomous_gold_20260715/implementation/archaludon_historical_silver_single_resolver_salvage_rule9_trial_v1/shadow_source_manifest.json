@@ -1,0 +1,1773 @@
+[
+  {
+    "corpus": "current",
+    "name": "episode_89273146_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89273146_replay.json",
+    "sha256": "3295C1374A5F49F0A956D9E8C35E08514E9C1C7CFAB0E8D71B7B93B2F451DC2C",
+    "size": 3138800
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89273226_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89273226_replay.json",
+    "sha256": "674C682E0A7A4CE8CBE7274DF4196C09DB1D51E13B132077BC71582390B59C6A",
+    "size": 2988879
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89273754_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89273754_replay.json",
+    "sha256": "F943E37C003C5AE7C53A62047C0B570F772E911A84117A7D8CFF6BFC26F6C08E",
+    "size": 1762489
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89274268_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89274268_replay.json",
+    "sha256": "7023D3BF451FAA490AF4A31A11572EA8FF8B52035388F33641BF517C6260283E",
+    "size": 1224239
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89274803_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89274803_replay.json",
+    "sha256": "76ABD49FE2D6DA0A2C351DA3B3A2A15855018B506B786C582DF6EEE323BC7E87",
+    "size": 3414693
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89275349_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89275349_replay.json",
+    "sha256": "3EC930F4767266B887EF61684F2CF09812543E8AD0DC73C32125DA63BE2CCC3D",
+    "size": 3500048
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89275881_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89275881_replay.json",
+    "sha256": "3652B56F8028B91BFD6FDD5ACAB9DF348A6BE10C889E4C0AD64911AA07F6CFA3",
+    "size": 4711713
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89276405_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89276405_replay.json",
+    "sha256": "F2072563F22C4C16EC7B2D07B6F04F6F932CB7F917D8C601A3DFBC58943E0AD3",
+    "size": 5241960
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89276971_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89276971_replay.json",
+    "sha256": "E948115D36D64FE020BEB565647680558CA0FEF7C72093470243679C0CDC6F3A",
+    "size": 4871831
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89277462_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89277462_replay.json",
+    "sha256": "8A95853B80481FB79CC9D1397C30DEC2311D9931CECD967A5D3BE83B7FC938E6",
+    "size": 1384257
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89277996_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89277996_replay.json",
+    "sha256": "5987DD68471C818E937F4296B4FD7BA3A0C065FB7FC1A8BBAC4A2598BCF41A21",
+    "size": 3956437
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89278577_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89278577_replay.json",
+    "sha256": "28510E6B1D2A3ABA0E4DD01BEFADBFD18BB391F636E2AED8F744F6F3AE0FBFF2",
+    "size": 4510821
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89279065_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89279065_replay.json",
+    "sha256": "37241E981B61E00C947BC7BF29334EF9D4D07B6ED9F827F28804B80A07FCD11C",
+    "size": 3287023
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89279601_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89279601_replay.json",
+    "sha256": "AFC2C15FF7A035C3D9F3359DF2F883A8CD4ECA735320CFE656A66478EBB91569",
+    "size": 4483374
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89280169_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89280169_replay.json",
+    "sha256": "77EC2564F0BB4801CA880080C44A08F7EC416A51B6204EBD3491B813009F100D",
+    "size": 4421933
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89280661_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89280661_replay.json",
+    "sha256": "38D317186A3C9E64C1469AE3B852C13141B1F7BA4E5ECD93C1D5AAD23565983B",
+    "size": 3733449
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89281209_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89281209_replay.json",
+    "sha256": "49D101C53F9D4DD9F6F047E3AD42C3DAE2D01EC3FC581C21F90DED1AAF8293B5",
+    "size": 2559720
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89281738_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89281738_replay.json",
+    "sha256": "F7C6ABEDCC0988C43923BEC89102B9595F05EA3DE10F85349EDC7948737A5E0A",
+    "size": 3718364
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89282293_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89282293_replay.json",
+    "sha256": "A6C44AE56248B145E49E037B7A3AE1254357EAA79DABDE4659F990D2FFE409A2",
+    "size": 3664897
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89282820_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89282820_replay.json",
+    "sha256": "8861144C5AF9E93A3435A323F9480F1FB01B6E5C9D2549635394DCF4F9B00A0D",
+    "size": 3374714
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89283369_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89283369_replay.json",
+    "sha256": "BD4D3C8C7D4BE5DCA912A38EA792E0D30F0370612C7B978CFE694CE577582FD3",
+    "size": 1418279
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89283885_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89283885_replay.json",
+    "sha256": "BE43A40D8707C302BE950624F19FABDA9BCE29C9B5259B0DCFAE66BA5EF66117",
+    "size": 5051003
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89284426_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89284426_replay.json",
+    "sha256": "71CBBEE2547AEF67455B7037360A1C532F71213D5BA34A088B033F68C819AE62",
+    "size": 4042097
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89284651_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89284651_replay.json",
+    "sha256": "4A28DFB17335A5D490C9C463AE66084FCB874C1A032221B5F8F5817182659A5C",
+    "size": 3638606
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89284977_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89284977_replay.json",
+    "sha256": "87051BCA49D9C1CDF8FAD43A447F42B93974329D694C132A0D60B1023340FEEF",
+    "size": 3602372
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89285518_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89285518_replay.json",
+    "sha256": "CD63C977911B1A287C56E53D267F08D5C68D1322927416673F2D2266B43BB890",
+    "size": 3980388
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89286075_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89286075_replay.json",
+    "sha256": "2E53BE4615D20456CDC127991D7455E14559B8B126CF7BF94AC235F49A130F76",
+    "size": 3586835
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89286591_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89286591_replay.json",
+    "sha256": "1FA63978F03189A47139216B88D7C7AF69515E072D336C956CC3170A5F706158",
+    "size": 2949575
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89287160_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89287160_replay.json",
+    "sha256": "9AE9270B8CCF8637473A2EABBBC95BA1C3D5FE60FF63421CDB5654049000836C",
+    "size": 3860017
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89287701_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89287701_replay.json",
+    "sha256": "601498052C7D2F96BCFB0972BBB65DBC7B76E76D41C19BACBD5EE06EB5837AAC",
+    "size": 3145728
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89288308_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89288308_replay.json",
+    "sha256": "BAFD0ACFDA9EA6C64543FD866382F8103B7741FE80DFB01EE20AA6847A9493D9",
+    "size": 3214996
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89288811_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89288811_replay.json",
+    "sha256": "6CB4E830DAEC5C51EAAA46159FE4EFDFEBEB2BB789B32CF51C5F811BC9414FB4",
+    "size": 3035628
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89289354_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89289354_replay.json",
+    "sha256": "BFA70BD8FAD790A046F25C696D09265DDD34B8448827589D09AB66617A460529",
+    "size": 1134063
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89289898_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89289898_replay.json",
+    "sha256": "8C0F652F5E768488486CFA7F995436A828DC9CC0EF29AD3363F49E0EAF877B3B",
+    "size": 4415772
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89290439_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89290439_replay.json",
+    "sha256": "894FE8A06C2B7F835289A0BF62959001CC42D6A0CC09BA06972F7422716A46C3",
+    "size": 3773035
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89290991_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89290991_replay.json",
+    "sha256": "9B031E44E2E9A840DB6BC3194023B912FD23E976D21F6E1C8382160146FD069B",
+    "size": 672285
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89291523_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89291523_replay.json",
+    "sha256": "1F180D8C66ABA57B000D6D38E0EA3FDD5B1EE26F491EEEAFFE9B4B04478E84ED",
+    "size": 4716362
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89292065_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89292065_replay.json",
+    "sha256": "4404D056188C5C09741709F20AB8E4F935EA82F9B859E17EB476D8BD5C853BBC",
+    "size": 2142887
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89292594_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89292594_replay.json",
+    "sha256": "EF9DC6A3427654A8AF1B52A72CBD30F179094DABB0E1E285D7AC24BDF74798B0",
+    "size": 3478046
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89293161_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89293161_replay.json",
+    "sha256": "E442E950C2D5C7F516CD25CD5D5CA2E98819426A6CD27CEEC18E0161F89B3C33",
+    "size": 980332
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89298963_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89298963_replay.json",
+    "sha256": "135B5C304AA8D3E9AC6F3F9FFCE4D5335731180970D257ED2CFED948776A1A11",
+    "size": 2459399
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89305863_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89305863_replay.json",
+    "sha256": "FFDC323EF16386AB829F5255511887061C71A97082F57410219A404EC6A8ABDD",
+    "size": 4305366
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89308835_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89308835_replay.json",
+    "sha256": "DF3B6549A2665C30EA22670479A597C47007CB0E9E2828952B47967361FFFDF1",
+    "size": 3060425
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89318738_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89318738_replay.json",
+    "sha256": "422CDCD1EE6309D3421DF50663E6268E4DD4733CF88EDE58FA7A30C91662F039",
+    "size": 3854159
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89329073_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89329073_replay.json",
+    "sha256": "32E10CDB765D3B5B4C58061CE9A726F1C22EF1827FC9247EDC3010EDCA8EF15B",
+    "size": 350048
+  },
+  {
+    "corpus": "current",
+    "name": "episode_89340051_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89340051_replay.json",
+    "sha256": "5823C9036C9806058C7BDFBE357BF30B6E5265E045EC30A9B1329A7B02883D41",
+    "size": 3559262
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87651381_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87651381_replay.json",
+    "sha256": "167025189A6830FB95E36FF54920302F67B526B2CA26548643C7B8048F7C4DB8",
+    "size": 2957555
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87651518_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87651518_replay.json",
+    "sha256": "631CDB814A9B95AF86C643CB7423B8DEE657CD4A0BBBE92D44C28EBA7653DBEA",
+    "size": 3702166
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87652037_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87652037_replay.json",
+    "sha256": "90D68B04F58BB84BB96715A45B3772C9FB4C1D83F1802C59247F71F2DE554BDB",
+    "size": 3000819
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87652569_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87652569_replay.json",
+    "sha256": "D4A88C3778062EBB839D954523FA00AB34696A33C3477E93C52458D2B63C2125",
+    "size": 3655318
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87653119_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87653119_replay.json",
+    "sha256": "CCB95ED97738C093428DDAB7DF53777B70F61D4D660757E2E1F479D34D357463",
+    "size": 2067322
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87653648_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87653648_replay.json",
+    "sha256": "8087FB78BA591D76D3FDADF0D97A2B0F9A68C7D54AE002C619DA35FAAAFA319A",
+    "size": 5374213
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87654182_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87654182_replay.json",
+    "sha256": "7C543D030F7BB4985FF2A603D8E9918FBE6C3C4AF76EBED031467363EE5A7AD4",
+    "size": 4339234
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87654711_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87654711_replay.json",
+    "sha256": "73195531C4B892916878BCCC83AE11E8A5FAB2577804B5BD18798936DEE30E98",
+    "size": 3328578
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87654847_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87654847_replay.json",
+    "sha256": "595F3C3F45FD808F6589CBFCD48BEBCA764F808C66CA6AF9A671BC6EE041A9D2",
+    "size": 3651336
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87655255_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87655255_replay.json",
+    "sha256": "3430CA709848880CD34F27BA07014C49C20495282C9F9516A6A9728FC0C7D70D",
+    "size": 3810665
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87655800_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87655800_replay.json",
+    "sha256": "51A1200C0FE61F1159514BACD40DA804B49BBF8F5B8CB8CA79396F13F232C5B9",
+    "size": 3446098
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87656322_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87656322_replay.json",
+    "sha256": "18D863E20238777C8A67C95850C1D831FF807F1BA884844E18F70F29C345CEA7",
+    "size": 3952927
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87656855_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87656855_replay.json",
+    "sha256": "2C5856339C9DDA54905B987121672066650DEB8916292DCA31E6A95274127683",
+    "size": 3584339
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87657398_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87657398_replay.json",
+    "sha256": "01CF416FE67E0628DAB2E187C6E919E0E00442D2E1C4757BEEB9E1F85B46CA20",
+    "size": 4014581
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87657918_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87657918_replay.json",
+    "sha256": "77F5A866A949C6C456EDAC165EBF7CB1ECF8088A548ED43F7297C88C9521FFF5",
+    "size": 3397427
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87658443_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87658443_replay.json",
+    "sha256": "2A9077927556E2C527A180D2027E352829F73342D4BA880115E53F79229E04DE",
+    "size": 1817590
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87658981_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87658981_replay.json",
+    "sha256": "7DD45FA72C6BCDCDD9D11CE3FC6C60081D35FA745C8D55846537C6A69A928E19",
+    "size": 3600108
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87659504_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87659504_replay.json",
+    "sha256": "8C607AB4FE9A11B3821F490CDF1B13150C61E03AEE37594D5C20C9D98A65CAA3",
+    "size": 2565075
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87660034_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87660034_replay.json",
+    "sha256": "175FDBD5024F3E6BF03C0D1247AE223C5B49861B691A2983BF775AB76B3BFD58",
+    "size": 3391676
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87660565_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87660565_replay.json",
+    "sha256": "C7592E8ACE5B9113FE9FC7494EB591240F44C2129955C3BD90AB73A51D9EDF97",
+    "size": 3418600
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87661127_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87661127_replay.json",
+    "sha256": "F3C2442E2D59D1CA70ACFE007DD791B6C10DAC6FCA6EA3CF1F8EDEE3EE546A18",
+    "size": 3360385
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87661646_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87661646_replay.json",
+    "sha256": "F91164C181D2985B4F8D5D19F66B2815A0EE9BCE765FBAA3063F82573D8945DF",
+    "size": 352672
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87662159_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87662159_replay.json",
+    "sha256": "C2BA0C612E378EA18F95B5621A45ACD7827A8ED0427252DF0C724E569C2ED2F9",
+    "size": 4176617
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87662703_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87662703_replay.json",
+    "sha256": "8E4A5ED447170215DEDBC06C8C9FC343F6206A7ECD35335D69A98C29591ACF59",
+    "size": 898263
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87663229_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87663229_replay.json",
+    "sha256": "55389192A0AE932534CC7D1C41A9CB4B7BAAD4D8D428260699242471991F60A3",
+    "size": 3597782
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87663771_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87663771_replay.json",
+    "sha256": "6284E0DA1B0699C8F3D1138775E6B3BA4AFE2EC50012B40444CD81536B3391BF",
+    "size": 1425855
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87664300_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87664300_replay.json",
+    "sha256": "3934C644FF476CF9139931CE59D26A91E080AEE2B5A56C00E1BD5D60103A5931",
+    "size": 3942719
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87664837_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87664837_replay.json",
+    "sha256": "563A1202B061920BE6AD33B54605504BBD14DDE4ECB9606FA99CB4DE812C1CBA",
+    "size": 2560496
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87665374_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87665374_replay.json",
+    "sha256": "016D22362BDD5A46BCF491BAE5A311E6B9C9363EFFAA8FD29D49780E9C1B373D",
+    "size": 3505587
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87665900_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87665900_replay.json",
+    "sha256": "55A09DCB4EFFF28E07F1A56A54A909001F6C6E09470743DFA08CC7C4743CDF14",
+    "size": 3926304
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87666443_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87666443_replay.json",
+    "sha256": "45FFFB5812D1BA99DAE2553E53D3B0C8AC25A62AE1171F59FCADFBF7F47C7D39",
+    "size": 2141327
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87666992_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87666992_replay.json",
+    "sha256": "0C44B5D2ED016788DAF0508A5BD42F2C41A6D14657DCE57220A8D21C0B89D642",
+    "size": 3744603
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87667527_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87667527_replay.json",
+    "sha256": "0239476C5634F29B285AED0511C5EDAE86FBDFF34F5F37C62E4C1863F2E01B04",
+    "size": 2499677
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87668046_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87668046_replay.json",
+    "sha256": "01B0A4E15C75D44E4A8E51E6036AF32388E3C265C771AA5A52B8AB4EB0E216F4",
+    "size": 3390270
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87668611_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87668611_replay.json",
+    "sha256": "B6980489DB28DDCE4993D32135EDA83C4D091FFB8470069A23B1C024655CD8CE",
+    "size": 2667409
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87669149_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87669149_replay.json",
+    "sha256": "C50BAB0966547EE40B67E273D64E1F21DA8BE25C03886DA9A16A690BEFFF478F",
+    "size": 701856
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87669685_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87669685_replay.json",
+    "sha256": "E68560BCD8605C852B2B3C6B5D97F573E755664D35775AB5F9045A32A15AC31C",
+    "size": 3731807
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87670217_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87670217_replay.json",
+    "sha256": "5734A3048B111768042989B5547C455F5826B64950F809F0006E1FAD82128628",
+    "size": 4168647
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87670335_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87670335_replay.json",
+    "sha256": "38D4F7802F0CB0D1EEA4910F8C4B138EAECB09A69E1C91C48A4F5ED7E106CD5E",
+    "size": 3209398
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87670767_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87670767_replay.json",
+    "sha256": "96115792031208C0EB2957860112EEC2FED291565F32592EBE307C5AEF705C9A",
+    "size": 2508895
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87671305_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87671305_replay.json",
+    "sha256": "689C18F51BD61E84490BF065A9520363687E03F190DD6E9C99A4A7565FC0F77B",
+    "size": 3858060
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87671854_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87671854_replay.json",
+    "sha256": "40CD22D249BC73C71A991EC4E96CE1BD4162703301986B1BD2D071CE94004478",
+    "size": 2983506
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87672288_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87672288_replay.json",
+    "sha256": "C888FF0B25898D3FAB3EF50FD4E2FE5D74C81F3AAB878402BAEA6AC1DDA0D1EE",
+    "size": 6143310
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87672388_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87672388_replay.json",
+    "sha256": "A566045D15A22B1BA75E21073D65EE6DD0759666E1EF0E7CDCBB4354300145D7",
+    "size": 1623787
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87672938_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87672938_replay.json",
+    "sha256": "C47442F7AFA8849ECB207AFEA13D6DB922A64DB2E5C40B34C0866836088EDD3F",
+    "size": 3818962
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87673473_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87673473_replay.json",
+    "sha256": "DA7D7890B4C6FF1A6BC6D868E0B00550FCD7C892016DABEADC3A6A4E885D3021",
+    "size": 4630896
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87673483_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87673483_replay.json",
+    "sha256": "7D6BA949C68B0E82DCE1A9144C7244DC064E1401081B2E3B795545B72AA6873F",
+    "size": 2287177
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87674023_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87674023_replay.json",
+    "sha256": "B2853CC25CE202AF590B678E1BFA8FE7DEBB4D949782F492D717BE77CBED049F",
+    "size": 3716949
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87674566_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87674566_replay.json",
+    "sha256": "287CB989EAC6E2EAE8D54B49AC0DF3FE972FD7063FC2F755B450EFBA672AFE07",
+    "size": 3652738
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87675086_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87675086_replay.json",
+    "sha256": "E621188C9D461356624CBD728764656701C66FE6E1634BF201F852C4D7F9A143",
+    "size": 674081
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87675476_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87675476_replay.json",
+    "sha256": "4BFCC34325B866776A204214D002682F9F7922942FAAE88C600CF02C9B99AA96",
+    "size": 3786266
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87677784_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87677784_replay.json",
+    "sha256": "22B1B8E17BABA9789414AFCE0EB092255518FEFBBD66E88EDF6F81096E45C914",
+    "size": 1315372
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87683041_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87683041_replay.json",
+    "sha256": "17C4678A8F3FC622EDE312D7F30F84976351DC3AFC78F5FD40273CEA9B07755E",
+    "size": 4297122
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87690776_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87690776_replay.json",
+    "sha256": "F47295AB848747E3CBF0236CD456FCD0ABAC3E5B5B0C3B7E5303FE6A9818266A",
+    "size": 1380769
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87701753_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87701753_replay.json",
+    "sha256": "E22E2C9105C07CF68E5BB30C1E0479590308BBF88078CBD50473A6D1F345BC8E",
+    "size": 4224594
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87707888_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87707888_replay.json",
+    "sha256": "B845EAB71BD3F8C652D5C1A6CFDC72F76661773507D1B98E8EB27FBA4E80548F",
+    "size": 3878833
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87709435_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87709435_replay.json",
+    "sha256": "1F01613D2FB57CB44184C0B72FAF995EE59A546B7BFF4CFFF2B398E5A4517D14",
+    "size": 4330047
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87718210_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87718210_replay.json",
+    "sha256": "78F28B68AC5A05F32E282DBF9C77C6D2692DC3E1E9DFCE696E4D012D217D0A48",
+    "size": 2759281
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87722446_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87722446_replay.json",
+    "sha256": "C2AB9CD08BA326D0537E86637AA6E0D1F5BDBBF53445F8B37EC2568A424722DB",
+    "size": 3695210
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87732111_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87732111_replay.json",
+    "sha256": "A06F8BE63546311BBBAC639CE8F9DDBD6FCF4F80DC227B9BD783F1CD49C5775D",
+    "size": 4621621
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87732417_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87732417_replay.json",
+    "sha256": "B5774E58535010D019673C5E7E3ADCE1F13024991527165B61B06CCDD8D13345",
+    "size": 3722748
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87738210_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87738210_replay.json",
+    "sha256": "974944B26FD78B7E9FAFC35B0B4909B3E4EF2D27EB579A3718D497D199662E18",
+    "size": 3646506
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87750669_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87750669_replay.json",
+    "sha256": "180FC6000852EEDA5F81B1761AF76265250116B6CBFB97D612B1D16B04F21B65",
+    "size": 3675204
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87761984_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87761984_replay.json",
+    "sha256": "14B8BF86BABBD86AC73AA251E0D8658F745F4F6DB61663BC6AAE022EE43F0B53",
+    "size": 7609517
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87766498_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87766498_replay.json",
+    "sha256": "7B8F0C7DE3ACF64D0F5FD44A91DC5C10F32F17BC3E7E9F3D123EC1254A293871",
+    "size": 4208678
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87770485_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87770485_replay.json",
+    "sha256": "F773B7F6E926A1596A0FBF7E457FB1382DBE674269D8AB3F2E52641D8437ACED",
+    "size": 2472681
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87773965_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87773965_replay.json",
+    "sha256": "0348D4006DD9240E86C82E6135B0F2C4C145499AEF7430B31FB6BF0156891152",
+    "size": 3215895
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87778059_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87778059_replay.json",
+    "sha256": "B138D25ACED25FA41F02AD55970DFF1C73510750AD0A6824CADCF6CB7562A1B7",
+    "size": 4111892
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87781574_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87781574_replay.json",
+    "sha256": "DCB7DD42F64C91864C8BB191C2672F4323D164E0D2EEAFB4BFBC3CBF1B15E201",
+    "size": 2418333
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87792210_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87792210_replay.json",
+    "sha256": "7109039A9B82F02A442465E6ABF31A6A9569FDC5417D85F18F1AFE1C8EF734F4",
+    "size": 3298757
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87794644_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87794644_replay.json",
+    "sha256": "9DACD704DF539B8359414F13CD034508166B018EC1C2D7A2B840E833BD2DBDBA",
+    "size": 2869448
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87794812_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87794812_replay.json",
+    "sha256": "BCF53D28A8DCF4A4C60CD7C6003A86818BE5863035BD642BECCE01E0C0149DF0",
+    "size": 2635266
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87800215_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87800215_replay.json",
+    "sha256": "4325347CA2A29D94E4F65EBF082092120C0060D2E6B732C1A507CCE2639C228A",
+    "size": 6613762
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87805151_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87805151_replay.json",
+    "sha256": "432CBEB0AFC6596BF880694800A8D22190727C6C4007C08BF12FC932479C5F0A",
+    "size": 4287576
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87810085_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87810085_replay.json",
+    "sha256": "292369077582800747700AC6B2E627012B0DB7FEDBD93803BD43BDDE873738A7",
+    "size": 3469433
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87825800_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87825800_replay.json",
+    "sha256": "9CC07DAE64B803E88CBBCB770783CE5157688C6944643521C94176588026640F",
+    "size": 3665541
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87842092_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87842092_replay.json",
+    "sha256": "834E5B2760BCC641202F292B79CEE8E31BEB37468CDB9C815D6CD5BE1EA5D6A9",
+    "size": 2725902
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87858380_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87858380_replay.json",
+    "sha256": "C6BA61FE310488B6C80AD061F7E5DF17CA60CDEE8F9EC6B707C5F12B600D1419",
+    "size": 5167584
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87859142_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87859142_replay.json",
+    "sha256": "405C06DFEAAF1C9072D50788499791CD4691553091AA8027DCE74DE14E1E42EB",
+    "size": 3440440
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87868636_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87868636_replay.json",
+    "sha256": "68E567CE008B2419EAD49E74D34761E15D1661C5B48CB9E40A4E6DA048DBF504",
+    "size": 4708015
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87877210_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87877210_replay.json",
+    "sha256": "CB93C11FE68FE8BBE65DA9D9EF47C636C453341C602C7C91474618FF954A34CA",
+    "size": 4421936
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87878368_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87878368_replay.json",
+    "sha256": "00316502BBD2AD18F11D37EB04A1B6D4BF72F0AE0482F291C0ED4E09AFA4EB47",
+    "size": 4074053
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87892692_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87892692_replay.json",
+    "sha256": "2BBBD6D092A3E5873CF651562F9036E533BA113F4A620244259E450B11AB9C24",
+    "size": 2703830
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87897543_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87897543_replay.json",
+    "sha256": "BED2C7FB7B8D74E9F2080805DA246316F0ED4BE24508CFE1F2EB15DFD1CEB3E0",
+    "size": 4307180
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87899857_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87899857_replay.json",
+    "sha256": "3CFD262E43E33D6944BE18873C0BCDAC709DA8557D8C8D47AFC1B2FFB64DAAB3",
+    "size": 3045291
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87911060_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87911060_replay.json",
+    "sha256": "BCD81A56636AA62F0E30067481575DA4639A04E3A10D97EE6D7C4CB4B253458E",
+    "size": 3806988
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87911107_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87911107_replay.json",
+    "sha256": "B226C2D87918E2B85E4EE36A0C0B650A7D30D9071683D9F98A376B709FD08718",
+    "size": 3528946
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87911959_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87911959_replay.json",
+    "sha256": "7E9BF55A9C64EDF299626808130C08525EA30E5B85D38E75E3DF0BF0BD1EDC4C",
+    "size": 1777214
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87928720_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87928720_replay.json",
+    "sha256": "6D79BE6554C1CD36781493C52C94A641BDA50D0FC8A7E8D8AD64EDD5CBFC3A30",
+    "size": 3690300
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87935410_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87935410_replay.json",
+    "sha256": "9EBCD6428315E0EAC8C89E799EAA163899D4AB85A1D072F635C7983C9DA8B6C5",
+    "size": 4519011
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87952737_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87952737_replay.json",
+    "sha256": "E81C9BB9528E4E55CB2F4C7479C7ADC32AD7DAEA9712F224A685AC6B1C32848F",
+    "size": 3998377
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87953269_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87953269_replay.json",
+    "sha256": "2AB9AA55D6D17132327AC1DB8FB3210F96BC3D6FDCA55325744CFB83C263F914",
+    "size": 3154321
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87970271_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87970271_replay.json",
+    "sha256": "43FBA8A1363D4B30E3000D9785AFAD91ABB1619173458AD9BE54963C0925A838",
+    "size": 4329592
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87974582_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87974582_replay.json",
+    "sha256": "ADE07481B3E46A0E32CC42B8939C63FA4838165D4658AED4654F9D7DD2C484E1",
+    "size": 3819334
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87980916_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87980916_replay.json",
+    "sha256": "6B37118343B843DB8D6D7BD4B291247D2E5B183645D41913B72BF3E6C010FBF0",
+    "size": 3333396
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87994013_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87994013_replay.json",
+    "sha256": "DA521F7474D9C74341B0C7C6974D1D90D42FB573CF5A2EC19037AF37FD345ED1",
+    "size": 3123496
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_87996118_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_87996118_replay.json",
+    "sha256": "EF7699BAFDDEE7D247F25BC591CD55D2AEB7D2D8B0110E7A9FC3F62D68AE2977",
+    "size": 3175734
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88010578_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88010578_replay.json",
+    "sha256": "0A02A469B7AC7453C4A28E36661B01872CA44DC89C23860FFD82F610F87D1B40",
+    "size": 3748329
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88017509_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88017509_replay.json",
+    "sha256": "3E828609FEF02D5D8AFA240D9E1F89C27670837A03595446062EC13F7FD62908",
+    "size": 3717307
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88035562_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88035562_replay.json",
+    "sha256": "5883337160255C4FA932384E0AF1FFDD5BDDA505EB16241EE2B0B20A4FF23E66",
+    "size": 4576361
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88053190_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88053190_replay.json",
+    "sha256": "27DA8189B11081D0B0E37208D5C108B7A128C94A80F73CD6A1BC2FFCCC195AAD",
+    "size": 5150367
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88073289_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88073289_replay.json",
+    "sha256": "DAAE9D699B6F4F65A28AA230E312CB0B14BC83775A8FEE64A2A15FBD92E437EE",
+    "size": 1549233
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88086830_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88086830_replay.json",
+    "sha256": "2E6C67A9EEA1A3438C72A599A0F7F26C3CCD316FF70D4E25D1C8956588F15D36",
+    "size": 4249928
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88096059_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88096059_replay.json",
+    "sha256": "6A83D2CFB4B4CCEDBDBEE697820B078F096B633D3702888A3EB92F32F7B2FC40",
+    "size": 3767877
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88096405_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88096405_replay.json",
+    "sha256": "20532EE753EE5820A1EB38D2707E192B29A722BEB4D9728062D3F397DE179CB1",
+    "size": 2569995
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88106558_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88106558_replay.json",
+    "sha256": "3931D0EAE9AC832F0D42CFCF3D398C8E5A1B652CD5C1564BD92844CF8B93184D",
+    "size": 478315
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88121035_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88121035_replay.json",
+    "sha256": "14C977ABFE77EC1A837E09E64085C118251D2AB5C25DCFD75AE985A6921F8425",
+    "size": 1965188
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88134743_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88134743_replay.json",
+    "sha256": "62A275EE85D5960722CFB667848763BA76D74419282BBD154F2EC594DC7B0848",
+    "size": 2244120
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88147935_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88147935_replay.json",
+    "sha256": "91AFF590EB65990FFF69C54FC6E9775E995FC6D6B00A1C86AEC140ACCA6D79A7",
+    "size": 3318361
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88148268_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88148268_replay.json",
+    "sha256": "5DBCBB5779927DB47C54012B6608659E538BD926AB05BF8EABB6DCA2D90121DA",
+    "size": 672124
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88163977_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88163977_replay.json",
+    "sha256": "54C26F71DA5FFFC1C0644F278A965E9A175EDC59FD4988E8A0F9E10E83C9486F",
+    "size": 1510851
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88171291_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88171291_replay.json",
+    "sha256": "265A7B0C3F4595928807EE42490B55EFF92F2A54DF81E8B328C4BF3EE168B4B5",
+    "size": 3264675
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88186004_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88186004_replay.json",
+    "sha256": "1D6826284FD260950505DB093B9042B49E1DDF0B5365E7B796C6D400B7426F76",
+    "size": 2737009
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88191793_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88191793_replay.json",
+    "sha256": "86B3DFF60AFEA81BB19558526FF2C31BEBB83CF396BB1FE9C6DEA8D2EE05C3A4",
+    "size": 4300498
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88195925_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88195925_replay.json",
+    "sha256": "8A69CDE36899E5F21B8AD3F6EC2741C80F60A88F30FB848816E815CC1F5095BA",
+    "size": 5160064
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88197270_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88197270_replay.json",
+    "sha256": "9AE06EB36A21684FE9078E84DA9C0AD6E791E76279FAA233775A8922A5319595",
+    "size": 4200478
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88203480_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88203480_replay.json",
+    "sha256": "4CF649B760C548DC62D3D00C8D9DC81E000E018265BE28632A45B5AF2E9448CE",
+    "size": 4564942
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88210887_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88210887_replay.json",
+    "sha256": "C558292CD6197628BAC5AEFF0003660553FC240DEAD9F1B1F35531DA78300997",
+    "size": 3256324
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88215221_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88215221_replay.json",
+    "sha256": "7CFBD8DBD43F1BC95C6765FEBE1DCD06972094FDF499F72EDF5D69A2883AA930",
+    "size": 347907
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88225916_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88225916_replay.json",
+    "sha256": "C6EFD3327C611D2BE56D32ADBA5E8A44E162317C59579567D95E3E2098B00BDA",
+    "size": 2526191
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88232035_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88232035_replay.json",
+    "sha256": "4A0D7210BAC5FE42E66C9ED2BA6D6EB44B9714213AEC05B3EE92E2200C6055AE",
+    "size": 3621113
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88239598_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88239598_replay.json",
+    "sha256": "67B5582103BF1B8B2D16356CE481C75F41B142D678ABCA190176FE55D05CD668",
+    "size": 1309054
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88242194_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88242194_replay.json",
+    "sha256": "428E3217ADF9843D4217BEA848749C601C1107C372F1848953C0AC7AAFED4A00",
+    "size": 3997069
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88244115_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88244115_replay.json",
+    "sha256": "B8E7ED345F7A36BF69FD726D698D7D247335C6632B527F8A599DD329906DB5FD",
+    "size": 3576070
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88246735_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88246735_replay.json",
+    "sha256": "53226394C6BA726973D3C0709B647820D3FF290B627CDB88099B13E3CB656705",
+    "size": 4943648
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88247531_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88247531_replay.json",
+    "sha256": "26D1D7054A5C67ED89261B4CA391445A3EA46C5FC8D4AE314E63A577CFC7434E",
+    "size": 3877732
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88252126_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88252126_replay.json",
+    "sha256": "3D57B2151D45437832FBFDCDB1F570501D488EA130B23243D8F36A9BEE7B6E5E",
+    "size": 3207874
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88272191_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88272191_replay.json",
+    "sha256": "3F22F5B766794AAE2E300536BB6B2EE2BA70EB08C9416D527D15AA9577D8903F",
+    "size": 5769775
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88293552_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88293552_replay.json",
+    "sha256": "F4DAD03166FAEC76C061DAC61F7990DB89784F618544771D59273018379BEF95",
+    "size": 4008764
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88309008_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88309008_replay.json",
+    "sha256": "4685D367CCEE1310107FC2C44A600CF15C50AA79B0A3E7F3A4D44DA3D1163FF3",
+    "size": 3801198
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88323824_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88323824_replay.json",
+    "sha256": "2404CFD22ADC17D6C8390F0D1A543D6C8FB955D31C129C106C4CFA1362295E4E",
+    "size": 3744082
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88338429_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88338429_replay.json",
+    "sha256": "C3E7D8FEAAB9274A8F28F10BF80E2DE840B760D6F0E7D329675D3D2FC043C247",
+    "size": 561671
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88356203_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88356203_replay.json",
+    "sha256": "454D4BD713D4E2CC3BFEBE5010D3ADFDB91361A0F1ABB66AADD66EA3641598FE",
+    "size": 4366169
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88357830_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88357830_replay.json",
+    "sha256": "D335E2236658F42003DB2BF5602D77CB7EE46BB6C238744E9FC634C4C9019A27",
+    "size": 2742096
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88367994_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88367994_replay.json",
+    "sha256": "6F5900EE7130B78FF9719C584E012C349553BDCEC28E4684C91C36BAA3D32F55",
+    "size": 740280
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88371644_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88371644_replay.json",
+    "sha256": "B6522C615A58AB575155238459D4B83BDB79C903B7E63643C9AF3A80E10C6014",
+    "size": 838698
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88381215_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88381215_replay.json",
+    "sha256": "EBA2BF4F25BE3D849A40AE06DDB84752395501FB25B9C08FFAEE452B4587B441",
+    "size": 6387372
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88383347_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88383347_replay.json",
+    "sha256": "6286E26DD2C30758DB896B0FB3B425EC8E62F9E08F04673DB80656512E71ED71",
+    "size": 2392700
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88385224_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88385224_replay.json",
+    "sha256": "27E4A57988B0C911DCC56113D0CE9689ADDAEEBDEE93D4B0D94FF0CD819DF53F",
+    "size": 2788112
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88385256_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88385256_replay.json",
+    "sha256": "4B5AFD77A38ED898E272761A7DE4B9CC83D3B65CE0C6685A6586E725309B5EE5",
+    "size": 3018566
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88385805_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88385805_replay.json",
+    "sha256": "F53680966DA05224A4E9DC1073935E8D747016B953AE1E7DF0AAA744F53EE499",
+    "size": 2780222
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88389000_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88389000_replay.json",
+    "sha256": "00ED1A4A6D63583BC8EFAEF3FD25D7AE6EF3290CE4E4337008AD0CC978C6CE3E",
+    "size": 2874834
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88391698_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88391698_replay.json",
+    "sha256": "62B0F58E36E30193D60C901DFA44F014BB25A98C27619B9AEA379D80985FAC7C",
+    "size": 2040566
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88395799_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88395799_replay.json",
+    "sha256": "E8AE1268F91C63A43635DADD32FA88EF9D505F611243D074E421AE828E007E42",
+    "size": 4487371
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88396015_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88396015_replay.json",
+    "sha256": "78769A5A918C31D93F8BF64280230F10F829160D4FEA1CE901EE8A26897021D6",
+    "size": 3147974
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88397067_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88397067_replay.json",
+    "sha256": "DA880C1800535C18656236F1F4A8C64B35DD46F3658B48BCDE769546B33839B4",
+    "size": 5860208
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88397927_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88397927_replay.json",
+    "sha256": "0ECE2CEE527EB13A30400348558977F7070E50BE26E0B84C6B675011F731FCFB",
+    "size": 5222029
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88399026_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88399026_replay.json",
+    "sha256": "F9C500ABF62ABB1BC8017C87AAF45E4F956BBD95B223FC3124B6F640E83692DB",
+    "size": 3787777
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88399550_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88399550_replay.json",
+    "sha256": "F0B1D5A40039E5B6C72A0942FC379A50DC126B4B9EB64D7955AF38FB0C5B59F1",
+    "size": 3861172
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88401321_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88401321_replay.json",
+    "sha256": "0D61602601D8077B345A93209B17A379ECD4970B6DF81F009CFD85F5BBB63A5A",
+    "size": 5859428
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88411737_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88411737_replay.json",
+    "sha256": "A5EE7C17FDB344CCB815485429C9F3AA2E73543AB19B407EC2003A4C0BB60595",
+    "size": 676973
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88417236_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88417236_replay.json",
+    "sha256": "8FF9C7695C88830C9FD845E1543837E9A01A39B9510B26568EFDC50A21343BC6",
+    "size": 3317595
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88425777_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88425777_replay.json",
+    "sha256": "DB4EC2D2EDB4F9C8D483BAEAFD52A7D5B5367A06F1A5C78492F445C2C117A9CF",
+    "size": 2916005
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88443760_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88443760_replay.json",
+    "sha256": "777A67694A093CF40C38FF073F9670CAB42530AD188D97F8FC2974E6059CFC07",
+    "size": 1594233
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88454146_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88454146_replay.json",
+    "sha256": "9AEB5AF49FB0519EB82D27200A31396A8E5BB9560DC8E9E498BD93090E7F04DB",
+    "size": 2330974
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88457867_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88457867_replay.json",
+    "sha256": "17FACDE22AFDF51F203F6100C76593AF100AF04619EEF8561E1DED21749E5879",
+    "size": 4256076
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88479736_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88479736_replay.json",
+    "sha256": "BC687320B41FC24E3CD999ECE0FA1EB9749556F553C94114C4113452D9785583",
+    "size": 3112503
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88482123_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88482123_replay.json",
+    "sha256": "EFD66E8A1673E9163023E65A4DF08BA59DB315F6D669926999EDE116FF06A842",
+    "size": 2591145
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88483727_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88483727_replay.json",
+    "sha256": "5E7C0E85DAD509A93D529C8113FA50AFE59C0E5C12ABF535A2DBDC851E210551",
+    "size": 3739198
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88485817_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88485817_replay.json",
+    "sha256": "8F6FA070434158377147548AF128DE7D91884332A8508E6B2E385D4CC09133D4",
+    "size": 4402658
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88499767_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88499767_replay.json",
+    "sha256": "E4DA03FAD672C7F206E7F033FAA592FEFB4C458939922EC1073A496621ED348E",
+    "size": 1355857
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88507294_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88507294_replay.json",
+    "sha256": "7E05737E6A994B20C23185B2616797FD557C8CAE2A34A58804FBD25661A00F45",
+    "size": 3083519
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88509934_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88509934_replay.json",
+    "sha256": "741CB084E21F05554DB5082B0E431CEBD212961252460564CA1D289C0A043F4A",
+    "size": 2795534
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88527053_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88527053_replay.json",
+    "sha256": "E0E799DC9D83FC03ACE20FD97602E1947A581BF8EFFCC8D3335756C5C21CF022",
+    "size": 4990799
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88535913_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88535913_replay.json",
+    "sha256": "05AD84D73D82D9F8F63B4F024810B782AE527105148022C9F7E505F253395CBF",
+    "size": 5413378
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88543447_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88543447_replay.json",
+    "sha256": "6DA64B84D7D2A62F33BE3899BEFFE1D5C38BA883E86151EB7C325EEDEB146282",
+    "size": 3953798
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88555397_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88555397_replay.json",
+    "sha256": "642CA270B0708CC572056346DDE00601496837078490D67062EF52D50441D541",
+    "size": 3695456
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88562299_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88562299_replay.json",
+    "sha256": "CC2A24BD5C29226EE9D47AE18D3785F0B7B3D0687593D15C78E2CC6973161D91",
+    "size": 4712657
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88563380_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88563380_replay.json",
+    "sha256": "882662CAE81B9661E6CEE9D9252148EA0D986CCDA13404569E0BE66ECABB5F30",
+    "size": 3775567
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88565866_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88565866_replay.json",
+    "sha256": "5E0079BDB58FBB9AE955566A940725E3001DD0328114B325638C0F09F4ED845E",
+    "size": 1310649
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88571937_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88571937_replay.json",
+    "sha256": "A24D3DD8D49E7678B0FBC310128FB878675B2A173E4902DB44BD1A16E4FDD580",
+    "size": 2948323
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88579549_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88579549_replay.json",
+    "sha256": "8000F37D4C4DF4858311551A338CBEB82FBBCE32C8A6A2B58DE0A7059371D4AC",
+    "size": 4999444
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88584180_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88584180_replay.json",
+    "sha256": "047A9FC4AB682E4F9E22F0AFE8547CB7F3016D98C2021E76C36D75C46CDD27B0",
+    "size": 4310076
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88587335_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88587335_replay.json",
+    "sha256": "4356794F08C18EC38B465742BBE6C8248F22309FE29DD9CD9C6955292235DF11",
+    "size": 2306181
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88589778_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88589778_replay.json",
+    "sha256": "CFB15F0F074EA221B089FC25994B311902F551113AD5EBD727A116D553E9E09B",
+    "size": 3720161
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88602602_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88602602_replay.json",
+    "sha256": "CF945C489ABEA48E10518D60045E679972422EAAEE68E220A07921542E7C8420",
+    "size": 3368205
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88613615_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88613615_replay.json",
+    "sha256": "E0F329C45D6BED5A7B4D7D2CA4D89A17ECABB5C1B113B1C570E4715743803022",
+    "size": 3263723
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88614404_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88614404_replay.json",
+    "sha256": "F8977A82CA7F0A9EA611F0FECB9E8CBD90D1CB3D7D65FB727F67DEC92E30B0B8",
+    "size": 2004359
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88632705_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88632705_replay.json",
+    "sha256": "EEF30771FBB71E2614C7A7E0B8B25F64286BC0748A47694CC74696788040068C",
+    "size": 3885740
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88643491_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88643491_replay.json",
+    "sha256": "5C385365DBCA461A5E99B633E00C011CFDCE18ADD7EB0E9DECAF6F4A2FD16DDF",
+    "size": 4561976
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88651183_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88651183_replay.json",
+    "sha256": "FB7C1515869DADE24F2CF715C985DA8F323764B9621893E16314EA3F4BC4D10E",
+    "size": 4631763
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88655752_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88655752_replay.json",
+    "sha256": "F229995766D8BEAD06C242E7C9B110D1B1C906F6E7A538E57FA65A24B9D22730",
+    "size": 2467797
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88660007_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88660007_replay.json",
+    "sha256": "CE2B4EA6D95EEC05582AB709806E5C9B302F98479E67220852C42A6159A4AE2F",
+    "size": 2595525
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88661318_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88661318_replay.json",
+    "sha256": "F5A8D36942D0F8FFBDA5A638C6B9E7E12CEDA4CD6A0B9ABADC902600812B10A1",
+    "size": 3881588
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88661788_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88661788_replay.json",
+    "sha256": "384E6226EF9F2B0B30C41B0112184F2F763AE66D852E93DA60FE7263962A373C",
+    "size": 3725123
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88669861_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88669861_replay.json",
+    "sha256": "8A87BA786C8BB02C206E42C4601EC4775FA2C06EF3D0A9BB7602E1504971B335",
+    "size": 4728896
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88679860_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88679860_replay.json",
+    "sha256": "43FD930968D49C0F627F5E889EBAE74454D3107016DBFA3DC1C9119EEAD415C3",
+    "size": 591151
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88680370_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88680370_replay.json",
+    "sha256": "D9EFBA91BE649E68AAF5BC8F6B4950ED11A4F9826FD82F55BB648F5109484B24",
+    "size": 2724668
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88680842_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88680842_replay.json",
+    "sha256": "84D2D877D36A0EE33D8D085024B6C9F1F578104560421C2CE7C7AD6A901ED7AF",
+    "size": 675915
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88681309_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88681309_replay.json",
+    "sha256": "E2CE2E93ABD516E575920964436D7BFB04BEBC9E36350A863F871492161769A3",
+    "size": 2087773
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88681773_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88681773_replay.json",
+    "sha256": "4D92E7F1FDE4BB73A83FF73184705C467AC1AEABD83522FD1D27E4ECA3EE57E7",
+    "size": 4161940
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88682248_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88682248_replay.json",
+    "sha256": "BE72A72826E10ADE188614E0F43420FC16B03802BDB0B4E4E7547C298FCD45FC",
+    "size": 3382333
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88682711_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88682711_replay.json",
+    "sha256": "9E98B07E3E88CD11B71B4929B1CC0DFE58775BF7A79C0630F227F3A4802C28F7",
+    "size": 3118767
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88683171_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88683171_replay.json",
+    "sha256": "EBF6542785B3438424B5B8E5D1BA15E1B02A74AEC658F25E0BF26CB634724D28",
+    "size": 4413354
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88683647_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88683647_replay.json",
+    "sha256": "B6792CBAD7687261F59D3A36C56DDDF234D602FE5DCAD50D2CA2A3B4CB853BC1",
+    "size": 2675284
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88684114_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88684114_replay.json",
+    "sha256": "A2EAB58DB12221A9BB6D31AE56499193CF3DC294AE162320F03499E1CB1A9534",
+    "size": 1731965
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88724889_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88724889_replay.json",
+    "sha256": "4D58FD09AF4944DB554E5A0F6E43A93C73F44AFDC3C2E2CE979BE36520893E98",
+    "size": 2515748
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88725375_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88725375_replay.json",
+    "sha256": "ECD6E8F3F16115E08C56B052114430377C1F68B0F6135A0DEBF3B6E87A394B73",
+    "size": 1402348
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88725909_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88725909_replay.json",
+    "sha256": "153D2B6E032D2C38C39D90548DD9241D2B8500BAD96CDCEE4E4DF1B5B2805D10",
+    "size": 634576
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88726457_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88726457_replay.json",
+    "sha256": "53479E5F7035746636E7A459D2BDB5DB17EA3A55C9E8395F709A280F985439D2",
+    "size": 4255028
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88727004_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88727004_replay.json",
+    "sha256": "0D700B4F91B79128C483E0CED9CA3CB6EE5C9BCA721C956375994ABBEED9180D",
+    "size": 5120890
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88727552_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88727552_replay.json",
+    "sha256": "C497F3128A5A799A331ACFE0D2DB74CFA16340ECF98921997EE1BD6417F89652",
+    "size": 3870102
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88728032_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88728032_replay.json",
+    "sha256": "4AA0B1FF35D9F87F9A80FF8A5509A38A7E05CE6025B39806B056C9E4623E317C",
+    "size": 4223542
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88728569_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88728569_replay.json",
+    "sha256": "89FC3824CD4FF401C7D1E411A584849E550BBB30326C49BE7733C97AC27BC523",
+    "size": 4341368
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88729123_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88729123_replay.json",
+    "sha256": "ED1F44AFE1DFEA583A776CB66634E69FB429962F417DAA1A07E8B7DCC4675690",
+    "size": 4549606
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88729684_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88729684_replay.json",
+    "sha256": "75E2DC01B8E12BF49C4A42309284DB741A85E5755002BA58A456880D35927A02",
+    "size": 3321187
+  },
+  {
+    "corpus": "historical",
+    "name": "episode_88730230_replay.json",
+    "path": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55070349\\refresh_20260729_1241\\shadow_corpus_196_prior_plus_11_new\\episode_88730230_replay.json",
+    "sha256": "C148D233560FBCBFA7E7A3F6557AC04BE4B8597D2C1260AD0D2BBED4E7F524A6",
+    "size": 2967000
+  }
+]

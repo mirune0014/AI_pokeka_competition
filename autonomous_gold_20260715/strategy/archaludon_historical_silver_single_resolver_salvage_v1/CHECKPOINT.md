@@ -26,7 +26,7 @@ Updated: 2026-08-03 JST
 - Rule 4, exact materialization before parent Lillie: fixed160 `100=100`, two
   intended natural differences, faults 0.
 - Rule 5, exact current win / unique higher-Prize Boss: fixed160 `100=100`, two
-  intended direct-win differences, faults 0.  Boss route was dormant and was
+  intended direct-win differences, faults 0. Boss route was dormant and was
   not widened.
 
 ## Failed or deferred rules
@@ -40,13 +40,19 @@ Updated: 2026-08-03 JST
   callbacks plus fixed160 produced zero starts and zero differences. Fixed160
   was `100=100`, G/R/T `0/0/160`, with all 160 traces byte-identical. It is not
   integrated and fixed760 is forbidden.
+- Rule 9 Pokégear/Supporter complete plan: `DEFER-DORMANT`; fixed160 was
+  `100=100`, G/R/T `0/0/160`, faults zero and all traces byte-identical. The
+  raw format did not persist entry telemetry, and independent trace audit found
+  zero proven complete natural Gear-to-Boss terminal transactions. It is not
+  integrated or widened; fixed760 is forbidden.
 
 ## Current step
 
-Implement Rule 9, Pokégear and Supporter planning, as the only new behavior
-from the accepted Rule 5 parent.
+Implement Rule 10, Full Metal Lab and exact harmful-KO/comeback control, as the
+only new behavior from the accepted Rule 5 parent.
 
 ## Next
 
-After Rule 9 adoption or rejection, implement Rule 10 from the last accepted
-Silver-based parent. Do not carry Rules 7 or 8 forward.
+After Rule 10 adoption or rejection, freeze the last accepted Silver-based
+parent as the named final candidate and run the one allowed fixed760. Do not
+carry Rules 7, 8, or 9 forward.

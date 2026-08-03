@@ -1,0 +1,16 @@
+{
+  "candidate_seat_0": {
+    "action_errors": 0,
+    "hit_max_steps": false,
+    "seed": 803209001,
+    "steps": 151,
+    "terminal_result": 0
+  },
+  "candidate_seat_1": {
+    "action_errors": 0,
+    "hit_max_steps": false,
+    "seed": 803209002,
+    "steps": 138,
+    "terminal_result": 0
+  }
+}

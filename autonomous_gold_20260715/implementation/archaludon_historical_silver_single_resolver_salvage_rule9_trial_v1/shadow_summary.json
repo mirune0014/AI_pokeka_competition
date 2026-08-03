@@ -1,0 +1,40 @@
+{
+  "action_differences": 0,
+  "activity": {
+    "attack_confirmations": 0,
+    "boss_hits": 0,
+    "boss_plays": 0,
+    "boss_targets": 0,
+    "irreversible_aborts": 0,
+    "misses": 0,
+    "starts": 0,
+    "terminal_attacks_emitted": 0
+  },
+  "all_differences_allowed": true,
+  "allowed_differences": 0,
+  "callbacks": 30977,
+  "current_path_count": 46,
+  "difference_class_counts": {
+    "RULE9_BOUND_BOSS_TARGET": 0,
+    "RULE9_BOUND_SAME_ATTACK": 0,
+    "RULE9_POST_ACQUISITION_BOSS_PLAY": 0,
+    "RULE9_REVEAL_BOUND_BOSS": 0,
+    "RULE9_REVEAL_UNSUPPORTED_EMPTY": 0
+  },
+  "exceptions": [],
+  "first_differences": 0,
+  "historical_path_count": 207,
+  "invalid_actions": [],
+  "malformed_replays": [
+    {
+      "corpus": "current",
+      "exception": "JSONDecodeError",
+      "message": "Expecting value: line 1 column 3145726 (char 3145725)",
+      "replay": "episode_89287701_replay.json"
+    }
+  ],
+  "ordered_corpus_sha256": "A29B61F31A84401404BF1701DDC5CF959A330EA6894C9283C533017B99ED4C9D",
+  "readable_replays": 252,
+  "seats_per_replay": 2,
+  "source_path_count": 253
+}
