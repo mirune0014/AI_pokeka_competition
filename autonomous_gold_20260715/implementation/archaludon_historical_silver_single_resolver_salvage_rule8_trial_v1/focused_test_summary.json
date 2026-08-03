@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "test_groups": 32,
+  "inherited_rule1_groups": 13,
+  "inherited_rule4_groups": 9,
+  "inherited_rule5_groups": 6,
+  "rule8_groups": 4,
+  "both_seats": true,
+  "positive_fixtures": [
+    "undamaged_non_ko_30_to_80",
+    "damaged_non_ko_30_to_110",
+    "exact_ko",
+    "higher_prize"
+  ],
+  "option_reversal": true,
+  "identical_retry": true,
+  "negative_boundaries": true,
+  "outcome": "OK"
+}

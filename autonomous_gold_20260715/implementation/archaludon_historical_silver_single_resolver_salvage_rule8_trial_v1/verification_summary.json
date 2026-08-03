@@ -1,0 +1,26 @@
+{
+  "ace_spec_count": 1,
+  "cache_paths": [],
+  "candidate_package_file_count": 13,
+  "compiled_python": [
+    "autonomous_gold_20260715\\candidates\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\main.py",
+    "autonomous_gold_20260715\\implementation\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\run_shadow.py",
+    "autonomous_gold_20260715\\implementation\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\verify_candidate.py",
+    "autonomous_gold_20260715\\implementation\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\tests\\test_rule1_setup.py",
+    "autonomous_gold_20260715\\implementation\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\tests\\test_rule4_materialization.py",
+    "autonomous_gold_20260715\\implementation\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\tests\\test_rule5_attack_transaction.py",
+    "autonomous_gold_20260715\\implementation\\archaludon_historical_silver_single_resolver_salvage_rule8_trial_v1\\tests\\test_rule8_attack_dominance.py"
+  ],
+  "compiled_python_count": 7,
+  "deck_count": 60,
+  "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
+  "import_passed": true,
+  "main_sha256": "B0BD42D71617EEA041AFCF54F84B9C92FD894A2A3A6BD1CCAD95645CD1952507",
+  "preserved_non_main_file_count": 12,
+  "rule7_absent": true,
+  "runtime_final_local_function": "agent",
+  "static_parent_calls_inside_agent": 1,
+  "top_level_agent_count": 1,
+  "top_level_final_function": "agent",
+  "top_level_resolver_count": 1
+}

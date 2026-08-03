@@ -36,13 +36,17 @@ Updated: 2026-08-03 JST
 - Rule 6 Poké Pad: `REJECT`; one start but no naturally completed route.
 - Rule 7 Turbo Flare concentration: `REJECT`; fixed160 `100 -> 98`, G/R/T
   `3/5/152`, seat 1 `-3`; fixed760 forbidden.
+- Rule 8 same-Active attack dominance: `DEFER-DORMANT`; shadow 30,977
+  callbacks plus fixed160 produced zero starts and zero differences. Fixed160
+  was `100=100`, G/R/T `0/0/160`, with all 160 traces byte-identical. It is not
+  integrated and fixed760 is forbidden.
 
 ## Current step
 
-Implement Rule 8, exact same-Active attack dominance, as the only new behavior
+Implement Rule 9, Pokégear and Supporter planning, as the only new behavior
 from the accepted Rule 5 parent.
 
 ## Next
 
-After Rule 8 adoption or rejection, implement Rule 9 from the last accepted
-Silver-based parent.  Do not carry Rule 7 forward.
+After Rule 9 adoption or rejection, implement Rule 10 from the last accepted
+Silver-based parent. Do not carry Rules 7 or 8 forward.
