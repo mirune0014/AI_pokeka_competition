@@ -1,0 +1,255 @@
+{
+  "schema_version": "v4-c2-fix4b-union-sol-ultra-audit-v1",
+  "audit_date": "2026-07-30",
+  "status": "PASS",
+  "decision": "PASS_C2_INHERITANCE",
+  "scope": {
+    "purpose": "C2 shadow action-identity, integrity, and reachability audit",
+    "win_rate_aggregated": false,
+    "simulations_run_by_auditor": false,
+    "selected_shards_only": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  "policy_binding": {
+    "candidate_path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b",
+    "candidate_closure_sha256": "29084BC13CB74236ABE557B57A9E633A8F9E88FA83FF22D131C835293E987157",
+    "candidate_closure_member_count": 34,
+    "parent_path": "alakazam_staged_20260729/versions/alakazam_newdeck_v3_exact_evolution_ko_fix2",
+    "parent_closure_sha256": "DC90205DE06AE3E2E41ADC661577096BB02EE5B42AB9F4366FC1A01154745B47",
+    "parent_closure_member_count": 33,
+    "trace_rule": "V4_NEXT_ATTACKER_DISTANCE_SHADOW_FIX4B",
+    "candidate_member_sha256": {
+      "main.py": "CB35C27EF291B627F2299DF8B5B5EF26046BC92F4E16A60BC9ECC3382E34F71F",
+      "planner_next_attacker_distance_shadow.py": "4659D12318465049AC45CFB807A0541B6F2F4048D653F6DFF04752C7C1999220",
+      "deck.csv": "F598F5E578D0440C96DC0492EAECF2E19739B7A23225BE57114A724EF7D0FB94",
+      "verification/c2_sidecar_collector.py": "3DECCF354939D00EE2F6AFB6CF83A18259163EA800D9B55997A58C8584AB76F9"
+    }
+  },
+  "governing_sha256": {
+    "v4_c2_next_attacker_distance_shadow_fix4_immutable_spec.md": "096AC9F8C968A5BE645ECE87119241B1965C9110433E4872721881F16956FFE9",
+    "v4_c2_next_attacker_distance_shadow_fix4_formal_execution_spec.md": "4BBEF1F21B9D6373357AB84FB039CBBA590F2F8989EC28992EB7A48BCED88FF6",
+    "v4_c2_next_attacker_distance_shadow_fix4_sharded_execution_amendment.md": "4FEE860E542151B9EAB20E00F451EA7F1659B77132005F2900D2E3944AE450AD",
+    "v4_c2_c5_strategy_judge_binding_amendment.md": "C33EBED6B5C945924F0ED4AFAC1C0029C9B129D870EE4FE583D3612948CD70B6",
+    "v4_c2_next_attacker_distance_shadow_fix4_failed_formal_retry_amendment.md": "7BA5A67FDB084F70DF954DF9C0DBDC8467924D7DCCE2B1D1D5112DA9ED7D51D3",
+    "v4_c2_next_attacker_distance_shadow_fix4b_retry_execution_spec.md": "19FFB4DC039EF20961A4AA806AB56CFF4C399FEBB80375CCD7EB9E37D24423E1",
+    "v4_c2_fix4b_shard_c_command_retry_amendment.md": "65F236319CA755C5D128517CDF07E45DC504537D1F8C602C52F53A81788E9BC5",
+    "v4_c2_next_attacker_distance_shadow_fix4b_implementation_receipt.md": "A3FDF802345EE19B1AE467669FBE07A418E6A187241728A8E6C9DD436B6EC066"
+  },
+  "runner_tool_sha256": {
+    "tools/run_alakazam_staged_metric_suite.py": "BCC98229B23C86FC5EB248D3F1E254337008FF4E85BD85224B3B3D6F570F1EEA",
+    "tools/alakazam_staged_metrics.py": "78A0BE6E87368939D7FCE590E1AA65B5DFFA228DE224FFB53AA42C8DE1EF295B",
+    "tools/run_local_battle.py": "E1ABA0151CDAEE425B858511AA760CE5C5647D555DDEFBD69D7319C29C5B773B"
+  },
+  "shards": [
+    {
+      "id": "A",
+      "path": "alakazam_staged_20260729/metrics/formal_v4_c2_next_attacker_distance_shadow_fix4b_retry1_shard_a",
+      "opponents": [
+        "marnie",
+        "cynthia",
+        "alakazam_mirror"
+      ],
+      "blocks": 30,
+      "games": 300,
+      "rows_file": "c2_shadow_rows.jsonl",
+      "rows_sha256": "A465F0CD8A88A3EF7EBA54887EDEE3CC9AAAEF4EA969BF5CC4CF281A062D9324",
+      "ledger_sha256": "A441F1FB39B4E112D1B9CFFC40891C4B44F011F37C44058A0363637EFF7C1411",
+      "suite_manifest_sha256": "82DCA4B03D0CA3287690BA839AC1A8B8C4692DE178F8342DDE30772CDC795E6B",
+      "suite_execution_summary_sha256": "88A9B802ECB7BDC3748948E628328ED0CEE61F375BC18DBCB2AC6C885588BF68",
+      "collector_summary_sha256": "EA38FAEA0ECCCC9748EEF9CFAF03DD3E4997EEEFADAC8B9AE54404B2C3F98542",
+      "sidecar_manifest_sha256": "D0FDD9086BD89281711D6B54272FF687EE8474494ED388BC42E60116153F8039",
+      "battle_trace_manifest_sha256": "E0430072C788BC5C8DA55854614065A8C9CE8CFDCD05A91D598C1EA819FA99B6",
+      "callbacks": 19074,
+      "unique_fingerprints": 18312,
+      "collector_rows_recomputed": 99296,
+      "collector_row_mismatches": 0,
+      "collector_summary_critical_field_mismatches": 0
+    },
+    {
+      "id": "B",
+      "path": "alakazam_staged_20260729/metrics/formal_v4_c2_next_attacker_distance_shadow_fix4b_retry1_shard_b",
+      "opponents": [
+        "rocket_mewtwo_spidops_proxy",
+        "kangaskhan_crustle"
+      ],
+      "blocks": 20,
+      "games": 200,
+      "rows_file": "c2_shadow_rows.jsonl",
+      "rows_sha256": "92291A086B63FD99345384EE451E9C3C41648C33324B6C460E2C842DBC164522",
+      "ledger_sha256": "AA4D57ABE9992A579E787384B4E75292E69AE3D603E4B5B90A30CE01D1DAA2FD",
+      "suite_manifest_sha256": "F371B0FAB69C19D71B207657C92A1461BA4EF5145DFD414D4FBD9D9A9F2347D7",
+      "suite_execution_summary_sha256": "F2BB97987C33718595DBD34E630773A665D7427BCB8ECE26ABC7BB7F76391065",
+      "collector_summary_sha256": "025304BF4812F5FB02E5ECCBFD6AB4527BB1E5B6D387CE5BE9DD040CF81F6D69",
+      "sidecar_manifest_sha256": "A6AD8575E733A74148B23FED792A44385166EF3FDC07999000DD2DFA727ADCA8",
+      "battle_trace_manifest_sha256": "21027245DFC4E5B0C99C4C71C4704F0009F270E6EFAC9C29BA1CBAE932561237",
+      "callbacks": 14443,
+      "unique_fingerprints": 14014,
+      "collector_rows_recomputed": 80404,
+      "collector_row_mismatches": 0,
+      "collector_summary_critical_field_mismatches": 0
+    },
+    {
+      "id": "C",
+      "path": "alakazam_staged_20260729/metrics/formal_v4_c2_next_attacker_distance_shadow_fix4b_retry1_shard_c_retry2",
+      "opponents": [
+        "historical_silver",
+        "direct_frozen"
+      ],
+      "blocks": 20,
+      "games": 200,
+      "rows_file": "c2_shadow_rows.jsonl",
+      "rows_sha256": "252AD8DEA259B16745C9150DEC5ADC11A0A1A9CD34D29B894ED71DEC84D878A2",
+      "ledger_sha256": "5B8EDE9B8178E5CEAF3EBDA2C21DA7BD2917C878C251059623903EA737E81B44",
+      "suite_manifest_sha256": "F7F523F0C9ECCA5CCB1EA28333DAE4EF19DDD97683F00E44175CD441CA0F6848",
+      "suite_execution_summary_sha256": "4D64D2F64ACCCDC55CAA2D77106B25C3332A486C92C68C11D72394C7B0320406",
+      "collector_summary_sha256": "E98A02D4D4F6CE22E321C4BAC8380CC9C03D046FF37778C0522683C1372A45DC",
+      "sidecar_manifest_sha256": "316F3C74F6AF84F64D8FA43A540E93B9C22AE29F9B801E9DB8F1E44E65C99663",
+      "battle_trace_manifest_sha256": "CC67F3CEB7CFD1773B50332F210D66E3D902008E252B57886EF2F687297540D7",
+      "callbacks": 11929,
+      "unique_fingerprints": 11597,
+      "collector_rows_recomputed": 58344,
+      "collector_row_mismatches": 0,
+      "collector_summary_critical_field_mismatches": 0
+    }
+  ],
+  "raw_recomputation": {
+    "blocks_expected": 70,
+    "blocks_observed": 70,
+    "games_expected": 700,
+    "games_observed_unique": 700,
+    "schedule_symmetric_difference": 0,
+    "duplicate_game_keys": 0,
+    "cross_shard_game_intersections": {
+      "A_B": 0,
+      "A_C": 0,
+      "B_C": 0
+    },
+    "opponent_game_counts": {
+      "marnie": 100,
+      "cynthia": 100,
+      "alakazam_mirror": 100,
+      "rocket_mewtwo_spidops_proxy": 100,
+      "kangaskhan_crustle": 100,
+      "historical_silver": 100,
+      "direct_frozen": 100
+    },
+    "seat_game_counts": {
+      "0": 350,
+      "1": 350
+    },
+    "seed_base_game_counts": {
+      "202608500": 140,
+      "202608510": 140,
+      "202608520": 140,
+      "202608530": 140,
+      "202608540": 140
+    },
+    "distinct_actual_seeds": 50,
+    "games_per_actual_seed": 14,
+    "sidecars_nonempty": 700,
+    "battle_traces_nonempty": 700,
+    "sidecar_union_manifest_sha256": "09BD69E85DD9F4B06BE811B04DDD4CB444BAEFAAFC17179ABAC6A4678A91FC19",
+    "battle_trace_union_manifest_sha256": "4CBDC8CD12B6B75218B2C9518C727F0E55E3EFF0B1A5675224AFCED45A587537",
+    "callback_start_count": 45446,
+    "callback_end_count": 45446,
+    "unique_callback_keys": 45446,
+    "duplicate_callback_keys": 0,
+    "unmatched_callback_starts": 0,
+    "unmatched_callback_ends": 0,
+    "collector_rows_recomputed": 238044,
+    "collector_row_content_mismatches": 0,
+    "collector_row_extras": 0,
+    "unique_decision_fingerprints": 42315,
+    "duplicate_decisions_excluded": 3131,
+    "cross_shard_fingerprint_intersections": {
+      "A_B": 689,
+      "A_C": 786,
+      "B_C": 632
+    },
+    "route_class_unique_fingerprints": {
+      "CERTIFIED": 11298,
+      "POSSIBLE": 22450,
+      "IMPOSSIBLE": 9308,
+      "UNKNOWN": 28995
+    },
+    "fingerprint_route_payload_conflicts": 0,
+    "fingerprint_transaction_flag_conflicts": 0,
+    "integrated_transaction_active_callbacks": 951,
+    "v1_transaction_active_callbacks": 764,
+    "both_transaction_active_callbacks": 0,
+    "callbacks_by_seat": {
+      "0": 22984,
+      "1": 22462
+    },
+    "callbacks_by_opponent": {
+      "alakazam_mirror": 5957,
+      "cynthia": 7201,
+      "direct_frozen": 6199,
+      "historical_silver": 5730,
+      "kangaskhan_crustle": 6981,
+      "marnie": 5916,
+      "rocket_mewtwo_spidops_proxy": 7462
+    }
+  },
+  "fault_counts": {
+    "nonzero_block_exits": 0,
+    "timeouts": 0,
+    "incomplete_blocks": 0,
+    "unstarted_games": 0,
+    "action_error_rows": 0,
+    "action_errors_total": 0,
+    "max_step_hits": 0,
+    "invalid_results": 0,
+    "nonempty_stderr_files": 0,
+    "ledger_or_block_file_hash_mismatches": 0,
+    "missing_or_extra_sidecars": 0,
+    "missing_or_extra_battle_traces": 0,
+    "empty_sidecars": 0,
+    "empty_battle_traces": 0,
+    "callback_sequence_faults": 0,
+    "action_value_chain_failures": 0,
+    "action_python_type_failures": 0,
+    "action_element_order_failures": 0,
+    "returned_parent_object_failures": 0,
+    "battle_trace_selected_action_mismatches": 0,
+    "trace_schema_mismatches": 0,
+    "trace_rule_mismatches": 0,
+    "candidate_closure_trace_mismatches": 0,
+    "parent_closure_trace_mismatches": 0,
+    "metric_exceptions": 0,
+    "wrapper_exceptions": 0,
+    "structural_invalid_callbacks": 0,
+    "structural_invalid_reason_rows": 0,
+    "missing_or_wrong_traces": 0,
+    "fingerprint_format_faults": 0,
+    "fingerprint_payload_conflicts": 0
+  },
+  "gates": {
+    "candidate_and_parent_binding": "PASS",
+    "immutable_schedule": "PASS",
+    "runner_integrity": "PASS",
+    "sidecar_and_trace_inventory": "PASS",
+    "callback_pairing": "PASS",
+    "action_identity": "PASS",
+    "trace_rule_schema_and_closures": "PASS",
+    "exceptions_and_fingerprint_integrity": "PASS",
+    "unique_fingerprints_at_least_50": "PASS",
+    "both_seats": "PASS",
+    "all_seven_opponents": "PASS",
+    "each_route_class_at_least_5": "PASS",
+    "integrity": "PASS",
+    "reachability": "PASS",
+    "c2_inheritance": "PASS"
+  },
+  "assumptions": [
+    "This is a candidate-only, side-effect-free shadow audit. The frozen v3 parent action is the within-callback control; no W-L, rate, seat delta, paired uncertainty, or practical win-rate effect is computed.",
+    "policy_seat 0 maps the C2 wrapper to agent A/player 0; policy_seat 1 maps it to agent B/player 1.",
+    "A decision fingerprint is counted once globally; repeated callbacks and cross-shard repeats do not increase reachability.",
+    "Route-class counts are multi-label by fingerprint because different line/distance rows in one decision can carry different classes.",
+    "Fingerprint conflict means the same fingerprint produced different canonical route/best-route/unsupported-reason payloads or different normalized transaction-active booleans.",
+    "Only the three selected completed retry shards were used. Failed serial/FIX4 shards and the zero-game shard-C command failure were excluded."
+  ]
+}

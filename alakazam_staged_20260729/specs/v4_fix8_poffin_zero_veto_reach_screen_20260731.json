@@ -1,0 +1,133 @@
+{
+  "schema_version": "v4-fix8-poffin-zero-veto-reach-screen-v1",
+  "created_at_jst": "2026-07-31",
+  "purpose": "Use unused seeds to measure natural reach of the isolated same-turn zero-demand Poffin veto before any 700-pair strength evaluation.",
+  "decision_state_before_execution": {
+    "production_path": "C2",
+    "fix7": "REJECTED",
+    "fix8": "EXPERIMENTAL_NOT_ADOPTED",
+    "opponent_name_meta_rules": "FORBIDDEN"
+  },
+  "candidate_contract": {
+    "hypothesis": "After a publicly certified zero-demand Poffin veto, another Poffin proposal in the same turn with unchanged public eligibility cannot improve board formation and only spends a hand card.",
+    "allowed_change": "MAIN-only zero-demand Poffin rerank plus same-turn same-eligibility persistence.",
+    "forbidden_changes": [
+      "Poffin child cardinality",
+      "Abra-Dunsparce role substitution",
+      "physical card serial ordering",
+      "opponent id or archetype branching",
+      "seed or replay id branching"
+    ]
+  },
+  "immutable_sources": {
+    "baseline_version": {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b",
+      "closure_sha256": "29084BC13CB74236ABE557B57A9E633A8F9E88FA83FF22D131C835293E987157",
+      "adapter_path": "alakazam_staged_20260729/eval_adapters/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b",
+      "adapter_main_sha256": "EAF8763BAE815637DE07C73D039BD1EF54BD8F04B17F6D74C97E73FAE7C7B4C5"
+    },
+    "candidate_version": {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8",
+      "closure_sha256": "EFB56EF6FDC551B3E44ACA2F7EEC1F805A2E37C3834EE629F7C4637FB0CF1E76",
+      "implementation_tree_sha256": "401D4DAC46292F4EC689646EA532EC2F6A196829FFFE1B0D733AEB24790D111B",
+      "planner_sha256": "9B6B6F627D1529A475239129A92EAEDA5564B42771AA2618260A34E6AB1666D8",
+      "main_sha256": "E65C3801B095830D47CE3658001DC06203E1C6E001768A433E8567E034A03263",
+      "focused_test_sha256": "CC755AC943541BE000E0C402573127CE26D0FBB2E62C4A45B59D4C703684705C",
+      "adapter_path": "alakazam_staged_20260729/eval_adapters/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8",
+      "adapter_main_sha256": "094DC137BAF552CB1BCB89A528128579CAB80BB5195980C073F5F978F9A46645"
+    },
+    "common_deck_sha256": "F598F5E578D0440C96DC0492EAECF2E19739B7A23225BE57114A724EF7D0FB94",
+    "engine": {
+      "path": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+      "tree_sha256": "466638706BD5C6915E25D1B3CB9E3D966390FBC263F4ED3153108E29C0194FFF"
+    },
+    "python": ".venv-rl/Scripts/python.exe",
+    "metric_runner": {
+      "path": "tools/run_alakazam_staged_metric_suite.py",
+      "sha256": "BCC98229B23C86FC5EB248D3F1E254337008FF4E85BD85224B3B3D6F570F1EEA"
+    },
+    "battle_runner": {
+      "path": "tools/run_local_battle.py",
+      "sha256": "E1ABA0151CDAEE425B858511AA760CE5C5647D555DDEFBD69D7319C29C5B773B"
+    }
+  },
+  "schedule": {
+    "seed_bases": [
+      202620000
+    ],
+    "games_per_block": 10,
+    "policy_seats": [
+      0,
+      1
+    ],
+    "max_steps": 1000,
+    "watchdog_seconds": 180,
+    "candidate_games": 140,
+    "seed_status": "UNUSED_BEFORE_THIS_SCREEN",
+    "opponents": {
+      "marnie": "meta_agents/marnie_sota_live_85033057_simple",
+      "cynthia": "meta_agents/cynthia_garchomp_nasuo445_v80_legal_complete_role_cycle",
+      "alakazam_mirror": "meta_agents/alakazam_oselcoun_live_85035844_simple",
+      "rocket_mewtwo_spidops_proxy": "meta_agents/rocket_mewtwo_spidops_kashiwashira_20260703_simple",
+      "kangaskhan_crustle": "meta_agents/kangaskhan_crustle_mpgaming_v13_backupkang_two_growline",
+      "historical_silver": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+      "direct_frozen": "alakazam_staged_20260729/eval_adapters/alakazam_800_frozen"
+    },
+    "shards": {
+      "a": {
+        "opponents": [
+          "marnie",
+          "cynthia",
+          "alakazam_mirror"
+        ],
+        "expected_games": 60,
+        "output": "alakazam_staged_20260729/metrics/screen_v4_fix8_poffin_zero_veto_unused_seed_20260731/shard_a"
+      },
+      "b": {
+        "opponents": [
+          "rocket_mewtwo_spidops_proxy",
+          "kangaskhan_crustle"
+        ],
+        "expected_games": 40,
+        "output": "alakazam_staged_20260729/metrics/screen_v4_fix8_poffin_zero_veto_unused_seed_20260731/shard_b"
+      },
+      "c": {
+        "opponents": [
+          "historical_silver",
+          "direct_frozen"
+        ],
+        "expected_games": 40,
+        "output": "alakazam_staged_20260729/metrics/screen_v4_fix8_poffin_zero_veto_unused_seed_20260731/shard_c"
+      }
+    }
+  },
+  "integrity_gate": {
+    "required_total_games": 140,
+    "required_unique_keys": 140,
+    "required_exit_code_nonzero": 0,
+    "required_timeouts": 0,
+    "required_invalid_results": 0,
+    "required_action_errors": 0,
+    "required_max_step_hits": 0,
+    "required_metric_exceptions": 0,
+    "required_structural_invalid": 0,
+    "required_ambiguous_rebind": 0,
+    "required_transaction_faults": 0
+  },
+  "reach_gate_to_authorize_full_paired_evaluation": {
+    "required_arm_events_min": 2,
+    "required_same_eligibility_repeat_veto_events_min": 2,
+    "required_nonmirror_opponent_buckets_min": 2,
+    "required_both_seats": false,
+    "required_child_role_substitution_events": 0,
+    "required_physical_serial_or_order_override_events": 0,
+    "if_gate_fails": "STOP_WITH_INSUFFICIENT_NATURAL_REACH_AND_KEEP_C2",
+    "if_gate_passes": "FREEZE_A_SEPARATE_UNUSED_700_PAIRED_SCHEDULE_BEFORE_EXECUTION"
+  },
+  "interpretation_constraints": [
+    "The old Cynthia and Marnie seeds are mechanism fixtures only and are not promotion evidence.",
+    "No win-rate or matchup conclusion may be drawn from this candidate-only reach screen.",
+    "Do not run the 700-pair strength evaluation unless the reach and integrity gates pass.",
+    "Fix8 remains unadopted and C2 remains production regardless of screen execution until a separate paired numerical audit and final strategy judgment are complete."
+  ]
+}

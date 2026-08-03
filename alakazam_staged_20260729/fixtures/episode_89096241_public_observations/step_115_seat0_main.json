@@ -1,0 +1,592 @@
+{
+    "episode_id":  89096241,
+    "seat":  0,
+    "step":  115,
+    "source_replay":  "C:\\Users\\amuam\\project\\AI_pokeka_competition\\analysis_outputs\\kaggle_live\\submission_55128430_alakazam_fix9\\episode_89096241_replay.json",
+    "source_replay_sha256":  "E10E204CECE7C6EEE63C153650A4C69D81719C68F5B0CAF650B18C826A28F035",
+    "expected_fix9_action":  null,
+    "observation":  {
+                        "current":  {
+                                        "energyAttached":  true,
+                                        "firstPlayer":  0,
+                                        "looking":  null,
+                                        "players":  [
+                                                        {
+                                                            "active":  [
+                                                                           {
+                                                                               "appearThisTurn":  true,
+                                                                               "energies":  [
+                                                                                                5
+                                                                                            ],
+                                                                               "energyCards":  [
+                                                                                                   {
+                                                                                                       "id":  19,
+                                                                                                       "playerIndex":  0,
+                                                                                                       "serial":  61
+                                                                                                   }
+                                                                                               ],
+                                                                               "hp":  140,
+                                                                               "id":  743,
+                                                                               "maxHp":  140,
+                                                                               "playerIndex":  0,
+                                                                               "preEvolution":  [
+                                                                                                    {
+                                                                                                        "id":  741,
+                                                                                                        "playerIndex":  0,
+                                                                                                        "serial":  6
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "id":  742,
+                                                                                                        "playerIndex":  0,
+                                                                                                        "serial":  10
+                                                                                                    }
+                                                                                                ],
+                                                                               "serial":  14,
+                                                                               "tools":  [
+
+                                                                                         ]
+                                                                           }
+                                                                       ],
+                                                            "asleep":  false,
+                                                            "bench":  [
+                                                                          {
+                                                                              "appearThisTurn":  false,
+                                                                              "energies":  [
+
+                                                                                           ],
+                                                                              "energyCards":  [
+
+                                                                                              ],
+                                                                              "hp":  210,
+                                                                              "id":  140,
+                                                                              "maxHp":  210,
+                                                                              "playerIndex":  0,
+                                                                              "preEvolution":  [
+
+                                                                                               ],
+                                                                              "serial":  20,
+                                                                              "tools":  [
+
+                                                                                        ]
+                                                                          },
+                                                                          {
+                                                                              "appearThisTurn":  true,
+                                                                              "energies":  [
+                                                                                               5
+                                                                                           ],
+                                                                              "energyCards":  [
+                                                                                                  {
+                                                                                                      "id":  5,
+                                                                                                      "playerIndex":  0,
+                                                                                                      "serial":  56
+                                                                                                  }
+                                                                                              ],
+                                                                              "hp":  50,
+                                                                              "id":  741,
+                                                                              "maxHp":  50,
+                                                                              "playerIndex":  0,
+                                                                              "preEvolution":  [
+
+                                                                                               ],
+                                                                              "serial":  4,
+                                                                              "tools":  [
+
+                                                                                        ]
+                                                                          },
+                                                                          {
+                                                                              "appearThisTurn":  true,
+                                                                              "energies":  [
+
+                                                                                           ],
+                                                                              "energyCards":  [
+
+                                                                                              ],
+                                                                              "hp":  50,
+                                                                              "id":  741,
+                                                                              "maxHp":  50,
+                                                                              "playerIndex":  0,
+                                                                              "preEvolution":  [
+
+                                                                                               ],
+                                                                              "serial":  3,
+                                                                              "tools":  [
+
+                                                                                        ]
+                                                                          },
+                                                                          {
+                                                                              "appearThisTurn":  true,
+                                                                              "energies":  [
+
+                                                                                           ],
+                                                                              "energyCards":  [
+
+                                                                                              ],
+                                                                              "hp":  70,
+                                                                              "id":  305,
+                                                                              "maxHp":  70,
+                                                                              "playerIndex":  0,
+                                                                              "preEvolution":  [
+
+                                                                                               ],
+                                                                              "serial":  17,
+                                                                              "tools":  [
+
+                                                                                        ]
+                                                                          },
+                                                                          {
+                                                                              "appearThisTurn":  true,
+                                                                              "energies":  [
+
+                                                                                           ],
+                                                                              "energyCards":  [
+
+                                                                                              ],
+                                                                              "hp":  70,
+                                                                              "id":  305,
+                                                                              "maxHp":  70,
+                                                                              "playerIndex":  0,
+                                                                              "preEvolution":  [
+
+                                                                                               ],
+                                                                              "serial":  15,
+                                                                              "tools":  [
+
+                                                                                        ]
+                                                                          }
+                                                                      ],
+                                                            "benchMax":  5,
+                                                            "burned":  false,
+                                                            "confused":  false,
+                                                            "deckCount":  13,
+                                                            "discard":  [
+                                                                            {
+                                                                                "id":  1086,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  29
+                                                                            },
+                                                                            {
+                                                                                "id":  5,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  57
+                                                                            },
+                                                                            {
+                                                                                "id":  19,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  59
+                                                                            },
+                                                                            {
+                                                                                "id":  19,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  60
+                                                                            },
+                                                                            {
+                                                                                "id":  1097,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  33
+                                                                            },
+                                                                            {
+                                                                                "id":  1225,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  50
+                                                                            },
+                                                                            {
+                                                                                "id":  1086,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  26
+                                                                            },
+                                                                            {
+                                                                                "id":  1231,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  49
+                                                                            },
+                                                                            {
+                                                                                "id":  1152,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  24
+                                                                            },
+                                                                            {
+                                                                                "id":  1129,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  34
+                                                                            },
+                                                                            {
+                                                                                "id":  1152,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  22
+                                                                            },
+                                                                            {
+                                                                                "id":  742,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  7
+                                                                            },
+                                                                            {
+                                                                                "id":  741,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  5
+                                                                            },
+                                                                            {
+                                                                                "id":  19,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  58
+                                                                            },
+                                                                            {
+                                                                                "id":  1152,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  23
+                                                                            },
+                                                                            {
+                                                                                "id":  1086,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  27
+                                                                            },
+                                                                            {
+                                                                                "id":  1182,
+                                                                                "playerIndex":  0,
+                                                                                "serial":  39
+                                                                            }
+                                                                        ],
+                                                            "hand":  [
+                                                                         {
+                                                                             "id":  1081,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  37
+                                                                         },
+                                                                         {
+                                                                             "id":  1197,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  45
+                                                                         },
+                                                                         {
+                                                                             "id":  1184,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  42
+                                                                         },
+                                                                         {
+                                                                             "id":  743,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  12
+                                                                         },
+                                                                         {
+                                                                             "id":  1225,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  51
+                                                                         },
+                                                                         {
+                                                                             "id":  1231,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  47
+                                                                         },
+                                                                         {
+                                                                             "id":  1081,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  35
+                                                                         },
+                                                                         {
+                                                                             "id":  1225,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  52
+                                                                         },
+                                                                         {
+                                                                             "id":  1197,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  44
+                                                                         },
+                                                                         {
+                                                                             "id":  1081,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  36
+                                                                         },
+                                                                         {
+                                                                             "id":  743,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  11
+                                                                         },
+                                                                         {
+                                                                             "id":  1079,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  30
+                                                                         },
+                                                                         {
+                                                                             "id":  1182,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  41
+                                                                         },
+                                                                         {
+                                                                             "id":  343,
+                                                                             "playerIndex":  0,
+                                                                             "serial":  21
+                                                                         }
+                                                                     ],
+                                                            "handCount":  14,
+                                                            "paralyzed":  false,
+                                                            "poisoned":  false,
+                                                            "prize":  [
+                                                                          null,
+                                                                          null,
+                                                                          null,
+                                                                          null,
+                                                                          null,
+                                                                          null
+                                                                      ]
+                                                        },
+                                                        {
+                                                            "active":  [
+                                                                           {
+                                                                               "appearThisTurn":  false,
+                                                                               "energies":  [
+                                                                                                8,
+                                                                                                8,
+                                                                                                8,
+                                                                                                8
+                                                                                            ],
+                                                                               "energyCards":  [
+                                                                                                   {
+                                                                                                       "id":  8,
+                                                                                                       "playerIndex":  1,
+                                                                                                       "serial":  71
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "id":  8,
+                                                                                                       "playerIndex":  1,
+                                                                                                       "serial":  67
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "id":  8,
+                                                                                                       "playerIndex":  1,
+                                                                                                       "serial":  65
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "id":  8,
+                                                                                                       "playerIndex":  1,
+                                                                                                       "serial":  66
+                                                                                                   }
+                                                                                               ],
+                                                                               "hp":  300,
+                                                                               "id":  190,
+                                                                               "maxHp":  300,
+                                                                               "playerIndex":  1,
+                                                                               "preEvolution":  [
+                                                                                                    {
+                                                                                                        "id":  169,
+                                                                                                        "playerIndex":  1,
+                                                                                                        "serial":  76
+                                                                                                    }
+                                                                                                ],
+                                                                               "serial":  82,
+                                                                               "tools":  [
+
+                                                                                         ]
+                                                                           }
+                                                                       ],
+                                                            "asleep":  false,
+                                                            "bench":  [
+                                                                          {
+                                                                              "appearThisTurn":  false,
+                                                                              "energies":  [
+                                                                                               8
+                                                                                           ],
+                                                                              "energyCards":  [
+                                                                                                  {
+                                                                                                      "id":  8,
+                                                                                                      "playerIndex":  1,
+                                                                                                      "serial":  73
+                                                                                                  }
+                                                                                              ],
+                                                                              "hp":  110,
+                                                                              "id":  666,
+                                                                              "maxHp":  160,
+                                                                              "playerIndex":  1,
+                                                                              "preEvolution":  [
+
+                                                                                               ],
+                                                                              "serial":  84,
+                                                                              "tools":  [
+
+                                                                                        ]
+                                                                          },
+                                                                          {
+                                                                              "appearThisTurn":  false,
+                                                                              "energies":  [
+                                                                                               8,
+                                                                                               8,
+                                                                                               8,
+                                                                                               8
+                                                                                           ],
+                                                                              "energyCards":  [
+                                                                                                  {
+                                                                                                      "id":  8,
+                                                                                                      "playerIndex":  1,
+                                                                                                      "serial":  64
+                                                                                                  },
+                                                                                                  {
+                                                                                                      "id":  8,
+                                                                                                      "playerIndex":  1,
+                                                                                                      "serial":  68
+                                                                                                  },
+                                                                                                  {
+                                                                                                      "id":  8,
+                                                                                                      "playerIndex":  1,
+                                                                                                      "serial":  70
+                                                                                                  },
+                                                                                                  {
+                                                                                                      "id":  8,
+                                                                                                      "playerIndex":  1,
+                                                                                                      "serial":  63
+                                                                                                  }
+                                                                                              ],
+                                                                              "hp":  400,
+                                                                              "id":  190,
+                                                                              "maxHp":  400,
+                                                                              "playerIndex":  1,
+                                                                              "preEvolution":  [
+                                                                                                   {
+                                                                                                       "id":  169,
+                                                                                                       "playerIndex":  1,
+                                                                                                       "serial":  77
+                                                                                                   }
+                                                                                               ],
+                                                                              "serial":  79,
+                                                                              "tools":  [
+                                                                                            {
+                                                                                                "id":  1159,
+                                                                                                "playerIndex":  1,
+                                                                                                "serial":  106
+                                                                                            }
+                                                                                        ]
+                                                                          }
+                                                                      ],
+                                                            "benchMax":  5,
+                                                            "burned":  false,
+                                                            "confused":  false,
+                                                            "deckCount":  22,
+                                                            "discard":  [
+                                                                            {
+                                                                                "id":  1152,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  102
+                                                                            },
+                                                                            {
+                                                                                "id":  1197,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  115
+                                                                            },
+                                                                            {
+                                                                                "id":  8,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  72
+                                                                            },
+                                                                            {
+                                                                                "id":  1121,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  93
+                                                                            },
+                                                                            {
+                                                                                "id":  1122,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  97
+                                                                            },
+                                                                            {
+                                                                                "id":  169,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  78
+                                                                            },
+                                                                            {
+                                                                                "id":  1122,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  95
+                                                                            },
+                                                                            {
+                                                                                "id":  1121,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  90
+                                                                            },
+                                                                            {
+                                                                                "id":  1182,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  109
+                                                                            },
+                                                                            {
+                                                                                "id":  1185,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  111
+                                                                            },
+                                                                            {
+                                                                                "id":  666,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  83
+                                                                            },
+                                                                            {
+                                                                                "id":  1121,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  91
+                                                                            },
+                                                                            {
+                                                                                "id":  1227,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  120
+                                                                            },
+                                                                            {
+                                                                                "id":  1122,
+                                                                                "playerIndex":  1,
+                                                                                "serial":  94
+                                                                            }
+                                                                        ],
+                                                            "hand":  null,
+                                                            "handCount":  7,
+                                                            "paralyzed":  false,
+                                                            "poisoned":  false,
+                                                            "prize":  [
+                                                                          null,
+                                                                          null
+                                                                      ]
+                                                        }
+                                                    ],
+                                        "result":  -1,
+                                        "retreated":  false,
+                                        "stadium":  [
+
+                                                    ],
+                                        "stadiumPlayed":  false,
+                                        "supporterPlayed":  true,
+                                        "turn":  9,
+                                        "turnActionCount":  17,
+                                        "yourIndex":  0
+                                    },
+                        "logs":  [
+                                     {
+                                         "cardIdActive":  190,
+                                         "cardIdBench":  190,
+                                         "playerIndex":  1,
+                                         "serialActive":  79,
+                                         "serialBench":  82,
+                                         "type":  8
+                                     }
+                                 ],
+                        "remainingOverageTime":  591.6768840000002,
+                        "search_begin_input":  "CQADBEAKQAEEAPEAGQAEEADUAKQAMEBAGEAEB-kC/QAIDcAOCIABQAYEACQACTwEAB/QAKBwACLwQ-uEQ4FFABQDEQ8AFBg-ZBOAEJS0qDDMvIzQsJABseKRU-DB0-ZBEQADB05OzwhMhoxGCIWBwU6FxsnA/CAEPTg-uCgAEYK-eDFSABlRPAKI-ZBBw-ZBW-aB4ADBmc0hdYU5fWm1vU1t4Xg-CBCQADElABREY/R0NBQg-JBBAEag-UBIADBNT-uCB-VEQ-VBL-+BI-UBBCw-3BOUCACBxABQ-UBUCA2EA/DlABgACcABE-UBFABgA1B-AB5QIACGQB-VBwo-2BOUCAD8ABQAC6w-QBoF-2BDmABgACYwE-UBDB-hIDmABgACcwEACOs-QBKB-3B5wIACHkB-VBgE-2BOcCADmABQ-UBIB-MF5wIACOs-VBBABIA2QA/DEBACCEABQ-UBUBA2E-VEMQEACHIB-UBBQIA2Q-qHjAECgB-UBBQIAHEADCM-pBFcBACB/ABQ-UBIB-2BCABBADOwE-UBDDQ-2BgABQACHoB-VBw0-2BIABEADuABQ-UBMN-MFPgQACCIB-VBw0-2BD4EACCFABQ-UBMN-MFPgQACMk-WBw0-2BDcEACB9ABQ-UBIB-hIEkEACDi-WBMN-2BBpBADMgE-UBDDQ-2BOQQACGkB-VBgE-2BDkEACB2ABQ-UBIB-3B5BAD3w-VBCABQ-LFJ4EACCHABQ-UBMN-MFngQACH4B-VBgE-2BKABEADbABQ-UBIB-MFrQQACG8B-VBgE-2BK0EADVABQ-UBIB-MFzwQACD8B-VBgE-LFDPBADJwE-UBDDQ-2ByQQACOc-WBw0-2BMkEAD+ABQ-UBIB-2BDJBADbgE-UBCABQ-2LBQADIIBACBwABQ-OBCABI-3BUADDR-WBMC-3BTAEZQE-UBDC-3BEwADNI-WBwI-2BBMADDd-WBMI-3BTAEHwEACOs-QBIABg-MFgADDvAEzg-PBQgD-3BIAE2QADM4-PBEIABQ-2BCAEBIBAFQ-NBBCABE-3BgADBIABQAEE-OBQgD-3BIAEEQEAEB-OBEIABQ-2BCAENoADDO-PBBCABE-MFIAE2wADM4-PBEIABQ-2BCAEBABBAFQ-NBBCABE-3BgADDV-VBQMC-3BIAEzwADLo-PBEIABg-gICpAERgEAEB-OBEKBQ-2BqQADO0ADDO-PBBCgU-2BKkAEKABQ-TBQMM-2BC+AEzg-UBEFB-BBBk-eHC+AGE-TBEEBQA1E-ABmgIACEIB-TBBABwI-2BJoCACC6AJP///38y-FBQUE-hSGEEADMABQ-TBQMM-2BBhBADRQE-TBEDDQ-LFGEEACDY-VBQMN-2BBiBADYgE-TBEDDQ-2BYgQADsB-TBBABww-LFBiBAD/w-UBEDDQ-LPIABEACDN-VBQMN-2LCHBADDwEACM4-PBEJABg-gICeBADDQE-TBEDD-MFKEEADOABQ-TBQMN-2LCtBAD0w-UBEDDQ-LPMsEACBSABQ-TBQMN-NZwAE0ABMABQACP//AGwAP4A0HAEFwADDcADC2AEPgEACBcADD3AEXABEADEAEnAGIAEKDuZ4EBLmeABEADBPAWEABKwAF=",
+                        "select":  {
+                                       "context":  0,
+                                       "contextCard":  null,
+                                       "deck":  null,
+                                       "effect":  null,
+                                       "maxCount":  1,
+                                       "minCount":  1,
+                                       "option":  [
+                                                      {
+                                                          "attackId":  1072,
+                                                          "type":  13
+                                                      },
+                                                      {
+                                                          "type":  12
+                                                      },
+                                                      {
+                                                          "type":  14
+                                                      }
+                                                  ],
+                                       "remainDamageCounter":  0,
+                                       "remainEnergyCost":  0,
+                                       "type":  0
+                                   },
+                        "step":  115
+                    }
+}

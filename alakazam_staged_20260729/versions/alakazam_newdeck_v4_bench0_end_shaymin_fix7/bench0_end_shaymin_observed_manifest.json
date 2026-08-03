@@ -1,0 +1,51 @@
+{
+  "schema_version": "bench0-end-shaymin-observed-fixtures-v1",
+  "rule": "BENCH0_END_SHAYMIN_EMERGENCY_FIX7",
+  "source": {
+    "reach_audit": {
+      "path": "analysis_outputs/v4_poffin_bench0_causal_analysis_20260731/root_verification/root_bench0_end_prize_reach_audit.json",
+      "sha256": "152F230A5E3D55C280CBA3F4A64FC8E87AC3DA1C3A741F5AF6B14FFEE93A42C2"
+    },
+    "verified_row_csv": {
+      "path": "analysis_outputs/v4_poffin_bench0_causal_analysis_20260731/root_verification/root_bench0_end_prize_reach_rows.csv",
+      "sha256": "11692093A46A33FDDAEE037DBCCA193B1C4E300C59EAFA50380FDD0A19018DEB"
+    },
+    "end_reach_input": {
+      "path": "analysis_outputs/v4_poffin_bench0_causal_analysis_20260731/numeric/bench0_independent_basic_parent_end_reaches.csv",
+      "sha256": "0C5F0DE8BD940A8B557C1D9C6C94B403E6DFBFE7A19EF4F67EECCB7FAAC33E7D"
+    }
+  },
+  "public_active_prize_liability": {
+    "66": 1,
+    "140": 2,
+    "305": 1,
+    "343": 1,
+    "741": 1,
+    "742": 1,
+    "743": 1
+  },
+  "classification_counts": {
+    "positive": 4,
+    "transaction_negative": 3,
+    "prize_futile_negative": 10
+  },
+  "fixtures": [
+    {"fingerprint":"D39835F04EC0945DCE0267CA6E695E1C4E98034AF4FC8D466A6524BCE96581B7","classification":"transaction_negative","expected":"REFUSE","opponent":"alakazam_mirror","seat":0,"seed":202608525,"game":5,"callback_ordinal":70,"final_outcome":"POLICY_LOSS","own_active_id":305,"liability":1,"opponent_remaining_prizes":1},
+    {"fingerprint":"4DD4B0A7BF15C8905B3F63C2551E05BD24DF6EF1E3DE311FAB3E060D679C38D4","classification":"prize_futile_negative","expected":"REFUSE","opponent":"direct_frozen","seat":0,"seed":202608533,"game":3,"callback_ordinal":66,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":1},
+    {"fingerprint":"98FDBA8B6E678EF2E92E822F8557E6F392B25481C05015CCE2449A58CD2985E1","classification":"transaction_negative","expected":"REFUSE","opponent":"direct_frozen","seat":1,"seed":202608507,"game":7,"callback_ordinal":62,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":1},
+    {"fingerprint":"A9636A2B0655F3A57FDC1CFEBEB675088D0B9E07AEAE5B1ED613551588B1D82D","classification":"prize_futile_negative","expected":"REFUSE","opponent":"historical_silver","seat":0,"seed":202608510,"game":0,"callback_ordinal":69,"final_outcome":"POLICY_LOSS","own_active_id":305,"liability":1,"opponent_remaining_prizes":1},
+    {"fingerprint":"C392B095EB00D8750F5AC37D90C03B932C59A0FF4FC4C5BB890A20178146B4BF","classification":"transaction_negative","expected":"REFUSE","opponent":"historical_silver","seat":0,"seed":202608533,"game":3,"callback_ordinal":67,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":2},
+    {"fingerprint":"DEFEBFE45F6C7F50A4D880259A5B4297BDBC1299F7845DCF27F6B9D35A380834","classification":"prize_futile_negative","expected":"REFUSE","opponent":"historical_silver","seat":0,"seed":202608545,"game":5,"callback_ordinal":56,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":1},
+    {"fingerprint":"9439FA80633914043CF51D644210B7FCF5EA1360FF9A47977A544D14F8BB84F9","classification":"positive","expected":"FIRE","opponent":"historical_silver","seat":1,"seed":202608522,"game":2,"callback_ordinal":49,"final_outcome":"POLICY_LOSS","own_active_id":305,"liability":1,"opponent_remaining_prizes":3},
+    {"fingerprint":"43D22FE6CDBDC51B2BB9E42AE8177AF3C1E705CD97164C1E194F25F0E73B34EA","classification":"positive","expected":"FIRE","opponent":"kangaskhan_crustle","seat":0,"seed":202608522,"game":2,"callback_ordinal":13,"final_outcome":"POLICY_WIN","own_active_id":743,"liability":1,"opponent_remaining_prizes":6},
+    {"fingerprint":"165916508E8F79F956632AE7EAF187E6F9463AD547FAF8022FD7E29F89FB6812","classification":"prize_futile_negative","expected":"REFUSE","opponent":"marnie","seat":0,"seed":202608517,"game":7,"callback_ordinal":75,"final_outcome":"POLICY_LOSS","own_active_id":305,"liability":1,"opponent_remaining_prizes":1},
+    {"fingerprint":"026F641B876EC337BB356F37AE2BC48298B5CAAFAF3C82BECB2319F1D31A7387","classification":"prize_futile_negative","expected":"REFUSE","opponent":"marnie","seat":1,"seed":202608505,"game":5,"callback_ordinal":70,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":1},
+    {"fingerprint":"1100490679DB048CA2C3E630CA45B41C77F149D505AD6C7F3C5939DE283F25CC","classification":"positive","expected":"FIRE","opponent":"marnie","seat":1,"seed":202608518,"game":8,"callback_ordinal":58,"final_outcome":"POLICY_LOSS","own_active_id":305,"liability":1,"opponent_remaining_prizes":3},
+    {"fingerprint":"5970363C275A7DDACC2167B0546A339E5EDCE2D92B606CF2ABE22AB283C4388D","classification":"prize_futile_negative","expected":"REFUSE","opponent":"marnie","seat":1,"seed":202608522,"game":2,"callback_ordinal":90,"final_outcome":"POLICY_LOSS","own_active_id":66,"liability":1,"opponent_remaining_prizes":1},
+    {"fingerprint":"267D89749C78F83EAE72815701CB9077A9B43090D88CD818B114A69693C1E463","classification":"prize_futile_negative","expected":"REFUSE","opponent":"mega_lucario_aib4","seat":0,"seed":202609533,"game":3,"callback_ordinal":71,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":1},
+    {"fingerprint":"3FBDCF78C0D8C20F5897561E215312C7FA0FF01FDFC3D116726CEF613C16FA42","classification":"positive","expected":"FIRE","opponent":"mega_lucario_aib4","seat":1,"seed":202609503,"game":3,"callback_ordinal":44,"final_outcome":"POLICY_LOSS","own_active_id":66,"liability":1,"opponent_remaining_prizes":3},
+    {"fingerprint":"749ABA98C1FCDFCBD706B2D570A55CD05CFC8156967D26A9FBA80835DB1F2EF4","classification":"prize_futile_negative","expected":"REFUSE","opponent":"mega_lucario_fujiborozoukin","seat":1,"seed":202609524,"game":4,"callback_ordinal":79,"final_outcome":"POLICY_LOSS","own_active_id":140,"liability":2,"opponent_remaining_prizes":1},
+    {"fingerprint":"A45F65824AFAC477CDF336968503778ACD791CF4F3F1A2774449784A60946E2F","classification":"prize_futile_negative","expected":"REFUSE","opponent":"rocket_mewtwo_spidops_proxy","seat":0,"seed":202608502,"game":2,"callback_ordinal":78,"final_outcome":"POLICY_LOSS","own_active_id":66,"liability":1,"opponent_remaining_prizes":1},
+    {"fingerprint":"0303F76D05FC594DC8B0E7E40F2F98CB20664A5E568BFEA56CC9316929A6E847","classification":"prize_futile_negative","expected":"REFUSE","opponent":"rocket_mewtwo_spidops_proxy","seat":0,"seed":202608534,"game":4,"callback_ordinal":73,"final_outcome":"POLICY_LOSS","own_active_id":305,"liability":1,"opponent_remaining_prizes":1}
+  ]
+}

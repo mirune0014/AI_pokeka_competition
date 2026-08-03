@@ -1,0 +1,171 @@
+{
+  "schema_version": "v4-fix8-poffin-zero-veto-paired-700-v1",
+  "created_at_jst": "2026-07-31",
+  "purpose": "Evaluate the isolated same-turn same-public-eligibility zero-demand Poffin veto against C2 on an unused, paired 700-key schedule.",
+  "precondition": {
+    "reach_screen_spec": "alakazam_staged_20260729/specs/v4_fix8_poffin_zero_veto_reach_screen_20260731.json",
+    "reach_screen_spec_sha256": "DB72E117B07B17799534B3D6C075430DD8AC38FEF9E03F0639D9AB0EF758915B",
+    "required_reach_screen_result": "INTEGRITY_PASS_AND_NATURAL_REACH_PASS",
+    "production_before_and_during_execution": "C2",
+    "candidate_status": "EXPERIMENTAL_NOT_ADOPTED"
+  },
+  "candidate_contract": {
+    "hypothesis": "After a publicly certified zero-demand Poffin veto, another Poffin proposal in the same turn with unchanged public eligibility cannot improve board formation and only spends a hand card.",
+    "allowed_change": "MAIN-only zero-demand Poffin rerank plus same-turn same-eligibility persistence.",
+    "forbidden_changes": [
+      "Poffin child cardinality",
+      "Abra-Dunsparce role substitution",
+      "physical card serial ordering",
+      "opponent id or archetype branching",
+      "seed or replay id branching"
+    ]
+  },
+  "immutable_sources": {
+    "baseline": {
+      "name": "C2",
+      "version_path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b",
+      "closure_sha256": "29084BC13CB74236ABE557B57A9E633A8F9E88FA83FF22D131C835293E987157",
+      "adapter_path": "alakazam_staged_20260729/eval_adapters/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b",
+      "adapter_main_sha256": "EAF8763BAE815637DE07C73D039BD1EF54BD8F04B17F6D74C97E73FAE7C7B4C5"
+    },
+    "candidate": {
+      "name": "Fix8",
+      "version_path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8",
+      "closure_sha256": "EFB56EF6FDC551B3E44ACA2F7EEC1F805A2E37C3834EE629F7C4637FB0CF1E76",
+      "implementation_tree_sha256": "401D4DAC46292F4EC689646EA532EC2F6A196829FFFE1B0D733AEB24790D111B",
+      "planner_sha256": "9B6B6F627D1529A475239129A92EAEDA5564B42771AA2618260A34E6AB1666D8",
+      "main_sha256": "E65C3801B095830D47CE3658001DC06203E1C6E001768A433E8567E034A03263",
+      "focused_test_sha256": "CC755AC943541BE000E0C402573127CE26D0FBB2E62C4A45B59D4C703684705C",
+      "adapter_path": "alakazam_staged_20260729/eval_adapters/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8",
+      "adapter_main_sha256": "094DC137BAF552CB1BCB89A528128579CAB80BB5195980C073F5F978F9A46645"
+    },
+    "common_deck_sha256": "F598F5E578D0440C96DC0492EAECF2E19739B7A23225BE57114A724EF7D0FB94",
+    "engine": {
+      "path": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+      "tree_sha256": "466638706BD5C6915E25D1B3CB9E3D966390FBC263F4ED3153108E29C0194FFF"
+    },
+    "python": ".venv-rl/Scripts/python.exe",
+    "paired_runner": {
+      "path": "tools/run_seeded_paired_suite.py",
+      "sha256": "5EC25C98F2777FF61DE2DBD0A03A08519A7FEA4B2B4C510B5B8895BC2000E000"
+    },
+    "battle_runner": {
+      "path": "tools/run_local_battle.py",
+      "sha256": "E1ABA0151CDAEE425B858511AA760CE5C5647D555DDEFBD69D7319C29C5B773B"
+    },
+    "combiner": {
+      "path": "tools/combine_staged_panel_results.py",
+      "sha256": "CABFB6ECB500EF1395B05EDB5A9775193B8A13578E3EDF35C0CED04214175C77"
+    }
+  },
+  "schedule": {
+    "seed_bases": [
+      202620100,
+      202620110,
+      202620120,
+      202620130,
+      202620140
+    ],
+    "seed_status_before_spec": "NO_LITERAL_OCCURRENCE_IN_WORKSPACE",
+    "games_per_seat_per_panel": 10,
+    "policy_seats": [
+      0,
+      1
+    ],
+    "max_steps": 1000,
+    "paired_keys": 700,
+    "baseline_games": 700,
+    "candidate_games": 700,
+    "opponents": {
+      "marnie": "meta_agents/marnie_sota_live_85033057_simple",
+      "cynthia": "meta_agents/cynthia_garchomp_nasuo445_v80_legal_complete_role_cycle",
+      "alakazam_mirror": "meta_agents/alakazam_oselcoun_live_85035844_simple",
+      "rocket_mewtwo_spidops_proxy": "meta_agents/rocket_mewtwo_spidops_kashiwashira_20260703_simple",
+      "kangaskhan_crustle": "meta_agents/kangaskhan_crustle_mpgaming_v13_backupkang_two_growline",
+      "historical_silver": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+      "direct_frozen": "alakazam_staged_20260729/eval_adapters/alakazam_800_frozen"
+    }
+  },
+  "output": {
+    "panel_root": "alakazam_staged_20260729/evaluations/v4_fix8_poffin_zero_veto_unused_seed_700_20260731/panels",
+    "panel_pattern": "<seed_base>_<opponent>/attempt_1",
+    "combined_root": "alakazam_staged_20260729/evaluations/v4_fix8_poffin_zero_veto_unused_seed_700_20260731/combined",
+    "fresh_output_required": true,
+    "expected_panel_files": [
+      "manifest.jsonl",
+      "paired_results.csv",
+      "cell_summary.csv",
+      "report.json"
+    ]
+  },
+  "runner_partition": {
+    "a": [
+      "202620100:marnie",
+      "202620100:cynthia",
+      "202620100:alakazam_mirror",
+      "202620100:rocket_mewtwo_spidops_proxy",
+      "202620100:kangaskhan_crustle",
+      "202620100:historical_silver",
+      "202620100:direct_frozen",
+      "202620130:marnie",
+      "202620130:cynthia",
+      "202620130:alakazam_mirror",
+      "202620130:rocket_mewtwo_spidops_proxy",
+      "202620130:kangaskhan_crustle"
+    ],
+    "b": [
+      "202620110:marnie",
+      "202620110:cynthia",
+      "202620110:alakazam_mirror",
+      "202620110:rocket_mewtwo_spidops_proxy",
+      "202620110:kangaskhan_crustle",
+      "202620110:historical_silver",
+      "202620110:direct_frozen",
+      "202620130:historical_silver",
+      "202620130:direct_frozen",
+      "202620140:marnie",
+      "202620140:cynthia",
+      "202620140:alakazam_mirror"
+    ],
+    "c": [
+      "202620120:marnie",
+      "202620120:cynthia",
+      "202620120:alakazam_mirror",
+      "202620120:rocket_mewtwo_spidops_proxy",
+      "202620120:kangaskhan_crustle",
+      "202620120:historical_silver",
+      "202620120:direct_frozen",
+      "202620140:rocket_mewtwo_spidops_proxy",
+      "202620140:kangaskhan_crustle",
+      "202620140:historical_silver",
+      "202620140:direct_frozen"
+    ]
+  },
+  "integrity_gate": {
+    "required_panels": 35,
+    "required_unique_keys": 700,
+    "required_schedule_equality": true,
+    "required_exit_code_nonzero": 0,
+    "required_unstarted": 0,
+    "required_action_errors": 0,
+    "required_max_step_hits": 0,
+    "required_invalid_results": 0,
+    "required_missing_rows": 0,
+    "required_duplicate_rows": 0
+  },
+  "adoption_gate": {
+    "candidate_wins_min": 452,
+    "paired_gain_minus_loss_min": 7,
+    "both_seat_deltas_min": 0,
+    "historical_silver_overall_delta_min": 1,
+    "historical_silver_both_seat_deltas_min": 0,
+    "no_adjacent_matchup_both_seats_negative": true,
+    "no_matchup_with_two_repeated_negative_seed_blocks": true,
+    "all_discordant_first_divergences_must_be_fix8_persistence_veto": true,
+    "child_role_substitution_events_required": 0,
+    "physical_serial_or_order_override_events_required": 0,
+    "reset_release_fixtures_required": true,
+    "small_positive_delta_note": "A gain of only one or two wins is insufficient for adoption."
+  },
+  "decision_rule": "Keep C2 unless every integrity and adoption condition passes and a final Sol-Ultra strategy judge accepts the rule."
+}

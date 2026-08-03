@@ -1,0 +1,51 @@
+* text=auto
+
+# Reproducibility contracts hash these files byte-for-byte. Keep their line
+# endings identical on Windows, Linux, and macOS.
+*.py text eol=lf
+*.pyi text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.csv text eol=lf
+*.tsv text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.qml text eol=lf
+*.ps1 text eol=lf
+*.spec text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.diff text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Native runtimes, archives, media, and model files must never be normalized.
+*.dll binary
+*.so binary
+*.dylib binary
+*.pyd binary
+*.exe binary
+*.zip binary
+*.gz binary
+*.tgz binary
+*.7z binary
+*.whl binary
+*.pt binary
+*.pth binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+
+# Frozen competition evidence contains intentional mixed line endings and
+# records byte-level SHA-256 values. Preserve those bytes exactly on every OS.
+/alakazam_staged_20260729/** -text
+/autonomous_gold_20260715/** -text

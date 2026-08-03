@@ -1,0 +1,161 @@
+{
+  "schema_version": "ptcg-targeted-execution-v1",
+  "created_date": "2026-07-31",
+  "working_directory": "C:\\Users\\amuam\\project\\AI_pokeka_competition",
+  "python": ".\\.venv-rl\\Scripts\\python.exe",
+  "fixed_inputs": {
+    "engine_dir": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+    "engine_tree_sha256": "466638706BD5C6915E25D1B3CB9E3D966390FBC263F4ED3153108E29C0194FFF",
+    "paired_runner": "tools/run_seeded_paired_suite.py",
+    "paired_runner_sha256": "5EC25C98F2777FF61DE2DBD0A03A08519A7FEA4B2B4C510B5B8895BC2000E000",
+    "metric_runner": "tools/run_alakazam_staged_metric_suite.py",
+    "metric_runner_sha256": "BCC98229B23C86FC5EB248D3F1E254337008FF4E85BD85224B3B3D6F570F1EEA",
+    "battle_runner_sha256": "E1ABA0151CDAEE425B858511AA760CE5C5647D555DDEFBD69D7319C29C5B773B",
+    "baseline": "alakazam_staged_20260729/eval_adapters/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b",
+    "baseline_main_sha256": "EAF8763BAE815637DE07C73D039BD1EF54BD8F04B17F6D74C97E73FAE7C7B4C5",
+    "candidate_adapter": "alakazam_staged_20260729/eval_adapters/alakazam_newdeck_v4_bench0_end_shaymin_fix7",
+    "candidate_adapter_main_sha256": "3D7F7D86EE5F49DF5E1555C4E6A219F2C5A4E0A4FB4FF1E5EBDE2A33B69E2E0D",
+    "candidate_version": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_bench0_end_shaymin_fix7",
+    "candidate_rule_closure_sha256": "575B3F524AD007D0CA055B0647A03DD363C8FB06CEC028E29AA10460CBBECE5B",
+    "deck_sha256": "F598F5E578D0440C96DC0492EAECF2E19739B7A23225BE57114A724EF7D0FB94"
+  },
+  "common_parameters": {
+    "games_per_seat": 10,
+    "games_per_block": 10,
+    "seats": [0, 1],
+    "max_steps": 1000,
+    "watchdog_seconds": 180
+  },
+  "panels": [
+    {
+      "name": "historical_silver_202608520",
+      "opponent_name": "historical_silver",
+      "opponent_path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+      "seed_base": 202608520,
+      "observed_callback": {
+        "policy_seat": 1,
+        "game": 2,
+        "seed": 202608522,
+        "fingerprint": "9439FA80633914043CF51D644210B7FCF5EA1360FF9A47977A544D14F8BB84F9",
+        "baseline_result": "LOSS"
+      },
+      "paired_output": "alakazam_staged_20260729/evaluations/v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/historical_silver_202608520",
+      "metric_output": "alakazam_staged_20260729/metrics/formal_v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/historical_silver_202608520"
+    },
+    {
+      "name": "kangaskhan_crustle_202608520",
+      "opponent_name": "kangaskhan_crustle",
+      "opponent_path": "meta_agents/kangaskhan_crustle_mpgaming_v13_backupkang_two_growline",
+      "seed_base": 202608520,
+      "observed_callback": {
+        "policy_seat": 0,
+        "game": 2,
+        "seed": 202608522,
+        "fingerprint": "43D22FE6CDBDC51B2BB9E42AE8177AF3C1E705CD97164C1E194F25F0E73B34EA",
+        "baseline_result": "WIN"
+      },
+      "paired_output": "alakazam_staged_20260729/evaluations/v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/kangaskhan_crustle_202608520",
+      "metric_output": "alakazam_staged_20260729/metrics/formal_v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/kangaskhan_crustle_202608520"
+    },
+    {
+      "name": "marnie_202608510",
+      "opponent_name": "marnie",
+      "opponent_path": "meta_agents/marnie_sota_live_85033057_simple",
+      "seed_base": 202608510,
+      "observed_callback": {
+        "policy_seat": 1,
+        "game": 8,
+        "seed": 202608518,
+        "fingerprint": "1100490679DB048CA2C3E630CA45B41C77F149D505AD6C7F3C5939DE283F25CC",
+        "baseline_result": "LOSS"
+      },
+      "paired_output": "alakazam_staged_20260729/evaluations/v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/marnie_202608510",
+      "metric_output": "alakazam_staged_20260729/metrics/formal_v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/marnie_202608510"
+    },
+    {
+      "name": "mega_lucario_aib4_202609500",
+      "opponent_name": "mega_lucario_aib4",
+      "opponent_path": "meta_agents/mega_lucario_aib4_live_84983544_simple",
+      "seed_base": 202609500,
+      "observed_callback": {
+        "policy_seat": 1,
+        "game": 3,
+        "seed": 202609503,
+        "fingerprint": "3FBDCF78C0D8C20F5897561E215312C7FA0FF01FDFC3D116726CEF613C16FA42",
+        "baseline_result": "LOSS"
+      },
+      "paired_output": "alakazam_staged_20260729/evaluations/v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/mega_lucario_aib4_202609500",
+      "metric_output": "alakazam_staged_20260729/metrics/formal_v4_fix7_bench0_end_shaymin_targeted_4panel_20260731/mega_lucario_aib4_202609500"
+    }
+  ],
+  "execution_template": {
+    "paired_argv": [
+      ".\\.venv-rl\\Scripts\\python.exe",
+      "-B",
+      "tools/run_seeded_paired_suite.py",
+      "--engine-dir",
+      "{engine_dir}",
+      "--baseline",
+      "{baseline}",
+      "--candidate",
+      "{candidate_adapter}",
+      "--opponent",
+      "{opponent_name}={opponent_path}",
+      "--games-per-seat",
+      "10",
+      "--seed-base",
+      "{seed_base}",
+      "--max-steps",
+      "1000",
+      "--output-dir",
+      "{paired_output}"
+    ],
+    "metric_argv": [
+      ".\\.venv-rl\\Scripts\\python.exe",
+      "-B",
+      "tools/run_alakazam_staged_metric_suite.py",
+      "--engine-dir",
+      "{engine_dir}",
+      "--version",
+      "fix7={candidate_version}",
+      "--opponent",
+      "{opponent_name}={opponent_path}",
+      "--seed-base",
+      "{seed_base}",
+      "--games-per-block",
+      "10",
+      "--max-steps",
+      "1000",
+      "--watchdog-seconds",
+      "180",
+      "--output-dir",
+      "{metric_output}"
+    ]
+  },
+  "expected_raw_counts": {
+    "paired_rows_per_panel": 20,
+    "paired_rows_total": 80,
+    "baseline_games_total": 80,
+    "candidate_games_total": 80,
+    "metric_games_per_panel": 20,
+    "metric_games_total": 80
+  },
+  "screen_gate": {
+    "baseline_observed_results": {
+      "historical_silver_202608520": "LOSS",
+      "kangaskhan_crustle_202608520": "WIN",
+      "marnie_202608510": "LOSS",
+      "mega_lucario_aib4_202609500": "LOSS"
+    },
+    "candidate_expected_results": {
+      "historical_silver_202608520": "WIN",
+      "kangaskhan_crustle_202608520": "WIN",
+      "marnie_202608510": "WIN",
+      "mega_lucario_aib4_202609500": "WIN"
+    },
+    "required_unique_fires_per_observed_callback": 1,
+    "required_sequence": ["END", "PLAY_SHAYMIN_FROM_HAND", "END"],
+    "maximum_baseline_win_to_candidate_loss_in_all_80_pairs": 0,
+    "required_faults": 0
+  }
+}
