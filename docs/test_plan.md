@@ -25,10 +25,10 @@ Windows 配布テストは、PyInstaller の one-folder 成果物から spawn �
 
 ~~~powershell
 $env:PYTHONPATH = (Resolve-Path apps\ptcg_desktop\src)
-$env:PTCG_SUBMISSION_ARTIFACT = (Resolve-Path autonomous_gold_20260715\packages\archaludon_practice_first_terminal_and_role_commitment_v1_validationfix2_clean_20260801_1455\extracted_verification)
+$env:PTCG_SUBMISSION_ARTIFACT = (Resolve-Path archaludon\packages\archaludon_practice_first_terminal_and_role_commitment_v1_validationfix2_clean_20260801_1455\extracted_verification)
 $env:PTCG_RUN_LONG_INTEGRATION = '1'
-$env:PTCG_LOCAL_AGENT_ARTIFACT = (Resolve-Path autonomous_gold_20260715\packages\archaludon_public_exact_same_active_attack_dominance_v1_clean_20260801_2352\submission_archaludon_public_exact_same_active_attack_dominance_v1_20260801.tar.gz)
-$env:PTCG_LOCAL_HUMAN_DECK = (Resolve-Path autonomous_gold_20260715\packages\archaludon_public_exact_same_active_attack_dominance_v1_clean_20260801_2352\stage\deck.csv)
+$env:PTCG_LOCAL_AGENT_ARTIFACT = (Resolve-Path archaludon\packages\archaludon_public_exact_same_active_attack_dominance_v1_clean_20260801_2352\submission_archaludon_public_exact_same_active_attack_dominance_v1_20260801.tar.gz)
+$env:PTCG_LOCAL_HUMAN_DECK = (Resolve-Path archaludon\packages\archaludon_public_exact_same_active_attack_dominance_v1_clean_20260801_2352\stage\deck.csv)
 apps\ptcg_desktop\.venv\Scripts\python.exe -m compileall -q apps\ptcg_desktop\src\ptcg_desktop apps\ptcg_desktop\tests
 apps\ptcg_desktop\.venv\Scripts\python.exe -m unittest discover -s apps\ptcg_desktop\tests -v
 ~~~

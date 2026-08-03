@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATOR = ROOT / "infrastructure" / "scripts" / "rewrite_repository_paths.py"
-REPORT = ROOT / "docs" / "repository_path_residual_report.json"
+REPORT = ROOT / "docs" / "repository_workspace_rename_residual_report_20260804.json"
 
 
 def load_migrator():
@@ -32,11 +32,18 @@ def main() -> None:
         for old, new in migrator.DIRECTORY_MOVES:
             if old.encode("ascii") not in data:
                 continue
-            pattern = re.compile(
-                rb"(?<![A-Za-z0-9_.\\/-])"
-                + re.escape(old.encode("ascii"))
-                + rb"(?=[\\/])"
-            )
+            if old in migrator.WORKSPACE_ROOT_MOVES:
+                pattern = re.compile(
+                    rb"(?<![A-Za-z0-9_])"
+                    + re.escape(old.encode("ascii"))
+                    + rb"(?![A-Za-z0-9_])"
+                )
+            else:
+                pattern = re.compile(
+                    rb"(?<![A-Za-z0-9_.\\/-])"
+                    + re.escape(old.encode("ascii"))
+                    + rb"(?=[\\/])"
+                )
             count = len(pattern.findall(data))
             if count:
                 hits.append(

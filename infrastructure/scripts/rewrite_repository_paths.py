@@ -16,9 +16,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SELF = Path(__file__).resolve()
-REPORT = ROOT / "docs" / "repository_path_migration_report.json"
+REPORT = ROOT / "docs" / "repository_workspace_rename_report_20260804.json"
 
 DIRECTORY_MOVES = (
+    ("autonomous_gold_20260715", "archaludon"),
+    ("alakazam_staged_20260729", "alakazam"),
     ("submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v5_staticstruct_20260710", "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v5_staticstruct_20260710"),
     ("submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v4_static_20260710", "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v4_static_20260710"),
     ("submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v3_20260710", "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v3_20260710"),
@@ -47,6 +49,12 @@ DIRECTORY_MOVES = (
     ("metrics", "_local_generated/metrics"),
     ("logs", "_local_generated/logs"),
 )
+
+WORKSPACE_ROOT_MOVES = {
+    "autonomous_gold_20260715",
+    "alakazam_staged_20260729",
+}
+WORKSPACE_NEW_ROOTS = {"archaludon", "alakazam"}
 
 CODE_SUFFIXES = {".py", ".ps1", ".sh", ".bat", ".cmd", ".toml", ".yaml", ".yml"}
 FILE_MOVES = {
@@ -104,6 +112,8 @@ def candidate_files() -> list[Path]:
 def protect_new_paths(data: bytes) -> tuple[bytes, list[tuple[bytes, bytes]]]:
     protected: list[tuple[bytes, bytes]] = []
     for index, (_, new) in enumerate(DIRECTORY_MOVES):
+        if new in WORKSPACE_NEW_ROOTS:
+            continue
         for variant_index, variant in enumerate((new, new.replace("/", "\\"))):
             raw = variant.encode("ascii")
             token = f"@@NEW_PATH_{index}_{variant_index}@@".encode("ascii")
@@ -120,9 +130,14 @@ def rewrite_paths(data: bytes) -> tuple[bytes, int]:
         raw_old = old.encode("ascii")
         if raw_old not in data:
             continue
-        pattern = re.compile(
-            rb"(?<![A-Za-z0-9_.\\/-])" + re.escape(raw_old) + rb"(?=[\\/])"
-        )
+        if old in WORKSPACE_ROOT_MOVES:
+            pattern = re.compile(
+                rb"(?<![A-Za-z0-9_])" + re.escape(raw_old) + rb"(?![A-Za-z0-9_])"
+            )
+        else:
+            pattern = re.compile(
+                rb"(?<![A-Za-z0-9_.\\/-])" + re.escape(raw_old) + rb"(?=[\\/])"
+            )
 
         def replace(match: re.Match[bytes]) -> bytes:
             following = match.string[match.end() : match.end() + 1]
@@ -160,15 +175,11 @@ def rewrite_python_structure(path: Path, data: bytes) -> bytes:
                 f'"{component}"'.encode("ascii") for component in components
             )
             new_join = b" / " + component_chain
-            compact_join = b'/ '.join(
-                f'"{component}"'.encode("ascii") for component in components
+            duplicated_chain = (
+                f'"{components[0]}" / '.encode("ascii") + component_chain
             )
-            line = line.replace(compact_join, new_join)
-            line = re.sub(
-                rb"(?<!/ )" + re.escape(component_chain),
-                new_join,
-                line,
-            )
+            while duplicated_chain in line:
+                line = line.replace(duplicated_chain, component_chain)
             if new_join not in line:
                 line = line.replace(old_join, new_join)
         lines.append(line)
@@ -206,15 +217,16 @@ def main() -> None:
             }
         )
     payload = {
-        "base_commit": "3111ecf",
-        "scope": "executable code and active configuration only",
+        "base_commit": "0f22d49",
+        "scope": "Archaludon and Alakazam executable code and active configuration",
         "historical_evidence_rewritten": False,
-        "files_changed": len(changed),
+        "files_changed_this_run": len(changed),
+        "idempotent": True,
         "directory_moves": dict(DIRECTORY_MOVES),
         "files": changed,
     }
     REPORT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"files_changed": len(changed)}))
+    print(json.dumps({"files_changed_this_run": len(changed)}))
 
 
 if __name__ == "__main__":

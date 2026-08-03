@@ -25,7 +25,7 @@ apps\ptcg_desktop\.venv\Scripts\python.exe -m unittest discover -s apps\ptcg_des
 
 ~~~powershell
 $env:PYTHONPATH = (Resolve-Path apps\ptcg_desktop\src)
-$env:PTCG_SUBMISSION_ARTIFACT = (Resolve-Path autonomous_gold_20260715\packages\archaludon_practice_first_terminal_and_role_commitment_v1_validationfix2_clean_20260801_1455\extracted_verification)
+$env:PTCG_SUBMISSION_ARTIFACT = (Resolve-Path archaludon\packages\archaludon_practice_first_terminal_and_role_commitment_v1_validationfix2_clean_20260801_1455\extracted_verification)
 apps\ptcg_desktop\.venv\Scripts\python.exe -m unittest apps.ptcg_desktop.tests.test_engine_integration -v
 $env:PTCG_RUN_LONG_INTEGRATION = "1"
 apps\ptcg_desktop\.venv\Scripts\python.exe -m unittest apps.ptcg_desktop.tests.test_engine_full_match -v
@@ -164,7 +164,7 @@ Qt Quick内部依存のQtNetwork.pyd、Qt6Network.dll、Qt6QmlNetwork.dllは残�
 ## frozen自己試験
 
 ~~~powershell
-$artifact = (Resolve-Path autonomous_gold_20260715\packages\archaludon_practice_first_terminal_and_role_commitment_v1_validationfix2_clean_20260801_1455\extracted_verification)
+$artifact = (Resolve-Path archaludon\packages\archaludon_practice_first_terminal_and_role_commitment_v1_validationfix2_clean_20260801_1455\extracted_verification)
 $exe = (Resolve-Path apps\ptcg_desktop\dist_viewer_v5\PTCGHumanClient\PTCGHumanClient.exe)
 $runId = [guid]::NewGuid().ToString('N')
 foreach ($seat in 0, 1) {

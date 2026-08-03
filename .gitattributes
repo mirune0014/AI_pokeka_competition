@@ -47,5 +47,5 @@
 
 # Frozen competition evidence contains intentional mixed line endings and
 # records byte-level SHA-256 values. Preserve those bytes exactly on every OS.
-/alakazam_staged_20260729/** -text
-/autonomous_gold_20260715/** -text
+/alakazam/** -text
+/archaludon/** -text

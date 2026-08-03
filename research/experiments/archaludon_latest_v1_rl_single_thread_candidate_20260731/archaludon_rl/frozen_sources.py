@@ -18,7 +18,7 @@ LATEST_DIR = (
     "inputs/candidate_exact"
 )
 LATEST_ARCHIVE = (
-    "autonomous_gold_20260715/packages/"
+    "archaludon/packages/"
     "archaludon_general_visible_counterattack_ready_rotation_v1_clean_20260731_0457/"
     "submission_archaludon_general_visible_counterattack_ready_rotation_v1_20260731.tar.gz"
 )

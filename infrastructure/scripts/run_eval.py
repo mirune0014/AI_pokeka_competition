@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-TOOLS_DIR = REPO_ROOT / "infrastructure" / "infrastructure" / "tools"
+TOOLS_DIR = REPO_ROOT / "infrastructure" / "tools"
 if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 
@@ -21,8 +21,8 @@ LOG_DIR = REPO_ROOT / "_local_generated" / "logs"
 
 
 BASELINES = {
-    "archaludon_public": REPO_ROOT / "opponents" / "opponents" / "meta_agents" / "archaludon_public",
-    "great_tusk_crustle_public": REPO_ROOT / "opponents" / "opponents" / "meta_agents" / "great_tusk_crustle_public",
+    "archaludon_public": REPO_ROOT / "opponents" / "meta_agents" / "archaludon_public",
+    "great_tusk_crustle_public": REPO_ROOT / "opponents" / "meta_agents" / "great_tusk_crustle_public",
     "zoroark_mirror": ZOROARK_DIR,
 }
 

@@ -1,0 +1,262 @@
+{
+  "base_commit": "0f22d49",
+  "scope": "Archaludon and Alakazam executable code and active configuration",
+  "historical_evidence_rewritten": false,
+  "files_changed_this_run": 37,
+  "idempotent": true,
+  "directory_moves": {
+    "autonomous_gold_20260715": "archaludon",
+    "alakazam_staged_20260729": "alakazam",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v5_staticstruct_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v5_staticstruct_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v4_static_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v4_static_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v3_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v3_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v2_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v2_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710",
+    "submission_archaludon_947base_iono_alaklive_line4markers": "archive/submissions/submission_archaludon_947base_iono_alaklive_line4markers",
+    "submission_archaludon_shumpei_current_v3_runtime": "archive/submissions/submission_archaludon_shumpei_current_v3_runtime",
+    "submission_archaludon_current_purecopy": "archive/submissions/submission_archaludon_current_purecopy",
+    "submission_meta_archaludon": "archive/submissions/submission_meta_archaludon",
+    "submission_archaludon": "archive/submissions/submission_archaludon",
+    "isolated_rule_agents": "opponents/isolated_rule_agents",
+    "meta_agents": "opponents/meta_agents",
+    "experiments": "research/experiments",
+    "rl_ptcg": "research/rl_ptcg",
+    "reports": "research/reports",
+    "apps": "infrastructure/apps",
+    "tools": "infrastructure/tools",
+    "external": "infrastructure/external",
+    "data": "infrastructure/data",
+    "vendor": "infrastructure/vendor",
+    "analysis_outputs": "_local_generated/analysis_outputs",
+    "deliverables": "_local_generated/deliverables",
+    "notebook_output": "_local_generated/notebook_output",
+    "share_packages": "_local_generated/share_packages",
+    "metrics": "_local_generated/metrics",
+    "logs": "_local_generated/logs"
+  },
+  "files": [
+    {
+      "path": "alakazam/fixtures/episode_88843743_public_observations/test_episode_88843743_public_observations.py",
+      "path_replacements": 2,
+      "before_sha256": "4C65B5C2ECC6B4796D53135FC7A221B232BF0DB2DEB5FA39F22EDB917862BD64",
+      "after_sha256": "307C55C001D6CB46FA1F272FC0366475BEE97DD5904D05877903855E4FD7BAC0"
+    },
+    {
+      "path": "alakazam/fixtures/episode_88844273_public_observations/test_episode_88844273_public_observations.py",
+      "path_replacements": 2,
+      "before_sha256": "652E566E7CA8D45E6B4865CC6610C02A7266E73774BA2204CB128211C23C863A",
+      "after_sha256": "CD3EFDB6C26A8FF829E35E129EC9F6D0AD03FD354F74ED707795DDC3417C5FF8"
+    },
+    {
+      "path": "alakazam/specs/repair_formal_v2_fix8_last_block.py",
+      "path_replacements": 1,
+      "before_sha256": "E1F9654A0ABFB26353787A4F90A4E7205BD7F130CE6FAEA04587976E2047481E",
+      "after_sha256": "FDE4829784C9B94AE21FCCC0F6DA17C25F239FB13F342AEF1B82B7083F55B487"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v3_exact_evolution_ko_fix2/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_bench0_end_shaymin_fix7/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_bench0_end_shaymin_fix7/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "7DAF09C36D2D9D2B99C2A2BBD12071BB50E09C738871C9D7DE5D7BDB5CDFB330",
+      "after_sha256": "716865DBDC45606EACB0BCB5CBBF5AFF2BF848011F7420E00B8CDD17D87CFED1"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_bench0_end_shaymin_fix7/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4/test_v4_next_attacker_distance_shadow_fix4.py",
+      "path_replacements": 1,
+      "before_sha256": "AAC2C3C538D9D7E4DB4B06669078E9BFA3F5DFD7713CD16CDCB4ED4D6D34E779",
+      "after_sha256": "404D47FDB465E600CAFCA779290BF4CC96AB499509A735C3B03349A6919C5614"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "A1D3B342530A8097D989A7F6ECB0B49719871ED4D6F510C4769A95DF55AAB353",
+      "after_sha256": "FC07D8098098CC565B69749342CE6CFE387801A71F20595FF91E642F65F0D1F6"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "4AAAE07EC6B5182A497FC705E47A00F09B2EF69AED8DD707B010D368137D1DF8",
+      "after_sha256": "A67A06A59000D119196DDFA6817BB39617A3A9BD2A6C8310CF88A8BDE6A82D22"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_poffin_role_cardinality_fix3/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_poffin_role_cardinality_fix3/test_v4_poffin_role_cardinality_fix3.py",
+      "path_replacements": 1,
+      "before_sha256": "FE9B93E73E9D0250A482DCBB66226C8F5E30883054849B8CBCEC212C07556874",
+      "after_sha256": "16B21C27CA16FF722E9E237113F7D25B89C6E975EA4D1C109D342298B6222D3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "4AAAE07EC6B5182A497FC705E47A00F09B2EF69AED8DD707B010D368137D1DF8",
+      "after_sha256": "A67A06A59000D119196DDFA6817BB39617A3A9BD2A6C8310CF88A8BDE6A82D22"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8/test_v4_poffin_zero_demand_veto_persistence_fix8.py",
+      "path_replacements": 1,
+      "before_sha256": "CC755AC943541BE000E0C402573127CE26D0FBB2E62C4A45B59D4C703684705C",
+      "after_sha256": "DBCAA48E30B3E7671222863E22A900C79EF690D2F6741B5BE7C61DA0CFB2FB7F"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_public_survival_bench0_fix5/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_public_survival_bench0_fix5/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "DC245C9AAA8333D32AC40FD56F1821B1209602CEBF35B365F57CD6AD90F04508",
+      "after_sha256": "9FE5711848035D7A8318468985BDFDF0D213CB268A04A58EC9F9CC6D162D661B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_public_survival_bench0_fix5/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_public_tactical_monotonicity_fix9/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_public_tactical_monotonicity_fix9/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "FEAD9AC7980C5961E0C700569D85C5F5A920E89D1E7921A9AD50CBA91909874F",
+      "after_sha256": "4A06FC0190DE61C4BD576125CB2CDC661D09A8BCE41C72A19CA221A94BE183A2"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_public_tactical_monotonicity_fix9/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_wall_shadow_fix6/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_wall_shadow_fix6/test_v4_c4_sidecar_collector.py",
+      "path_replacements": 2,
+      "before_sha256": "5F56B224E64E74B533D024E58CAEE7164C9062629B93C40AFBBDA7F3023D6303",
+      "after_sha256": "C8868DEF661F4EB9D7A594E0F3C66DD530BF86024F3DAF4B12DE75266B8A3DE3"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_wall_shadow_fix6/test_v4_c4_sidecar_collector_v2.py",
+      "path_replacements": 1,
+      "before_sha256": "DBB9C8B9927B34814C930AF6C76324F99B80715EA5F6229A633D23527983F58A",
+      "after_sha256": "DD3F0D32B2D1B8DE5EDD2260377C3F4FC6CDE3F1140D30F889ED56817710D5DB"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_wall_shadow_fix6/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "397DEC682666DB548D1C7011046C7F6E40BFAA8FBBDE937C23A2C996D1A5BA71",
+      "after_sha256": "3EC559550980A818149D93CF038F61B83C6527C86EC2F4D79A9F83AA0184DD8F"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_wall_shadow_fix6/test_v4_wall_shadow_fix6.py",
+      "path_replacements": 2,
+      "before_sha256": "EF3F9112CED2E090EF29B74BB8A792072D955DA89A4D97F8B2DEEE8DCBA5B4AE",
+      "after_sha256": "04EE454A68772168E9625F49D1EFF181D028CB87A1424AF8E309FF308D009D0C"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v4_wall_shadow_fix6/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v5_boss_powerful_hand_exact_ko_reservation_fix1/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v5_boss_powerful_hand_exact_ko_reservation_fix1/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "FEAD9AC7980C5961E0C700569D85C5F5A920E89D1E7921A9AD50CBA91909874F",
+      "after_sha256": "4A06FC0190DE61C4BD576125CB2CDC661D09A8BCE41C72A19CA221A94BE183A2"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v5_boss_powerful_hand_exact_ko_reservation_fix1/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v6_boss_tempo_stall_fix1/test_v3_exact_evolution_ko_fix2.py",
+      "path_replacements": 1,
+      "before_sha256": "A8ABFF15D89658FF340484369BEBAD07BDB8D86D9481D1BE78D8383D5A5EAB7F",
+      "after_sha256": "3E5F67E9B469DBADF7ECB16E12494FCA6FBA0B1E21CAF935B1D275A2ED0A065D"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v6_boss_tempo_stall_fix1/test_v4_next_attacker_distance_shadow_fix4b.py",
+      "path_replacements": 1,
+      "before_sha256": "FEAD9AC7980C5961E0C700569D85C5F5A920E89D1E7921A9AD50CBA91909874F",
+      "after_sha256": "4A06FC0190DE61C4BD576125CB2CDC661D09A8BCE41C72A19CA221A94BE183A2"
+    },
+    {
+      "path": "alakazam/versions/alakazam_newdeck_v6_boss_tempo_stall_fix1/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 2,
+      "before_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A",
+      "after_sha256": "3EBED168B23835460E1EB324E4B88C828ED0266455FEE72524AA2D626DC39A3B"
+    }
+  ]
+}

@@ -23,10 +23,10 @@ import shutil
 
 
 CANONICAL_RELATIVE = Path(
-    "autonomous_gold_20260715/final/"
+    "archaludon/final/"
     "archaludon_historical_silver_single_resolver_salvage_v1/cg"
 )
-CANDIDATES_RELATIVE = Path("autonomous_gold_20260715/candidates")
+CANDIDATES_RELATIVE = Path("archaludon/candidates")
 EXPECTED_SHA256 = {
     "cg.dll": "9EA2B0A751029689BFF3DDCCB5F29A98EDD46961DAD264490ED121EF704FB500",
     "libcg.so": "FFD89BF923525A3E6FEB5E6201E96A866C0F456895499ED5C4A566303CAAE67C",

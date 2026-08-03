@@ -21,31 +21,31 @@ MEGA_SEEDS = (202609500, 202609510, 202609520, 202609530, 202609540)
 
 SUITES = (
     (
-        "alakazam_staged_20260729/metrics/"
+        "alakazam/metrics/"
         "formal_v4_c4_wall_shadow_fix6_trace_a",
         ("marnie", "cynthia", "alakazam_mirror"),
         BASE_SEEDS,
     ),
     (
-        "alakazam_staged_20260729/metrics/"
+        "alakazam/metrics/"
         "formal_v4_c4_wall_shadow_fix6_trace_b_rocket_retry2",
         ("rocket_mewtwo_spidops_proxy",),
         BASE_SEEDS,
     ),
     (
-        "alakazam_staged_20260729/metrics/"
+        "alakazam/metrics/"
         "formal_v4_c4_wall_shadow_fix6_trace_b_kangaskhan_retry2",
         ("kangaskhan_crustle",),
         BASE_SEEDS,
     ),
     (
-        "alakazam_staged_20260729/metrics/"
+        "alakazam/metrics/"
         "formal_v4_c4_wall_shadow_fix6_trace_c",
         ("historical_silver", "direct_frozen"),
         BASE_SEEDS,
     ),
     (
-        "alakazam_staged_20260729/metrics/"
+        "alakazam/metrics/"
         "formal_v4_c4_wall_shadow_fix6_megalucario_reach1",
         ("mega_lucario_aib4", "mega_lucario_fujiborozoukin"),
         MEGA_SEEDS,

@@ -6,9 +6,9 @@
 
 | 対象 | 状態 | 入口 |
 |---|---|---|
-| Archaludon | 正式な決定論的再基盤化版 | `autonomous_gold_20260715/final/archaludon_historical_silver_single_resolver_salvage_v1/` |
-| Historical-Silver | Archaludonの強度基準 | `autonomous_gold_20260715/baseline/historical_silver_archaludon_54495224/` |
-| Alakazam | 段階開発・C2系統が正式基準 | `alakazam_staged_20260729/` |
+| Archaludon | 正式な決定論的再基盤化版 | `archaludon/final/archaludon_historical_silver_single_resolver_salvage_v1/` |
+| Historical-Silver | Archaludonの強度基準 | `archaludon/baseline/historical_silver_archaludon_54495224/` |
+| Alakazam | 段階開発・C2系統が正式基準 | `alakazam/` |
 
 ArchaludonとAlakazamは内部の相対パスが長いため、Windowsのパス長問題を
 避けてルート直下に維持します。両者の採否は、各ワークスペースのREADME、
@@ -42,7 +42,7 @@ _local_generated/          Git管理外の再生成可能な出力
 
 ## 3. Archaludon
 
-`autonomous_gold_20260715/`は決定論的改善ループの本体です。
+`archaludon/`は決定論的改善ループの本体です。
 
 | フォルダ | 用途 |
 |---|---|
@@ -58,7 +58,7 @@ _local_generated/          Git管理外の再生成可能な出力
 
 ## 4. Alakazam
 
-`alakazam_staged_20260729/`内で完結します。
+`alakazam/`内で完結します。
 
 | フォルダ | 用途 |
 |---|---|
@@ -83,17 +83,19 @@ PPO、BC、DAggerなどの終了済み研究記録です。現在の決定論的
 
 ## 7. 再現性
 
-物理移動の基準はcommit `3111ecf`です。過去のMarkdown、JSON証拠、凍結仕様、
+最初の物理整理の基準はcommit `3111ecf`、日付付きワークスペース名を恒久名へ
+移した基準はcommit `0f22d49`です。過去のMarkdown、JSON証拠、凍結仕様、
 旧提出エージェントの本文は書き換えていません。古い記録中の旧パスは当時の
 配置を示すものとして残り、基準commitをcheckoutすればそのまま再現できます。
 
 現行の実行コードと設定だけを新パスへ移行しています。詳細は
-`docs/repository_layout_migration_20260804.md`を参照してください。
+`docs/repository_layout_migration_20260804.md`と
+`docs/workspace_rename_20260804.md`を参照してください。
 
 ## 8. 新規成果物の配置規則
 
-- Archaludon候補は`autonomous_gold_20260715/candidates/`へ置く。
-- Alakazam候補は`alakazam_staged_20260729/versions/`へ置く。
+- Archaludon候補は`archaludon/candidates/`へ置く。
+- Alakazam候補は`alakazam/versions/`へ置く。
 - 共通ツールやアプリは`infrastructure/`へ置く。
 - 学習・探索実験は`research/experiments/`へ置く。
 - 旧提出物は`archive/submissions/`へ置く。

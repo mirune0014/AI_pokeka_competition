@@ -16,7 +16,7 @@
 
 アーカイブ SHA-256 は `32A7F1F4D469FA2FBAD01E57F0B8284E0CEB51F88253824A8518644D9613E50C` です。
 
-リポジトリ上の提出受領記録は `autonomous_gold_20260715/live/55155015/SUBMISSION_RECEIPT.md` です。
+リポジトリ上の提出受領記録は `archaludon/live/55155015/SUBMISSION_RECEIPT.md` です。
 
 固定マニフェストは、次の 12 ファイルの相対パス、サイズ、SHA-256 を保持します。
 

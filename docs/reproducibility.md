@@ -8,7 +8,7 @@
 git config --global core.longpaths true
 ```
 
-`alakazam_staged_20260729`と`autonomous_gold_20260715`は、記録済みSHA-256を維持するため改行を正規化しない。これらのディレクトリに`git add --renormalize`を実行しない。
+`alakazam`と`archaludon`は、記録済みSHA-256を維持するため改行を正規化しない。これらのディレクトリに`git add --renormalize`を実行しない。
 
 ## ネイティブ対戦runtime
 
