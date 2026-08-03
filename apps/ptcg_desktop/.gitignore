@@ -1,0 +1,7 @@
+.venv/
+build/
+dist/
+*.spec.local
+__pycache__/
+*.py[cod]
+*.ptcgmatch

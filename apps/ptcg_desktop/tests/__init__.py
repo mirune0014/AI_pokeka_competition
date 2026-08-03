@@ -1,0 +1,1 @@
+"""PTCG desktop client tests."""

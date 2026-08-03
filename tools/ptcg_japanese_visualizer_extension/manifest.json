@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "ポケカ公式ビジュアライザー 日本語カード表示",
+  "short_name": "PTCG日本語表示",
+  "version": "0.1.1",
+  "description": "Kaggleのポケカコンペから開く公式ビジュアライザーを、日本語カード画像・カード名・ワザ名で自動表示します。",
+  "minimum_chrome_version": "111",
+  "permissions": [
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "https://ptcgvis.heroz.jp/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "japanese_card_images",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ptcgvis.heroz.jp/Visualizer/Replay/*"
+      ],
+      "js": [
+        "translations.js",
+        "core.js",
+        "main.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/cards_jp/*.jpg",
+        "assets/cards_jp_m/*.jpg"
+      ],
+      "matches": [
+        "https://ptcgvis.heroz.jp/*"
+      ]
+    }
+  ]
+}

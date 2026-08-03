@@ -1,0 +1,116 @@
+archetype,card_id,card_name,card_type,min_count,max_count,present_variant_count,total_variant_count,classification,estimated_role
+rocket_mewtwo_spidops,1,Basic {G} Energy,5,7,9,5,5,COMMON_VARIABLE,BASIC_ENERGY
+rocket_mewtwo_spidops,5,Basic {P} Energy,5,0,3,1,5,VARIANT_ONLY,BASIC_ENERGY
+rocket_mewtwo_spidops,15,Team Rocket's Energy,6,4,4,5,5,COMMON_FIXED,SPECIAL_ENERGY
+rocket_mewtwo_spidops,400,Team Rocket's Tarountula,0,4,4,5,5,COMMON_FIXED,BASIC_POKEMON_ATTACKER_OR_SETUP
+rocket_mewtwo_spidops,401,Team Rocket's Spidops,0,4,4,5,5,COMMON_FIXED,STAGE1_ABILITY_POKEMON
+rocket_mewtwo_spidops,414,Team Rocket's Articuno,0,2,2,5,5,COMMON_FIXED,BASIC_ABILITY_POKEMON
+rocket_mewtwo_spidops,431,Team Rocket's Mewtwo ex,0,2,2,5,5,COMMON_FIXED,BASIC_POKEMON_EX_ATTACKER
+rocket_mewtwo_spidops,432,Team Rocket's Wobbuffet,0,0,1,1,5,VARIANT_ONLY,BASIC_POKEMON_ATTACKER_OR_SETUP
+rocket_mewtwo_spidops,434,Team Rocket's Mimikyu,0,0,3,4,5,OPTIONAL_SHARED,BASIC_POKEMON_ATTACKER_OR_SETUP
+rocket_mewtwo_spidops,463,Team Rocket's Murkrow,0,0,2,1,5,VARIANT_ONLY,BASIC_POKEMON_ATTACKER_OR_SETUP
+rocket_mewtwo_spidops,1086,Buddy-Buddy Poffin,1,0,1,3,5,OPTIONAL_SHARED,ITEM_SEARCH_OR_DRAW
+rocket_mewtwo_spidops,1094,Bug Catching Set,1,3,4,5,5,COMMON_VARIABLE,ITEM_SEARCH_OR_DRAW
+rocket_mewtwo_spidops,1097,Night Stretcher,1,0,2,3,5,OPTIONAL_SHARED,ITEM_RESOURCE_OR_RECOVERY
+rocket_mewtwo_spidops,1116,Energy Switch,1,0,1,1,5,VARIANT_ONLY,ITEM_RESOURCE_OR_RECOVERY
+rocket_mewtwo_spidops,1119,Energy Search,1,0,2,1,5,VARIANT_ONLY,ITEM_SEARCH_OR_DRAW
+rocket_mewtwo_spidops,1121,Ultra Ball,1,0,2,4,5,OPTIONAL_SHARED,ITEM_SEARCH_OR_DRAW
+rocket_mewtwo_spidops,1134,Team Rocket's Transceiver,1,4,4,5,5,COMMON_FIXED,ITEM_SEARCH_OR_DRAW
+rocket_mewtwo_spidops,1152,Poké Pad,1,4,4,5,5,COMMON_FIXED,ITEM_SEARCH_OR_DRAW
+rocket_mewtwo_spidops,1159,Hero’s Cape,2,1,1,5,5,COMMON_FIXED,POKEMON_TOOL
+rocket_mewtwo_spidops,1175,Brave Bangle,2,1,2,5,5,COMMON_VARIABLE,POKEMON_TOOL
+rocket_mewtwo_spidops,1216,Team Rocket's Ariana,3,4,4,5,5,COMMON_FIXED,SUPPORTER_DRAW_OR_SEARCH
+rocket_mewtwo_spidops,1217,Team Rocket's Archer,3,0,1,3,5,OPTIONAL_SHARED,SUPPORTER_DRAW_OR_SEARCH
+rocket_mewtwo_spidops,1218,Team Rocket's Giovanni,3,2,3,5,5,COMMON_VARIABLE,SUPPORTER_DISRUPTION_OR_GUST
+rocket_mewtwo_spidops,1219,Team Rocket's Petrel,3,0,1,3,5,OPTIONAL_SHARED,SUPPORTER_DRAW_OR_SEARCH
+rocket_mewtwo_spidops,1220,Team Rocket's Proton,3,2,4,5,5,COMMON_VARIABLE,SUPPORTER_DRAW_OR_SEARCH
+rocket_mewtwo_spidops,1227,Lillie's Determination,3,2,4,5,5,COMMON_VARIABLE,SUPPORTER_DRAW_OR_SEARCH
+rocket_mewtwo_spidops,1252,Gravity Mountain,4,0,1,1,5,VARIANT_ONLY,STADIUM_BOARD_MODIFIER
+rocket_mewtwo_spidops,1257,Team Rocket's Factory,4,2,3,5,5,COMMON_VARIABLE,STADIUM_BOARD_MODIFIER
+alakazam_psychic,5,Basic {P} Energy,5,2,2,1,1,COMMON_FIXED,BASIC_ENERGY
+alakazam_psychic,13,Enriching Energy,6,1,1,1,1,COMMON_FIXED,SPECIAL_ENERGY
+alakazam_psychic,19,Telepath Psychic Energy,6,4,4,1,1,COMMON_FIXED,SPECIAL_ENERGY
+alakazam_psychic,66,Dudunsparce,0,2,2,1,1,COMMON_FIXED,STAGE1_ABILITY_POKEMON
+alakazam_psychic,140,Fezandipiti ex,0,1,1,1,1,COMMON_FIXED,BASIC_POKEMON_EX_ATTACKER
+alakazam_psychic,305,Dunsparce,0,3,3,1,1,COMMON_FIXED,BASIC_POKEMON_ATTACKER_OR_SETUP
+alakazam_psychic,343,Shaymin,0,1,1,1,1,COMMON_FIXED,BASIC_ABILITY_POKEMON
+alakazam_psychic,741,Abra,0,4,4,1,1,COMMON_FIXED,BASIC_POKEMON_ATTACKER_OR_SETUP
+alakazam_psychic,742,Kadabra,0,4,4,1,1,COMMON_FIXED,STAGE1_ABILITY_POKEMON
+alakazam_psychic,743,Alakazam,0,4,4,1,1,COMMON_FIXED,STAGE2_ABILITY_POKEMON
+alakazam_psychic,1079,Rare Candy,1,3,3,1,1,COMMON_FIXED,ITEM_UTILITY
+alakazam_psychic,1081,Enhanced Hammer,1,4,4,1,1,COMMON_FIXED,ITEM_RESOURCE_OR_RECOVERY
+alakazam_psychic,1086,Buddy-Buddy Poffin,1,4,4,1,1,COMMON_FIXED,ITEM_SEARCH_OR_DRAW
+alakazam_psychic,1097,Night Stretcher,1,1,1,1,1,COMMON_FIXED,ITEM_RESOURCE_OR_RECOVERY
+alakazam_psychic,1129,Sacred Ash,1,1,1,1,1,COMMON_FIXED,ITEM_RESOURCE_OR_RECOVERY
+alakazam_psychic,1152,Poké Pad,1,4,4,1,1,COMMON_FIXED,ITEM_SEARCH_OR_DRAW
+alakazam_psychic,1182,Boss’s Orders,3,3,3,1,1,COMMON_FIXED,SUPPORTER_DISRUPTION_OR_GUST
+alakazam_psychic,1184,Lana’s Aid,3,1,1,1,1,COMMON_FIXED,SUPPORTER_DISRUPTION_OR_GUST
+alakazam_psychic,1197,Xerosic’s Machinations,3,3,3,1,1,COMMON_FIXED,SUPPORTER_DISRUPTION_OR_GUST
+alakazam_psychic,1225,Hilda,3,4,4,1,1,COMMON_FIXED,SUPPORTER_DRAW_OR_SEARCH
+alakazam_psychic,1231,Dawn,3,4,4,1,1,COMMON_FIXED,SUPPORTER_DRAW_OR_SEARCH
+alakazam_psychic,1266,Nighttime Mine,4,2,2,1,1,COMMON_FIXED,STADIUM_BOARD_MODIFIER
+kangaskhan_crustle,1,Basic {G} Energy,5,0,9,3,4,OPTIONAL_SHARED,BASIC_ENERGY
+kangaskhan_crustle,3,Basic {W} Energy,5,0,2,1,4,VARIANT_ONLY,BASIC_ENERGY
+kangaskhan_crustle,4,Basic {L} Energy,5,0,2,1,4,VARIANT_ONLY,BASIC_ENERGY
+kangaskhan_crustle,5,Basic {P} Energy,5,0,1,1,4,VARIANT_ONLY,BASIC_ENERGY
+kangaskhan_crustle,6,Basic {F} Energy,5,0,2,1,4,VARIANT_ONLY,BASIC_ENERGY
+kangaskhan_crustle,11,Mist Energy,6,0,4,3,4,OPTIONAL_SHARED,SPECIAL_ENERGY
+kangaskhan_crustle,14,Spiky Energy,6,0,4,3,4,OPTIONAL_SHARED,SPECIAL_ENERGY
+kangaskhan_crustle,18,Grow Grass Energy,6,0,4,3,4,OPTIONAL_SHARED,SPECIAL_ENERGY
+kangaskhan_crustle,20,Rock Fighting Energy,6,0,4,1,4,VARIANT_ONLY,SPECIAL_ENERGY
+kangaskhan_crustle,63,Raging Bolt ex,0,0,2,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,96,Teal Mask Ogerpon ex,0,0,3,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,108,Wellspring Mask Ogerpon ex,0,0,1,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,117,Cornerstone Mask Ogerpon ex,0,0,2,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,140,Fezandipiti ex,0,0,1,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,184,Latias ex,0,0,2,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,272,Lillie’s Clefairy ex,0,0,1,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,344,Dwebble,0,0,4,3,4,OPTIONAL_SHARED,BASIC_POKEMON_ATTACKER_OR_SETUP
+kangaskhan_crustle,345,Crustle,0,0,4,3,4,OPTIONAL_SHARED,STAGE1_ABILITY_POKEMON
+kangaskhan_crustle,756,Mega Kangaskhan ex,0,3,4,4,4,COMMON_VARIABLE,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,978,Passimian,0,0,1,1,4,VARIANT_ONLY,BASIC_POKEMON_ATTACKER_OR_SETUP
+kangaskhan_crustle,1071,Meowth ex,0,0,3,1,4,VARIANT_ONLY,BASIC_POKEMON_EX_ATTACKER
+kangaskhan_crustle,1086,Buddy-Buddy Poffin,1,0,4,3,4,OPTIONAL_SHARED,ITEM_SEARCH_OR_DRAW
+kangaskhan_crustle,1087,Hand Trimmer,1,0,2,1,4,VARIANT_ONLY,ITEM_UTILITY
+kangaskhan_crustle,1088,Prime Catcher,1,0,1,1,4,VARIANT_ONLY,ITEM_SWITCH_OR_GUST
+kangaskhan_crustle,1097,Night Stretcher,1,0,2,1,4,VARIANT_ONLY,ITEM_RESOURCE_OR_RECOVERY
+kangaskhan_crustle,1098,Glass Trumpet,1,0,2,1,4,VARIANT_ONLY,ITEM_RESOURCE_OR_RECOVERY
+kangaskhan_crustle,1116,Energy Switch,1,0,4,1,4,VARIANT_ONLY,ITEM_RESOURCE_OR_RECOVERY
+kangaskhan_crustle,1120,Crushing Hammer,1,0,4,2,4,OPTIONAL_SHARED,ITEM_RESOURCE_OR_RECOVERY
+kangaskhan_crustle,1121,Ultra Ball,1,0,4,1,4,VARIANT_ONLY,ITEM_SEARCH_OR_DRAW
+kangaskhan_crustle,1122,Pokégear 3.0,1,0,4,3,4,OPTIONAL_SHARED,ITEM_SEARCH_OR_DRAW
+kangaskhan_crustle,1123,Switch,1,0,4,3,4,OPTIONAL_SHARED,ITEM_SWITCH_OR_GUST
+kangaskhan_crustle,1127,Tera Orb,1,0,1,1,4,VARIANT_ONLY,ITEM_SEARCH_OR_DRAW
+kangaskhan_crustle,1145,Mega Signal,1,0,1,1,4,VARIANT_ONLY,ITEM_SEARCH_OR_DRAW
+kangaskhan_crustle,1147,Jumbo Ice Cream,1,0,4,3,4,OPTIONAL_SHARED,ITEM_RESOURCE_OR_RECOVERY
+kangaskhan_crustle,1159,Hero’s Cape,2,0,1,3,4,OPTIONAL_SHARED,POKEMON_TOOL
+kangaskhan_crustle,1182,Boss’s Orders,3,2,4,4,4,COMMON_VARIABLE,SUPPORTER_DISRUPTION_OR_GUST
+kangaskhan_crustle,1197,Xerosic’s Machinations,3,2,4,4,4,COMMON_VARIABLE,SUPPORTER_DISRUPTION_OR_GUST
+kangaskhan_crustle,1198,Crispin,3,0,4,1,4,VARIANT_ONLY,SUPPORTER_DRAW_OR_SEARCH
+kangaskhan_crustle,1205,Cyrano,3,0,2,1,4,VARIANT_ONLY,SUPPORTER_DRAW_OR_SEARCH
+kangaskhan_crustle,1219,Team Rocket's Petrel,3,0,4,1,4,VARIANT_ONLY,SUPPORTER_DRAW_OR_SEARCH
+kangaskhan_crustle,1225,Hilda,3,0,4,3,4,OPTIONAL_SHARED,SUPPORTER_DRAW_OR_SEARCH
+kangaskhan_crustle,1227,Lillie's Determination,3,0,4,3,4,OPTIONAL_SHARED,SUPPORTER_DRAW_OR_SEARCH
+kangaskhan_crustle,1250,Area Zero Underdepths,4,0,4,1,4,VARIANT_ONLY,STADIUM_BOARD_MODIFIER
+kangaskhan_crustle,1264,Battle Cage,4,0,2,2,4,OPTIONAL_SHARED,STADIUM_BOARD_MODIFIER
+marnie_grimmsnarl,7,Basic {D} Energy,5,10,10,3,3,COMMON_FIXED,BASIC_ENERGY
+marnie_grimmsnarl,104,Froslass,0,2,2,3,3,COMMON_FIXED,STAGE1_ABILITY_POKEMON
+marnie_grimmsnarl,112,Munkidori,0,4,4,3,3,COMMON_FIXED,BASIC_ABILITY_POKEMON
+marnie_grimmsnarl,646,Marnie's Impidimp,0,4,4,3,3,COMMON_FIXED,BASIC_POKEMON_ATTACKER_OR_SETUP
+marnie_grimmsnarl,647,Marnie's Morgrem,0,2,3,3,3,COMMON_VARIABLE,STAGE1_POKEMON_ATTACKER_OR_SETUP
+marnie_grimmsnarl,648,Marnie's Grimmsnarl ex,0,3,3,3,3,COMMON_FIXED,STAGE2_POKEMON_EX_ATTACKER
+marnie_grimmsnarl,860,Snorunt,0,2,2,3,3,COMMON_FIXED,BASIC_POKEMON_ATTACKER_OR_SETUP
+marnie_grimmsnarl,1079,Rare Candy,1,3,3,3,3,COMMON_FIXED,ITEM_UTILITY
+marnie_grimmsnarl,1080,Unfair Stamp,1,1,1,3,3,COMMON_FIXED,ITEM_UTILITY
+marnie_grimmsnarl,1086,Buddy-Buddy Poffin,1,4,4,3,3,COMMON_FIXED,ITEM_SEARCH_OR_DRAW
+marnie_grimmsnarl,1097,Night Stretcher,1,2,3,3,3,COMMON_VARIABLE,ITEM_RESOURCE_OR_RECOVERY
+marnie_grimmsnarl,1122,Pokégear 3.0,1,0,1,1,3,VARIANT_ONLY,ITEM_SEARCH_OR_DRAW
+marnie_grimmsnarl,1137,Tool Scrapper,1,0,1,2,3,OPTIONAL_SHARED,ITEM_UTILITY
+marnie_grimmsnarl,1152,Poké Pad,1,4,4,3,3,COMMON_FIXED,ITEM_SEARCH_OR_DRAW
+marnie_grimmsnarl,1161,Handheld Fan,2,0,2,2,3,OPTIONAL_SHARED,POKEMON_TOOL
+marnie_grimmsnarl,1182,Boss’s Orders,3,2,2,3,3,COMMON_FIXED,SUPPORTER_DISRUPTION_OR_GUST
+marnie_grimmsnarl,1197,Xerosic’s Machinations,3,0,3,1,3,VARIANT_ONLY,SUPPORTER_DISRUPTION_OR_GUST
+marnie_grimmsnarl,1219,Team Rocket's Petrel,3,4,4,3,3,COMMON_FIXED,SUPPORTER_DRAW_OR_SEARCH
+marnie_grimmsnarl,1227,Lillie's Determination,3,4,4,3,3,COMMON_FIXED,SUPPORTER_DRAW_OR_SEARCH
+marnie_grimmsnarl,1231,Dawn,3,0,1,2,3,OPTIONAL_SHARED,SUPPORTER_DRAW_OR_SEARCH
+marnie_grimmsnarl,1259,Spikemuth Gym,4,4,4,3,3,COMMON_FIXED,STADIUM_BOARD_MODIFIER

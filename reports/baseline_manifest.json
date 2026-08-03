@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-07-27T02:39:02.8457964+09:00",
+  "status": "verified_immutable_reference",
+  "identity": {
+    "name": "historical_silver_archaludon_54495224",
+    "kaggle_submission_id": 54495224,
+    "archive_name": "submission_archaludon_gtmidguard_lucariobev_crustledeckguard.tar.gz",
+    "archive_sha256": "69BC01010FA2963781E6CD18CBA4773E0372127763DBB7AAF5E2081E1A156809",
+    "archive_size_bytes": 2008160,
+    "entrypoint": "main.py:agent",
+    "policy_type": "pure_rule_based",
+    "historical_git_commit": null,
+    "historical_branch": null,
+    "historical_git_provenance_status": "unavailable_hash_provenance_used"
+  },
+  "immutable_reference": {
+    "primary_path": "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+    "evaluation_copy_path": "isolated_rule_agents/orbit_transfer_archaludon_20260715/baseline_exact",
+    "policy": "do_not_modify; verify hashes before every comparison"
+  },
+  "current_repository_context": {
+    "commit": "54f09edb2b3f6dd2def7c2c49efde16dfeda97c9",
+    "branch": "main",
+    "note": "This is the later repository import commit, not original submission provenance."
+  },
+  "artifacts": {
+    "main.py": {
+      "sha256": "F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E",
+      "size_bytes": 53448
+    },
+    "deck.csv": {
+      "sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
+      "size_bytes": 250,
+      "rows": 60
+    },
+    "requirements.txt": {
+      "sha256": "9FF390983B30F2A020B68B5B9F62BB79D253074BD79D677C57D77EC71B951D47",
+      "size_bytes": 60,
+      "third_party_dependencies": []
+    },
+    "cg/cg.dll": {
+      "sha256": "9EA2B0A751029689BFF3DDCCB5F29A98EDD46961DAD264490ED121EF704FB500",
+      "size_bytes": 1525248
+    },
+    "cg/api.py": {
+      "sha256": "593F1298E52A635F90F8F505A52113E9AF114F444C293404E37906F18EE06CED"
+    },
+    "cg/game.py": {
+      "sha256": "3BD3D4F4A369A11E6D2F5DA9094CF15EBC410A2221835E6417B7CFF4883F1FC2"
+    },
+    "cg/sim.py": {
+      "sha256": "1555F57F5D22BF4C09D70E0E667A916E575E68C9DD1DE9EAD34BA5E7E4968655"
+    },
+    "cg/utils.py": {
+      "sha256": "60F29665CEE0A88525D6F0383BC45959A6262D16FE35EF380AECE1E0EA13C49B"
+    }
+  },
+  "deck_counts_by_card_id": {
+    "8": 12,
+    "169": 4,
+    "190": 4,
+    "666": 4,
+    "840": 2,
+    "1097": 3,
+    "1121": 4,
+    "1122": 4,
+    "1147": 3,
+    "1152": 4,
+    "1159": 1,
+    "1182": 4,
+    "1185": 4,
+    "1227": 4,
+    "1244": 3
+  },
+  "historical_strength": {
+    "peak_score": 1045.5801970820014,
+    "peak_episode_id": 85028839,
+    "peak_evaluated_at_utc": "2026-07-09T14:07:41.818878800Z",
+    "opening_record": {
+      "wins": 12,
+      "losses": 1
+    },
+    "record_after_26_public_games": {
+      "wins": 18,
+      "losses": 8
+    },
+    "local_broad_panel": {
+      "wins": 520,
+      "games": 640,
+      "seat_0_wins": 258,
+      "seat_0_games": 320,
+      "seat_1_wins": 262,
+      "seat_1_games": 320,
+      "action_errors": 0,
+      "max_step_hits": 0
+    }
+  },
+  "evaluation": {
+    "paired_runner": "tools/run_seeded_paired_suite.py",
+    "battle_runner": "tools/run_local_battle.py",
+    "seats": [0, 1],
+    "max_steps": 1000,
+    "seed_policy": "explicit identical seeds for baseline and candidate",
+    "seeded_engine_path": "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+    "seeded_engine_canonical_tree_sha256": "586B92FDEA892CBB147D4C6A113575CCD98E4FC90528BABB6E8F7294D0CBEBF2",
+    "seeded_engine_use": "local_evaluation_only_never_package"
+  },
+  "fallback": {
+    "normal_path": "score descending then lowest legal option index",
+    "outer_exception_path": "unseeded random.sample in historical code",
+    "baseline_action": "preserve unchanged",
+    "candidate_requirement": "deterministic validated fail-closed fallback"
+  },
+  "later_byte_identical_submission_ids": [
+    54510332,
+    54600598,
+    54704652
+  ]
+}

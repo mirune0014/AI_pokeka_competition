@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ポケカ公式ビューワー用JSONを開く</title>
+  <style>
+    :root { color-scheme: light; font-family: "Yu Gothic UI", "Meiryo", sans-serif; }
+    body { margin: 0; background: #eef2ed; color: #20352d; }
+    main { max-width: 760px; margin: 48px auto; padding: 28px; background: white; border: 1px solid #aebbb5; border-radius: 14px; box-shadow: 0 8px 28px #1d3b2d20; }
+    h1 { margin-top: 0; font-size: 25px; }
+    p { line-height: 1.7; }
+    .warning { padding: 14px 16px; color: #70440d; background: #fff2cf; border: 1px solid #d6a954; border-radius: 9px; }
+    .picker { display: block; margin: 22px 0; padding: 26px; border: 2px dashed #608472; border-radius: 10px; background: #f7faf8; text-align: center; }
+    input[type=file] { max-width: 100%; }
+    button { padding: 11px 18px; border: 0; border-radius: 8px; background: #16613f; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+    button:disabled { background: #9ba8a1; cursor: default; }
+    #status { min-height: 1.7em; font-weight: 600; }
+    .fine { color: #52645b; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>公式ビューワー用JSONを開く</h1>
+    <p>対戦結果画面で保存された <code>match-….visualizer.json</code> を選んでください。</p>
+    <p class="warning">このJSONには双方の手札、山札順、サイド内容が含まれます。下の確認ボタンを押すと、選択した履歴を <code>ptcgvis.heroz.jp</code> へ送信します。共有してよい対戦だけを使用してください。</p>
+    <label class="picker" id="dropZone">
+      <span>JSONを選択するか、ここへドラッグしてください</span><br><br>
+      <input id="fileInput" type="file" accept="application/json,.json">
+    </label>
+    <p id="status" aria-live="polite">まだJSONを選択していません。</p>
+    <button id="openButton" type="button" disabled>外部の公式ビューワーへ送って表示</button>
+    <p class="fine">この補助ページ自体はローカルで動作します。確認ボタンを押すまでは、選択したJSONを外部へ送信しません。</p>
+  </main>
+  <script>
+    (() => {
+      const input = document.getElementById("fileInput");
+      const button = document.getElementById("openButton");
+      const status = document.getElementById("status");
+      const dropZone = document.getElementById("dropZone");
+      let replayJson = "";
+
+      async function loadFile(file) {
+        replayJson = "";
+        button.disabled = true;
+        if (!file) {
+          status.textContent = "JSONを選択できませんでした。";
+          return;
+        }
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          let visualizer = parsed;
+          if (!Array.isArray(visualizer) && parsed && Array.isArray(parsed.steps)) {
+            visualizer = parsed.steps?.[0]?.[0]?.visualize;
+          }
+          if (!Array.isArray(visualizer) || visualizer.length === 0) {
+            throw new Error("盤面履歴の配列がありません");
+          }
+          replayJson = JSON.stringify(visualizer);
+          status.textContent = `${file.name}（${visualizer.length}局面）を読み込みました。`;
+          button.disabled = false;
+        } catch (error) {
+          status.textContent = `読み込めませんでした: ${error.message}`;
+        }
+      }
+
+      input.addEventListener("change", event => loadFile(event.target.files?.[0]));
+      for (const name of ["dragenter", "dragover"]) {
+        dropZone.addEventListener(name, event => {
+          event.preventDefault();
+          dropZone.style.background = "#e4f3e9";
+        });
+      }
+      for (const name of ["dragleave", "drop"]) {
+        dropZone.addEventListener(name, event => {
+          event.preventDefault();
+          dropZone.style.background = "#f7faf8";
+        });
+      }
+      dropZone.addEventListener("drop", event => loadFile(event.dataTransfer?.files?.[0]));
+
+      button.addEventListener("click", () => {
+        if (!replayJson) return;
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "https://ptcgvis.heroz.jp/Visualizer/Replay/0";
+        form.target = "_blank";
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = "json";
+        hidden.value = replayJson;
+        form.appendChild(hidden);
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+      });
+    })();
+  </script>
+</body>
+</html>

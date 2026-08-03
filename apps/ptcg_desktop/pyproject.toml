@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ptcg-human-client"
+version = "0.1.0"
+description = "Offline Windows client for a human match against a user-managed local PTCG agent"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+  "PySide6==6.10.1",
+]
+
+[project.optional-dependencies]
+build = ["PyInstaller==6.21.0"]
+
+[project.scripts]
+ptcg-human-client = "ptcg_desktop.launcher:main"
+ptcg-human-cli = "ptcg_desktop.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ptcg_desktop = ["qml/*.qml", "qml/components/*.qml"]
