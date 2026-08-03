@@ -1,0 +1,1660 @@
+{
+  "failed": 0,
+  "passed": 276,
+  "results": [
+    {
+      "name": "prefix_end_abort_seat0"
+    },
+    {
+      "name": "prefix_retreat_abort_seat0"
+    },
+    {
+      "name": "prefix_other_attack_abort_seat0"
+    },
+    {
+      "name": "prefix_active_serial_abort_seat0"
+    },
+    {
+      "name": "prefix_active_identity_abort_seat0"
+    },
+    {
+      "name": "prefix_lineage_abort_seat0"
+    },
+    {
+      "name": "prefix_turn_abort_seat0"
+    },
+    {
+      "name": "prefix_readiness_loss_abort_seat0"
+    },
+    {
+      "name": "prefix_duplicate_parent_mismatch_seat0"
+    },
+    {
+      "name": "prefix_unowned_effect_abort_seat0"
+    },
+    {
+      "name": "prefix_invalid_effect_abort_seat0"
+    },
+    {
+      "name": "prefix_multi_main_abort_seat0"
+    },
+    {
+      "name": "prefix_unclassified_main_abort_seat0"
+    },
+    {
+      "name": "prefix_action_count_decrease_abort_seat0"
+    },
+    {
+      "name": "prefix_terminal_precedence_seat0"
+    },
+    {
+      "name": "prefix_budget_64_accepted_seat0"
+    },
+    {
+      "name": "prefix_budget_exhausted_seat0"
+    },
+    {
+      "name": "prefix_lillie_preserved_seat0"
+    },
+    {
+      "name": "prefix_main_duplicate_permuted_seat0"
+    },
+    {
+      "name": "prefix_poke_pad_preserved_seat0"
+    },
+    {
+      "name": "prefix_poke_search_preserved_seat0"
+    },
+    {
+      "name": "prefix_effect_duplicate_permuted_seat0"
+    },
+    {
+      "name": "prefix_ultra_preserved_seat0"
+    },
+    {
+      "name": "prefix_ultra_discard_preserved_seat0"
+    },
+    {
+      "name": "prefix_ultra_search_preserved_seat0"
+    },
+    {
+      "name": "prefix_basic_preserved_seat0"
+    },
+    {
+      "name": "prefix_parent_attack_preserved_seat0"
+    },
+    {
+      "name": "prefix_attack_duplicate_permuted_seat0"
+    },
+    {
+      "name": "prefix_full_complete_seat0"
+    },
+    {
+      "name": "turbo_start_seat0_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_place_seat0_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_parent_energy_order_seat0_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_target_seat0_m1_0_parent_energy_1"
+    },
+    {
+      "name": "turbo_complete_seat0_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_start_seat0_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_place_seat0_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_parent_energy_order_seat0_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_target_seat0_m2_0_parent_energy_2"
+    },
+    {
+      "name": "turbo_target_seat0_m2_1_parent_energy_2"
+    },
+    {
+      "name": "turbo_complete_seat0_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_start_seat0_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_place_seat0_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_parent_energy_order_seat0_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_energy_duplicate_rebind_seat0_parent_energy_3"
+    },
+    {
+      "name": "turbo_target_seat0_m3_0_parent_energy_3"
+    },
+    {
+      "name": "turbo_target_seat0_m3_1_parent_energy_3"
+    },
+    {
+      "name": "turbo_target_seat0_m3_2_parent_energy_3"
+    },
+    {
+      "name": "turbo_complete_seat0_m3_parent_energy_3"
+    },
+    {
+      "name": "active_parent_cost_replanned_seat0"
+    },
+    {
+      "name": "active_replanned_evolve_seat0"
+    },
+    {
+      "name": "active_replanned_alloy_yes_seat0"
+    },
+    {
+      "name": "active_replanned_alloy_energies_seat0"
+    },
+    {
+      "name": "active_replanned_alloy_target_seat0_20"
+    },
+    {
+      "name": "active_replanned_alloy_target_seat0_30"
+    },
+    {
+      "name": "active_replanned_declared_attack_seat0"
+    },
+    {
+      "name": "active_replanned_complete_seat0"
+    },
+    {
+      "name": "turbo_start_seat0_m2_parent_replan"
+    },
+    {
+      "name": "turbo_parent_cost_replanned_seat0_parent_replan"
+    },
+    {
+      "name": "turbo_place_seat0_m2_parent_replan"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m2_parent_replan"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m2_parent_replan"
+    },
+    {
+      "name": "turbo_energy_fallback_seat0_m2_parent_replan"
+    },
+    {
+      "name": "turbo_target_seat0_m2_0_parent_replan"
+    },
+    {
+      "name": "turbo_target_seat0_m2_1_parent_replan"
+    },
+    {
+      "name": "turbo_complete_seat0_m2_parent_replan"
+    },
+    {
+      "name": "active_start_seat0"
+    },
+    {
+      "name": "active_retain_metal_seat0"
+    },
+    {
+      "name": "active_reordered_retry_seat0"
+    },
+    {
+      "name": "active_cost_parent_verbatim_seat0"
+    },
+    {
+      "name": "active_cost_retry_permuted_seat0"
+    },
+    {
+      "name": "active_search_seat0"
+    },
+    {
+      "name": "active_evolve_seat0"
+    },
+    {
+      "name": "active_alloy_yes_seat0"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "active_alloy_energy_seat0",
+      "telemetry": {
+        "abort_reason": null,
+        "abort_stage": null,
+        "duplicate_retry": false,
+        "irreversible_abort": false,
+        "irreversible_abort_fault": false,
+        "option_permuted": false,
+        "owner_after": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "ALLOY_ENERGIES_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "owner_before": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "ALLOY_ACTIVATE_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "parent_call_count": 1,
+        "parent_semantic": [],
+        "proof_gates": {
+          "route": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "stage": "ALLOY_ACTIVATE_EMITTED"
+        },
+        "proposal_semantic": [
+          [
+            3,
+            8,
+            30,
+            null,
+            null
+          ]
+        ],
+        "rejection_reason": null,
+        "rule3_completed": false,
+        "rule3_parent_search_preserved": false,
+        "rule_id": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "selected_source": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "setup_active_card_id": null,
+        "setup_active_serial": null,
+        "setup_bench_serial": null,
+        "terminal_owner_snapshot": null
+      }
+    },
+    {
+      "name": "active_alloy_target_seat0"
+    },
+    {
+      "name": "active_manual_seat0"
+    },
+    {
+      "attack": [
+        1
+      ],
+      "attack_positions": [
+        1
+      ],
+      "name": "active_parent_declared_attack_seat0",
+      "option_keys": "((0, Option(type=7, number=None, area=None, index=0, playerIndex=None, toolIndex=None, energyIndex=None, count=None, inPlayArea=None, inPlayIndex=None, attackId=None, cardId=None, serial=None, specialConditionType=None), (7, 1121, 13, None, None, None, None)), (1, Option(type=13, number=None, area=None, index=None, playerIndex=None, toolIndex=None, energyIndex=None, count=None, inPlayArea=None, inPlayIndex=None, attackId=253, cardId=None, serial=None, specialConditionType=None), (13, None, None, 253, None, None, None)), (2, Option(type=14, number=None, area=None, index=None, playerIndex=None, toolIndex=None, energyIndex=None, count=None, inPlayArea=None, inPlayIndex=None, attackId=None, cardId=None, serial=None, specialConditionType=None), (14, None, None, None, None, None, None)))",
+      "owner": {
+        "action_count": 3,
+        "active_serial": 400,
+        "alloy_index": 1,
+        "alloy_serials": [
+          30
+        ],
+        "attack_id": 253,
+        "committed": true,
+        "cost_pair": [
+          [
+            1121,
+            11
+          ],
+          [
+            1121,
+            12
+          ]
+        ],
+        "destination_ref": [
+          169,
+          400,
+          0
+        ],
+        "destination_serial": 400,
+        "irreversible": true,
+        "last_action_count": 11,
+        "last_order": [
+          [
+            7,
+            1121,
+            13,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            13,
+            null,
+            null,
+            253,
+            null,
+            null,
+            null
+          ],
+          [
+            14,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "last_prefix_action": true,
+        "last_prompt": [
+          0,
+          3,
+          11,
+          -1,
+          0,
+          1,
+          1,
+          null,
+          null,
+          null,
+          null,
+          [
+            [
+              13,
+              null,
+              null,
+              253,
+              null,
+              null,
+              null
+            ],
+            [
+              14,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              7,
+              1121,
+              13,
+              null,
+              null,
+              null,
+              null
+            ]
+          ],
+          [
+            [
+              1121,
+              13
+            ]
+          ],
+          [
+            [
+              8,
+              30
+            ],
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          [
+            [
+              190,
+              50,
+              300,
+              300,
+              true,
+              [
+                [
+                  8,
+                  20
+                ],
+                [
+                  8,
+                  30
+                ],
+                [
+                  8,
+                  401
+                ]
+              ],
+              [
+                [
+                  169,
+                  400
+                ]
+              ]
+            ]
+          ],
+          true
+        ],
+        "last_specs": [
+          {
+            "attack_id": 253,
+            "card_id": null,
+            "number": null,
+            "option_type": 13,
+            "serial": null,
+            "target_serial": null
+          }
+        ],
+        "manual_serial": 20,
+        "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "parent_cost_preserved": true,
+        "parent_cost_replanned": false,
+        "parent_search_preserved": true,
+        "parent_search_ref": [
+          190,
+          50
+        ],
+        "prefix_active_serial": 50,
+        "prefix_callback_count": 1,
+        "prefix_effect_open": false,
+        "prefix_entry_action_count": 11,
+        "prefix_lineage_serial": 400,
+        "prefix_turn": 3,
+        "productive_metal_cap": 0,
+        "provisional": false,
+        "route": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "search_deck_serial": 50,
+        "search_selection_mode": "PARENT_REQUIRED_COPY",
+        "seat": 0,
+        "source_serial": 10,
+        "stage": "ATTACK_EMITTED",
+        "start_action_count": 3,
+        "target_card_id": 190,
+        "target_deck_guaranteed": false,
+        "target_ref": [
+          190,
+          50,
+          0
+        ],
+        "target_serial": 50,
+        "terminal_energy_serial": null,
+        "terminal_kind": null,
+        "turbo_attack_observed": false,
+        "turbo_index": 0,
+        "turbo_metal_serials": [],
+        "turn": 3
+      },
+      "telemetry": {
+        "abort_reason": null,
+        "abort_stage": null,
+        "duplicate_retry": false,
+        "irreversible_abort": false,
+        "irreversible_abort_fault": false,
+        "option_permuted": false,
+        "owner_after": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "ATTACK_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "owner_before": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "MANUAL_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "parent_call_count": 1,
+        "parent_semantic": [
+          [
+            13,
+            null,
+            null,
+            253,
+            null
+          ]
+        ],
+        "proof_gates": {
+          "attack_id": 253,
+          "parent_action_preserved": true,
+          "prefix_callback_count": 1
+        },
+        "proposal_semantic": [
+          [
+            13,
+            null,
+            null,
+            253,
+            null
+          ]
+        ],
+        "rejection_reason": null,
+        "rule3_completed": false,
+        "rule3_parent_search_preserved": false,
+        "rule_id": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "selected_source": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "setup_active_card_id": null,
+        "setup_active_serial": null,
+        "setup_bench_serial": null,
+        "terminal_owner_snapshot": null
+      }
+    },
+    {
+      "name": "active_complete_seat0"
+    },
+    {
+      "name": "turbo_start_seat0_m0"
+    },
+    {
+      "name": "turbo_place_seat0_m0"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m0"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m0"
+    },
+    {
+      "name": "turbo_energy_fallback_seat0_m0"
+    },
+    {
+      "name": "turbo_complete_seat0_m0"
+    },
+    {
+      "name": "turbo_start_seat0_m1"
+    },
+    {
+      "name": "turbo_place_seat0_m1"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m1"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m1"
+    },
+    {
+      "name": "turbo_energy_fallback_seat0_m1"
+    },
+    {
+      "name": "turbo_target_seat0_m1_0"
+    },
+    {
+      "name": "turbo_complete_seat0_m1"
+    },
+    {
+      "name": "turbo_start_seat0_m2"
+    },
+    {
+      "name": "turbo_place_seat0_m2"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m2"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m2"
+    },
+    {
+      "name": "turbo_energy_fallback_seat0_m2"
+    },
+    {
+      "name": "turbo_target_seat0_m2_0"
+    },
+    {
+      "name": "turbo_target_seat0_m2_1"
+    },
+    {
+      "name": "turbo_complete_seat0_m2"
+    },
+    {
+      "name": "turbo_start_seat0_m3"
+    },
+    {
+      "name": "turbo_place_seat0_m3"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat0_m3"
+    },
+    {
+      "name": "turbo_energy_count_seat0_m3"
+    },
+    {
+      "name": "turbo_energy_fallback_seat0_m3"
+    },
+    {
+      "name": "turbo_target_seat0_m3_0"
+    },
+    {
+      "name": "turbo_target_seat0_m3_1"
+    },
+    {
+      "name": "turbo_target_seat0_m3_2"
+    },
+    {
+      "name": "turbo_complete_seat0_m3"
+    },
+    {
+      "name": "non_ultra_parent_seat0"
+    },
+    {
+      "name": "boss_veto_seat0"
+    },
+    {
+      "name": "discard2_metal_forbidden_seat0"
+    },
+    {
+      "name": "productive_metal_seat0"
+    },
+    {
+      "name": "whiff_parent_release_seat0"
+    },
+    {
+      "name": "turbo_mismatched_cost_before_whiff_seat0"
+    },
+    {
+      "name": "turbo_mismatched_cost_whiff_release_seat0"
+    },
+    {
+      "name": "turbo_parent_changed_cost_adopted_seat0"
+    },
+    {
+      "name": "guaranteed_turbo_parent_cost_still_adopted_seat0"
+    },
+    {
+      "name": "active_nonviable_fixture_starts_seat0"
+    },
+    {
+      "name": "active_nonviable_parent_cost_clean_release_seat0"
+    },
+    {
+      "name": "active_nonviable_guaranteed_planned_override_seat0"
+    },
+    {
+      "name": "declared_turbo_over_parent_end_seat0"
+    },
+    {
+      "name": "active_global_turn1_negative_seat0"
+    },
+    {
+      "name": "active_global_turn2_negative_seat0"
+    },
+    {
+      "name": "active_global_turn3_positive_seat0"
+    },
+    {
+      "name": "parent_required_copy_preserved_seat0"
+    },
+    {
+      "name": "parent_search_retry_permuted_seat0"
+    },
+    {
+      "name": "actual_hand_evolve_rebound_seat0"
+    },
+    {
+      "name": "evolve_retry_permuted_seat0"
+    },
+    {
+      "name": "different_card_minimum_fallback_seat0"
+    },
+    {
+      "name": "fallback_actual_hand_rebound_seat0"
+    },
+    {
+      "name": "irreversible_missing_evolve_fault_seat0",
+      "terminal": {
+        "attack_id": 253,
+        "committed": true,
+        "cost_pair": [
+          [
+            1121,
+            11
+          ],
+          [
+            1121,
+            12
+          ]
+        ],
+        "current_take": null,
+        "destination_ref": null,
+        "irreversible": true,
+        "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "parent_cost_preserved": true,
+        "parent_search_preserved": true,
+        "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "search_deck_serial": 50,
+        "selected_serial": null,
+        "stage": "SEARCH_EMITTED",
+        "target_ref": [
+          190,
+          50,
+          0
+        ],
+        "target_serial": 50,
+        "target_take": null
+      }
+    },
+    {
+      "name": "shared_owner_conflict_no_rule3_seat0"
+    },
+    {
+      "name": "prefix_end_abort_seat1"
+    },
+    {
+      "name": "prefix_retreat_abort_seat1"
+    },
+    {
+      "name": "prefix_other_attack_abort_seat1"
+    },
+    {
+      "name": "prefix_active_serial_abort_seat1"
+    },
+    {
+      "name": "prefix_active_identity_abort_seat1"
+    },
+    {
+      "name": "prefix_lineage_abort_seat1"
+    },
+    {
+      "name": "prefix_turn_abort_seat1"
+    },
+    {
+      "name": "prefix_readiness_loss_abort_seat1"
+    },
+    {
+      "name": "prefix_duplicate_parent_mismatch_seat1"
+    },
+    {
+      "name": "prefix_unowned_effect_abort_seat1"
+    },
+    {
+      "name": "prefix_invalid_effect_abort_seat1"
+    },
+    {
+      "name": "prefix_multi_main_abort_seat1"
+    },
+    {
+      "name": "prefix_unclassified_main_abort_seat1"
+    },
+    {
+      "name": "prefix_action_count_decrease_abort_seat1"
+    },
+    {
+      "name": "prefix_terminal_precedence_seat1"
+    },
+    {
+      "name": "prefix_budget_64_accepted_seat1"
+    },
+    {
+      "name": "prefix_budget_exhausted_seat1"
+    },
+    {
+      "name": "prefix_lillie_preserved_seat1"
+    },
+    {
+      "name": "prefix_main_duplicate_permuted_seat1"
+    },
+    {
+      "name": "prefix_poke_pad_preserved_seat1"
+    },
+    {
+      "name": "prefix_poke_search_preserved_seat1"
+    },
+    {
+      "name": "prefix_effect_duplicate_permuted_seat1"
+    },
+    {
+      "name": "prefix_ultra_preserved_seat1"
+    },
+    {
+      "name": "prefix_ultra_discard_preserved_seat1"
+    },
+    {
+      "name": "prefix_ultra_search_preserved_seat1"
+    },
+    {
+      "name": "prefix_basic_preserved_seat1"
+    },
+    {
+      "name": "prefix_parent_attack_preserved_seat1"
+    },
+    {
+      "name": "prefix_attack_duplicate_permuted_seat1"
+    },
+    {
+      "name": "prefix_full_complete_seat1"
+    },
+    {
+      "name": "turbo_start_seat1_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_place_seat1_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_parent_energy_order_seat1_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_target_seat1_m1_0_parent_energy_1"
+    },
+    {
+      "name": "turbo_complete_seat1_m1_parent_energy_1"
+    },
+    {
+      "name": "turbo_start_seat1_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_place_seat1_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_parent_energy_order_seat1_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_target_seat1_m2_0_parent_energy_2"
+    },
+    {
+      "name": "turbo_target_seat1_m2_1_parent_energy_2"
+    },
+    {
+      "name": "turbo_complete_seat1_m2_parent_energy_2"
+    },
+    {
+      "name": "turbo_start_seat1_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_place_seat1_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_parent_energy_order_seat1_m3_parent_energy_3"
+    },
+    {
+      "name": "turbo_energy_duplicate_rebind_seat1_parent_energy_3"
+    },
+    {
+      "name": "turbo_target_seat1_m3_0_parent_energy_3"
+    },
+    {
+      "name": "turbo_target_seat1_m3_1_parent_energy_3"
+    },
+    {
+      "name": "turbo_target_seat1_m3_2_parent_energy_3"
+    },
+    {
+      "name": "turbo_complete_seat1_m3_parent_energy_3"
+    },
+    {
+      "name": "active_parent_cost_replanned_seat1"
+    },
+    {
+      "name": "active_replanned_evolve_seat1"
+    },
+    {
+      "name": "active_replanned_alloy_yes_seat1"
+    },
+    {
+      "name": "active_replanned_alloy_energies_seat1"
+    },
+    {
+      "name": "active_replanned_alloy_target_seat1_20"
+    },
+    {
+      "name": "active_replanned_alloy_target_seat1_30"
+    },
+    {
+      "name": "active_replanned_declared_attack_seat1"
+    },
+    {
+      "name": "active_replanned_complete_seat1"
+    },
+    {
+      "name": "turbo_start_seat1_m2_parent_replan"
+    },
+    {
+      "name": "turbo_parent_cost_replanned_seat1_parent_replan"
+    },
+    {
+      "name": "turbo_place_seat1_m2_parent_replan"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m2_parent_replan"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m2_parent_replan"
+    },
+    {
+      "name": "turbo_energy_fallback_seat1_m2_parent_replan"
+    },
+    {
+      "name": "turbo_target_seat1_m2_0_parent_replan"
+    },
+    {
+      "name": "turbo_target_seat1_m2_1_parent_replan"
+    },
+    {
+      "name": "turbo_complete_seat1_m2_parent_replan"
+    },
+    {
+      "name": "active_start_seat1"
+    },
+    {
+      "name": "active_retain_metal_seat1"
+    },
+    {
+      "name": "active_reordered_retry_seat1"
+    },
+    {
+      "name": "active_cost_parent_verbatim_seat1"
+    },
+    {
+      "name": "active_cost_retry_permuted_seat1"
+    },
+    {
+      "name": "active_search_seat1"
+    },
+    {
+      "name": "active_evolve_seat1"
+    },
+    {
+      "name": "active_alloy_yes_seat1"
+    },
+    {
+      "action": [
+        0
+      ],
+      "name": "active_alloy_energy_seat1",
+      "telemetry": {
+        "abort_reason": null,
+        "abort_stage": null,
+        "duplicate_retry": false,
+        "irreversible_abort": false,
+        "irreversible_abort_fault": false,
+        "option_permuted": false,
+        "owner_after": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "ALLOY_ENERGIES_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "owner_before": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "ALLOY_ACTIVATE_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "parent_call_count": 1,
+        "parent_semantic": [],
+        "proof_gates": {
+          "route": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "stage": "ALLOY_ACTIVATE_EMITTED"
+        },
+        "proposal_semantic": [
+          [
+            3,
+            8,
+            30,
+            null,
+            null
+          ]
+        ],
+        "rejection_reason": null,
+        "rule3_completed": false,
+        "rule3_parent_search_preserved": false,
+        "rule_id": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "selected_source": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "setup_active_card_id": null,
+        "setup_active_serial": null,
+        "setup_bench_serial": null,
+        "terminal_owner_snapshot": null
+      }
+    },
+    {
+      "name": "active_alloy_target_seat1"
+    },
+    {
+      "name": "active_manual_seat1"
+    },
+    {
+      "attack": [
+        1
+      ],
+      "attack_positions": [
+        1
+      ],
+      "name": "active_parent_declared_attack_seat1",
+      "option_keys": "((0, Option(type=7, number=None, area=None, index=0, playerIndex=None, toolIndex=None, energyIndex=None, count=None, inPlayArea=None, inPlayIndex=None, attackId=None, cardId=None, serial=None, specialConditionType=None), (7, 1121, 13, None, None, None, None)), (1, Option(type=13, number=None, area=None, index=None, playerIndex=None, toolIndex=None, energyIndex=None, count=None, inPlayArea=None, inPlayIndex=None, attackId=253, cardId=None, serial=None, specialConditionType=None), (13, None, None, 253, None, None, None)), (2, Option(type=14, number=None, area=None, index=None, playerIndex=None, toolIndex=None, energyIndex=None, count=None, inPlayArea=None, inPlayIndex=None, attackId=None, cardId=None, serial=None, specialConditionType=None), (14, None, None, None, None, None, None)))",
+      "owner": {
+        "action_count": 3,
+        "active_serial": 400,
+        "alloy_index": 1,
+        "alloy_serials": [
+          30
+        ],
+        "attack_id": 253,
+        "committed": true,
+        "cost_pair": [
+          [
+            1121,
+            11
+          ],
+          [
+            1121,
+            12
+          ]
+        ],
+        "destination_ref": [
+          169,
+          400,
+          1
+        ],
+        "destination_serial": 400,
+        "irreversible": true,
+        "last_action_count": 11,
+        "last_order": [
+          [
+            7,
+            1121,
+            13,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            13,
+            null,
+            null,
+            253,
+            null,
+            null,
+            null
+          ],
+          [
+            14,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "last_prefix_action": true,
+        "last_prompt": [
+          1,
+          3,
+          11,
+          -1,
+          0,
+          1,
+          1,
+          null,
+          null,
+          null,
+          null,
+          [
+            [
+              13,
+              null,
+              null,
+              253,
+              null,
+              null,
+              null
+            ],
+            [
+              14,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              7,
+              1121,
+              13,
+              null,
+              null,
+              null,
+              null
+            ]
+          ],
+          [
+            [
+              1121,
+              13
+            ]
+          ],
+          [
+            [
+              8,
+              30
+            ],
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          [
+            [
+              190,
+              50,
+              300,
+              300,
+              true,
+              [
+                [
+                  8,
+                  20
+                ],
+                [
+                  8,
+                  30
+                ],
+                [
+                  8,
+                  401
+                ]
+              ],
+              [
+                [
+                  169,
+                  400
+                ]
+              ]
+            ]
+          ],
+          true
+        ],
+        "last_specs": [
+          {
+            "attack_id": 253,
+            "card_id": null,
+            "number": null,
+            "option_type": 13,
+            "serial": null,
+            "target_serial": null
+          }
+        ],
+        "manual_serial": 20,
+        "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "parent_cost_preserved": true,
+        "parent_cost_replanned": false,
+        "parent_search_preserved": true,
+        "parent_search_ref": [
+          190,
+          50
+        ],
+        "prefix_active_serial": 50,
+        "prefix_callback_count": 1,
+        "prefix_effect_open": false,
+        "prefix_entry_action_count": 11,
+        "prefix_lineage_serial": 400,
+        "prefix_turn": 3,
+        "productive_metal_cap": 0,
+        "provisional": false,
+        "route": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "search_deck_serial": 50,
+        "search_selection_mode": "PARENT_REQUIRED_COPY",
+        "seat": 1,
+        "source_serial": 10,
+        "stage": "ATTACK_EMITTED",
+        "start_action_count": 3,
+        "target_card_id": 190,
+        "target_deck_guaranteed": false,
+        "target_ref": [
+          190,
+          50,
+          1
+        ],
+        "target_serial": 50,
+        "terminal_energy_serial": null,
+        "terminal_kind": null,
+        "turbo_attack_observed": false,
+        "turbo_index": 0,
+        "turbo_metal_serials": [],
+        "turn": 3
+      },
+      "telemetry": {
+        "abort_reason": null,
+        "abort_stage": null,
+        "duplicate_retry": false,
+        "irreversible_abort": false,
+        "irreversible_abort_fault": false,
+        "option_permuted": false,
+        "owner_after": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "ATTACK_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "owner_before": {
+          "attack_id": 253,
+          "committed": true,
+          "cost_pair": [
+            [
+              1121,
+              11
+            ],
+            [
+              1121,
+              12
+            ]
+          ],
+          "current_take": null,
+          "irreversible": true,
+          "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+          "parent_cost_preserved": true,
+          "parent_search_preserved": true,
+          "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+          "search_deck_serial": 50,
+          "selected_serial": null,
+          "stage": "MANUAL_EMITTED",
+          "target_serial": 50,
+          "target_take": null
+        },
+        "parent_call_count": 1,
+        "parent_semantic": [
+          [
+            13,
+            null,
+            null,
+            253,
+            null
+          ]
+        ],
+        "proof_gates": {
+          "attack_id": 253,
+          "parent_action_preserved": true,
+          "prefix_callback_count": 1
+        },
+        "proposal_semantic": [
+          [
+            13,
+            null,
+            null,
+            253,
+            null
+          ]
+        ],
+        "rejection_reason": null,
+        "rule3_completed": false,
+        "rule3_parent_search_preserved": false,
+        "rule_id": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "selected_source": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "setup_active_card_id": null,
+        "setup_active_serial": null,
+        "setup_bench_serial": null,
+        "terminal_owner_snapshot": null
+      }
+    },
+    {
+      "name": "active_complete_seat1"
+    },
+    {
+      "name": "turbo_start_seat1_m0"
+    },
+    {
+      "name": "turbo_place_seat1_m0"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m0"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m0"
+    },
+    {
+      "name": "turbo_energy_fallback_seat1_m0"
+    },
+    {
+      "name": "turbo_complete_seat1_m0"
+    },
+    {
+      "name": "turbo_start_seat1_m1"
+    },
+    {
+      "name": "turbo_place_seat1_m1"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m1"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m1"
+    },
+    {
+      "name": "turbo_energy_fallback_seat1_m1"
+    },
+    {
+      "name": "turbo_target_seat1_m1_0"
+    },
+    {
+      "name": "turbo_complete_seat1_m1"
+    },
+    {
+      "name": "turbo_start_seat1_m2"
+    },
+    {
+      "name": "turbo_place_seat1_m2"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m2"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m2"
+    },
+    {
+      "name": "turbo_energy_fallback_seat1_m2"
+    },
+    {
+      "name": "turbo_target_seat1_m2_0"
+    },
+    {
+      "name": "turbo_target_seat1_m2_1"
+    },
+    {
+      "name": "turbo_complete_seat1_m2"
+    },
+    {
+      "name": "turbo_start_seat1_m3"
+    },
+    {
+      "name": "turbo_place_seat1_m3"
+    },
+    {
+      "name": "turbo_declared_attack_over_parent_play_seat1_m3"
+    },
+    {
+      "name": "turbo_energy_count_seat1_m3"
+    },
+    {
+      "name": "turbo_energy_fallback_seat1_m3"
+    },
+    {
+      "name": "turbo_target_seat1_m3_0"
+    },
+    {
+      "name": "turbo_target_seat1_m3_1"
+    },
+    {
+      "name": "turbo_target_seat1_m3_2"
+    },
+    {
+      "name": "turbo_complete_seat1_m3"
+    },
+    {
+      "name": "non_ultra_parent_seat1"
+    },
+    {
+      "name": "boss_veto_seat1"
+    },
+    {
+      "name": "discard2_metal_forbidden_seat1"
+    },
+    {
+      "name": "productive_metal_seat1"
+    },
+    {
+      "name": "whiff_parent_release_seat1"
+    },
+    {
+      "name": "turbo_mismatched_cost_before_whiff_seat1"
+    },
+    {
+      "name": "turbo_mismatched_cost_whiff_release_seat1"
+    },
+    {
+      "name": "turbo_parent_changed_cost_adopted_seat1"
+    },
+    {
+      "name": "guaranteed_turbo_parent_cost_still_adopted_seat1"
+    },
+    {
+      "name": "active_nonviable_fixture_starts_seat1"
+    },
+    {
+      "name": "active_nonviable_parent_cost_clean_release_seat1"
+    },
+    {
+      "name": "active_nonviable_guaranteed_planned_override_seat1"
+    },
+    {
+      "name": "declared_turbo_over_parent_end_seat1"
+    },
+    {
+      "name": "active_global_turn1_negative_seat1"
+    },
+    {
+      "name": "active_global_turn2_negative_seat1"
+    },
+    {
+      "name": "active_global_turn3_positive_seat1"
+    },
+    {
+      "name": "parent_required_copy_preserved_seat1"
+    },
+    {
+      "name": "parent_search_retry_permuted_seat1"
+    },
+    {
+      "name": "actual_hand_evolve_rebound_seat1"
+    },
+    {
+      "name": "evolve_retry_permuted_seat1"
+    },
+    {
+      "name": "different_card_minimum_fallback_seat1"
+    },
+    {
+      "name": "fallback_actual_hand_rebound_seat1"
+    },
+    {
+      "name": "irreversible_missing_evolve_fault_seat1",
+      "terminal": {
+        "attack_id": 253,
+        "committed": true,
+        "cost_pair": [
+          [
+            1121,
+            11
+          ],
+          [
+            1121,
+            12
+          ]
+        ],
+        "current_take": null,
+        "destination_ref": null,
+        "irreversible": true,
+        "owner": "SILVER_DECLARED_ULTRA_BALL_TWO_ROUTE_TRANSACTION_REPAIR_V2",
+        "parent_cost_preserved": true,
+        "parent_search_preserved": true,
+        "route_kind": "ACTIVE_DURALUDON_EX_ATTACK_ROUTE",
+        "search_deck_serial": 50,
+        "selected_serial": null,
+        "stage": "SEARCH_EMITTED",
+        "target_ref": [
+          190,
+          50,
+          1
+        ],
+        "target_serial": 50,
+        "target_take": null
+      }
+    },
+    {
+      "name": "shared_owner_conflict_no_rule3_seat1"
+    }
+  ]
+}
