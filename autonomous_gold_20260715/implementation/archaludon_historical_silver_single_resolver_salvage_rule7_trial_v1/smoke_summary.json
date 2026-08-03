@@ -1,0 +1,25 @@
+{
+  "candidate_p0": {
+    "action_errors": 0,
+    "candidate_seat": 0,
+    "hit_max_steps": false,
+    "result": 1,
+    "rule7_final_target_emissions": 0,
+    "rule7_natural_starts": 0,
+    "seed": 803207001,
+    "steps": 120,
+    "terminal": true
+  },
+  "candidate_p1": {
+    "action_errors": 0,
+    "candidate_seat": 1,
+    "hit_max_steps": false,
+    "result": 0,
+    "rule7_final_target_emissions": 0,
+    "rule7_natural_starts": 0,
+    "seed": 803207002,
+    "steps": 128,
+    "terminal": true
+  },
+  "notes": "Both checked-engine smoke traces contained zero candidate-side Turbo Flare effect callbacks, so they exercised loader and legal-action behavior but no Rule 7 lifecycle behavior."
+}

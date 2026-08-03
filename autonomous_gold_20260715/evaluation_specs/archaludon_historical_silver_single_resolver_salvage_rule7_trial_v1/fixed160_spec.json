@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "policy": "PARENT_TURBO_FLARE_EXACT_PRIMARY_THEN_ONE_BACKUP_TRANSACTION_V1",
+  "schedule_base": {
+    "path": "autonomous_gold_20260715/evaluation_specs/archaludon_historical_silver_single_resolver_salvage_v1_rule1/fixed160_spec.json",
+    "sha256": "E2B8986663A43A7F6F52888E487F39B8D059CDCDDF441A3E87D8C093DF15274C"
+  },
+  "strategy": {
+    "path": "autonomous_gold_20260715/strategy/archaludon_historical_silver_single_resolver_salvage_rule7_selection_v1/STRATEGY_SELECTION.md",
+    "sha256": "7F39297030D9DD83978FBCF5C7887B67E6C7455604B5A9E3B0D2D130447860E4"
+  },
+  "controlling_amendment": {
+    "path": "autonomous_gold_20260715/strategy/archaludon_historical_silver_single_resolver_salvage_rule7_selection_v1/AMENDMENT_FINAL_TARGET_RELEASE_V1.md",
+    "sha256": "13376C2D6D7808446E4EBC869E7F696BBAC22EA226C3A866237A02D26554FE34"
+  },
+  "verification": {
+    "path": "autonomous_gold_20260715/implementation/archaludon_historical_silver_single_resolver_salvage_rule7_trial_v1/ROOT_RULE7_VERIFICATION.md",
+    "sha256": "FE6ADC389D083B167E4F7C13F5809711B243349C94BCB7DEA5A5E965D4886139"
+  },
+  "baseline": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_rule5_trial_v1",
+    "main_sha256": "D966E455E5110F9D5616195AEAAC8663E6A92F310DAFC4B7F79E4D37149A9C62",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "candidate": {
+    "path": "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_rule7_trial_v1",
+    "main_sha256": "9C2D5935364C0940967D48D85E2690EC386569143CD922186A31C716C5391BC1",
+    "deck_sha256": "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A"
+  },
+  "output_root": "autonomous_gold_20260715/evaluations/archaludon_historical_silver_single_resolver_salvage_rule7_trial_v1/fixed160_raw",
+  "gates": {
+    "minimum_natural_starts": 1,
+    "minimum_final_target_emissions": 1,
+    "require_external_next_state_attachment_verification": true,
+    "dormant_if_shadow_plus_fixed160_starts": 0
+  }
+}

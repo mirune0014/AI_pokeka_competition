@@ -1,0 +1,38 @@
+{
+  "action_differences": 23,
+  "all_differences_allowed": true,
+  "all_differences_rule7": true,
+  "callbacks": 4262,
+  "counterfactual_rollbacks": 23,
+  "current_path_count": 46,
+  "difference_class_counts": {
+    "TURBO_PRIMARY_EXACT_FILL": 12,
+    "TURBO_SINGLE_BACKUP_REMAINDER": 4,
+    "TURBO_TARGET_CONCENTRATION": 0,
+    "TURBO_USEFUL_ENERGY_COUNT_REDUCED": 3,
+    "TURBO_ZERO_NO_RECIPIENT": 4
+  },
+  "exceptions": [],
+  "faults": [],
+  "final_owner_release_violations": [],
+  "final_status_violations": [],
+  "final_target_emissions": 23,
+  "first_differences": 23,
+  "historical_path_count": 32,
+  "invalid_actions": [],
+  "malformed_replays": [
+    {
+      "exception": "JSONDecodeError",
+      "message": "Expecting value: line 1 column 3145726 (char 3145725)",
+      "replay": "C:\\Users\\amuam\\project\\AI_pokeka_competition\\autonomous_gold_20260715\\live\\55155015\\analysis_20260802\\refresh\\episode_89287701_replay.json"
+    }
+  ],
+  "natural_starts": 46,
+  "ordered_corpus_sha256": "B88C25BC8F26F959F85D00D27FD7B148D22034D71B2588DF73AAF8C8E0B15004",
+  "owner_clear_reason_counts": {},
+  "passive_nonmatch_continuations": 23,
+  "passive_nonmatch_suppressions": [],
+  "readable_replays": 77,
+  "source_path_count": 78,
+  "target_emissions": 65
+}
