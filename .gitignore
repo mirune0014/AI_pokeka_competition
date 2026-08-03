@@ -45,6 +45,10 @@ notebook_output/
 experiments/**/test_outputs/
 *.ptcgmatch
 
+# Local generated-output quarantine and malformed legacy evaluation paths.
+/_local_generated/
+/autonomous_gold_20260715evaluations*/
+
 # Local desktop-app build and self-test outputs. Keep src/, tests/, packaging,
 # pyproject.toml, README.md, QML sources, and authored assets tracked.
 apps/ptcg_desktop/build*/

@@ -1,26 +1,44 @@
 # AI Pokeka Competition
 
-Working repository for the Kaggle `pokemon-tcg-ai-battle` simulation competition.
+Kaggle `pokemon-tcg-ai-battle`向けの、決定論的ルールベースエージェントと
+対戦検証のリポジトリです。
 
-## Current Local Champion
+## 最初に見る場所
 
-- Archive: `submission_archaludon_gtmidguard_lucariobev_crustledeckguard.tar.gz`
-- Strategy: Archaludon ex / Cinderace metal-tempo rule-based agent
-- Selection basis: this submitted family reached roughly 1045 on the public
-  ladder and remains the regression baseline for local meta suites.
+- 全体の配置と用途: [`docs/repository_layout.md`](docs/repository_layout.md)
+- Archaludonの正式成果物: [`autonomous_gold_20260715/WORKSPACE.md`](autonomous_gold_20260715/WORKSPACE.md)
+- Alakazamの段階開発: [`alakazam_staged_20260729/README.md`](alakazam_staged_20260729/README.md)
+- RL・模倣学習の終了済み実験: [`experiments/README.md`](experiments/README.md)
+- 開発・評価ルール: [`AGENTS.md`](AGENTS.md)
 
-## Reinforcement Learning
+## 現在の基準成果物
 
-`rl_ptcg/` contains a dependency-free sparse REINFORCE residual policy,
-training CLI, safety filter, zero-weight equivalence verifier, and immutable
-submission builder. The original rule chooser remains the legality and error
-fallback.
+### Archaludon
 
-The first local RL cycle did not produce a checkpoint that consistently beat
-the rule champion on expanded holdouts. Experimental archives are retained
-under `analysis_outputs/rl_work/candidates`, but none is currently recommended
-for Kaggle submission. See `docs/residual_rl_plan_2026-07-10.md` for results and
-acceptance gates.
+Historical-Silverを親にした単一resolver再基盤化版が、現在の正式な
+決定論的成果物です。
 
-See `docs/ptcg_competition_notes.md` for Discussion/Code notes and strategy rationale.
-See `docs/analysis_environment.md` for local behavior checks, matchup tests, and public episode analysis.
+```text
+autonomous_gold_20260715/final/
+  archaludon_historical_silver_single_resolver_salvage_v1/
+```
+
+### Alakazam
+
+Alakazamは独立した段階開発ワークスペースにあります。正式なC2系統と
+後続の試験候補は、次の索引から確認します。
+
+```text
+alakazam_staged_20260729/
+```
+
+## 重要な区別
+
+- `final/`は採用済みの正式成果物です。
+- `candidates/`と`versions/`は試験候補を含み、最新名が最強とは限りません。
+- `evaluations/`、`live/`、`analysis_outputs/`などの大容量フォルダは
+  再生成可能なローカル出力を含みます。
+- ルート直下の`submission_*`は古い提出・回帰検証用アンカーです。
+  既存の評価契約がそのパスを参照するため、移動しません。
+- `rl_ptcg/`と`experiments/archaludon_latest_v1_rl*`は終了済み研究記録です。
+  現在の実装方針には使用しません。
