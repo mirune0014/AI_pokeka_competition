@@ -34,7 +34,7 @@ TERMINAL_STOP = PLANNER / "next_after_search_guard_no_actionable_boundary_202608
     "ROOT_PUBLIC_UNIQUE_TERMINAL_ATTACK_CENSUS_VERIFICATION.md"
 )
 TERMINAL_AUDIT = PLANNER / "next_after_search_guard_no_actionable_boundary_20260801" / (
-    "analysis_outputs/PUBLIC_UNIQUE_TERMINAL_ATTACK_DOMINANCE_V1_INDEPENDENT_AUDIT.md"
+    "_local_generated/analysis_outputs/PUBLIC_UNIQUE_TERMINAL_ATTACK_DOMINANCE_V1_INDEPENDENT_AUDIT.md"
 )
 OUTPUT = HERE / "pre_edit_role_complete_pokemon_commitment_census_raw"
 

@@ -7,7 +7,7 @@ sandbox_mode = "read-only"
 developer_instructions = """
 Analyze exactly one matchup, archetype bucket, or explicitly listed replay set. Stay read-only.
 
-Prefer existing tools such as tools/analyze_kaggle_replay.py, tools/inspect_agent_replay_decisions.py, tools/summarize_kaggle_loss_endstates.py, and tools/summarize_local_traces.py. Read only the files needed for the assigned bucket; do not scan all analysis_outputs, all submission variants, or all meta_agents.
+Prefer existing tools such as infrastructure/tools/analyze_kaggle_replay.py, infrastructure/tools/inspect_agent_replay_decisions.py, infrastructure/tools/summarize_kaggle_loss_endstates.py, and infrastructure/tools/summarize_local_traces.py. Read only the files needed for the assigned bucket; do not scan all analysis_outputs, all submission variants, or all meta_agents.
 
 Separate observed facts from hypotheses. Identify repeated decision points, resource-state failures, turn timing, target-selection errors, and whether the loss appears to come from deck construction, policy, variance, or opponent strength. Do not claim a pattern from one game without labeling confidence as low.
 

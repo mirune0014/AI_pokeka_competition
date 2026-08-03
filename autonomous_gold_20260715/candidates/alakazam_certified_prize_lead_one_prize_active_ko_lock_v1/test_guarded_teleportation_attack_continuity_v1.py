@@ -23,7 +23,7 @@ PARENT = (
 )
 ENGINE = (
     ROOT
-    / "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713"
+    / "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713"
     / "seeded_engine"
 )
 RAW = (
@@ -56,15 +56,15 @@ LIVE_REPLAY_SHA256 = "CCE322201C6C9525A80EAAE1390030A98717E29DB2A8E9BA78F88F0262
 OPPONENTS = {
     "historical_silver": AUTONOMOUS
     / "baseline/historical_silver_archaludon_54495224",
-    "mega_lucario": ROOT / "meta_agents/mega_lucario_public_simple",
-    "dragapult": ROOT / "meta_agents/dragapult_lumen_live_85038765_simple",
-    "marnie_sota": ROOT / "meta_agents/marnie_sota_live_85033057_simple",
-    "great_tusk": ROOT / "meta_agents/great_tusk_crustle_public",
+    "mega_lucario": ROOT / "opponents/meta_agents/mega_lucario_public_simple",
+    "dragapult": ROOT / "opponents/meta_agents/dragapult_lumen_live_85038765_simple",
+    "marnie_sota": ROOT / "opponents/meta_agents/marnie_sota_live_85033057_simple",
+    "great_tusk": ROOT / "opponents/meta_agents/great_tusk_crustle_public",
     "kangaskhan_crustle": ROOT
-    / "meta_agents/kangaskhan_crustle_mpgaming_v0_exact_simple",
+    / "opponents/meta_agents/kangaskhan_crustle_mpgaming_v0_exact_simple",
     "alakazam_oselcoun": ROOT
-    / "meta_agents/alakazam_oselcoun_live_85035844_simple",
-    "alakazam_rmy": ROOT / "meta_agents/alakazam_rmy_live_85082271_simple",
+    / "opponents/meta_agents/alakazam_oselcoun_live_85035844_simple",
+    "alakazam_rmy": ROOT / "opponents/meta_agents/alakazam_rmy_live_85082271_simple",
 }
 
 CASES = (

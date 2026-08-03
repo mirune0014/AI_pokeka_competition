@@ -20,7 +20,7 @@ CANDIDATE = (
     / "autonomous_gold_20260715/candidates"
     / "archaludon_historical_silver_single_resolver_salvage_rule5_trial_v1"
 )
-ENGINE = ROOT / "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine"
+ENGINE = ROOT / "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine"
 CURRENT = ROOT / "autonomous_gold_20260715/live/55155015/analysis_20260802/refresh"
 HISTORICAL = (
     ROOT
@@ -34,8 +34,8 @@ REFERENCE_RAW = (
 )
 
 sys.dont_write_bytecode = True
-sys.path[:0] = [str(ENGINE), str(ROOT), str(ROOT / "tools")]
-from rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
+sys.path[:0] = [str(ENGINE), str(ROOT), str(ROOT / "infrastructure" / "tools")]
+from research.rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
 
 
 def load(path: Path, name: str):

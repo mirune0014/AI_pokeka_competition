@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "infrastructure" / "tools"))
 
 from ptcg_common import ensure_engine_on_path, load_agent, read_deck
 

@@ -17,7 +17,7 @@ CANDIDATE = (
 )
 PARENT = (
     ROOT
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "reference_agents"
     / "historical_silver_archaludon_54495224"
 )
@@ -746,7 +746,7 @@ def main() -> None:
             raise AssertionError(case)
     output = {
         "engine": (
-            "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/"
+            "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/"
             "seeded_engine"
         ),
         "authoritative_engine_sha256": EXPECTED_ENGINE_SHA256,

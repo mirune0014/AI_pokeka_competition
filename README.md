@@ -8,37 +8,31 @@ Kaggle `pokemon-tcg-ai-battle`向けの、決定論的ルールベースエー�
 - 全体の配置と用途: [`docs/repository_layout.md`](docs/repository_layout.md)
 - Archaludonの正式成果物: [`autonomous_gold_20260715/WORKSPACE.md`](autonomous_gold_20260715/WORKSPACE.md)
 - Alakazamの段階開発: [`alakazam_staged_20260729/README.md`](alakazam_staged_20260729/README.md)
-- RL・模倣学習の終了済み実験: [`experiments/README.md`](experiments/README.md)
+- 終了済みのRL・模倣学習実験: [`research/experiments/README.md`](research/experiments/README.md)
 - 開発・評価ルール: [`AGENTS.md`](AGENTS.md)
+
+## ルート構成
+
+```text
+autonomous_gold_20260715/   Archaludonの現行ワークスペース
+alakazam_staged_20260729/   Alakazamの現行ワークスペース
+archive/submissions/        旧提出物・固定回帰アンカー
+opponents/                  対戦相手と独立ルールエージェント
+infrastructure/             アプリ、ツール、外部エンジン、共有データ
+research/                   終了済み実験、RL基盤、横断レポート
+docs/                       配置・設計・移行記録
+_local_generated/           Git管理外のログ、評価出力、配布物
+```
+
+ArchaludonとAlakazamは内部パスが長いため、Windowsのパス長問題を避けて
+ルート直下に維持しています。それ以外の共通資産・研究・旧提出物・生成物は
+用途別の親フォルダへ物理的に集約しています。
 
 ## 現在の基準成果物
 
-### Archaludon
+- Archaludon: `autonomous_gold_20260715/final/archaludon_historical_silver_single_resolver_salvage_v1/`
+- Historical-Silver: `autonomous_gold_20260715/baseline/historical_silver_archaludon_54495224/`
+- Alakazam: `alakazam_staged_20260729/`のREADMEと判断レポートを参照
 
-Historical-Silverを親にした単一resolver再基盤化版が、現在の正式な
-決定論的成果物です。
-
-```text
-autonomous_gold_20260715/final/
-  archaludon_historical_silver_single_resolver_salvage_v1/
-```
-
-### Alakazam
-
-Alakazamは独立した段階開発ワークスペースにあります。正式なC2系統と
-後続の試験候補は、次の索引から確認します。
-
-```text
-alakazam_staged_20260729/
-```
-
-## 重要な区別
-
-- `final/`は採用済みの正式成果物です。
-- `candidates/`と`versions/`は試験候補を含み、最新名が最強とは限りません。
-- `evaluations/`、`live/`、`analysis_outputs/`などの大容量フォルダは
-  再生成可能なローカル出力を含みます。
-- ルート直下の`submission_*`は古い提出・回帰検証用アンカーです。
-  既存の評価契約がそのパスを参照するため、移動しません。
-- `rl_ptcg/`と`experiments/archaludon_latest_v1_rl*`は終了済み研究記録です。
-  現在の実装方針には使用しません。
+`final/`は採用済み、`candidates/`と`versions/`は不採用・保留を含む候補です。
+新しい名前や番号だけで強弱を判断しません。

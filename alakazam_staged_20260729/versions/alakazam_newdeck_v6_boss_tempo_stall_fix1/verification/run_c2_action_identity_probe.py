@@ -227,7 +227,7 @@ def run_probe(repo_root: Path) -> dict[str, Any]:
     candidate_dir = versions / CANDIDATE_NAME
     engine = (
         repo_root
-        / "analysis_outputs"
+         / "_local_generated" / "analysis_outputs"
         / "cynthia_v9_vs_v11_poffin_role_selection_20260713"
         / "seeded_engine"
     )

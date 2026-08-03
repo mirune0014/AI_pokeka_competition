@@ -12,7 +12,7 @@ ISOLATED = HERE.parents[3]
 REPO = HERE.parents[4]
 BASELINE = ISOLATED / "candidates" / "alakazam_neutralization_v0_public_best5_exact"
 NOTEBOOK = ISOLATED / "evidence" / "public_code" / "alakazam_best5" / "rule-based-not-psychic-alakazam-best-5th.ipynb"
-ENGINE = REPO / "analysis_outputs" / "cynthia_v9_vs_v11_poffin_role_selection_20260713" / "seeded_engine"
+ENGINE = REPO  / "_local_generated" / "analysis_outputs" / "cynthia_v9_vs_v11_poffin_role_selection_20260713" / "seeded_engine"
 sys.path.insert(0, str(ENGINE))
 
 from cg.api import EnergyType, Pokemon, all_card_data  # noqa: E402

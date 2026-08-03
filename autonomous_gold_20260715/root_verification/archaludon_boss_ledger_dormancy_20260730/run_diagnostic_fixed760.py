@@ -11,10 +11,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 PYTHON = ROOT / ".venv-rl" / "Scripts" / "python.exe"
-RUNNER = ROOT / "tools" / "run_local_battle.py"
+RUNNER = ROOT / "infrastructure" / "tools" / "run_local_battle.py"
 ENGINE = (
     ROOT
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "cynthia_v9_vs_v11_poffin_role_selection_20260713"
     / "seeded_engine"
 )
@@ -32,7 +32,7 @@ CELLS = [
     (
         "historical_silver",
         ROOT
-        / "analysis_outputs"
+         / "_local_generated" / "analysis_outputs"
         / "reference_agents"
         / "historical_silver_archaludon_54495224",
         100,
@@ -47,32 +47,32 @@ CELLS = [
     ),
     (
         "arch_shumpei",
-        ROOT / "meta_agents" / "archaludon_shumpei_current_v3",
+        ROOT / "opponents" / "meta_agents" / "archaludon_shumpei_current_v3",
         40,
         271958313,
     ),
     (
         "alakazam_capbloo_gold",
-        ROOT / "meta_agents" / "alakazam_capbloo_gold_85357128_simple",
+        ROOT / "opponents" / "meta_agents" / "alakazam_capbloo_gold_85357128_simple",
         40,
         271958313,
     ),
     (
         "marnie_kazuki_live",
-        ROOT / "meta_agents" / "marnie_kazuki_live_85083586_simple",
+        ROOT / "opponents" / "meta_agents" / "marnie_kazuki_live_85083586_simple",
         40,
         271958313,
     ),
     (
         "mega_lucario_public",
-        ROOT / "meta_agents" / "mega_lucario_public_simple",
+        ROOT / "opponents" / "meta_agents" / "mega_lucario_public_simple",
         40,
         271958313,
     ),
     (
         "kang_crustle",
         ROOT
-        / "meta_agents"
+        / "opponents" / "meta_agents"
         / "kangaskhan_crustle_mpgaming_v23_heal_role_missing160_guard",
         40,
         271958313,
@@ -80,7 +80,7 @@ CELLS = [
     (
         "cynthia_v23",
         ROOT
-        / "meta_agents"
+        / "opponents" / "meta_agents"
         / "cynthia_garchomp_nasuo445_v23_allcall_before_evolve",
         40,
         271958313,

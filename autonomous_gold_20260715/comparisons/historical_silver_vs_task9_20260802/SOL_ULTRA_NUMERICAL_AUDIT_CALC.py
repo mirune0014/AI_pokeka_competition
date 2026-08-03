@@ -26,12 +26,12 @@ GAME_FIELDS = ("seed", "result", "steps", "turn", "action_errors", "hit_max_step
 BOOTSTRAP_REPS = 100_000
 BOOTSTRAP_SEED = 20_260_803
 
-HISTORICAL = REPO_ROOT / "analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
+HISTORICAL = REPO_ROOT / "_local_generated/analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
 TASK6 = REPO_ROOT / "autonomous_gold_20260715/candidates/archaludon_public_ultra_ball_declared_complete_route_transaction_v1"
 TASK9 = REPO_ROOT / "autonomous_gold_20260715/candidates/archaludon_public_prize_race_threat_control_t9_v1"
-ENGINE = REPO_ROOT / "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine"
-PAIRED_RUNNER = REPO_ROOT / "tools/run_seeded_paired_suite.py"
-BATTLE_RUNNER = REPO_ROOT / "tools/run_local_battle.py"
+ENGINE = REPO_ROOT / "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine"
+PAIRED_RUNNER = REPO_ROOT / "infrastructure/tools/run_seeded_paired_suite.py"
+BATTLE_RUNNER = REPO_ROOT / "infrastructure/tools/run_local_battle.py"
 
 EXPECTED_HASHES = {
     "spec": "8C7F2C3BD994966EE7E004B35C698E3E006E7416E9BC801C5ECDFA23ED3E970E",
@@ -55,12 +55,12 @@ PANELS = {
         "games": 40,
         "opponents": {
             "arch_peak": REPO_ROOT / "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710",
-            "arch_shumpei": REPO_ROOT / "meta_agents/archaludon_shumpei_current_v3",
-            "alakazam_capbloo_gold": REPO_ROOT / "meta_agents/alakazam_capbloo_gold_85357128_simple",
-            "marnie_kazuki_live": REPO_ROOT / "meta_agents/marnie_kazuki_live_85083586_simple",
-            "mega_lucario_public": REPO_ROOT / "meta_agents/mega_lucario_public_simple",
-            "kang_crustle": REPO_ROOT / "meta_agents/kangaskhan_crustle_mpgaming_v23_heal_role_missing160_guard",
-            "cynthia_v23": REPO_ROOT / "meta_agents/cynthia_garchomp_nasuo445_v23_allcall_before_evolve",
+            "arch_shumpei": REPO_ROOT / "opponents/meta_agents/archaludon_shumpei_current_v3",
+            "alakazam_capbloo_gold": REPO_ROOT / "opponents/meta_agents/alakazam_capbloo_gold_85357128_simple",
+            "marnie_kazuki_live": REPO_ROOT / "opponents/meta_agents/marnie_kazuki_live_85083586_simple",
+            "mega_lucario_public": REPO_ROOT / "opponents/meta_agents/mega_lucario_public_simple",
+            "kang_crustle": REPO_ROOT / "opponents/meta_agents/kangaskhan_crustle_mpgaming_v23_heal_role_missing160_guard",
+            "cynthia_v23": REPO_ROOT / "opponents/meta_agents/cynthia_garchomp_nasuo445_v23_allcall_before_evolve",
         },
     },
 }

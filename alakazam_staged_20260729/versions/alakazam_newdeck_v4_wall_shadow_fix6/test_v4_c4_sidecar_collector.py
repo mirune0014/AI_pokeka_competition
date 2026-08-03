@@ -19,7 +19,7 @@ import planner_wall_shadow_fix6 as c4
 CLOSURE = "C" * 64
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-CHECKED_WRITER = REPO_ROOT / "tools" / "alakazam_staged_metrics.py"
+CHECKED_WRITER = REPO_ROOT / "infrastructure" / "tools" / "alakazam_staged_metrics.py"
 RAW_SIDECAR_FIXTURE = (
     REPO_ROOT
     / "alakazam_staged_20260729"

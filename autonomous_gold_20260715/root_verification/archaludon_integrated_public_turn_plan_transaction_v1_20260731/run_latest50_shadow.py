@@ -12,8 +12,8 @@ import sys
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "tools")]
-from rl_ptcg.label_replay_rollout import replay_decisions
+sys.path[:0] = [str(ROOT), str(ROOT / "infrastructure" / "tools")]
+from research.rl_ptcg.label_replay_rollout import replay_decisions
 
 
 HERE = Path(__file__).resolve().parent

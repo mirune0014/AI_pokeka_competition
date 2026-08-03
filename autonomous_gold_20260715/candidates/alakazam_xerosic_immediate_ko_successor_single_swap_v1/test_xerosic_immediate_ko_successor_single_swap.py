@@ -19,7 +19,7 @@ PARENT = (
 )
 ENGINE = (
     REPOSITORY
-    / "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713"
+    / "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713"
     / "seeded_engine"
 )
 if str(ENGINE) not in sys.path:
@@ -27,7 +27,7 @@ if str(ENGINE) not in sys.path:
 if str(REPOSITORY) not in sys.path:
     sys.path.insert(0, str(REPOSITORY))
 
-from rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
+from research.rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
 
 
 POSITIVE = {

@@ -10,12 +10,12 @@ CANDIDATE = HERE.parents[1]
 ISOLATED = HERE.parents[3]
 REPO = HERE.parents[4]
 PARENT = ISOLATED / "candidates" / "alakazam_neutralization_v0_public_best5_exact"
-ENGINE = REPO / "analysis_outputs" / "cynthia_v9_vs_v11_poffin_role_selection_20260713" / "seeded_engine"
+ENGINE = REPO  / "_local_generated" / "analysis_outputs" / "cynthia_v9_vs_v11_poffin_role_selection_20260713" / "seeded_engine"
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ENGINE))
 
 from cg.api import EnergyType, Pokemon, all_card_data  # noqa: E402
-from tools.ptcg_common import ensure_engine_on_path, load_agent  # noqa: E402
+from infrastructure.tools.ptcg_common import ensure_engine_on_path, load_agent  # noqa: E402
 
 
 def load_source(agent_dir: Path, name: str):

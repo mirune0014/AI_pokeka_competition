@@ -14,8 +14,8 @@ CURRENT = AUTO / "live/55155015/analysis_20260802/refresh"
 HISTORICAL = AUTO / "live/55070349/refresh_20260729_1241/shadow_corpus_196_prior_plus_11_new"
 INPUT = Path(__file__).with_name("replay_first_differences.json")
 OUTPUT = Path(__file__).with_name("replay_first_differences_classified.json")
-sys.path[:0] = [str(TASK9), str(ROOT), str(ROOT / "tools")]
-from rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
+sys.path[:0] = [str(TASK9), str(ROOT), str(ROOT / "infrastructure" / "tools")]
+from research.rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
 
 
 spec = importlib.util.spec_from_file_location("task9_family_parser", TASK9 / "main.py")

@@ -24,7 +24,7 @@ PARENT = (
 )
 ENGINE = (
     REPOSITORY
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "cynthia_v9_vs_v11_poffin_role_selection_20260713"
     / "seeded_engine"
 )
@@ -60,7 +60,7 @@ from cg.api import (  # noqa: E402
     search_step,
     to_observation_class,
 )
-from rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
+from research.rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
 
 
 def sha256(path: Path) -> str:

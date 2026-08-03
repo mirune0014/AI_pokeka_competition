@@ -23,9 +23,9 @@ HISTORICAL = AUTO / (
 )
 SHADOW = HERE / "replay_shadow_results.json"
 OUTPUT = HERE / "first_difference_ledger.json"
-sys.path[:0] = [str(CANDIDATE), str(ROOT), str(ROOT / "tools")]
+sys.path[:0] = [str(CANDIDATE), str(ROOT), str(ROOT / "infrastructure" / "tools")]
 
-from rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
+from research.rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
 
 
 def load_candidate():

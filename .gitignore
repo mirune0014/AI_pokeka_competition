@@ -39,26 +39,23 @@ node_modules/
 # Logs, traces, and generated analysis
 *.log
 *.jsonl
-analysis_outputs/
-logs/
-notebook_output/
-experiments/**/test_outputs/
+research/experiments/**/test_outputs/
 *.ptcgmatch
 
 # Local generated-output quarantine and malformed legacy evaluation paths.
 /_local_generated/
+**/analysis_outputs/
 /autonomous_gold_20260715evaluations*/
 
 # Local desktop-app build and self-test outputs. Keep src/, tests/, packaging,
 # pyproject.toml, README.md, QML sources, and authored assets tracked.
-apps/ptcg_desktop/build*/
-apps/ptcg_desktop/dist*/
-apps/ptcg_desktop/selftest-current.*
+infrastructure/apps/ptcg_desktop/build*/
+infrastructure/apps/ptcg_desktop/dist*/
+infrastructure/apps/ptcg_desktop/selftest-current.*
 
 # Generated distributables and regenerable visualizer card-image assets.
-/deliverables/
-tools/ptcg_japanese_visualizer_extension/assets/
-tools/ptcg_japanese_visualizer_extension/_metadata/
+infrastructure/tools/ptcg_japanese_visualizer_extension/assets/
+infrastructure/tools/ptcg_japanese_visualizer_extension/_metadata/
 
 # Staged Alakazam execution output. Keep versions/, specs/, fixtures/,
 # eval_adapters/, reports/, diagnostics/, and source scripts trackable.
@@ -81,15 +78,15 @@ alakazam_staged_20260729/diagnostics/**/console.txt
 
 # Large derived analysis tables; compact reports and their generator scripts
 # remain tracked.
-/reports/winner_loser_action_diff.csv
-/reports/opening_sequence_patterns.csv
+/research/reports/winner_loser_action_diff.csv
+/research/reports/opening_sequence_patterns.csv
 
 # Raw Kaggle and replay data
-data/episodes*/
-data/leaderboard_*/
-data/episodes_index*/
-external/ptcg_engine/
-external/ptcg_engine.zip
+infrastructure/data/episodes*/
+infrastructure/data/leaderboard_*/
+infrastructure/data/episodes_index*/
+infrastructure/external/ptcg_engine/
+infrastructure/external/ptcg_engine.zip
 
 # Autonomous-loop raw state. Keep source, Markdown, CSV, and text evidence.
 autonomous_gold_20260715/**/*.json

@@ -14,9 +14,9 @@ from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPOSITORY))
-sys.path.insert(0, str(REPOSITORY / "tools"))
+sys.path.insert(0, str(REPOSITORY / "infrastructure" / "tools"))
 
-from tools.run_alakazam_staged_metric_suite import (
+from infrastructure.tools.run_alakazam_staged_metric_suite import (
     SCHEMA_VERSION,
     build_command,
     execute_block,

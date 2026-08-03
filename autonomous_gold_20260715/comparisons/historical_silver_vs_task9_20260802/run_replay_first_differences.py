@@ -12,16 +12,16 @@ from typing import Any
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[3]
 AUTO = ROOT / "autonomous_gold_20260715"
-SILVER = ROOT / "analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
+SILVER = ROOT / "_local_generated/analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
 TASK6 = AUTO / "candidates/archaludon_public_ultra_ball_declared_complete_route_transaction_v1"
 TASK9 = AUTO / "candidates/archaludon_public_prize_race_threat_control_t9_v1"
 CURRENT = AUTO / "live/55155015/analysis_20260802/refresh"
 HISTORICAL = AUTO / "live/55070349/refresh_20260729_1241/shadow_corpus_196_prior_plus_11_new"
 OUTPUT = Path(__file__).with_name("replay_first_differences.json")
 
-sys.path[:0] = [str(TASK9), str(ROOT), str(ROOT / "tools")]
+sys.path[:0] = [str(TASK9), str(ROOT), str(ROOT / "infrastructure" / "tools")]
 from ptcg_common import read_deck  # noqa: E402
-from rl_ptcg.label_replay_rollout import replay_decisions, target_seat_for_deck  # noqa: E402
+from research.rl_ptcg.label_replay_rollout import replay_decisions, target_seat_for_deck  # noqa: E402
 
 
 def load(path: Path, name: str):

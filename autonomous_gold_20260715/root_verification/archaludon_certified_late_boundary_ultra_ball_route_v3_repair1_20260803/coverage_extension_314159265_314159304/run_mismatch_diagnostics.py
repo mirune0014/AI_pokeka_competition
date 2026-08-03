@@ -44,7 +44,7 @@ EXPECTED = {
 
 OPPONENTS = {
     "historical_silver": (
-        "analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
+        "_local_generated/analysis_outputs/reference_agents/historical_silver_archaludon_54495224",
         "F4B578453C9D953BE94885144DD50E05DBA4510DF3340BE27ADE07495896046E",
         "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
     ),
@@ -54,7 +54,7 @@ OPPONENTS = {
         "08421AE98D080A1EE3BA28F93DA0A99C79287A2BC6F57529FDA2E4CA56CC7C6A",
     ),
     "marnie_kazuki_live": (
-        "meta_agents/marnie_kazuki_live_85083586_simple",
+        "opponents/meta_agents/marnie_kazuki_live_85083586_simple",
         "B2317C6CD6A031912BCFE89D5498B33A056F1D9583C7631E046E4F8ABAD9E59D",
         "F75CB0C32939525FF083FCB5C4D6052D413E21644FDAFF81DE717F9121EAEE1B",
     ),

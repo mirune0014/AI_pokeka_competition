@@ -281,7 +281,7 @@ def main() -> None:
                 str(Path(".venv-rl/Scripts/python.exe")).replace("/", "\\").casefold()
             ):
                 faults.append("wrong_python")
-            if len(command) < 2 or canonical(command[1]) != canonical(str(REPO_ROOT / "tools/run_local_battle.py")):
+            if len(command) < 2 or canonical(command[1]) != canonical(str(REPO_ROOT / "infrastructure/tools/run_local_battle.py")):
                 faults.append("wrong_runner")
             if "--engine-seed" not in command:
                 faults.append("missing_engine_seed")

@@ -20,7 +20,7 @@ CANDIDATE = (
 )
 PARENT = (
     ROOT
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "reference_agents"
     / "historical_silver_archaludon_54495224"
 )

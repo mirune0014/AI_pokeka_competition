@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 HERE = pathlib.Path(__file__).resolve().parent
 PARENT_DIR = (
     ROOT
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "reference_agents"
     / "historical_silver_archaludon_54495224"
 )

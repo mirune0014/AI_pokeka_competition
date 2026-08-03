@@ -14,10 +14,10 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-if str(ROOT / "tools") not in sys.path:
-    sys.path.insert(0, str(ROOT / "tools"))
+if str(ROOT / "infrastructure" / "tools") not in sys.path:
+    sys.path.insert(0, str(ROOT / "infrastructure" / "tools"))
 
-from rl_ptcg.label_replay_rollout import replay_decisions
+from research.rl_ptcg.label_replay_rollout import replay_decisions
 
 
 HERE = Path(__file__).resolve().parent

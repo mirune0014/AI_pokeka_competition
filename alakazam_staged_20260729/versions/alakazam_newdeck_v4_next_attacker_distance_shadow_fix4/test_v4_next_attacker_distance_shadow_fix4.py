@@ -383,7 +383,7 @@ class NextAttackerDistanceShadowFix4Tests(unittest.TestCase):
             ):
                 self.assertIn(field, trace)
 
-        tool_path = REPO_ROOT / "tools" / "alakazam_staged_metrics.py"
+        tool_path = REPO_ROOT / "infrastructure" / "tools" / "alakazam_staged_metrics.py"
         spec = importlib.util.spec_from_file_location(
             "_c2_test_metrics", tool_path
         )

@@ -7,9 +7,9 @@ developer_instructions = """
 Perform only the bounded data-collection job supplied by the parent agent.
 
 Use the repository's existing scripts instead of inventing a new pipeline:
-- tools/list_kaggle_submission_episodes.py
-- tools/extract_episode_decks.py
-- tools/summarize_submission_losses.py
+- infrastructure/tools/list_kaggle_submission_episodes.py
+- infrastructure/tools/extract_episode_decks.py
+- infrastructure/tools/summarize_submission_losses.py
 
 On Windows, run every repository Python command with
 `.venv-rl\\Scripts\\python.exe`. Do not use the global `python` or `py`

@@ -1,0 +1,439 @@
+{
+  "base_commit": "3111ecf",
+  "scope": "executable code and active configuration only",
+  "historical_evidence_rewritten": false,
+  "files_changed": 67,
+  "directory_moves": {
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v5_staticstruct_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v5_staticstruct_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v4_static_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v4_static_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v3_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v3_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v2_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_v2_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_seededrl_archattach003_20260710",
+    "submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710",
+    "submission_archaludon_947base_iono_alaklive_line4markers": "archive/submissions/submission_archaludon_947base_iono_alaklive_line4markers",
+    "submission_archaludon_shumpei_current_v3_runtime": "archive/submissions/submission_archaludon_shumpei_current_v3_runtime",
+    "submission_archaludon_current_purecopy": "archive/submissions/submission_archaludon_current_purecopy",
+    "submission_meta_archaludon": "archive/submissions/submission_meta_archaludon",
+    "submission_archaludon": "archive/submissions/submission_archaludon",
+    "isolated_rule_agents": "opponents/isolated_rule_agents",
+    "meta_agents": "opponents/meta_agents",
+    "experiments": "research/experiments",
+    "rl_ptcg": "research/rl_ptcg",
+    "reports": "research/reports",
+    "apps": "infrastructure/apps",
+    "tools": "infrastructure/tools",
+    "external": "infrastructure/external",
+    "data": "infrastructure/data",
+    "vendor": "infrastructure/vendor",
+    "analysis_outputs": "_local_generated/analysis_outputs",
+    "deliverables": "_local_generated/deliverables",
+    "notebook_output": "_local_generated/notebook_output",
+    "share_packages": "_local_generated/share_packages",
+    "metrics": "_local_generated/metrics",
+    "logs": "_local_generated/logs"
+  },
+  "files": [
+    {
+      "path": "alakazam_staged_20260729/fixtures/episode_88843743_public_observations/test_episode_88843743_public_observations.py",
+      "path_replacements": 0,
+      "before_sha256": "8D4967974461B16C2925CE941017C9C499A37510E275ECDF021302577F2E5297",
+      "after_sha256": "4C65B5C2ECC6B4796D53135FC7A221B232BF0DB2DEB5FA39F22EDB917862BD64"
+    },
+    {
+      "path": "alakazam_staged_20260729/fixtures/episode_88844273_public_observations/test_episode_88844273_public_observations.py",
+      "path_replacements": 0,
+      "before_sha256": "4BFBE2B98CBE515E9874EF0E7B0D902238B747A3515EC888DB1C1CCB14BBFC87",
+      "after_sha256": "652E566E7CA8D45E6B4865CC6610C02A7266E73774BA2204CB128211C23C863A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_bench0_end_shaymin_fix7/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "622C0D0A279A45D8BA11EDFCF7C7497B5A434EB9D6B1CBFF2EEF54C7626BD915",
+      "after_sha256": "A1D3B342530A8097D989A7F6ECB0B49719871ED4D6F510C4769A95DF55AAB353"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_poffin_zero_demand_veto_persistence_fix8/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_public_survival_bench0_fix5/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_public_tactical_monotonicity_fix9/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v4_wall_shadow_fix6/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v5_boss_powerful_hand_exact_ko_reservation_fix1/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "alakazam_staged_20260729/versions/alakazam_newdeck_v6_boss_tempo_stall_fix1/verification/run_c2_action_identity_probe.py",
+      "path_replacements": 0,
+      "before_sha256": "83FAC72D2151176672F6D59A55A18B5B9150F0FA1D4650F7F948CAB2C951D484",
+      "after_sha256": "6EB7193171E24E0B61B5592E7B1013B3765288F450E7C8395CD1FDC4F461456A"
+    },
+    {
+      "path": "autonomous_gold_20260715/candidates/alakazam_acerola_v2_final_bridge/tests/test_acerola_final_bridge.py",
+      "path_replacements": 0,
+      "before_sha256": "B49AB7580F09B1CC784851E30E44E2A2397F9B54C309B41ACD0585E4D27D4D49",
+      "after_sha256": "AA55D3319CBA23001C47077F1C1E83634C03FD9850E429038BBBB7F7B7766FE4"
+    },
+    {
+      "path": "autonomous_gold_20260715/candidates/alakazam_mandatory_draw_reserve_kadabra_resource_first_v1/test_mandatory_draw_reserve_resource_first_v1.py",
+      "path_replacements": 0,
+      "before_sha256": "3FFCAC83FC9F7B3E51CEBCA3A52B47604B05D27580F5B9C7C72B6BAC63FDFD08",
+      "after_sha256": "ABAEB02B5155A9B9F75798F0401841E3BA732A70A61A6ED85F732693B1732A61"
+    },
+    {
+      "path": "autonomous_gold_20260715/candidates/alakazam_neutralization_v1_zone/tests/test_zone_candidate.py",
+      "path_replacements": 0,
+      "before_sha256": "13B8B45CAE9330FCB2186F4744076926BB5E9E48F4ED096749A2BB6618289595",
+      "after_sha256": "F8CA574374067674514312B5A6D4538A22F275F26BD1DF310007CE2C0B7B6240"
+    },
+    {
+      "path": "autonomous_gold_20260715/candidates/alakazam_prize_safe_fez_ex_exposure_guard_v1/test_prize_safe_fez_exposure_guard_v1.py",
+      "path_replacements": 0,
+      "before_sha256": "F5ED057A9BCB0FB4A8668A403DD79FD424000306E6434D40CA7FF75A0A6F2367",
+      "after_sha256": "37EB370A85DC58AEA9ADCB27427C6A7985009B7D9331C89EA636C70A7CB28315"
+    },
+    {
+      "path": "autonomous_gold_20260715/candidates/alakazam_public_net_deck_delta_prize_clock_v1/test_public_net_deck_delta_prize_clock_v1.py",
+      "path_replacements": 0,
+      "before_sha256": "14094BE144B4E72F4BB774262A128DDB86D5F513F52F588DCD7A1921A1537665",
+      "after_sha256": "DCF7EA8026959FC690821BB4A873711CD8D49B30E424FAB8B98AD961978027E1"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_attack_completing_energy_reservation_v2_20260729/run_engine_transactions.py",
+      "path_replacements": 0,
+      "before_sha256": "61EBEE1766E60E503D1BA33EE75D35772B319968330321104FDC09E52D99061A",
+      "after_sha256": "132BE4B795BA22EB2B795DD542B3AC25F21329872FA51EEB4124FC889A992375"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_attack_completing_energy_reservation_v2_20260729/run_shadow.py",
+      "path_replacements": 0,
+      "before_sha256": "7AD4A3E228F49DAA7E44675D489EB1E68B5E839BD2198BA95C456A0ED6B671CC",
+      "after_sha256": "2D7C7631D73BF6E6A5713FF6AC55922E8F390DEE922726961F2EB3B4D27E6C2A"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_attack_completing_energy_reservation_v2_20260729/verify_structure.py",
+      "path_replacements": 0,
+      "before_sha256": "54D417A641F06683D671A50FEA52C8EA3B08328169A2A144F70ED6D8F709104C",
+      "after_sha256": "63E8A335BCE7881208E05C4ECC61CCB8B841DE28D6F09F186FA1A42E05CB243C"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_bench_future_88247531_preedit_20260730/pre_edit_engine_gate.py",
+      "path_replacements": 0,
+      "before_sha256": "CA88619E86E0A73F34E2BF1CC19E733E67DB8AD500C2172A43294148F36AB375",
+      "after_sha256": "766E3E5AA9C74A12F5C47747FE76D06007B573E0D8EC95D90FC11C7BA0607584"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_boss_aura_target_88824894_20260730/verify_boss_aura_target_state.py",
+      "path_replacements": 0,
+      "before_sha256": "1849AD8EFF11A325163EF87F74EB8DA120C6B137CE6CD32E9B96B363A643D029",
+      "after_sha256": "E342AC9664CB74A58B2F7CCF93AF0D6EA7C806B09A4F0094080E87F10238F9A7"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_boss_ledger_dormancy_20260730/run_diagnostic_fixed760.py",
+      "path_replacements": 0,
+      "before_sha256": "18DEBC091B7C47DDFE49D6E48E8439D105212EE334E2421D4E32A322506E685F",
+      "after_sha256": "68FFE41C974D40622B9FA63126A107E06EAB1FB11F87E917F4DE5F221C937340"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_cape_nonex_lethal_evolution_88825590_20260730/verify_cape_nonex_lethal_evolution.py",
+      "path_replacements": 0,
+      "before_sha256": "014D298EE79A6389B122F6DBFB92D832F5BF505306D1641620F0200B2D80ADF9",
+      "after_sha256": "DC16843E8738189589D5796F335DE3CF736A6F3F7547B02CF908E2C741CD7899"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_cumulative_public_hierarchy_megabrave_lock_veto_v2_20260730/root_run_changed_trace_smoke.py",
+      "path_replacements": 0,
+      "before_sha256": "6039F4F44BCB1B920D77F8F32E273618EDF550B6551A64BF4271F7C2EEA4C7DF",
+      "after_sha256": "D9A5D5D99F75588BF56B656F6B16BF712D520BD947CC1EA3FE467DE368EA125E"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_cumulative_public_hierarchy_megabrave_lock_veto_v2_20260730/root_run_union_replay_shadow.py",
+      "path_replacements": 0,
+      "before_sha256": "EF1A21D9A88744D59A7AD95167B7917B8043630D0FCF2E13256C96673FB392C7",
+      "after_sha256": "475DD406E1B80DDC887D62616F3A2E268DA16DBFE577E7F4BDBBA91E64ACC98E"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_last_boss_access_ledger_preedit_20260730/pre_edit_engine_gate.py",
+      "path_replacements": 0,
+      "before_sha256": "24DCB526EAF00A6B62DE47B4321218FAF7577BEB0ED8216F2C93F04FDC3F0325",
+      "after_sha256": "D1C24DAEB0A126512C35688699E72AB4750403E688F6CE55740BF663CB65D8BA"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_last_boss_discard_88819392_20260730/verify_last_boss_discard_state.py",
+      "path_replacements": 0,
+      "before_sha256": "08F4367A7BD9EFAB2F512D2EEB1ACA11DFD027D4C32C1FA974A49FA6BE19780A",
+      "after_sha256": "9F6C23C7BD13E91218FA9645AAC718D2ACA16B2E396E0E213A87654AA72DD644"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_mirror_final_prize_bench_gust_liability_88826155_20260730/verify_mirror_bench_gust_liability.py",
+      "path_replacements": 0,
+      "before_sha256": "8A92F034AC0845EB32F860AD14779929531DC9A50EAF6E9CD1CD07629B4E0FD2",
+      "after_sha256": "03A87AA5C6EC711FBA4BC88D6A3E024F234D41C27506A46D9A4B87FE639FA75A"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_mirror_nonterminal_boss_tempo_88826681_20260730/verify_nonterminal_boss_tempo_state.py",
+      "path_replacements": 0,
+      "before_sha256": "17C57401C245125FEC3F97ACCF13F19434289B3956A9A3DB8C4BA575BDCC1183",
+      "after_sha256": "11DE604DCF638746950CEACC181D167F987B39D6F03A3F04CE1431B697C35F66"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_search_aware_active_terminal_88827776_20260730/pre_edit_engine_counterfactual.py",
+      "path_replacements": 0,
+      "before_sha256": "EBA55C4C8819ACD18E24F9A8D365FBA8D5C2D43309D640C419728FA6ED8EA84A",
+      "after_sha256": "29757A5ABEF2473D5DFA527C23887FD2FAE17DCDB58114FA85355F1CF5125A3A"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_search_aware_active_terminal_88827776_20260730/verify_search_aware_active_terminal.py",
+      "path_replacements": 0,
+      "before_sha256": "0A33A807EE8DC1D39C89DCD1834D5C50EF994C24E1995A71F771431BDF107F14",
+      "after_sha256": "8E3AA9A80F7EF9AFFFB8CC3131011FE44FA683C9C51156AE2E87A10957DF98DC"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_terminal_boss_stall_88820060_20260730/verify_visible_board_wipe_boss_state.py",
+      "path_replacements": 0,
+      "before_sha256": "3BC9F6B01C3D3278695B61A3C368216CE0808AF804D839BD1A37D5F72F958DE5",
+      "after_sha256": "78026EA835DC26C5FB01988416F22CB86F6B0B204CB7B7D27A6E10097996F12F"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_terminal_defense_boss_88814688_20260729/verify_parent_boss_stall_state.py",
+      "path_replacements": 0,
+      "before_sha256": "D1F81B2F23833E09E8B64C9BA4810757C1273036C31B658A1DBCD2D655348760",
+      "after_sha256": "232EA2C2C8258FDBE3655E3939F00D2F6B6033FFD11F65B98EA62702AB31637A"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_terminal_pokegear_boss_88814136_20260729/verify_parent_search_state.py",
+      "path_replacements": 0,
+      "before_sha256": "B2F87D432CFEFFCD8E641B5352FCE72645296A00D9F5D9B1592B362E62763066",
+      "after_sha256": "C2E372835D663AB727DFFBB7CFA85BDFD11D0A59616AA1FD648F752E32078FB2"
+    },
+    {
+      "path": "autonomous_gold_20260715/root_verification/archaludon_xerosic_terminal_preservation_88824363_20260730/verify_xerosic_discard_state.py",
+      "path_replacements": 0,
+      "before_sha256": "7B30BEF189E9FACD01E2888B57F7DB29985C7BA33155FB20621B3C2682742015",
+      "after_sha256": "A5AB27C0659C48B82BFB8FCC22F090A59AF02FC82F3247206280B98BD245BF14"
+    },
+    {
+      "path": "autonomous_gold_20260715/strategy/archaludon_hierarchical_rules_20260729/root_verify_hero_cape_source.py",
+      "path_replacements": 0,
+      "before_sha256": "3DE53D423320285D9159D30F0B5DB4FAB2C268DCC5B7DBC68DE47D1AA28BA6B2",
+      "after_sha256": "71E2E20DBB3CE8A07F649D2CF03FB8175D44C9C47250B29A097BD932A873244A"
+    },
+    {
+      "path": "infrastructure/tools/analyze_top_band_episode_history.py",
+      "path_replacements": 0,
+      "before_sha256": "10A2706A31B42880FC68E6C7214200827C7C388EE7E9939BD674AE8AADD13D62",
+      "after_sha256": "82F820C1B536817F36C5888094FF7C1CF32DA21953E77E59A517E675657A3D15"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl/tests/test_single_thread_runtime.py",
+      "path_replacements": 0,
+      "before_sha256": "54393E5139FB58B0B6B7CF2854FE24638F2286BC99CD5DED62E20323A3D6F157",
+      "after_sha256": "5A53655905C79916593952DF8D4997FCF927937D65AC245206EB84952C064C93"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "89A98BB7917B8A8D22D8B3A3EF54E772B87639FCD127C017D843BA2A8CD8BE75",
+      "after_sha256": "57319F5BFA05450E76AD836EF093668594E8F705561E6BAE935544D570A5D902"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/tests/test_actor_only_two_stage_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "2EE248AFF08FCBB01B8B21F7AD4F35549C70A0BDA2B76107B5443B98FD55D492",
+      "after_sha256": "86980E5A8AE35EAB9A375AD29FA97181F346C1E96052B1933CBFA32DD9FB1113"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/tests/test_conservative_ppo_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "EC167FB97A99D75F05FC53F8AEAC2AB00B91ED933049389244DD3C61C3059688",
+      "after_sha256": "256087FAD2537A1BFF5AB7BD516C2F37CCC52C844FAC2015CBDD6800A485744F"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/tests/test_single_thread_runtime.py",
+      "path_replacements": 0,
+      "before_sha256": "2A7F203241EBFA99CE81392A8FAE0C7BBD387B044313C8466E646B8F5543B70F",
+      "after_sha256": "03B1EB3CAB9A32B2BA4266F67472D5E6FEA8812F43BDDD21BC83BD02447FECDB"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_actor_bootstrap_candidate_20260801/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "CEA287A8C97A4A927D2B58AAC03301BDC6D05CA7EB72689B52419ECE8857CF20",
+      "after_sha256": "87C7F99CB9CE2A5CD8B473BE8EA712F4DC005A1EAA95AA2046E685FB2EA21048"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/archaludon_rl/actor_only_interaction_maturation_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "206F1AEC5414546E1D204C1B24EE5DEA8B6763FDE5AE4FF21775422C5503C43B",
+      "after_sha256": "B6AC5BF6F2DC83D38EFE6D7AB83274883735C6DEE5D8AD0095ED64F1B4F23039"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_actor_only_interaction_maturation_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "CA4A7E04DEFA3DDB16189C21CAD41B43963287C141FEDDD702190973B45CCB0D",
+      "after_sha256": "94A9634C93C0FBA631523E5BB420E0932CD66B75DBA004B312D32FE0F9589C7E"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_actor_only_two_stage_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "2EE248AFF08FCBB01B8B21F7AD4F35549C70A0BDA2B76107B5443B98FD55D492",
+      "after_sha256": "86980E5A8AE35EAB9A375AD29FA97181F346C1E96052B1933CBFA32DD9FB1113"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_conservative_ppo_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "EC167FB97A99D75F05FC53F8AEAC2AB00B91ED933049389244DD3C61C3059688",
+      "after_sha256": "256087FAD2537A1BFF5AB7BD516C2F37CCC52C844FAC2015CBDD6800A485744F"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_single_thread_runtime.py",
+      "path_replacements": 0,
+      "before_sha256": "2A7F203241EBFA99CE81392A8FAE0C7BBD387B044313C8466E646B8F5543B70F",
+      "after_sha256": "03B1EB3CAB9A32B2BA4266F67472D5E6FEA8812F43BDDD21BC83BD02447FECDB"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_interaction_maturation_candidate_20260801/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "CEA287A8C97A4A927D2B58AAC03301BDC6D05CA7EB72689B52419ECE8857CF20",
+      "after_sha256": "87C7F99CB9CE2A5CD8B473BE8EA712F4DC005A1EAA95AA2046E685FB2EA21048"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_margin3_candidate_20260731/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "FD7EB99F0A323C907476C441ABC628F2FBA6CD4C5CABEEFBE4E52C02EBA05F99",
+      "after_sha256": "4D78A326B68D06A3C56146E443AB36D4C21A4F7D6EA5B40CB1757BD020CDA42F"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/archaludon_rl/actor_only_interaction_maturation_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "206F1AEC5414546E1D204C1B24EE5DEA8B6763FDE5AE4FF21775422C5503C43B",
+      "after_sha256": "B6AC5BF6F2DC83D38EFE6D7AB83274883735C6DEE5D8AD0095ED64F1B4F23039"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/tests/test_actor_only_interaction_maturation_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "CA4A7E04DEFA3DDB16189C21CAD41B43963287C141FEDDD702190973B45CCB0D",
+      "after_sha256": "94A9634C93C0FBA631523E5BB420E0932CD66B75DBA004B312D32FE0F9589C7E"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/tests/test_actor_only_two_stage_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "2EE248AFF08FCBB01B8B21F7AD4F35549C70A0BDA2B76107B5443B98FD55D492",
+      "after_sha256": "86980E5A8AE35EAB9A375AD29FA97181F346C1E96052B1933CBFA32DD9FB1113"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/tests/test_conservative_ppo_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "EC167FB97A99D75F05FC53F8AEAC2AB00B91ED933049389244DD3C61C3059688",
+      "after_sha256": "256087FAD2537A1BFF5AB7BD516C2F37CCC52C844FAC2015CBDD6800A485744F"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/tests/test_single_thread_runtime.py",
+      "path_replacements": 0,
+      "before_sha256": "F6AB94BA04DF42355E8C6CC00A2D50CFB8F766C761EBD6982F1733E73CE661C9",
+      "after_sha256": "A1669676BF85B80BFA7ACC1FDA3C5CAE7A2A13C389D4A98879D86CF4ABF1ECC2"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_pcgrad_candidate_20260801/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "CEA287A8C97A4A927D2B58AAC03301BDC6D05CA7EB72689B52419ECE8857CF20",
+      "after_sha256": "87C7F99CB9CE2A5CD8B473BE8EA712F4DC005A1EAA95AA2046E685FB2EA21048"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_population_candidate_20260731/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "752C1B1E5D9E5186F1EA96CF00C60466680EC9AEA398C863A7494F3FB87005A7",
+      "after_sha256": "2E649E8396A412CECEBA83E12335EF501936145B540F280EE0691F9762BDC141"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_ppo_candidate_20260731/tests/test_conservative_ppo_pilot.py",
+      "path_replacements": 0,
+      "before_sha256": "EC167FB97A99D75F05FC53F8AEAC2AB00B91ED933049389244DD3C61C3059688",
+      "after_sha256": "256087FAD2537A1BFF5AB7BD516C2F37CCC52C844FAC2015CBDD6800A485744F"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_ppo_candidate_20260731/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "CEA287A8C97A4A927D2B58AAC03301BDC6D05CA7EB72689B52419ECE8857CF20",
+      "after_sha256": "87C7F99CB9CE2A5CD8B473BE8EA712F4DC005A1EAA95AA2046E685FB2EA21048"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_single_thread_candidate_20260731/tests/test_single_thread_runtime.py",
+      "path_replacements": 0,
+      "before_sha256": "54393E5139FB58B0B6B7CF2854FE24638F2286BC99CD5DED62E20323A3D6F157",
+      "after_sha256": "5A53655905C79916593952DF8D4997FCF927937D65AC245206EB84952C064C93"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_single_thread_candidate_20260731/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "89A98BB7917B8A8D22D8B3A3EF54E772B87639FCD127C017D843BA2A8CD8BE75",
+      "after_sha256": "57319F5BFA05450E76AD836EF093668594E8F705561E6BAE935544D570A5D902"
+    },
+    {
+      "path": "research/experiments/archaludon_latest_v1_rl_temperature_candidate_20260731/tests/test_trajectory_model_training.py",
+      "path_replacements": 0,
+      "before_sha256": "CEA287A8C97A4A927D2B58AAC03301BDC6D05CA7EB72689B52419ECE8857CF20",
+      "after_sha256": "87C7F99CB9CE2A5CD8B473BE8EA712F4DC005A1EAA95AA2046E685FB2EA21048"
+    },
+    {
+      "path": "research/rl_ptcg/tests/test_cynthia_v62_zero_bench_search_survival.py",
+      "path_replacements": 0,
+      "before_sha256": "48CE871112C41FC4983748C2DA25F787A1C6C63B358D6640BF2F7A8BACC0F577",
+      "after_sha256": "0B11352346CE8F874AF8440A10A68530A4BAF69F182D812EBA59B42855FBB22F"
+    },
+    {
+      "path": "research/rl_ptcg/tests/test_cynthia_v63_crustle_spiritomb_counter.py",
+      "path_replacements": 0,
+      "before_sha256": "57A6C4BD39E87BC38D06A2192E85023BD46CEB597B40D2249FB8408FD49D43D7",
+      "after_sha256": "F4ADE6F120169A5D6621F7AD0C6B84910E02341D84C7F088AF7DE53531092E70"
+    },
+    {
+      "path": "research/rl_ptcg/tests/test_cynthia_v64_boss_same_turn_conversion_guard.py",
+      "path_replacements": 0,
+      "before_sha256": "9E8DAF7AF3100CB09DB3BC2D466F9750C4799A577D97DFD0482D65892BD7E137",
+      "after_sha256": "9D6EBEE8518179F965F7CF591FFC3BAE3FF14FB92DCBC5EA1CFCA7FDDA705517"
+    },
+    {
+      "path": "research/rl_ptcg/tests/test_gold_teacher_labels.py",
+      "path_replacements": 0,
+      "before_sha256": "A870BE2007388C6E9409E1CA086569E17A123F968FB7471A7E2699E910D72D67",
+      "after_sha256": "C450079F9BCBAD053F069AAA9565A7D41996015E722887D7F0405EDD64441A92"
+    },
+    {
+      "path": "research/rl_ptcg/tests/test_kaggle_rollout_source_receipt.py",
+      "path_replacements": 0,
+      "before_sha256": "7F075993E55795F3EF2FEE8BE1C221C53DEEEE990ED77D96CC362E5C5ED79C50",
+      "after_sha256": "61C566C2B308247F8D17D19D1AEA6DB6BFAA22B2648447CB49BCCCA98A227CBF"
+    }
+  ]
+}

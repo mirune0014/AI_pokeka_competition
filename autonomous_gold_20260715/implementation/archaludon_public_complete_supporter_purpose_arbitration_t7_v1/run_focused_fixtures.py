@@ -20,10 +20,10 @@ REPLAY = (
     / "live/55155015/analysis_20260802/refresh"
     / "episode_89292594_replay.json"
 )
-sys.path[:0] = [str(CANDIDATE), str(ROOT), str(ROOT / "tools")]
+sys.path[:0] = [str(CANDIDATE), str(ROOT), str(ROOT / "infrastructure" / "tools")]
 
 from ptcg_common import read_deck  # noqa: E402
-from rl_ptcg.label_replay_rollout import (  # noqa: E402
+from research.rl_ptcg.label_replay_rollout import (  # noqa: E402
     replay_decisions,
     target_seat_for_deck,
 )

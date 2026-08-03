@@ -12,13 +12,13 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 IMPL = Path(__file__).resolve().parent
 RAW = IMPL / "shadow_raw"
-SILVER = ROOT / "analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
+SILVER = ROOT / "_local_generated/analysis_outputs/reference_agents/historical_silver_archaludon_54495224"
 CANDIDATE = ROOT / "autonomous_gold_20260715/candidates/archaludon_historical_silver_single_resolver_salvage_v1"
-ENGINE = ROOT / "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine"
+ENGINE = ROOT / "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine"
 
 sys.dont_write_bytecode = True
-sys.path[:0] = [str(CANDIDATE), str(ENGINE), str(ROOT), str(ROOT / "tools")]
-from rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
+sys.path[:0] = [str(CANDIDATE), str(ENGINE), str(ROOT), str(ROOT / "infrastructure" / "tools")]
+from research.rl_ptcg.label_replay_rollout import replay_decisions  # noqa: E402
 
 
 def load(path: Path, name: str):

@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "infrastructure" / "tools"))
 
 from ptcg_common import ensure_engine_on_path, load_agent, read_deck
 
@@ -22,7 +22,7 @@ CANDIDATE_SHA256 = (
     "4287A616E1611F5697964D9F4065978EED1CEA72CDB48C9F63F1430D69106C35"
 )
 ENGINE = ROOT / (
-    "analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/"
+    "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/"
     "seeded_engine"
 )
 OUTPUT = Path(__file__).with_name("fixed760_rule3_lifecycle_scan.jsonl")
@@ -37,7 +37,7 @@ PANELS = (
         "opponents": (
             (
                 "historical_silver",
-                "analysis_outputs/reference_agents/"
+                "_local_generated/analysis_outputs/reference_agents/"
                 "historical_silver_archaludon_54495224",
             ),
         ),
@@ -54,28 +54,28 @@ PANELS = (
             ),
             (
                 "arch_shumpei",
-                "meta_agents/archaludon_shumpei_current_v3",
+                "opponents/meta_agents/archaludon_shumpei_current_v3",
             ),
             (
                 "alakazam_capbloo_gold",
-                "meta_agents/alakazam_capbloo_gold_85357128_simple",
+                "opponents/meta_agents/alakazam_capbloo_gold_85357128_simple",
             ),
             (
                 "marnie_kazuki_live",
-                "meta_agents/marnie_kazuki_live_85083586_simple",
+                "opponents/meta_agents/marnie_kazuki_live_85083586_simple",
             ),
             (
                 "mega_lucario_public",
-                "meta_agents/mega_lucario_public_simple",
+                "opponents/meta_agents/mega_lucario_public_simple",
             ),
             (
                 "kang_crustle",
-                "meta_agents/kangaskhan_crustle_mpgaming_v23_"
+                "opponents/meta_agents/kangaskhan_crustle_mpgaming_v23_"
                 "heal_role_missing160_guard",
             ),
             (
                 "cynthia_v23",
-                "meta_agents/cynthia_garchomp_nasuo445_v23_"
+                "opponents/meta_agents/cynthia_garchomp_nasuo445_v23_"
                 "allcall_before_evolve",
             ),
         ),

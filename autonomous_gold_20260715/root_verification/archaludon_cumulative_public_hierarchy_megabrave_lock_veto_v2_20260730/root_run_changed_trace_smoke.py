@@ -11,16 +11,16 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 HERE = pathlib.Path(__file__).resolve().parent
 OUTPUT_ROOT = HERE / "changed_trace_smoke_raw"
-RUNNER = ROOT / "tools" / "run_local_battle.py"
+RUNNER = ROOT / "infrastructure" / "tools" / "run_local_battle.py"
 ENGINE = (
     ROOT
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "cynthia_v9_vs_v11_poffin_role_selection_20260713"
     / "seeded_engine"
 )
 HISTORICAL = (
     ROOT
-    / "analysis_outputs"
+     / "_local_generated" / "analysis_outputs"
     / "reference_agents"
     / "historical_silver_archaludon_54495224"
 )
@@ -51,21 +51,21 @@ CASES = (
     },
     {
         "label": "arch_shumpei_p1_seed271958328",
-        "opponent": ROOT / "meta_agents" / "archaludon_shumpei_current_v3",
+        "opponent": ROOT / "opponents" / "meta_agents" / "archaludon_shumpei_current_v3",
         "seat": 1,
         "seed": 271958328,
         "expect_trace_identity": False,
     },
     {
         "label": "mega_lucario_p0_seed271958329",
-        "opponent": ROOT / "meta_agents" / "mega_lucario_public_simple",
+        "opponent": ROOT / "opponents" / "meta_agents" / "mega_lucario_public_simple",
         "seat": 0,
         "seed": 271958329,
         "expect_trace_identity": False,
     },
     {
         "label": "mega_lucario_p1_seed271958318",
-        "opponent": ROOT / "meta_agents" / "mega_lucario_public_simple",
+        "opponent": ROOT / "opponents" / "meta_agents" / "mega_lucario_public_simple",
         "seat": 1,
         "seed": 271958318,
         "expect_trace_identity": True,

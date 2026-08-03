@@ -16,10 +16,10 @@ CANDIDATE = AUTO / "candidates/archaludon_public_prize_race_threat_control_t9_v1
 CURRENT = AUTO / "live/55155015/analysis_20260802/refresh"
 HISTORICAL = AUTO / "live/55070349/refresh_20260729_1241/shadow_corpus_196_prior_plus_11_new"
 OUTPUT = Path(__file__).with_name("replay_shadow_results.json")
-sys.path[:0] = [str(CANDIDATE), str(ROOT), str(ROOT / "tools")]
+sys.path[:0] = [str(CANDIDATE), str(ROOT), str(ROOT / "infrastructure" / "tools")]
 
 from ptcg_common import read_deck  # noqa: E402
-from rl_ptcg.label_replay_rollout import replay_decisions, target_seat_for_deck  # noqa: E402
+from research.rl_ptcg.label_replay_rollout import replay_decisions, target_seat_for_deck  # noqa: E402
 
 
 def load(path: Path, name: str):
