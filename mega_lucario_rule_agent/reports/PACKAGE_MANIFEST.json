@@ -1,0 +1,76 @@
+{
+  "schema": "MEGA_LUCARIO_IMPLEMENTATION_PACKAGE_V1",
+  "created_date": "2026-08-04",
+  "branch": "codex/megalucario-rule-based-agent",
+  "implementation_commit": "8c8f43b1478d0d64239ed5190f50a04409dd6f61",
+  "runtime_manifest": {
+    "method": "SHA256 of compact UTF-8 JSON array sorted by root runtime path; each item is path, sha256, bytes",
+    "sha256": "b629317a8acd2fd08f255918ba1351d3956575e1ef8e29dcf22a392a408fd422",
+    "files": [
+      {"path":"__init__.py","sha256":"0b04e6251bece9861931f99ad81fdb946d5af05f5b0fb91e95416c27a88e2260","bytes":1059},
+      {"path":"attack_outcomes.py","sha256":"c4e4c210e98ff02223d2841c57857433604885719367e5e9a70efe69d473769f","bytes":71946},
+      {"path":"card_meta.py","sha256":"a9cc6f87c4b136d3df9dab0c728805f87d77caaae6e6022412992394cfae3b33","bytes":27809},
+      {"path":"certificates.py","sha256":"e524a256e21127f567716774d6933177dd870b0c9b7be1df1e82756c8f1f3ad0","bytes":55634},
+      {"path":"damage.py","sha256":"2099735845f0e238d837551927e7506bdfe6678a06348ba63446e82dc3dbe520","bytes":13084},
+      {"path":"deck.csv","sha256":"5ddb7ca2790518e3c1eac6e2ff8b7fdb6ff0a817bf888536349a090ec7582a9f","bytes":245},
+      {"path":"fallback.py","sha256":"58e8b4defac28f02e63014316b400ac281d8258d90e33558b26e1679d1ba847f","bytes":30599},
+      {"path":"features.py","sha256":"3d7cdc7e05d35a7db37928a9545e6e9b93b69aeb87e2fd6d17f414b238dbb5b8","bytes":28556},
+      {"path":"main.py","sha256":"4e2129494608628c883b5c0e3d2c7e4c9b66b573a3a2ce48f18f5704f50dcb05","bytes":21972},
+      {"path":"public_effects.py","sha256":"edc6387f9070702bebff8f95e99eff1cb088936185a631e86db0acdce5e4eda6","bytes":45678},
+      {"path":"resolver.py","sha256":"37c0867215d6c936078f89ad871facba316866e826b20174a3616e22ecef846d","bytes":65840},
+      {"path":"resource_ledger.py","sha256":"d6bff05d6ec8271d2c98382777d6e99d4dd36f61002644246b2455581b7687a7","bytes":31060},
+      {"path":"routes.py","sha256":"0f41f493b4f65d84ae04ec27a08441db204ca8d27a22175f92b35cfd08f68815","bytes":68788},
+      {"path":"state_view.py","sha256":"fdb9ce00aeaf89732ce34edbb9b6221664d7399355de99736b1d0f9c6b2d0a93","bytes":66460},
+      {"path":"telemetry.py","sha256":"6a665b804bf6e4e910144adfce7e4f6b113daf041d70f0c3ab1dc8e81e8138cd","bytes":67887},
+      {"path":"transactions.py","sha256":"fe080c640cf4d6c768207e3dac595f99a1bfee08abb5fb1c1896174a79bc3062","bytes":76778}
+    ]
+  },
+  "inputs": {
+    "requirements": {
+      "path": "C:/Users/amuam/Downloads/mega_lucario_rule_based_agent_requirements_20260804.md",
+      "sha256": "47cb7fe3d426a14281699e6882f37ea24ce5979a11f1c2a15cf5bc7edaf5e0d7"
+    },
+    "public_board_analysis_bundle": {
+      "path": "analysis_outputs/top_rank_majkel1337_20260803/deliverables/majkel1337_public_board_policy_bundle_20260804.zip",
+      "sha256": "93500a1f592f4c87bdcbe75b087a7bc68d9bd8530d2f34310cb6c08404d94650"
+    }
+  },
+  "verification": {
+    "focused_tests_passed": 13,
+    "total_tests_passed": 446,
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "flat_import": "passed",
+    "deck_cards": 60
+  },
+  "evaluation": {
+    "comparison_spec_sha256": "0a0c43c5401af5e53140bf555910e14c224eab142d2c05004cc8d21d216eecc6",
+    "pre_repair_small_panel": {"rows":40,"baseline_wins":28,"candidate_wins":0,"action_errors":0,"max_step_hits":0},
+    "paired_results_sha256": {
+      "historical_silver": "9fde677c4e5a85c3b4f3ab0cbd04103cb9a095047fcd10b3385c3023014d2b4e",
+      "arch_peak": "ced74e269987a816b59145065e21d3f04f32d62dd80846c3da8b2868ffdf9e8c",
+      "alakazam_capbloo_gold": "27938e86e0a8dfedadadffce0ebd151e953de64d3d46fd7eb2dedaf2a9aa46eb",
+      "marnie_kazuki_live": "56343b987668964621be1ff703ddee8ec4696f9d33a35bbf42066342ef43d52e"
+    },
+    "pre_repair_diagnostic": {
+      "summary_sha256": "a9b61a48796b85ec701ef6fe58d2292a96833c5df2a58934df1b0aecf7bc7cca",
+      "trace_sha256": "cacf16f1d7e718e563b21ab609c14d8974992344caefe4986a134a8786f038f1",
+      "steps": 29,
+      "prizes_taken": 0
+    },
+    "post_repair_diagnostic": {
+      "summary_sha256": "7e1ff26618dc0af31f48ed9cf26264bee6a3ee4202971658f381f740ffffdf79",
+      "trace_sha256": "031a410d103b9756e3ee0cdadffbca9889b013cc87828675e5e05c42d1eeaf64",
+      "steps": 116,
+      "prizes_taken": 2,
+      "result": "loss",
+      "action_errors": 0,
+      "max_step_hit": false
+    }
+  },
+  "limits": [
+    "No post-repair full both-seat panel was run, following the user instruction.",
+    "The representative post-repair game confirms rule activation, not competitive strength.",
+    "No Kaggle submission was made."
+  ]
+}
