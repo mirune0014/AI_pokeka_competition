@@ -341,3 +341,30 @@ __all__ = [
     "build_bound_damage_table",
     "evaluate_attack_damage",
 ]
+
+# Strict whole-outcome APIs live in a separate module so legacy callers cannot
+# accidentally treat target-only DamageResult.exact as a complete certificate.
+try:  # Package import in tests.
+    from .attack_outcomes import (
+        AttackCallbackPreview,
+        AttackOutcome,
+        BoundAttackOutcomeTable,
+        build_attack_outcome_table,
+        semantic_options_fingerprint,
+    )
+except ImportError:  # Flat submission import from main.py.
+    from attack_outcomes import (  # type: ignore[no-redef]
+        AttackCallbackPreview,
+        AttackOutcome,
+        BoundAttackOutcomeTable,
+        build_attack_outcome_table,
+        semantic_options_fingerprint,
+    )
+
+__all__ += [
+    "AttackCallbackPreview",
+    "AttackOutcome",
+    "BoundAttackOutcomeTable",
+    "build_attack_outcome_table",
+    "semantic_options_fingerprint",
+]

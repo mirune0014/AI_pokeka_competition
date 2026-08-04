@@ -279,6 +279,7 @@ class PublicState:
     ppp_count: Optional[int] = None
     history_complete: bool = False
     source_combat_complete: bool = False
+    source_options_fingerprint: Optional[str] = None
     _builder_receipt: Optional[str] = dataclass_field(
         init=False,
         default=None,
@@ -561,7 +562,6 @@ def _player_view(player: Any, index: int, include_private_hand: bool) -> PlayerV
             )
         )
 
-    prize_count = as_int(read_field(player, "prizeCount"), len(prize))
     bench_max = as_int(read_field(player, "benchMax"), 5)
     return PlayerView(
         index=index,
@@ -572,7 +572,7 @@ def _player_view(player: Any, index: int, include_private_hand: bool) -> PlayerV
         hand_refs=refs(hand, AreaType.HAND),
         discard_refs=refs(discard, AreaType.DISCARD),
         prize_refs=refs(prize, AreaType.PRIZE),
-        prize_count=len(prize) if prize_count is None else prize_count,
+        prize_count=len(prize),
         deck_count=as_int(read_field(player, "deckCount"), 0) or 0,
         hand_count=as_int(
             read_field(player, "handCount"), len(hand) if include_private_hand else 0
@@ -604,6 +604,7 @@ class PublicHistoryTracker:
         self._seen_events: set[Tuple[int, ...]] = set()
         self._top_to_lineage: Dict[Tuple[int, int], int] = {}
         self._last_attack: Dict[Tuple[int, int], AttackHistoryEntry] = {}
+        self._active_top_by_owner: Dict[int, Tuple[int, int]] = {}
         self._ppp_plays: Dict[Tuple[int, int], set[int]] = {}
         self._last_current_turn: Optional[int] = None
 
@@ -616,6 +617,7 @@ class PublicHistoryTracker:
         self._seen_events = set()
         self._top_to_lineage = {}
         self._last_attack = {}
+        self._active_top_by_owner = {}
         self._ppp_plays = {}
         self._last_current_turn = None
 
@@ -631,24 +633,35 @@ class PublicHistoryTracker:
             self._complete = False
             return
         try:
+            current_active_top: Dict[int, Tuple[int, int]] = {}
             for owner, player in enumerate(players):
-                for pokemon in (
-                    as_tuple(read_field(player, "active", ()))
-                    + as_tuple(read_field(player, "bench", ()))
-                ):
-                    if pokemon is None:
-                        continue
-                    serial = as_int(read_field(pokemon, "serial"))
-                    lineage = pokemon_lineage_serial(pokemon)
-                    if serial is None or lineage is None:
-                        self._complete = False
-                        continue
-                    key = (owner, serial)
-                    previous = self._top_to_lineage.get(key)
-                    if previous is not None and previous != lineage:
-                        self._complete = False
-                        continue
-                    self._top_to_lineage[key] = lineage
+                active = as_tuple(read_field(player, "active", ()))
+                bench = as_tuple(read_field(player, "bench", ()))
+                for is_active, zone in ((True, active), (False, bench)):
+                    for pokemon in zone:
+                        if pokemon is None:
+                            continue
+                        serial = as_int(read_field(pokemon, "serial"))
+                        lineage = pokemon_lineage_serial(pokemon)
+                        if serial is None or lineage is None:
+                            self._complete = False
+                            continue
+                        key = (owner, serial)
+                        previous = self._top_to_lineage.get(key)
+                        if previous is not None and previous != lineage:
+                            self._complete = False
+                            continue
+                        self._top_to_lineage[key] = lineage
+                        if is_active:
+                            if owner in current_active_top:
+                                self._complete = False
+                            current_active_top[owner] = (lineage, serial)
+            for owner in (0, 1):
+                previous = self._active_top_by_owner.get(owner)
+                current_value = current_active_top.get(owner)
+                if previous is not None and previous != current_value:
+                    self._last_attack.pop((owner, previous[0]), None)
+            self._active_top_by_owner = current_active_top
         except ValueError:
             self._complete = False
 
@@ -694,15 +707,52 @@ class PublicHistoryTracker:
             serial = as_int(read_field(entry, "serial"))
             attack_id = as_int(read_field(entry, "attackId"))
             serial_target = as_int(read_field(entry, "serialTarget"))
+            serial_before = as_int(read_field(entry, "serialBefore"))
+            serial_after = as_int(read_field(entry, "serialAfter"))
         except ValueError:
             self._complete = False
+            return
+
+        if log_type == int(LogType.CHANGE):
+            if serial_before is None or serial_after is None:
+                self._complete = False
+                return
+            event_key = (
+                int(self._game_epoch or 0),
+                event_turn,
+                log_type,
+                owner,
+                serial_before,
+                serial_after,
+            )
+            if event_key in self._seen_events:
+                return
+            self._seen_events.add(event_key)
+            for changed_serial in (serial_before, serial_after):
+                lineage = self._top_to_lineage.get((owner, changed_serial))
+                if lineage is None:
+                    self._complete = False
+                    continue
+                self._last_attack.pop((owner, lineage), None)
             return
 
         if log_type == int(LogType.EVOLVE):
             if serial is None or serial_target is None:
                 self._complete = False
                 return
+            event_key = (
+                int(self._game_epoch or 0),
+                event_turn,
+                log_type,
+                owner,
+                serial,
+                serial_target,
+            )
+            if event_key in self._seen_events:
+                return
+            self._seen_events.add(event_key)
             lineage = self._top_to_lineage.get((owner, serial_target), serial_target)
+            self._last_attack.pop((owner, lineage), None)
             self._top_to_lineage[(owner, serial)] = lineage
             return
 
@@ -794,6 +844,11 @@ class PublicHistoryTracker:
         else:
             for entry, event_turn in self._event_turns(logs, turn, first_player):
                 self._ingest_event(entry, event_turn)
+        self._last_attack = {
+            key: entry
+            for key, entry in self._last_attack.items()
+            if entry.turn >= turn - 2
+        }
         return self.snapshot(seat, turn)
 
     def record_emitted_attack(self, state: PublicState, attack_id: int) -> None:
@@ -928,6 +983,13 @@ def _raw_player_combat_is_complete(
     for name in ("discard", "prize"):
         if not _field_is_present(player, name) or not _is_public_sequence(
             read_field(player, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    if _field_is_present(player, "prizeCount"):
+        raw_prize_count = read_field(player, "prizeCount", _MISSING_PUBLIC_FIELD)
+        if (
+            not _is_exact_public_int(raw_prize_count)
+            or raw_prize_count != len(read_field(player, "prize"))
         ):
             return False
     if any(
@@ -1151,6 +1213,9 @@ def build_public_state(
         ppp_count=history.ppp_count,
         history_complete=history.complete,
         source_combat_complete=public_combat_input_complete(observation),
+        source_options_fingerprint=semantic_options_fingerprint(
+            build_semantic_options(observation)
+        ),
     )
     object.__setattr__(
         state,
@@ -1371,6 +1436,24 @@ def semantic_option_multiset(
     return tuple(sorted(counts.items(), key=lambda item: item[0].sort_key()))
 
 
+def semantic_options_fingerprint(options: Sequence[SemanticOption]) -> str:
+    """Hash a complete semantic option multiset while ignoring raw order."""
+
+    if not isinstance(options, Sequence) or isinstance(options, (str, bytes)):
+        raise ValueError("semantic options must be a sequence")
+    if any(not isinstance(option, SemanticOption) for option in options):
+        raise ValueError("semantic option fingerprints require SemanticOption rows")
+    indices = tuple(sorted(option.index for option in options))
+    if indices != tuple(range(len(options))):
+        raise ValueError("semantic option indices must be unique and contiguous")
+    payload = tuple(
+        (key.canonical(), count) for key, count in semantic_option_multiset(options)
+    )
+    return hashlib.sha256(
+        json.dumps(payload, separators=(",", ":"), sort_keys=False).encode("utf-8")
+    ).hexdigest()
+
+
 def _canonical_ref_list(refs: Iterable[PhysicalRef]) -> list[Tuple[int, int, int, int, int]]:
     return [ref_value.sort_key() for ref_value in sorted(refs, key=lambda item: item.sort_key())]
 
@@ -1586,6 +1669,7 @@ def public_state_fingerprint(state: PublicState) -> str:
         "turn": state.turn,
         "turn_action_count": state.turn_action_count,
         "source_combat_complete": state.source_combat_complete,
+        "source_options_fingerprint": state.source_options_fingerprint,
         "board": _public_board_payload(state),
         "select": (
             state.select_type,
@@ -1679,4 +1763,5 @@ __all__ = [
     "relevant_zone_fingerprint",
     "semantic_key_for_option",
     "semantic_option_multiset",
+    "semantic_options_fingerprint",
 ]

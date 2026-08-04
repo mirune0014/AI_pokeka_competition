@@ -10,6 +10,7 @@ from mega_lucario_rule_agent.public_effects import (
     EFFECT_MANIFEST_SHA256,
     EXPECTED_EFFECT_MANIFEST_SHA256,
     REQUIRED_EFFECT_IDS,
+    EffectCardProfile,
     EffectBinding,
     EffectPhase,
     EntryKind,
@@ -353,6 +354,58 @@ def test_registry_certifies_only_effectless_basic_energy_from_catalog():
     assert registry.is_effectless_basic_energy(6)
     assert not registry.is_effectless_basic_energy(7)
     assert not registry.is_effectless_basic_energy(20)
+
+
+def test_non_pokemon_profile_binds_type_full_skill_set_and_registry_digest():
+    rules_text = (
+        "Pokémon Tools attached to each Pokémon (both yours and your "
+        "opponent’s) have no effect."
+    )
+    jamming = {
+        "cardId": 1246,
+        "cardType": 4,
+        "name": "Jamming Tower",
+        "energyType": 0,
+        "skills": [{"name": "Jamming Tower", "text": rules_text}],
+    }
+    clean = build_public_effect_registry([jamming], [])
+    profile = clean.effect_profile(1246)
+
+    assert profile.card_type == 4
+    assert profile.all_skills_registered
+    assert profile.registered_skill_effect_ids == ("JAMMING_TOWER",)
+    assert clean.effect_ids_for_card(1246) == ("JAMMING_TOWER",)
+
+    extra_skill = deepcopy(jamming)
+    extra_skill["skills"].append(
+        {"name": "Unknown Stadium Aura", "text": "Change combat somehow."}
+    )
+    changed = build_public_effect_registry([extra_skill], [])
+    changed_profile = changed.effect_profile(1246)
+    assert not changed_profile.all_skills_registered
+    assert len(changed_profile.unregistered_skill_signatures) == 1
+    assert changed.catalog_sha256 != clean.catalog_sha256
+    assert changed.digest != clean.digest
+
+    wrong_type = deepcopy(jamming)
+    wrong_type["cardType"] = 2
+    wrong = build_public_effect_registry([wrong_type], [])
+    assert wrong.effect_profile(1246).card_type == 2
+    assert wrong.digest != clean.digest
+
+
+def test_effect_profile_is_only_issued_by_checked_registry_builder():
+    basic = basic_energy_catalog_row()
+    profile = build_public_effect_registry([basic], []).effect_profile(6)
+    assert profile.card_type == 5
+
+    values = dict(profile.__dict__)
+    with pytest.raises(TypeError, match="issuer_token"):
+        EffectCardProfile(**values)
+    with pytest.raises(ValueError, match="checked registry builder"):
+        EffectCardProfile(**values, issuer_token=object())
+    with pytest.raises(ValueError, match="init=False"):
+        replace(profile, card_type=6)
 
 
 def test_registered_ability_requires_exact_card_name_skill_name_and_text():
