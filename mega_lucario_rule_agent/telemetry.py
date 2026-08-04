@@ -354,6 +354,7 @@ def _transaction_state_payload(
         "source_ref": owner.source_ref,
         "target_refs": owner.target_refs,
         "reserved_refs": owner.reserved_refs,
+        "expected_select_type": owner.expected_select_type,
         "expected_context": owner.expected_context,
         "expected_min_count": owner.expected_min_count,
         "expected_max_count": owner.expected_max_count,

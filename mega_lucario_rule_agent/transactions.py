@@ -168,6 +168,7 @@ def _validate_persisted_action_spec(action_spec: ActionSpec) -> None:
 @dataclass(frozen=True)
 class TransactionStep:
     stage: TransactionStage
+    expected_select_type: int
     expected_context: int
     expected_min_count: int
     expected_max_count: int
@@ -184,6 +185,10 @@ class TransactionStep:
             TransactionStage.FAULT_CONTAINMENT,
         ):
             raise ValueError("terminal stages cannot be declared as executable steps")
+        if not _is_exact_int(self.expected_select_type) or self.expected_select_type < 0:
+            raise ValueError(
+                "expected_select_type must be a non-negative exact integer"
+            )
         if not _is_exact_int(self.expected_context) or self.expected_context < 0:
             raise ValueError("expected_context must be a non-negative exact integer")
         if (
@@ -217,6 +222,7 @@ class TransactionStep:
     def canonical(self) -> Tuple[object, ...]:
         return (
             self.stage.value,
+            self.expected_select_type,
             self.expected_context,
             self.expected_min_count,
             self.expected_max_count,
@@ -338,6 +344,7 @@ class TransactionState:
     source_ref: Optional[PhysicalRef]
     target_refs: Tuple[PhysicalRef, ...]
     reserved_refs: Tuple[PhysicalRef, ...]
+    expected_select_type: int
     expected_context: int
     expected_min_count: int
     expected_max_count: int
@@ -446,6 +453,8 @@ def _prompt_match_reasons(
     step: TransactionStep,
 ) -> Tuple[Tuple[str, ...], Optional[Tuple[int, ...]]]:
     reasons = list(_legal_option_index_reasons(legal_options))
+    if state.select_type != step.expected_select_type:
+        reasons.append("UNEXPECTED_SELECT_TYPE")
     if state.select_context != step.expected_context:
         reasons.append("UNEXPECTED_CONTEXT")
     if state.min_count != step.expected_min_count:
@@ -582,6 +591,7 @@ class TransactionStore:
             source_ref=plan.source_ref,
             target_refs=plan.target_refs,
             reserved_refs=plan.reserved_refs,
+            expected_select_type=plan.initiation.expected_select_type,
             expected_context=plan.initiation.expected_context,
             expected_min_count=plan.initiation.expected_min_count,
             expected_max_count=plan.initiation.expected_max_count,
@@ -749,6 +759,7 @@ class TransactionStore:
             self._owner,
             owner_kind=self._owner.origin_owner_kind,
             stage=step.stage,
+            expected_select_type=step.expected_select_type,
             expected_context=step.expected_context,
             expected_min_count=step.expected_min_count,
             expected_max_count=step.expected_max_count,

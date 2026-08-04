@@ -163,9 +163,11 @@ def step(
     source=SOURCE,
     stochastic=False,
     irreversible=False,
+    select_type=SelectType.YES_NO,
 ):
     return TransactionStep(
         stage=stage,
+        expected_select_type=int(select_type),
         expected_context=int(context),
         expected_min_count=1,
         expected_max_count=1,
@@ -180,6 +182,7 @@ def step(
 def initiation(irreversible=True):
     return TransactionStep(
         stage=TransactionStage.INITIATION,
+        expected_select_type=int(SelectType.MAIN),
         expected_context=int(SelectContext.MAIN),
         expected_min_count=1,
         expected_max_count=1,
@@ -302,6 +305,52 @@ def test_irreversible_continuation_commits_atomically_with_emission():
     )
     assert fault.status == ResumeStatus.IRREVERSIBLE_FAULT
     assert store.run_fault_latched
+
+
+def test_select_type_mismatch_aborts_before_commit_and_faults_after_commit():
+    mismatched = effect_state(SelectContext.ACTIVATE)
+    mismatched = replace(mismatched, select_type=int(SelectType.CARD))
+
+    provisional = TransactionStore()
+    provisional.start(
+        two_step_plan(root_irreversible=False),
+        state(),
+        options(ROOT_KEY),
+    )
+    precommit = provisional.resume(mismatched, options(YES_KEY))
+    assert precommit.status == ResumeStatus.PRECOMMIT_ABORTED
+    assert precommit.reasons == ("UNEXPECTED_SELECT_TYPE",)
+
+    committed = TransactionStore()
+    committed.start(two_step_plan(), state(), options(ROOT_KEY))
+    postcommit = committed.resume(mismatched, options(YES_KEY))
+    assert postcommit.status == ResumeStatus.IRREVERSIBLE_FAULT
+    assert postcommit.reasons == ("UNEXPECTED_SELECT_TYPE",)
+
+
+def test_matching_select_type_still_reissues_after_option_permutation():
+    transaction_plan = plan(
+        TransactionStep(
+            stage=TransactionStage.SELECT_EFFECT_TARGET,
+            expected_select_type=int(SelectType.YES_NO),
+            expected_context=int(SelectContext.ACTIVATE),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=ActionSpec.single(YES_KEY),
+            irreversible_on_emit=False,
+            expected_source_ref=SOURCE,
+            effect_or_attack_id=1121,
+        )
+    )
+    store = TransactionStore()
+    store.start(transaction_plan, state(), options(ROOT_KEY))
+    current = effect_state(SelectContext.ACTIVATE)
+    issued = store.resume(current, options(NO_KEY, YES_KEY))
+    duplicate = store.resume(current, options(YES_KEY, NO_KEY))
+    assert issued.status == ResumeStatus.ADVANCED_ISSUE
+    assert issued.bound_action == (1,)
+    assert duplicate.status == ResumeStatus.DUPLICATE_REISSUE
+    assert duplicate.bound_action == (0,)
 
 
 def test_reversible_emissions_remain_cleanly_abortable():
@@ -653,6 +702,7 @@ def test_transaction_state_constructor_is_closed():
             source_ref=None,
             target_refs=(),
             reserved_refs=(),
+            expected_select_type=0,
             expected_context=0,
             expected_min_count=1,
             expected_max_count=1,
