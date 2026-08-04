@@ -10,9 +10,6 @@ from typing import Sequence, Tuple
 try:  # Package import in tests.
     from .attack_outcomes import (
         BoundAttackOutcomeTable,
-        build_gust_attack_outcome_table,
-        build_post_wally_productive_attack,
-        build_public_opponent_attack_threat,
     )
     from .card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
     from .certificates import (
@@ -25,8 +22,11 @@ try:  # Package import in tests.
         first_turn_riolu_attach_proof,
         poke_pad_core_eligible_classes,
         poke_pad_core_formation_proof,
+        verify_cape_survival_certificate,
+        verify_gust_dominance_certificate,
+        verify_wally_survival_certificate,
     )
-    from .features import DeckFeatures, PublicMatchupFlag
+    from .features import DeckFeatures, PublicMatchupFlag, build_resource_ledger
     from .public_effects import EFFECT_BINDINGS, EntryKind, PublicEffectRegistry
     from .resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
@@ -62,9 +62,6 @@ try:  # Package import in tests.
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import (
         BoundAttackOutcomeTable,
-        build_gust_attack_outcome_table,
-        build_post_wally_productive_attack,
-        build_public_opponent_attack_threat,
     )
     from card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
     from certificates import (
@@ -77,8 +74,11 @@ except ImportError:  # Flat submission import from main.py.
         first_turn_riolu_attach_proof,
         poke_pad_core_eligible_classes,
         poke_pad_core_formation_proof,
+        verify_cape_survival_certificate,
+        verify_gust_dominance_certificate,
+        verify_wally_survival_certificate,
     )
-    from features import DeckFeatures, PublicMatchupFlag
+    from features import DeckFeatures, PublicMatchupFlag, build_resource_ledger
     from public_effects import EFFECT_BINDINGS, EntryKind, PublicEffectRegistry
     from resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
@@ -1432,635 +1432,6 @@ def enumerate_ultra_ball_routes(
     return ()
 
 
-_GUST_STRATEGIC_METRIC_NAMES = (
-    "terminal_win",
-    "prizes_taken",
-    "opponent_prizes_after",
-    "negative_attacks_to_next_prize",
-    "attached_energy_removed",
-    "public_threat_damage_removed",
-    "engine_denial",
-    "evolution_denial",
-    "tool_cards_removed",
-    "pre_evolution_cards_removed",
-    "negative_target_hp_after",
-    "printed_prize_value",
-)
-
-
-def _gust_physical_tiebreak(ref):
-    return (
-        -1 if ref.serial is None else ref.serial,
-        -1 if ref.lineage_serial is None else ref.lineage_serial,
-        -1 if ref.card_id is None else ref.card_id,
-    )
-
-
-def _gust_metric_row(
-    target,
-    outcome,
-    registry,
-    public_threat_damage_removed,
-    *,
-    require_exact_ko,
-):
-    profile = (
-        None
-        if target.ref.card_id is None
-        else registry.profile(target.ref.card_id)
-    )
-    if (
-        profile is None
-        or not outcome.authoritative
-        or not outcome.legality_exact
-        or outcome.legal is not True
-        or outcome.payable is not True
-        or not outcome.exact_damage
-        or require_exact_ko
-        and not outcome.exact_ko
-        or not outcome.prize_exact
-        or outcome.prizes_taken is None
-        or outcome.own_prizes_after is None
-        or outcome.opponent_prizes_after is None
-        or not outcome.terminal_exact
-        or outcome.wins_game is None
-        or outcome.loses_game is not False
-        or outcome.draws_game is not False
-        or outcome.target_hp_after is None
-    ):
-        return None
-    evolution_denial = None
-    if (
-        not registry.malformed_pokemon_card_ids
-        and not registry.ambiguous_card_ids
-    ):
-        evolution_denial = sum(
-            1
-            for candidate in registry.profiles
-            if candidate.evolves_from == profile.card_name
-        )
-    facts = {
-        "terminal_win": outcome.wins_game,
-        "exact_ko": outcome.exact_ko,
-        "prizes_taken": outcome.prizes_taken,
-        "own_prizes_after": outcome.own_prizes_after,
-        "opponent_prizes_after": outcome.opponent_prizes_after,
-        "attacks_to_next_prize": 1 if outcome.exact_ko else None,
-        "attached_energy_removed": len(target.energy_refs),
-        "tool_cards_removed": len(target.tool_refs),
-        "pre_evolution_cards_removed": len(target.pre_evolution_refs),
-        "engine_denial": len(profile.registered_skill_effect_ids),
-        "evolution_denial": evolution_denial,
-        "public_threat_damage_removed": public_threat_damage_removed,
-        "target_hp_after": outcome.target_hp_after,
-        "printed_prize_value": profile.prize_value,
-        "original_target_ref": target.ref,
-    }
-    key = (
-        int(outcome.wins_game),
-        outcome.prizes_taken,
-        outcome.opponent_prizes_after,
-        -1 if outcome.exact_ko else None,
-        len(target.energy_refs),
-        public_threat_damage_removed,
-        len(profile.registered_skill_effect_ids),
-        evolution_denial,
-        len(target.tool_refs),
-        len(target.pre_evolution_refs),
-        -outcome.target_hp_after,
-        profile.prize_value,
-    )
-    return key, facts
-
-
-def _compare_gust_keys(left, right, *, allow_shared_unknown=False):
-    if len(left) != len(_GUST_STRATEGIC_METRIC_NAMES) or len(right) != len(
-        _GUST_STRATEGIC_METRIC_NAMES
-    ):
-        return None
-    for left_value, right_value in zip(left, right):
-        if left_value is None or right_value is None:
-            if allow_shared_unknown and left_value is None and right_value is None:
-                continue
-            return None
-        if left_value != right_value:
-            return 1 if left_value > right_value else -1
-    return 0
-
-
-def _gust_dominance_field(left, right):
-    if len(left) != len(_GUST_STRATEGIC_METRIC_NAMES) or len(right) != len(
-        _GUST_STRATEGIC_METRIC_NAMES
-    ):
-        return None
-    for metric_name, left_value, right_value in zip(
-        _GUST_STRATEGIC_METRIC_NAMES, left, right
-    ):
-        if left_value is None or right_value is None:
-            return None
-        if left_value != right_value:
-            return metric_name
-    return None
-
-
-def _best_gust_outcome(
-    target, table, registry, threat_damage, *, require_exact_ko
-):
-    candidates = []
-    for outcome in table.rows:
-        metric_row = _gust_metric_row(
-            target,
-            outcome,
-            registry,
-            threat_damage,
-            require_exact_ko=require_exact_ko,
-        )
-        if metric_row is not None:
-            candidates.append((outcome, metric_row[0], metric_row[1]))
-    if not candidates:
-        return None
-    chosen = candidates[0]
-    for candidate in candidates[1:]:
-        comparison = _compare_gust_keys(
-            candidate[1], chosen[1], allow_shared_unknown=True
-        )
-        if comparison is None:
-            return None
-        if comparison > 0 or (
-            comparison == 0 and candidate[0].attack_id < chosen[0].attack_id
-        ):
-            chosen = candidate
-    return chosen
-
-
-def _narrow_gust_target(
-    state: PublicState,
-    legal_options: Sequence[SemanticOption],
-    attack_outcomes: BoundAttackOutcomeTable,
-    registry: PublicEffectRegistry,
-):
-    if any(outcome.exact_game_win for outcome in attack_outcomes.rows):
-        return None
-    current_attack_ids = tuple(
-        sorted(
-            {
-                outcome.attack_id
-                for outcome in attack_outcomes.rows
-                if outcome.authoritative
-                and outcome.legality_exact
-                and outcome.legal is True
-                and outcome.payable is True
-            }
-        )
-    )
-    current_target = state.opponent_active
-    if not current_attack_ids or current_target is None:
-        return None
-    current_threat = build_public_opponent_attack_threat(state, registry)
-    current_best = _best_gust_outcome(
-        current_target,
-        attack_outcomes,
-        registry,
-        current_threat.max_damage if current_threat.exact else None,
-        require_exact_ko=False,
-    )
-    if current_best is None:
-        return None
-    bench_candidates = []
-    for target in state.opponent.bench:
-        surface = build_gust_attack_outcome_table(
-            state,
-            legal_options,
-            registry,
-            target.ref,
-            current_attack_ids,
-        )
-        if surface is None:
-            continue
-        hypothetical_state, table = surface
-        threat = build_public_opponent_attack_threat(hypothetical_state, registry)
-        candidate = _best_gust_outcome(
-            hypothetical_state.opponent_active,
-            table,
-            registry,
-            threat.max_damage if threat.exact else None,
-            require_exact_ko=True,
-        )
-        if candidate is not None:
-            candidate = (
-                candidate[0],
-                candidate[1],
-                {**candidate[2], "original_target_ref": target.ref},
-            )
-            bench_candidates.append((target, candidate))
-    if not bench_candidates:
-        return None
-    maximal_candidates = []
-    for candidate in bench_candidates:
-        comparisons = tuple(
-            _compare_gust_keys(candidate[1][1], other[1][1])
-            for other in bench_candidates
-            if other is not candidate
-        )
-        if all(
-            comparison is not None and comparison >= 0
-            for comparison in comparisons
-        ):
-            maximal_candidates.append(candidate)
-    if not maximal_candidates:
-        return None
-    if any(
-        _compare_gust_keys(left[1][1], right[1][1]) != 0
-        for left in maximal_candidates
-        for right in maximal_candidates
-    ):
-        return None
-    chosen = min(
-        maximal_candidates,
-        key=lambda candidate: _gust_physical_tiebreak(candidate[0].ref),
-    )
-    dominance = _compare_gust_keys(chosen[1][1], current_best[1])
-    if dominance is None or dominance <= 0:
-        return None
-    dominance_field = _gust_dominance_field(chosen[1][1], current_best[1])
-    if dominance_field is None:
-        return None
-    return (
-        chosen[0],
-        chosen[1][0],
-        chosen[1][1],
-        chosen[1][2],
-        current_best[1],
-        current_best[2],
-        current_attack_ids,
-        dominance_field,
-    )
-
-
-def _same_planned_gust_outcome(before, after) -> bool:
-    return (
-        after is not None
-        and after.authoritative
-        and after.legality_exact
-        and after.legal is True
-        and after.payable is True
-        and after.exact_damage
-        and after.final_damage == before.final_damage
-        and after.knockout == before.knockout
-        and after.prize_exact
-        and after.prizes_taken == before.prizes_taken
-        and after.own_prizes_after == before.own_prizes_after
-        and after.opponent_prizes_after == before.opponent_prizes_after
-        and after.terminal_exact
-        and after.wins_game == before.wins_game
-        and after.loses_game == before.loses_game
-        and after.draws_game == before.draws_game
-    )
-
-
-def enumerate_gust_routes(
-    state: PublicState,
-    legal_options: Sequence[SemanticOption],
-    features: DeckFeatures,
-    attack_outcomes: BoundAttackOutcomeTable,
-    registry: PublicEffectRegistry,
-) -> Tuple[Proposal, ...]:
-    """Gust only for exact public strategic dominance over the current Active."""
-
-    if (
-        not features.matches(state, legal_options, registry)
-        or not attack_outcomes.matches(state, legal_options, registry)
-        or not state.opponent.bench
-    ):
-        return ()
-    chosen = _narrow_gust_target(
-        state,
-        legal_options,
-        attack_outcomes,
-        registry,
-    )
-    if chosen is None:
-        return ()
-    (
-        target,
-        planned_outcome,
-        strategic_key,
-        metric_facts,
-        current_strategic_key,
-        current_metric_facts,
-        current_attack_ids,
-        dominance_field,
-    ) = chosen
-    terminal = planned_outcome.wins_game is True
-    boss_tier = (
-        ResolverTier.TERMINAL_OR_SUPERIOR_GUST
-        if terminal
-        else ResolverTier.STRICTLY_SUPERIOR_GUST
-    )
-
-    def proof_facts(
-        *,
-        route_priority,
-        source_ref,
-        preserves_planned_attack,
-        supporter_opportunity_cost,
-        evolution_target_ref=None,
-    ):
-        return {
-            "route_priority": route_priority,
-            "source_ref": source_ref,
-            "evolution_target_ref": evolution_target_ref,
-            "gust_target_ref": target.ref,
-            "attack_id": planned_outcome.attack_id,
-            "damage_floor": planned_outcome.final_damage,
-            "terminal": terminal,
-            "strategic_key": strategic_key,
-            "current_active_strategic_key": current_strategic_key,
-            "dominance_field": dominance_field,
-            "current_active_terminal_win": current_metric_facts[
-                "terminal_win"
-            ],
-            "current_active_prizes_taken": current_metric_facts[
-                "prizes_taken"
-            ],
-            "preserves_planned_attack": preserves_planned_attack,
-            "supporter_opportunity_cost": supporter_opportunity_cost,
-            "certificate_status": "PROVISIONAL_GENERIC_GATE_A3",
-            **metric_facts,
-        }
-
-    heave_candidates = []
-    for option in legal_options:
-        if option.key.option_type != int(OptionType.EVOLVE):
-            continue
-        source_ref = _exact_hand_ref(state, option)
-        own_target = _board_pokemon_for_option(state, option)
-        if (
-            source_ref is None
-            or source_ref.card_id != 674
-            or own_target is None
-            or own_target.ref.card_id != 673
-            or own_target.ref.zone != int(AreaType.BENCH)
-        ):
-            continue
-        post_surface = build_gust_attack_outcome_table(
-            state,
-            legal_options,
-            registry,
-            target.ref,
-            current_attack_ids,
-            evolution_source_ref=source_ref,
-            evolution_target_ref=own_target.ref,
-        )
-        if post_surface is None:
-            continue
-        post_outcome = post_surface[1].get(planned_outcome.attack_id)
-        if not _same_planned_gust_outcome(planned_outcome, post_outcome):
-            continue
-        heave_candidates.append(
-            (
-                own_target.ref.sort_key(),
-                source_ref.sort_key(),
-                option.key.sort_key(),
-                option,
-                source_ref,
-                own_target,
-            )
-        )
-    if heave_candidates:
-        _, _, _, option, source_ref, own_target = min(heave_candidates)
-        action_spec = ActionSpec.single(option.key)
-        proof = deck_rule_proof(
-            state,
-            legal_options,
-            registry,
-            features,
-            action_spec,
-            route_code="R_GUST_HARIYAMA_EXACT_DOMINANCE_A3",
-            kind=CertificateKind.PRIZE_GAIN_NOW,
-            guaranteed_prizes=planned_outcome.prizes_taken,
-            facts=proof_facts(
-                route_priority=0,
-                source_ref=source_ref,
-                evolution_target_ref=own_target.ref,
-                preserves_planned_attack=True,
-                supporter_opportunity_cost=0,
-            ),
-        )
-        plan = build_hariyama_gust_plan(
-            state,
-            source_ref,
-            target.ref,
-            action_spec,
-            proof.digest(),
-        )
-        return (
-            Proposal(
-                rule_id="R_GUST_HARIYAMA_EXACT_DOMINANCE_A3",
-                tier=ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
-                action_spec=action_spec,
-                certificate_kind=proof.kind,
-                proof=proof,
-                resource_cost=ResourceCost((source_ref,)),
-                transaction_plan=plan,
-                deterministic_tiebreak=canonical_proposal_tiebreak(
-                    action_spec,
-                    proof,
-                ),
-            ),
-        )
-
-    if state.supporter_played:
-        return ()
-    boss_candidates = []
-    for option in legal_options:
-        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1182:
-            continue
-        source_ref = _exact_hand_ref(state, option)
-        if source_ref is None:
-            continue
-        boss_candidates.append(
-            (source_ref.sort_key(), option.key.sort_key(), option, source_ref)
-        )
-    if boss_candidates:
-        _, _, option, source_ref = min(boss_candidates)
-        action_spec = ActionSpec.single(option.key)
-        proof = deck_rule_proof(
-            state,
-            legal_options,
-            registry,
-            features,
-            action_spec,
-            route_code="R_GUST_BOSS_EXACT_DOMINANCE_A3",
-            kind=CertificateKind.PRIZE_GAIN_NOW,
-            guaranteed_prizes=planned_outcome.prizes_taken,
-            facts=proof_facts(
-                route_priority=1,
-                source_ref=source_ref,
-                preserves_planned_attack=True,
-                supporter_opportunity_cost=1,
-            ),
-        )
-        plan = build_boss_gust_plan(
-            state,
-            source_ref,
-            target.ref,
-            action_spec,
-            proof.digest(),
-        )
-        return (
-            Proposal(
-                rule_id="R_GUST_BOSS_EXACT_DOMINANCE_A3",
-                tier=boss_tier,
-                action_spec=action_spec,
-                certificate_kind=proof.kind,
-                proof=proof,
-                resource_cost=ResourceCost((source_ref,)),
-                transaction_plan=plan,
-                deterministic_tiebreak=canonical_proposal_tiebreak(
-                    action_spec,
-                    proof,
-                ),
-            ),
-        )
-    return ()
-
-
-def enumerate_wally_routes(
-    state: PublicState,
-    legal_options: Sequence[SemanticOption],
-    features: DeckFeatures,
-    attack_outcomes: BoundAttackOutcomeTable,
-    registry: PublicEffectRegistry,
-) -> Tuple[Proposal, ...]:
-    """Use Wally only when checked healing changes next-attack survival."""
-
-    if (
-        not features.matches(state, legal_options, registry)
-        or not attack_outcomes.matches(state, legal_options, registry)
-        or state.supporter_played
-        or state.energy_attached
-        or state.own.poisoned
-        or state.own.burned
-        or state.own.asleep
-        or state.own.paralyzed
-        or state.own.confused
-        or state.own.deck_count < 1
-    ):
-        return ()
-    target = state.own_active
-    if (
-        target is None
-        or target.ref.card_id != 678
-        or target.damage <= 0
-        or not target.energy_refs
-    ):
-        return ()
-    current_attack_surface_exact = bool(attack_outcomes.rows) and all(
-        outcome.authoritative
-        and outcome.legality_exact
-        and outcome.legal is True
-        and outcome.payable is True
-        and outcome.terminal_exact
-        and isinstance(outcome.wins_game, bool)
-        for outcome in attack_outcomes.rows
-    )
-    if not current_attack_surface_exact or any(
-        outcome.wins_game is True for outcome in attack_outcomes.rows
-    ):
-        return ()
-    threat = build_public_opponent_attack_threat(state, registry)
-    if (
-        not threat.exact
-        or threat.knockout_before_heal is not True
-        or threat.knockout_after_heal is not False
-    ):
-        return ()
-    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
-        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1229:
-            continue
-        source_ref = _exact_hand_ref(state, option)
-        if source_ref is None:
-            continue
-        post_attack = next(
-            (
-                result
-                for result in (
-                    build_post_wally_productive_attack(
-                        state,
-                        registry,
-                        source_ref,
-                        reattach_ref,
-                    )
-                    for reattach_ref in sorted(
-                        target.energy_refs,
-                        key=lambda value: value.sort_key(),
-                    )
-                )
-                if result is not None
-            ),
-            None,
-        )
-        if post_attack is None:
-            continue
-        action_spec = ActionSpec.single(option.key)
-        proof = deck_rule_proof(
-            state,
-            legal_options,
-            registry,
-            features,
-            action_spec,
-            route_code="R_WALLY_THREE_PRIZE_REBOOT_V1",
-            kind=CertificateKind.RESOURCE_IMPROVEMENT,
-            facts={
-                "route_priority": 0,
-                "source_ref": source_ref,
-                "target_ref": target.ref,
-                "reattach_ref": post_attack.reattach_ref,
-                "damage_healed": target.damage,
-                "before_hp": target.remaining_hp,
-                "after_hp": target.max_hp,
-                "max_opponent_attack_ids": threat.max_attack_ids,
-                "max_opponent_damage": threat.max_damage,
-                "knockout_before_heal": threat.knockout_before_heal,
-                "knockout_after_heal": threat.knockout_after_heal,
-                "survives_without_wally": False,
-                "survives_with_wally": True,
-                "reestablished_attack_id": post_attack.attack_id,
-                "reestablished_attack_damage": post_attack.final_damage,
-                "deck_buffer": state.own.deck_count,
-                "no_higher_priority_supporter_route": True,
-                "current_direct_win": False,
-                "threat_unknown_reasons": threat.unknown_reasons,
-                "certificate_status": "PROVISIONAL_GENERIC_GATE_A1",
-            },
-        )
-        plan = build_wally_plan(
-            state,
-            source_ref,
-            target.ref,
-            post_attack.reattach_ref,
-            action_spec,
-            proof.digest(),
-        )
-        return (
-            Proposal(
-                rule_id="R_WALLY_THREE_PRIZE_REBOOT_V1",
-                tier=ResolverTier.SURVIVAL_CRITICAL_WALLY,
-                action_spec=action_spec,
-                certificate_kind=proof.kind,
-                proof=proof,
-                resource_cost=ResourceCost((source_ref,)),
-                transaction_plan=plan,
-                deterministic_tiebreak=canonical_proposal_tiebreak(
-                    action_spec,
-                    proof,
-                ),
-            ),
-        )
-    return ()
-
-
 def enumerate_switch_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
@@ -2166,227 +1537,215 @@ def enumerate_switch_routes(
     return ()
 
 
+def _a4_ref_by_fact(refs, fact):
+    matches = tuple(ref_value for ref_value in refs if ref_value.sort_key() == fact)
+    return matches[0] if len(matches) == 1 else None
+
+
+def enumerate_gust_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
+    registry: PublicEffectRegistry,
+    ledger: ResourceLedger | None = None,
+) -> Tuple[Proposal, ...]:
+    if ledger is None:
+        ledger = build_resource_ledger(state)
+    """Issue only verifier-derived Gate A4 gust proposals."""
+
+    if not features.matches(state, legal_options, registry):
+        return ()
+    verified = []
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if not (
+            option.key.option_type == int(OptionType.EVOLVE)
+            and option.key.card_id == 674
+            or option.key.option_type == int(OptionType.PLAY)
+            and option.key.card_id == 1182
+        ):
+            continue
+        action_spec = ActionSpec.single(option.key)
+        try:
+            proof = verify_gust_dominance_certificate(
+                state,
+                legal_options,
+                ledger,
+                attack_outcomes,
+                registry,
+                action_spec,
+            )
+        except ValueError:
+            continue
+        source_ref = _a4_ref_by_fact(state.own.hand_refs, proof.fact("source_ref"))
+        target_ref = _a4_ref_by_fact(
+            tuple(pokemon.ref for pokemon in state.opponent.bench),
+            proof.fact("gust_target_ref"),
+        )
+        if source_ref is None or target_ref is None:
+            continue
+        route_code = proof.fact("route_code")
+        if route_code == "R_GUST_HARIYAMA_EXACT_DOMINANCE_A3":
+            evolution_target_ref = _a4_ref_by_fact(
+                tuple(pokemon.ref for pokemon in state.own.bench),
+                proof.fact("evolution_target_ref"),
+            )
+            if evolution_target_ref is None:
+                continue
+            plan = build_hariyama_gust_plan(
+                state,
+                source_ref,
+                target_ref,
+                action_spec,
+                proof.digest(),
+            )
+            tier = ResolverTier.TERMINAL_OR_SUPERIOR_GUST
+        elif route_code == "R_GUST_BOSS_EXACT_DOMINANCE_A3":
+            plan = build_boss_gust_plan(
+                state,
+                source_ref,
+                target_ref,
+                action_spec,
+                proof.digest(),
+            )
+            tier = (
+                ResolverTier.TERMINAL_OR_SUPERIOR_GUST
+                if proof.fact("terminal") is True
+                else ResolverTier.STRICTLY_SUPERIOR_GUST
+            )
+        else:
+            continue
+        proposal = Proposal(
+            rule_id=route_code,
+            tier=tier,
+            action_spec=action_spec,
+            certificate_kind=proof.kind,
+            proof=proof,
+            resource_cost=ResourceCost((source_ref,)),
+            transaction_plan=plan,
+            deterministic_tiebreak=canonical_proposal_tiebreak(action_spec, proof),
+        )
+        verified.append((proof.fact("route_priority"), option.key.sort_key(), proposal))
+    if not verified:
+        return ()
+    heave = tuple(
+        row
+        for row in verified
+        if row[-1].action_spec.choices[0].option_type == int(OptionType.EVOLVE)
+    )
+    return (min(heave or tuple(verified))[-1],)
+
+
+def enumerate_wally_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
+    registry: PublicEffectRegistry,
+    ledger: ResourceLedger | None = None,
+) -> Tuple[Proposal, ...]:
+    if ledger is None:
+        ledger = build_resource_ledger(state)
+    """Issue a local Gate A4 Wally proof without suppressing higher routes."""
+
+    if not features.matches(state, legal_options, registry):
+        return ()
+    candidates = []
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1229:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        try:
+            proof = verify_wally_survival_certificate(
+                state,
+                legal_options,
+                ledger,
+                attack_outcomes,
+                registry,
+                action_spec,
+            )
+        except ValueError:
+            continue
+        source_ref = _a4_ref_by_fact(state.own.hand_refs, proof.fact("source_ref"))
+        target_ref = _a4_ref_by_fact(
+            tuple(pokemon.ref for pokemon in state.own.active),
+            proof.fact("target_ref"),
+        )
+        reattach_ref = _a4_ref_by_fact(
+            () if state.own_active is None else state.own_active.energy_refs,
+            proof.fact("reattach_ref"),
+        )
+        if source_ref is None or target_ref is None or reattach_ref is None:
+            continue
+        plan = build_wally_plan(
+            state,
+            source_ref,
+            target_ref,
+            reattach_ref,
+            action_spec,
+            proof.digest(),
+        )
+        proposal = Proposal(
+            rule_id="R_WALLY_THREE_PRIZE_REBOOT_V1",
+            tier=ResolverTier.SURVIVAL_CRITICAL_WALLY,
+            action_spec=action_spec,
+            certificate_kind=proof.kind,
+            proof=proof,
+            resource_cost=ResourceCost((source_ref,)),
+            transaction_plan=plan,
+            deterministic_tiebreak=canonical_proposal_tiebreak(action_spec, proof),
+        )
+        candidates.append((option.key.sort_key(), proposal))
+    return () if not candidates else (min(candidates)[-1],)
+
+
 def enumerate_cape_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     features: DeckFeatures,
     attack_outcomes: BoundAttackOutcomeTable,
     registry: PublicEffectRegistry,
+    ledger: ResourceLedger | None = None,
 ) -> Tuple[Proposal, ...]:
-    """Attach Hero's Cape only for an exact public survival delta."""
+    if ledger is None:
+        ledger = build_resource_ledger(state)
+    """Issue only the verifier-selected global Gate A4 Cape candidate."""
 
-    if (
-        not features.matches(state, legal_options, registry)
-        or not attack_outcomes.matches(state, legal_options, registry)
-    ):
+    if not features.matches(state, legal_options, registry):
         return ()
-
-    def exact_target(option: SemanticOption):
-        key = option.key
-        matches = tuple(
-            pokemon
-            for pokemon in state.own.active + state.own.bench
-            if pokemon.ref.zone == key.target_zone
-            and pokemon.ref.lineage_serial == key.target_lineage_serial
-        )
-        return matches[0] if len(matches) == 1 else None
-
-    def exact_prize_value(target) -> int | None:
-        profile = (
-            None
-            if target.ref.card_id is None
-            else registry.profile(target.ref.card_id)
-        )
-        if profile is None:
-            return None
-        for energy_ref in target.energy_refs:
-            if (
-                energy_ref.card_id is None
-                or not registry.is_effectless_basic_energy(energy_ref.card_id)
-            ):
-                return None
-        return profile.prize_value
-
-    def productive_attack(target):
-        rows = []
-        for row in attack_outcomes.rows:
-            if (
-                row.attacker_ref != target.ref
-                or not row.authoritative
-                or not row.legality_exact
-                or row.legal is not True
-                or row.payable is not True
-                or not row.exact_damage
-                or row.final_damage is None
-                or row.final_damage <= 0
-                or row.knockout is not False
-                or row.attacker_damage != 0
-                or not row.post_attack_exact
-                or row.attacker_hp_after is None
-                or row.attacker_hp_after <= 0
-                or not row.terminal_exact
-                or row.loses_game is not False
-                or row.draws_game is not False
-            ):
-                continue
-            rows.append(
-                (-row.final_damage, row.attack_id, row.option_key.sort_key(), row)
-            )
-        if not rows:
-            return None
-        chosen = min(rows)[-1]
-        return chosen.attack_id, chosen.attacker_hp_after
-
-    candidates = []
-    for option in legal_options:
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
         if (
             option.key.option_type != int(OptionType.ATTACH)
             or option.key.card_id != 1159
         ):
             continue
-        source_ref = _exact_hand_ref(state, option)
-        target = exact_target(option)
-        if source_ref is None or target is None or target.tool_refs:
-            continue
-        prize_value = exact_prize_value(target)
-        if prize_value is None:
-            continue
-        profile = registry.profile(target.ref.card_id)
-        if profile is None:
-            continue
-        if (
-            target.ref.zone == int(AreaType.BENCH)
-            and target.ref.card_id == 677
-            and target.damage > 0
-        ):
-            branch = "BENCH_SPREAD"
-            route_priority = 1
-        elif target.ref.zone == int(AreaType.ACTIVE):
-            branch = "ACTIVE_RESPONSE"
-            if profile.mega_ex and prize_value == 3:
-                route_priority = 0
-            elif target.ref.card_id == 674:
-                route_priority = 2
-            elif prize_value == 1:
-                route_priority = 3
-            else:
-                continue
-        else:
-            continue
-        before_hp = (target.remaining_hp, target.max_hp)
-        after_hp = (target.remaining_hp + 100, target.max_hp + 100)
-        threat = build_public_opponent_attack_threat(
-            state,
-            registry,
-            target_ref=target.ref,
-            before_hp_state=before_hp,
-            after_hp_state=after_hp,
-            admit_spread_attacks=True,
-        )
-        if (
-            not threat.exact
-            or threat.jamming_active is not False
-            or threat.knockout_before_heal is not True
-            or threat.knockout_after_heal is not False
-        ):
-            continue
-        response_target = (
-            state.own_active if branch == "BENCH_SPREAD" else target
-        )
-        if response_target is None:
-            continue
-        if branch == "BENCH_SPREAD":
-            active_hp = (
-                response_target.remaining_hp,
-                response_target.max_hp,
-            )
-            active_threat = build_public_opponent_attack_threat(
-                state,
-                registry,
-                target_ref=response_target.ref,
-                before_hp_state=active_hp,
-                after_hp_state=active_hp,
-                admit_spread_attacks=True,
-            )
-            if (
-                not active_threat.exact
-                or active_threat.jamming_active is not False
-                or active_threat.knockout_before_heal is not False
-            ):
-                continue
-        productive = productive_attack(response_target)
-        preserves_productive_attack = productive is not None
-        prevents_terminal_prize_loss = state.opponent.prize_count <= prize_value
-        if (
-            branch == "ACTIVE_RESPONSE"
-            and not preserves_productive_attack
-            and not prevents_terminal_prize_loss
-        ):
-            continue
         action_spec = ActionSpec.single(option.key)
-        proof = deck_rule_proof(
-            state,
-            legal_options,
-            registry,
-            features,
-            action_spec,
-            route_code="R_CAPE_EXPLICIT_PROTECTION_V1",
-            kind=CertificateKind.RESOURCE_IMPROVEMENT,
-            facts={
-                "route_priority": route_priority,
-                "source_ref": source_ref,
-                "target_ref": target.ref,
-                "branch": branch,
-                "hp_before": before_hp[0],
-                "max_hp_before": before_hp[1],
-                "hp_after": after_hp[0],
-                "max_hp_after": after_hp[1],
-                "opponent_attack_ids": threat.max_attack_ids,
-                "max_target_loss": threat.max_damage,
-                "ko_without": threat.knockout_before_heal,
-                "ko_with": threat.knockout_after_heal,
-                "target_prize_value": prize_value,
-                "prevented_prizes": (
-                    prize_value if prevents_terminal_prize_loss else 0
-                ),
-                "productive_attack_id": (
-                    None if productive is None else productive[0]
-                ),
-                "post_attack_hp": (
-                    None
-                    if productive is None
-                    else productive[1]
-                    + (100 if branch == "ACTIVE_RESPONSE" else 0)
-                ),
-                "jamming_active": threat.jamming_active,
-                "existing_tool_refs": target.tool_refs,
-                "preserves_productive_attack": preserves_productive_attack,
-                "prevents_terminal_prize_loss": prevents_terminal_prize_loss,
-                "other_tool_opportunity_cost": 0,
-                "certificate_status": "PROVISIONAL_GENERIC_GATE_A2",
-            },
-        )
-        proposal = Proposal(
+        try:
+            proof = verify_cape_survival_certificate(
+                state,
+                legal_options,
+                ledger,
+                attack_outcomes,
+                registry,
+                action_spec,
+            )
+        except ValueError:
+            continue
+        source_ref = _a4_ref_by_fact(state.own.hand_refs, proof.fact("source_ref"))
+        if source_ref is None:
+            continue
+        return (
+            Proposal(
                 rule_id="R_CAPE_EXPLICIT_PROTECTION_V1",
                 tier=ResolverTier.CERTIFIED_SURVIVAL,
                 action_spec=action_spec,
                 certificate_kind=proof.kind,
                 proof=proof,
                 resource_cost=ResourceCost((source_ref,)),
-                deterministic_tiebreak=canonical_proposal_tiebreak(
-                    action_spec,
-                    proof,
-                ),
+                deterministic_tiebreak=canonical_proposal_tiebreak(action_spec, proof),
+            ),
         )
-        candidates.append(
-            (
-                route_priority,
-                target.ref.sort_key(),
-                source_ref.sort_key(),
-                proposal,
-            )
-        )
-    return () if not candidates else (min(candidates)[-1],)
+    return ()
 
 
 def enumerate_requirement_routes(
@@ -2407,11 +1766,12 @@ def enumerate_requirement_routes(
             features,
             attack_outcomes,
             registry,
+            ledger,
         )
     )
     proposals.extend(
         enumerate_wally_routes(
-            state, legal_options, features, attack_outcomes, registry
+            state, legal_options, features, attack_outcomes, registry, ledger
         )
     )
     proposals.extend(
@@ -2445,7 +1805,9 @@ def enumerate_requirement_routes(
         enumerate_fighting_gong_routes(state, legal_options, features, registry)
     )
     proposals.extend(
-        enumerate_cape_routes(state, legal_options, features, attack_outcomes, registry)
+        enumerate_cape_routes(
+            state, legal_options, features, attack_outcomes, registry, ledger
+        )
     )
     proposals.extend(
         enumerate_safe_draw_supporter_routes(state, legal_options, features, registry)

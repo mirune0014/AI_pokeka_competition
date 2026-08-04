@@ -33,6 +33,10 @@ try:  # Package import in tests.
         legal_options_fingerprint,
         poke_pad_core_eligible_classes,
         poke_pad_core_formation_proof,
+        verify_cape_survival_certificate,
+        verify_gust_dominance_certificate,
+        verify_wally_survival_certificate,
+        wally_higher_priority_supporter_status,
     )
     from .features import build_deck_features
     from .public_effects import PublicEffectRegistry
@@ -55,7 +59,10 @@ try:  # Package import in tests.
     )
     from .transactions import (
         TransactionPlan,
+        build_boss_gust_plan,
+        build_hariyama_gust_plan,
         build_poke_pad_core_search_plan,
+        build_wally_plan,
     )
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import (
@@ -76,6 +83,10 @@ except ImportError:  # Flat submission import from main.py.
         legal_options_fingerprint,
         poke_pad_core_eligible_classes,
         poke_pad_core_formation_proof,
+        verify_cape_survival_certificate,
+        verify_gust_dominance_certificate,
+        verify_wally_survival_certificate,
+        wally_higher_priority_supporter_status,
     )
     from features import build_deck_features
     from public_effects import PublicEffectRegistry
@@ -98,7 +109,10 @@ except ImportError:  # Flat submission import from main.py.
     )
     from transactions import (
         TransactionPlan,
+        build_boss_gust_plan,
+        build_hariyama_gust_plan,
         build_poke_pad_core_search_plan,
+        build_wally_plan,
     )
 
 
@@ -331,6 +345,9 @@ _ALLOWED_KINDS_BY_SCHEMA = {
     ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: frozenset(
         (CertificateKind.ATTACK_COMPLETION,)
     ),
+    ProofSchema.WALLY_SURVIVAL_V1: frozenset((CertificateKind.RESOURCE_IMPROVEMENT,)),
+    ProofSchema.CAPE_SURVIVAL_V1: frozenset((CertificateKind.RESOURCE_IMPROVEMENT,)),
+    ProofSchema.GUST_DOMINANCE_V1: frozenset((CertificateKind.PRIZE_GAIN_NOW,)),
     ProofSchema.DECK_RULE_V1: frozenset(CertificateKind),
 }
 _ALLOWED_TIERS_BY_SCHEMA = {
@@ -356,6 +373,11 @@ _ALLOWED_TIERS_BY_SCHEMA = {
     ),
     ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: frozenset(
         (ResolverTier.ATTACK_COMPLETION,)
+    ),
+    ProofSchema.WALLY_SURVIVAL_V1: frozenset((ResolverTier.SURVIVAL_CRITICAL_WALLY,)),
+    ProofSchema.CAPE_SURVIVAL_V1: frozenset((ResolverTier.CERTIFIED_SURVIVAL,)),
+    ProofSchema.GUST_DOMINANCE_V1: frozenset(
+        (ResolverTier.TERMINAL_OR_SUPERIOR_GUST, ResolverTier.STRICTLY_SUPERIOR_GUST)
     ),
     ProofSchema.DECK_RULE_V1: frozenset(
         (
@@ -443,6 +465,36 @@ _ALLOWED_COMBINATIONS = frozenset(
             ResolverTier.ATTACK_COMPLETION,
             int(OptionType.ATTACH),
         ),
+        (
+            ProofSchema.WALLY_SURVIVAL_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.SURVIVAL_CRITICAL_WALLY,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.CAPE_SURVIVAL_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.CERTIFIED_SURVIVAL,
+            int(OptionType.ATTACH),
+        ),
+        (
+            ProofSchema.GUST_DOMINANCE_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.GUST_DOMINANCE_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.STRICTLY_SUPERIOR_GUST,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.GUST_DOMINANCE_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+            int(OptionType.EVOLVE),
+        ),
     )
 )
 _DECK_RULE_COMBINATIONS = frozenset(
@@ -524,42 +576,6 @@ _DECK_RULE_COMBINATIONS = frozenset(
             CertificateKind.FIRST_ATTACK_ACCELERATION,
             ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
             int(OptionType.ATTACH),
-        ),
-        (
-            ProofSchema.DECK_RULE_V1,
-            CertificateKind.RESOURCE_IMPROVEMENT,
-            ResolverTier.SURVIVAL_CRITICAL_WALLY,
-            int(OptionType.PLAY),
-        ),
-        (
-            ProofSchema.DECK_RULE_V1,
-            CertificateKind.DENY_CERTAIN_LOSS,
-            ResolverTier.CERTIFIED_SURVIVAL,
-            int(OptionType.PLAY),
-        ),
-        (
-            ProofSchema.DECK_RULE_V1,
-            CertificateKind.RESOURCE_IMPROVEMENT,
-            ResolverTier.CERTIFIED_SURVIVAL,
-            int(OptionType.ATTACH),
-        ),
-        (
-            ProofSchema.DECK_RULE_V1,
-            CertificateKind.PRIZE_GAIN_NOW,
-            ResolverTier.STRICTLY_SUPERIOR_GUST,
-            int(OptionType.PLAY),
-        ),
-        (
-            ProofSchema.DECK_RULE_V1,
-            CertificateKind.PRIZE_GAIN_NOW,
-            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
-            int(OptionType.PLAY),
-        ),
-        (
-            ProofSchema.DECK_RULE_V1,
-            CertificateKind.PRIZE_GAIN_NOW,
-            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
-            int(OptionType.EVOLVE),
         ),
     )
 )
@@ -784,7 +800,12 @@ def canonical_proposal_tiebreak(
             int(future_lock_cost),
             int(attack_id),
         )
-    if proof.schema == ProofSchema.DECK_RULE_V1:
+    if proof.schema in (
+        ProofSchema.DECK_RULE_V1,
+        ProofSchema.WALLY_SURVIVAL_V1,
+        ProofSchema.CAPE_SURVIVAL_V1,
+        ProofSchema.GUST_DOMINANCE_V1,
+    ):
         route_priority = proof.fact("route_priority")
         if (
             isinstance(route_priority, bool)
@@ -1147,6 +1168,185 @@ def _validate_proposal(
             else:
                 if expected_proof.digest() != proposal.proof.digest():
                     reasons.append("ACTIVE_ATTACK_COMPLETION_PROOF_MISMATCH")
+    elif proposal.proof.schema in (
+        ProofSchema.WALLY_SURVIVAL_V1,
+        ProofSchema.CAPE_SURVIVAL_V1,
+        ProofSchema.GUST_DOMINANCE_V1,
+    ):
+        expected_proof = None
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        else:
+            try:
+                current_attack_outcomes = build_attack_outcome_table(
+                    state, legal_options, registry
+                )
+                if proposal.proof.schema == ProofSchema.WALLY_SURVIVAL_V1:
+                    expected_proof = verify_wally_survival_certificate(
+                        state,
+                        legal_options,
+                        ledger,
+                        current_attack_outcomes,
+                        registry,
+                        proposal.action_spec,
+                    )
+                    expected_rule = "R_WALLY_THREE_PRIZE_REBOOT_V1"
+                    expected_tier = ResolverTier.SURVIVAL_CRITICAL_WALLY
+                elif proposal.proof.schema == ProofSchema.CAPE_SURVIVAL_V1:
+                    expected_proof = verify_cape_survival_certificate(
+                        state,
+                        legal_options,
+                        ledger,
+                        current_attack_outcomes,
+                        registry,
+                        proposal.action_spec,
+                    )
+                    expected_rule = "R_CAPE_EXPLICIT_PROTECTION_V1"
+                    expected_tier = ResolverTier.CERTIFIED_SURVIVAL
+                else:
+                    expected_proof = verify_gust_dominance_certificate(
+                        state,
+                        legal_options,
+                        ledger,
+                        current_attack_outcomes,
+                        registry,
+                        proposal.action_spec,
+                    )
+                    expected_rule = expected_proof.fact("route_code")
+                    expected_tier = (
+                        ResolverTier.TERMINAL_OR_SUPERIOR_GUST
+                        if proposal.action_spec.choices[0].option_type
+                        == int(OptionType.EVOLVE)
+                        or expected_proof.fact("terminal") is True
+                        else ResolverTier.STRICTLY_SUPERIOR_GUST
+                    )
+            except (RuntimeError, ValueError):
+                reasons.append("A4_PROOF_RECOMPUTE_REJECTED")
+            else:
+                if expected_proof.digest() != proposal.proof.digest():
+                    reasons.append("A4_PROOF_MISMATCH")
+                if proposal.rule_id != expected_rule:
+                    reasons.append("A4_RULE_ID_MISMATCH")
+                if proposal.proof.fact("route_code") != expected_rule:
+                    reasons.append("A4_PROOF_ROUTE_MISMATCH")
+                if proposal.tier != expected_tier:
+                    reasons.append("A4_TIER_MISMATCH")
+                if proposal.proof.fact("certificate_status") != "VERIFIED_GATE_A4":
+                    reasons.append("A4_STATUS_MISMATCH")
+                if proposal.proof.schema == ProofSchema.WALLY_SURVIVAL_V1:
+                    higher_status = wally_higher_priority_supporter_status(
+                        state,
+                        legal_options,
+                        ledger,
+                        current_attack_outcomes,
+                        registry,
+                    )
+                    if higher_status != "ABSENT_EXACT":
+                        reasons.append(
+                            "WALLY_HIGHER_PRIORITY_SUPPORTER_{0}".format(higher_status)
+                        )
+                if (
+                    proposal.proof.schema == ProofSchema.GUST_DOMINANCE_V1
+                    and proposal.proof.guaranteed_prizes
+                    != expected_proof.fact("prizes_taken")
+                ):
+                    reasons.append("A4_GUST_PRIZE_MISMATCH")
+
+        source_fact = (
+            None if expected_proof is None else expected_proof.fact("source_ref")
+        )
+        source_matches = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == source_fact
+        )
+        source_ref = source_matches[0] if len(source_matches) == 1 else None
+        if source_ref is None:
+            reasons.append("A4_SOURCE_REF_INVALID")
+        elif source_ref not in ledger.visible_refs:
+            reasons.append("A4_SOURCE_NOT_IN_LEDGER")
+        if source_ref is None or proposal.resource_cost.irreversible_refs != (
+            source_ref,
+        ):
+            reasons.append("A4_RESOURCE_COST_MISMATCH")
+        if proposal.reservation_ids:
+            reasons.append("A4_RESERVATION_FORBIDDEN")
+        cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
+        reasons.extend(
+            "LEDGER_COST_REJECTED:{0}".format(reason)
+            for reason in cost_check.rejection_reasons
+        )
+
+        expected_plan = None
+        if expected_proof is not None and source_ref is not None:
+            if proposal.proof.schema == ProofSchema.WALLY_SURVIVAL_V1:
+                target_matches = tuple(
+                    pokemon.ref
+                    for pokemon in state.own.active
+                    if pokemon.ref.sort_key() == expected_proof.fact("target_ref")
+                )
+                target_ref = target_matches[0] if len(target_matches) == 1 else None
+                energy_refs = (
+                    () if state.own_active is None else state.own_active.energy_refs
+                )
+                reattach_matches = tuple(
+                    ref_value
+                    for ref_value in energy_refs
+                    if ref_value.sort_key() == expected_proof.fact("reattach_ref")
+                )
+                reattach_ref = (
+                    reattach_matches[0] if len(reattach_matches) == 1 else None
+                )
+                if target_ref is not None and reattach_ref is not None:
+                    expected_plan = build_wally_plan(
+                        state,
+                        source_ref,
+                        target_ref,
+                        reattach_ref,
+                        proposal.action_spec,
+                        expected_proof.digest(),
+                    )
+            elif proposal.proof.schema == ProofSchema.GUST_DOMINANCE_V1:
+                target_matches = tuple(
+                    pokemon.ref
+                    for pokemon in state.opponent.bench
+                    if pokemon.ref.sort_key() == expected_proof.fact("gust_target_ref")
+                )
+                target_ref = target_matches[0] if len(target_matches) == 1 else None
+                if target_ref is not None:
+                    if (
+                        expected_proof.fact("route_code")
+                        == "R_GUST_BOSS_EXACT_DOMINANCE_A3"
+                    ):
+                        expected_plan = build_boss_gust_plan(
+                            state,
+                            source_ref,
+                            target_ref,
+                            proposal.action_spec,
+                            expected_proof.digest(),
+                        )
+                    elif (
+                        expected_proof.fact("route_code")
+                        == "R_GUST_HARIYAMA_EXACT_DOMINANCE_A3"
+                    ):
+                        expected_plan = build_hariyama_gust_plan(
+                            state,
+                            source_ref,
+                            target_ref,
+                            proposal.action_spec,
+                            expected_proof.digest(),
+                        )
+        if proposal.proof.schema == ProofSchema.CAPE_SURVIVAL_V1:
+            if proposal.transaction_plan is not None:
+                reasons.append("A4_CAPE_TRANSACTION_FORBIDDEN")
+        elif expected_plan is None:
+            reasons.append("A4_TRANSACTION_RECOMPUTE_REJECTED")
+        elif (
+            proposal.transaction_plan != expected_plan
+            or not isinstance(proposal.transaction_plan, TransactionPlan)
+            or proposal.transaction_plan.digest() != expected_plan.digest()
+        ):
+            reasons.append("A4_TRANSACTION_PLAN_MISMATCH")
     elif proposal.proof.schema == ProofSchema.DECK_RULE_V1:
         if not isinstance(registry, PublicEffectRegistry):
             reasons.append("CURRENT_REGISTRY_REQUIRED")
@@ -1416,6 +1616,12 @@ def _validate_proposal(
                         "LEDGER_COST_REJECTED:{0}".format(reason)
                         for reason in cost_check.rejection_reasons
                     )
+    elif proposal.proof.schema in (
+        ProofSchema.WALLY_SURVIVAL_V1,
+        ProofSchema.CAPE_SURVIVAL_V1,
+        ProofSchema.GUST_DOMINANCE_V1,
+    ):
+        pass
     elif proposal.proof.schema == ProofSchema.DECK_RULE_V1:
         cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
         reasons.extend(
@@ -1447,6 +1653,9 @@ def _validate_proposal(
         not in (
             ProofSchema.POKE_PAD_CORE_FORMATION_V1,
             ProofSchema.DECK_RULE_V1,
+            ProofSchema.WALLY_SURVIVAL_V1,
+            ProofSchema.CAPE_SURVIVAL_V1,
+            ProofSchema.GUST_DOMINANCE_V1,
         )
         and proposal.transaction_plan is not None
     ):

@@ -228,9 +228,7 @@ def _case(
 
 
 def _wally(case):
-    return enumerate_wally_routes(
-        case[0], case[1], case[2], case[3], case[4]
-    )
+    return enumerate_wally_routes(case[0], case[1], case[2], case[3], case[4])
 
 
 def test_low_printed_damage_uses_weakness_resistance_and_emits_wally():
@@ -248,7 +246,7 @@ def test_low_printed_damage_uses_weakness_resistance_and_emits_wally():
     assert proposal.proof.fact("after_hp") == 340
     assert proposal.proof.fact("max_opponent_attack_ids") == (2001,)
     assert proposal.proof.fact("reestablished_attack_id") == 982
-    assert proposal.proof.fact("certificate_status") == "PROVISIONAL_GENERIC_GATE_A1"
+    assert proposal.proof.fact("certificate_status") == "VERIFIED_GATE_A4"
     steps = proposal.transaction_plan.steps
     assert len(steps) == 2
     assert steps[0].stage == TransactionStage.SELECT_EFFECT_TARGET
@@ -290,9 +288,7 @@ def test_terminal_boss_is_preferred_and_wally_is_not_strong():
             {"type": int(OptionType.ATTACK), "attackId": 982},
         ),
     )
-    gust = enumerate_gust_routes(
-        case[0], case[1], case[2], case[3], case[4]
-    )
+    gust = enumerate_gust_routes(case[0], case[1], case[2], case[3], case[4])
 
     assert len(gust) == 1
     assert gust[0].action_spec.choices[0].card_id == 1182
@@ -326,9 +322,7 @@ def test_unknown_wally_does_not_suppress_judge_and_records_reason():
     assert not threat.exact
     assert threat.unknown_reasons == ("UNSUPPORTED_PAYABLE_ATTACK_EFFECT_2001",)
     assert _wally(case) == ()
-    draw = enumerate_safe_draw_supporter_routes(
-        case[0], case[1], case[2], case[4]
-    )
+    draw = enumerate_safe_draw_supporter_routes(case[0], case[1], case[2], case[4])
     assert any(row.action_spec.choices[0].card_id == 1213 for row in draw)
 
 

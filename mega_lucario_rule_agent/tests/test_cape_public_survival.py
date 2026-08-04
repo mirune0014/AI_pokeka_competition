@@ -3,7 +3,11 @@ from mega_lucario_rule_agent.card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
 from mega_lucario_rule_agent.features import build_deck_features
 from mega_lucario_rule_agent.public_effects import build_public_effect_registry
 from mega_lucario_rule_agent.routes import enumerate_cape_routes
-from mega_lucario_rule_agent.state_view import AreaType, OptionType, build_semantic_options
+from mega_lucario_rule_agent.state_view import (
+    AreaType,
+    OptionType,
+    build_semantic_options,
+)
 from mega_lucario_rule_agent.tests.test_attack_outcomes import (
     card,
     checked_state,
@@ -36,9 +40,7 @@ def _cape_options(*, with_attack=True):
 
 
 def _cape(case):
-    return enumerate_cape_routes(
-        case[0], case[1], case[2], case[3], case[4]
-    )
+    return enumerate_cape_routes(case[0], case[1], case[2], case[3], case[4])
 
 
 def _active_case(
@@ -78,13 +80,11 @@ def test_active_ko_delta_with_productive_attack_emits_cape_and_facts():
     assert proof.fact("productive_attack_id") == 982
     assert proof.fact("preserves_productive_attack") is True
     assert proof.fact("prevents_terminal_prize_loss") is False
-    assert proof.fact("certificate_status") == "PROVISIONAL_GENERIC_GATE_A2"
+    assert proof.fact("certificate_status") == "VERIFIED_GATE_A4"
 
 
 def test_gate0_no_attacks_and_non_delta_cases_do_not_emit():
-    assert _cape(
-        _active_case(opponent_damage=180, opponent_attacks=())
-    ) == ()
+    assert _cape(_active_case(opponent_damage=180, opponent_attacks=())) == ()
     # 200 * 2 - 30 = 370, so Cape still cannot save 160 + 100 HP.
     assert _cape(_active_case(opponent_damage=200)) == ()
     # 170 damage already leaves an Active at 200 HP alive without Cape.
@@ -96,9 +96,7 @@ def test_delta_without_productive_attack_or_terminal_loss_does_not_emit():
 
 
 def test_exact_three_prize_terminal_loss_is_sufficient_without_attack():
-    proposals = _cape(
-        _active_case(with_attack=False, opponent_prizes=3)
-    )
+    proposals = _cape(_active_case(with_attack=False, opponent_prizes=3))
 
     assert len(proposals) == 1
     proof = proposals[0].proof
@@ -130,9 +128,7 @@ def test_existing_tool_blocks_cape_even_when_survival_delta_exists():
     features = build_deck_features(state, options, registry)
     outcomes = build_attack_outcome_table(state, options, registry)
 
-    assert enumerate_cape_routes(
-        state, options, features, outcomes, registry
-    ) == ()
+    assert enumerate_cape_routes(state, options, features, outcomes, registry) == ()
 
 
 def _basic_energy_row(card_id, name, energy_type):
@@ -283,7 +279,7 @@ def test_exact_phantom_dive_saves_damaged_bench_riolu_order_independently():
     assert proof.fact("max_target_loss") == 60
     assert proof.fact("ko_without") is True
     assert proof.fact("ko_with") is False
-    assert proof.fact("certificate_status") == "PROVISIONAL_GENERIC_GATE_A2"
+    assert proof.fact("certificate_status") == "VERIFIED_GATE_A4"
 
 
 def test_jamming_tower_blocks_exact_bench_cape_delta():

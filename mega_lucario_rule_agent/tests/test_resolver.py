@@ -465,6 +465,9 @@ def test_safe_profile_rejects_tier_kind_and_action_spec_escalation():
         ProofSchema.POKE_PAD_CORE_FORMATION_V1,
         ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1,
         ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1,
+        ProofSchema.WALLY_SURVIVAL_V1,
+        ProofSchema.CAPE_SURVIVAL_V1,
+        ProofSchema.GUST_DOMINANCE_V1,
     }
 
 
