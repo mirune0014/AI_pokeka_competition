@@ -355,7 +355,7 @@ def test_hariyama_gust_preempts_boss_for_exact_high_prize_ko():
     assert proposal.proof.fact("gust_target_ref")[2] == 901
 
 
-def test_wally_reattaches_returned_energy_before_attack_replan():
+def test_wally_does_not_emit_without_a_public_opponent_attack():
     current = _case(
         attack_ids=(982,),
         active=pokemon(
@@ -371,15 +371,10 @@ def test_wally_reattaches_returned_energy_before_attack_replan():
             {"type": int(OptionType.ATTACK), "attackId": 982},
         ),
     )
-    proposals = enumerate_wally_routes(current[0], current[1], current[2], current[4])
-    assert len(proposals) == 1
-    steps = proposals[0].transaction_plan.steps
-    assert len(steps) == 2
-    reattach = steps[1].action_spec.choices[0]
-    assert reattach.option_type == int(OptionType.ATTACH)
-    assert reattach.card_serial == 50
-    assert reattach.source_zone == int(AreaType.HAND)
-    assert reattach.target_lineage_serial == current[0].own_active.lineage_serial
+    proposals = enumerate_wally_routes(
+        current[0], current[1], current[2], current[3], current[4]
+    )
+    assert proposals == ()
 
 
 def test_switch_and_cape_emit_only_for_explicit_targets():

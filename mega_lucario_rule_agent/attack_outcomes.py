@@ -157,6 +157,69 @@ LILLIES_POKEMON_CARD_IDS = frozenset((272, 278, 279, 280))
 STEVENS_POKEMON_CARD_IDS = frozenset((635, 636, 637, 638, 639, 640, 641))
 
 
+@dataclass(frozen=True)
+class OpponentAttackThreatRow:
+    """One exactly payable public opponent attack at two target HP states."""
+
+    attack_id: int
+    energy_cost: Tuple[int, ...]
+    final_damage: int
+    knockout_before_heal: bool
+    knockout_after_heal: bool
+
+    def __post_init__(self) -> None:
+        if (
+            not _is_exact_int(self.attack_id)
+            or self.attack_id <= 0
+            or not isinstance(self.energy_cost, tuple)
+            or any(
+                not _is_exact_int(value) or value < 0
+                for value in self.energy_cost
+            )
+            or not _is_exact_int(self.final_damage)
+            or self.final_damage < 0
+            or not isinstance(self.knockout_before_heal, bool)
+            or not isinstance(self.knockout_after_heal, bool)
+        ):
+            raise ValueError("opponent attack threat row must be exact")
+
+
+@dataclass(frozen=True)
+class OpponentAttackThreatSurface:
+    """Fail-closed public next-attack surface used by survival routes."""
+
+    rows: Tuple[OpponentAttackThreatRow, ...]
+    unpayable_attack_ids: Tuple[int, ...]
+    max_damage: Optional[int]
+    max_attack_ids: Tuple[int, ...]
+    knockout_before_heal: Optional[bool]
+    knockout_after_heal: Optional[bool]
+    unknown_reasons: Tuple[str, ...]
+
+    @property
+    def exact(self) -> bool:
+        return not self.unknown_reasons
+
+
+@dataclass(frozen=True)
+class PostWallyProductiveAttack:
+    """Checked same-turn attack restored by one manual post-Wally attach."""
+
+    reattach_ref: PhysicalRef
+    attack_id: int
+    final_damage: int
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.reattach_ref, PhysicalRef)
+            or not _is_exact_int(self.attack_id)
+            or self.attack_id <= 0
+            or not _is_exact_int(self.final_damage)
+            or self.final_damage <= 0
+        ):
+            raise ValueError("post-Wally attack must be exact and productive")
+
+
 def _is_exact_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
@@ -995,6 +1058,424 @@ def _collect_combat_effects(
         stadium=stadium,
         jamming_active=jamming_active,
         unknown_reasons=_canonical_reasons(reasons),
+    )
+
+
+def _exact_basic_energy_types(
+    pokemon: PokemonView,
+    registry: PublicEffectRegistry,
+) -> tuple[Tuple[int, ...], Tuple[str, ...]]:
+    reasons = []
+    if len(pokemon.energy_types) != len(pokemon.energy_refs):
+        reasons.append("PUBLIC_ENERGY_TYPE_CARD_COUNT_MISMATCH")
+        return (), _canonical_reasons(reasons)
+    values = []
+    for observed_type, ref_value in zip(
+        pokemon.energy_types,
+        pokemon.energy_refs,
+    ):
+        if (
+            not _is_exact_int(observed_type)
+            or observed_type <= 0
+            or ref_value.card_id is None
+            or not registry.is_effectless_basic_energy(ref_value.card_id)
+        ):
+            reasons.append(_ref_reason("NON_BASIC_OR_UNKNOWN_ENERGY", ref_value))
+            continue
+        profile = registry.effect_profile(ref_value.card_id)
+        if profile is None or profile.energy_type != observed_type:
+            reasons.append(_ref_reason("ENERGY_TYPE_PROFILE_MISMATCH", ref_value))
+            continue
+        values.append(int(observed_type))
+    if reasons:
+        return (), _canonical_reasons(reasons)
+    return tuple(values), ()
+
+
+def _public_cost_is_payable(
+    attached_energy_types: Sequence[int],
+    energy_cost: Sequence[int],
+) -> Optional[bool]:
+    if any(
+        not _is_exact_int(value) or value <= 0
+        for value in attached_energy_types
+    ) or any(not _is_exact_int(value) or value < 0 for value in energy_cost):
+        return None
+    remaining = list(int(value) for value in attached_energy_types)
+    for required in (int(value) for value in energy_cost if int(value) > 0):
+        try:
+            remaining.remove(required)
+        except ValueError:
+            return False
+    colorless_count = sum(int(value) == 0 for value in energy_cost)
+    return len(remaining) >= colorless_count
+
+
+def _fixed_public_attack_damage(
+    effects: _CombatEffects,
+    printed_damage: int,
+    *,
+    target_hp: int,
+    target_max_hp: int,
+) -> tuple[int, bool]:
+    weakness_multiplier = (
+        2
+        if effects.target_profile.weakness
+        == effects.attacker_profile.energy_type
+        else 1
+    )
+    resistance_reduction = (
+        RESISTANCE_REDUCTION
+        if effects.target_profile.resistance
+        == effects.attacker_profile.energy_type
+        else 0
+    )
+    after_weakness_resistance = max(
+        0,
+        printed_damage * weakness_multiplier - resistance_reduction,
+    )
+    field_reduction = 0
+    if (
+        "FULL_METAL_LAB" in effects.stadium
+        and effects.target_profile.energy_type == METAL_ENERGY_TYPE
+    ):
+        field_reduction += FIELD_DAMAGE_REDUCTION
+    if (
+        "GRANITE_CAVE" in effects.stadium
+        and effects.target_profile.card_id in STEVENS_POKEMON_CARD_IDS
+    ):
+        field_reduction += FIELD_DAMAGE_REDUCTION
+    damage_before_prevention = max(
+        0,
+        after_weakness_resistance - field_reduction,
+    )
+    prevented = (
+        effects.attacker_profile.rule_box
+        and (
+            "SAFEGUARD" in effects.target_abilities
+            or "MYSTERIOUS_ROCK_INN" in effects.target_abilities
+        )
+    ) or (
+        effects.attacker_profile.has_ability
+        and "CORNERSTONE_STANCE" in effects.target_abilities
+    ) or (
+        "NEUTRALIZATION_ZONE" in effects.stadium
+        and effects.attacker_profile.rule_box
+        and not effects.target_profile.rule_box
+    ) or (
+        "IMPERVIOUS_SHELL" in effects.target_abilities
+        and damage_before_prevention >= 200
+    )
+    final_damage = 0 if prevented else damage_before_prevention
+    sturdy_applied = (
+        "STURDY" in effects.target_abilities
+        and target_hp == target_max_hp
+        and final_damage >= target_hp
+        and final_damage > 0
+    )
+    return final_damage, not sturdy_applied and final_damage >= target_hp
+
+
+def build_public_opponent_attack_threat(
+    state: PublicState,
+    registry: PublicEffectRegistry,
+) -> OpponentAttackThreatSurface:
+    """Evaluate the opponent Active's current public attacks at current/full HP.
+
+    Hidden draws, future attachments and future evolution are intentionally not
+    assumed. Any currently payable attack with unsupported printed text makes
+    the survival claim unknown rather than optimistic.
+    """
+
+    reasons = []
+    attacker = state.opponent_active if isinstance(state, PublicState) else None
+    target = state.own_active if isinstance(state, PublicState) else None
+    if not isinstance(state, PublicState) or not is_checked_public_state(state):
+        reasons.append("UNCHECKED_PUBLIC_STATE")
+    elif not state.source_combat_complete or not is_stable_main_state(state):
+        reasons.append("INCOMPLETE_OR_UNSTABLE_PUBLIC_COMBAT_STATE")
+    if attacker is None or len(state.opponent.active) != 1:
+        reasons.append("OPPONENT_ACTIVE_NOT_UNIQUE_AND_PUBLIC")
+    if target is None or len(state.own.active) != 1:
+        reasons.append("OWN_ACTIVE_NOT_UNIQUE_AND_PUBLIC")
+    if attacker is not None and not _active_ref_is_complete(
+        attacker.ref,
+        state.opponent.index,
+    ):
+        reasons.append("INCOMPLETE_OPPONENT_ATTACKER_PHYSICAL_REF")
+    if target is not None and not _active_ref_is_complete(target.ref, state.seat):
+        reasons.append("INCOMPLETE_OWN_TARGET_PHYSICAL_REF")
+    if any(
+        (
+            state.opponent.poisoned,
+            state.opponent.burned,
+            state.opponent.asleep,
+            state.opponent.paralyzed,
+            state.opponent.confused,
+        )
+    ):
+        reasons.append("OPPONENT_STATUS_NEXT_ATTACK_UNRESOLVED")
+    effects = (
+        None
+        if attacker is None or target is None
+        else _collect_combat_effects(state, registry, attacker, target)
+    )
+    if effects is None:
+        reasons.append("MISSING_OPPONENT_COMBAT_PROFILE")
+    else:
+        reasons.extend(effects.unknown_reasons)
+    energy_types: Tuple[int, ...] = ()
+    if attacker is not None:
+        energy_types, energy_reasons = _exact_basic_energy_types(attacker, registry)
+        reasons.extend(energy_reasons)
+    if target is not None and effects is not None:
+        expected_max_hp = effects.target_profile.hp + (
+            100 if "HEROS_CAPE" in effects.target_tools else 0
+        )
+        if (
+            target.remaining_hp <= 0
+            or target.max_hp <= 0
+            or target.remaining_hp > target.max_hp
+            or target.max_hp != expected_max_hp
+        ):
+            reasons.append("OWN_TARGET_HP_NOT_EXACT_FROM_PUBLIC_EFFECTS")
+    attack_ids = () if effects is None else effects.attacker_profile.attack_ids
+    rows = []
+    unpayable = []
+    if not reasons:
+        for attack_id in attack_ids:
+            profile = registry.attack_profile(attack_id)
+            if profile is None:
+                reasons.append(f"UNKNOWN_PUBLIC_ATTACK_PROFILE_{attack_id}")
+                continue
+            payable = _public_cost_is_payable(energy_types, profile.energy_cost)
+            if payable is None:
+                reasons.append(f"UNKNOWN_PUBLIC_ATTACK_COST_{attack_id}")
+                continue
+            if not payable:
+                unpayable.append(attack_id)
+                continue
+            if profile.effect_text:
+                reasons.append(f"UNSUPPORTED_PAYABLE_ATTACK_EFFECT_{attack_id}")
+                continue
+            before_damage, before_ko = _fixed_public_attack_damage(
+                effects,
+                profile.printed_damage,
+                target_hp=target.remaining_hp,
+                target_max_hp=target.max_hp,
+            )
+            after_damage, after_ko = _fixed_public_attack_damage(
+                effects,
+                profile.printed_damage,
+                target_hp=target.max_hp,
+                target_max_hp=target.max_hp,
+            )
+            if before_damage != after_damage:
+                reasons.append(f"HP_DEPENDENT_DAMAGE_UNSUPPORTED_{attack_id}")
+                continue
+            rows.append(
+                OpponentAttackThreatRow(
+                    attack_id=attack_id,
+                    energy_cost=profile.energy_cost,
+                    final_damage=before_damage,
+                    knockout_before_heal=before_ko,
+                    knockout_after_heal=after_ko,
+                )
+            )
+    unknown_reasons = _canonical_reasons(reasons)
+    if unknown_reasons:
+        max_damage = None
+        max_attack_ids: Tuple[int, ...] = ()
+        knockout_before: Optional[bool] = None
+        knockout_after: Optional[bool] = None
+    else:
+        max_damage = max((row.final_damage for row in rows), default=0)
+        max_attack_ids = tuple(
+            row.attack_id for row in rows if row.final_damage == max_damage
+        )
+        knockout_before = any(row.knockout_before_heal for row in rows)
+        knockout_after = any(row.knockout_after_heal for row in rows)
+    return OpponentAttackThreatSurface(
+        rows=tuple(rows),
+        unpayable_attack_ids=tuple(unpayable),
+        max_damage=max_damage,
+        max_attack_ids=max_attack_ids,
+        knockout_before_heal=knockout_before,
+        knockout_after_heal=knockout_after,
+        unknown_reasons=unknown_reasons,
+    )
+
+
+def build_post_wally_productive_attack(
+    state: PublicState,
+    registry: PublicEffectRegistry,
+    wally_ref: PhysicalRef,
+    reattach_ref: PhysicalRef,
+) -> Optional[PostWallyProductiveAttack]:
+    """Recompute the exact attack surface after Wally and one reattach."""
+
+    if (
+        not isinstance(state, PublicState)
+        or not is_checked_public_state(state)
+        or not isinstance(registry, PublicEffectRegistry)
+        or not isinstance(wally_ref, PhysicalRef)
+        or not isinstance(reattach_ref, PhysicalRef)
+        or not is_stable_main_state(state)
+        or not state.source_combat_complete
+        or not state.history_complete
+        or state.supporter_played
+        or state.energy_attached
+        or state.attacked_this_turn
+        or state.own.poisoned
+        or state.own.burned
+        or state.own.asleep
+        or state.own.paralyzed
+        or state.own.confused
+        or state.own.deck_count < 1
+        or wally_ref.card_id != 1229
+        or wally_ref.owner != state.seat
+        or wally_ref.zone != int(AreaType.HAND)
+        or sum(ref_value == wally_ref for ref_value in state.own.hand_refs) != 1
+    ):
+        return None
+    attacker = state.own_active
+    defender = state.opponent_active
+    if (
+        attacker is None
+        or defender is None
+        or attacker.ref.card_id != 678
+        or attacker.damage <= 0
+        or not attacker.energy_refs
+        or reattach_ref not in attacker.energy_refs
+    ):
+        return None
+    energy_types, energy_reasons = _exact_basic_energy_types(attacker, registry)
+    if energy_reasons:
+        return None
+    typed_refs = tuple(zip(attacker.energy_refs, energy_types))
+    selected = tuple(
+        energy_type
+        for ref_value, energy_type in typed_refs
+        if ref_value == reattach_ref
+    )
+    if len(selected) != 1:
+        return None
+    reattach_type = selected[0]
+    hand_returned = tuple(
+        replace(ref_value, zone=int(AreaType.HAND))
+        for ref_value in attacker.energy_refs
+    )
+    selected_hand_ref = replace(reattach_ref, zone=int(AreaType.HAND))
+    selected_attached_ref = replace(reattach_ref, zone=int(AreaType.ENERGY))
+    post_active = replace(
+        attacker,
+        hp=attacker.max_hp,
+        energy_types=(reattach_type,),
+        energy_refs=(selected_attached_ref,),
+    )
+    post_hand_refs = tuple(
+        sorted(
+            (
+                ref_value
+                for ref_value in (
+                    *(
+                        value
+                        for value in state.own.hand_refs
+                        if value != wally_ref
+                    ),
+                    *hand_returned,
+                )
+                if ref_value != selected_hand_ref
+            ),
+            key=lambda value: value.sort_key(),
+        )
+    )
+    if len(set(post_hand_refs)) != len(post_hand_refs):
+        return None
+    post_own = replace(
+        state.own,
+        active=(post_active,),
+        hand_refs=post_hand_refs,
+        hand_count=state.own.hand_count - 2 + len(attacker.energy_refs),
+    )
+    card_profile = registry.profile(post_active.ref.card_id)
+    if card_profile is None:
+        return None
+    payable_attack_ids = []
+    for attack_id in card_profile.attack_ids:
+        cost = _registered_attack_energy_cost(
+            registry,
+            int(post_active.ref.card_id),
+            int(attack_id),
+        )
+        if cost is None:
+            return None
+        deficit = _typed_energy_deficit((reattach_type,), cost)
+        if deficit is None:
+            return None
+        if deficit == 0 and not (
+            ATTACK_META_BY_ID[attack_id].semantics.same_attack_lock_next_own_turn
+            and _same_attack_is_locked(state, attacker, attack_id)
+        ):
+            payable_attack_ids.append(attack_id)
+    if not payable_attack_ids:
+        return None
+    hypothetical_options = tuple(
+        SemanticOption(
+            index=index,
+            key=_hypothetical_attack_key(
+                state,
+                post_active,
+                defender,
+                attack_id,
+            ),
+        )
+        for index, attack_id in enumerate(payable_attack_ids)
+    )
+    post_state = replace(
+        state,
+        own=post_own,
+        supporter_played=True,
+        energy_attached=True,
+        turn_action_count=state.turn_action_count + 2,
+        source_options_fingerprint=semantic_options_fingerprint(
+            hypothetical_options
+        ),
+    )
+    object.__setattr__(
+        post_state,
+        "_builder_receipt",
+        public_state_fingerprint(post_state),
+    )
+    if not is_checked_public_state(post_state):
+        return None
+    table = build_attack_outcome_table(post_state, hypothetical_options, registry)
+    candidates = tuple(
+        sorted(
+            (
+                (-int(outcome.final_damage), outcome.attack_id, outcome)
+                for outcome in table.rows
+                if outcome.authoritative
+                and outcome.legality_exact
+                and outcome.legal is True
+                and outcome.payable is True
+                and outcome.exact_damage
+                and outcome.final_damage is not None
+                and outcome.final_damage > 0
+                and outcome.terminal_exact
+                and outcome.loses_game is False
+                and outcome.draws_game is False
+            ),
+            key=lambda row: (row[0], row[1]),
+        )
+    )
+    if not candidates:
+        return None
+    chosen = candidates[0][2]
+    return PostWallyProductiveAttack(
+        reattach_ref=reattach_ref,
+        attack_id=chosen.attack_id,
+        final_damage=int(chosen.final_damage),
     )
 
 
@@ -2000,6 +2481,9 @@ __all__ = [
     "AttackCallbackPreview",
     "AttackOutcome",
     "BoundAttackOutcomeTable",
+    "OpponentAttackThreatRow",
+    "OpponentAttackThreatSurface",
+    "PostWallyProductiveAttack",
     "FIELD_DAMAGE_REDUCTION",
     "FIGHTING_ENERGY_TYPE",
     "LILLIES_POKEMON_CARD_IDS",
@@ -2012,6 +2496,8 @@ __all__ = [
     "STEVENS_POKEMON_CARD_IDS",
     "build_active_post_attach_attack_completion",
     "build_attack_outcome_table",
+    "build_post_wally_productive_attack",
+    "build_public_opponent_attack_threat",
     "is_fully_exact_attack_completion_outcome",
     "semantic_options_fingerprint",
 ]

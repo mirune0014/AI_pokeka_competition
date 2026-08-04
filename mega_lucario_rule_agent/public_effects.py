@@ -100,6 +100,55 @@ class EffectBinding:
         )
 
 
+@dataclass(frozen=True)
+class PublicAttackProfile:
+    """Exact immutable row from the public attack catalog.
+
+    This is deliberately broader than ``EffectBinding``: it retains attacks
+    from every deck while leaving unsupported printed effects fail-closed at
+    the point where a tactical caller tries to interpret them.
+    """
+
+    attack_id: int
+    attack_name: str
+    effect_text: str
+    text_hash: str
+    printed_damage: int
+    energy_cost: Tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if not _is_exact_int(self.attack_id) or self.attack_id <= 0:
+            raise ValueError("attack profile requires a positive attack ID")
+        if (
+            not isinstance(self.attack_name, str)
+            or not self.attack_name
+            or normalize_catalog_text(self.attack_name) != self.attack_name
+        ):
+            raise ValueError("attack profile requires a normalized name")
+        if (
+            not isinstance(self.effect_text, str)
+            or normalize_catalog_text(self.effect_text) != self.effect_text
+            or self.text_hash != normalized_text_hash(self.effect_text)
+        ):
+            raise ValueError("attack profile requires checked normalized text")
+        if not _is_exact_int(self.printed_damage) or self.printed_damage < 0:
+            raise ValueError("attack profile damage must be a non-negative int")
+        if not isinstance(self.energy_cost, tuple) or any(
+            not _is_exact_int(value) or value < 0 for value in self.energy_cost
+        ):
+            raise ValueError("attack profile cost must contain exact Energy types")
+
+    def canonical(self) -> Tuple[object, ...]:
+        return (
+            self.attack_id,
+            self.attack_name,
+            self.effect_text,
+            self.text_hash,
+            self.printed_damage,
+            self.energy_cost,
+        )
+
+
 _COMBAT_CARD_PROFILE_ISSUER_TOKEN = object()
 _EFFECT_CARD_PROFILE_ISSUER_TOKEN = object()
 
@@ -1173,6 +1222,41 @@ def _materialize_catalog(values: object) -> Tuple[object, ...]:
     return ()
 
 
+def _attack_profile_from_row(row: object) -> Optional[PublicAttackProfile]:
+    attack_id = _read_field(row, "attackId", "attack_id", "id")
+    name = _read_field(row, "name")
+    text = _read_field(row, "text", "effect_text")
+    damage = _read_field(row, "damage", "printed_damage")
+    energies = _read_field(row, "energies", "energy_cost", "cost")
+    if (
+        not _is_exact_int(attack_id)
+        or attack_id <= 0
+        or not isinstance(name, str)
+        or not normalize_catalog_text(name)
+        or not isinstance(text, str)
+        or not _is_exact_int(damage)
+        or damage < 0
+        or not isinstance(energies, Iterable)
+        or isinstance(energies, (str, bytes, Mapping))
+    ):
+        return None
+    energy_cost = tuple(energies)
+    if any(not _is_exact_int(value) or value < 0 for value in energy_cost):
+        return None
+    normalized_text = normalize_catalog_text(text)
+    try:
+        return PublicAttackProfile(
+            attack_id=attack_id,
+            attack_name=normalize_catalog_text(name),
+            effect_text=normalized_text,
+            text_hash=normalized_text_hash(normalized_text),
+            printed_damage=damage,
+            energy_cost=energy_cost,
+        )
+    except ValueError:
+        return None
+
+
 _PUBLIC_EFFECT_REGISTRY_ISSUER_TOKEN = object()
 
 
@@ -1181,12 +1265,17 @@ class PublicEffectRegistry:
     admission: CatalogAdmission = dataclass_field(init=False)
     profiles: Tuple[CombatCardProfile, ...] = dataclass_field(init=False)
     effect_profiles: Tuple[EffectCardProfile, ...] = dataclass_field(init=False)
+    attack_profiles: Tuple[PublicAttackProfile, ...] = dataclass_field(init=False)
     effectless_basic_energy_cards: Tuple[Tuple[int, str, int], ...] = dataclass_field(
         init=False
     )
     malformed_pokemon_card_ids: Tuple[int, ...] = dataclass_field(init=False)
     malformed_effect_card_ids: Tuple[int, ...] = dataclass_field(init=False)
     ambiguous_card_ids: Tuple[int, ...] = dataclass_field(init=False)
+    malformed_attack_ids: Tuple[int, ...] = dataclass_field(init=False)
+    ambiguous_attack_ids: Tuple[int, ...] = dataclass_field(init=False)
+    malformed_unidentified_attack_count: int = dataclass_field(init=False)
+    attack_catalog_sha256: str = dataclass_field(init=False)
     catalog_sha256: str = dataclass_field(init=False)
     digest: str = dataclass_field(init=False)
 
@@ -1206,6 +1295,31 @@ class PublicEffectRegistry:
             _CATALOG_ADMISSION_ISSUER_TOKEN,
         )
         card_index = _catalog_index(card_rows, ("cardId", "card_id"))
+        attack_index = _catalog_index(
+            attack_rows,
+            ("attackId", "attack_id", "id"),
+        )
+        attack_profiles = []
+        malformed_attacks = []
+        ambiguous_attacks = []
+        for attack_id in sorted(attack_index):
+            attack_row = attack_index[attack_id]
+            if attack_row is None:
+                ambiguous_attacks.append(attack_id)
+                continue
+            attack_profile = _attack_profile_from_row(attack_row)
+            if attack_profile is None:
+                malformed_attacks.append(attack_id)
+            else:
+                attack_profiles.append(attack_profile)
+        malformed_unidentified_attack_count = sum(
+            1
+            for row in attack_rows
+            if not _is_exact_int(
+                _read_field(row, "attackId", "attack_id", "id")
+            )
+            or int(_read_field(row, "attackId", "attack_id", "id")) <= 0
+        )
         profiles = []
         effect_profiles = []
         effectless_basic_energy_cards = []
@@ -1245,10 +1359,13 @@ class PublicEffectRegistry:
                 )
         profile_tuple = tuple(profiles)
         effect_profile_tuple = tuple(effect_profiles)
+        attack_profile_tuple = tuple(attack_profiles)
         basic_energy_tuple = tuple(effectless_basic_energy_cards)
         malformed_pokemon_tuple = tuple(malformed_pokemon)
         malformed_effect_tuple = tuple(malformed_effect)
         ambiguous_tuple = tuple(ambiguous)
+        malformed_attack_tuple = tuple(malformed_attacks)
+        ambiguous_attack_tuple = tuple(ambiguous_attacks)
         catalog_payload = {
             "profiles": tuple(profile.canonical() for profile in profile_tuple),
             "effect_profiles": tuple(
@@ -1267,9 +1384,29 @@ class PublicEffectRegistry:
                 separators=(",", ":"),
             ).encode("utf-8")
         ).hexdigest()
+        attack_catalog_payload = {
+            "row_count": len(attack_rows),
+            "profiles": tuple(
+                profile.canonical() for profile in attack_profile_tuple
+            ),
+            "malformed_attack_ids": malformed_attack_tuple,
+            "ambiguous_attack_ids": ambiguous_attack_tuple,
+            "malformed_unidentified_attack_count": (
+                malformed_unidentified_attack_count
+            ),
+        }
+        attack_catalog_sha256 = hashlib.sha256(
+            json.dumps(
+                attack_catalog_payload,
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
         digest_payload = {
             "effect_manifest_sha256": EFFECT_MANIFEST_SHA256,
             "catalog_sha256": catalog_sha256,
+            "attack_catalog_sha256": attack_catalog_sha256,
             "admitted_bindings": admission.admitted_bindings,
             "rejected_bindings": admission.rejected_bindings,
         }
@@ -1284,6 +1421,7 @@ class PublicEffectRegistry:
         object.__setattr__(self, "admission", admission)
         object.__setattr__(self, "profiles", profile_tuple)
         object.__setattr__(self, "effect_profiles", effect_profile_tuple)
+        object.__setattr__(self, "attack_profiles", attack_profile_tuple)
         object.__setattr__(
             self,
             "effectless_basic_energy_cards",
@@ -1300,6 +1438,14 @@ class PublicEffectRegistry:
             malformed_effect_tuple,
         )
         object.__setattr__(self, "ambiguous_card_ids", ambiguous_tuple)
+        object.__setattr__(self, "malformed_attack_ids", malformed_attack_tuple)
+        object.__setattr__(self, "ambiguous_attack_ids", ambiguous_attack_tuple)
+        object.__setattr__(
+            self,
+            "malformed_unidentified_attack_count",
+            malformed_unidentified_attack_count,
+        )
+        object.__setattr__(self, "attack_catalog_sha256", attack_catalog_sha256)
         object.__setattr__(self, "catalog_sha256", catalog_sha256)
         object.__setattr__(self, "digest", digest)
 
@@ -1319,6 +1465,16 @@ class PublicEffectRegistry:
                 profile
                 for profile in self.effect_profiles
                 if profile.card_id == card_id
+            ),
+            None,
+        )
+
+    def attack_profile(self, attack_id: int) -> Optional[PublicAttackProfile]:
+        return next(
+            (
+                profile
+                for profile in self.attack_profiles
+                if profile.attack_id == attack_id
             ),
             None,
         )
@@ -1383,6 +1539,7 @@ def effect_bindings(effect_id: str) -> Tuple[EffectBinding, ...]:
 __all__ = [
     "CombatCardProfile",
     "EffectCardProfile",
+    "PublicAttackProfile",
     "PublicEffectRegistry",
     "build_public_effect_registry",
     "CatalogAdmission",

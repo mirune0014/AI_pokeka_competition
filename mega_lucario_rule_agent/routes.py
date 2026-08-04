@@ -8,7 +8,11 @@ from math import ceil
 from typing import Sequence, Tuple
 
 try:  # Package import in tests.
-    from .attack_outcomes import BoundAttackOutcomeTable
+    from .attack_outcomes import (
+        BoundAttackOutcomeTable,
+        build_post_wally_productive_attack,
+        build_public_opponent_attack_threat,
+    )
     from .card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
     from .certificates import (
         CertificateKind,
@@ -55,7 +59,11 @@ try:  # Package import in tests.
         build_wally_plan,
     )
 except ImportError:  # Flat submission import from main.py.
-    from attack_outcomes import BoundAttackOutcomeTable
+    from attack_outcomes import (
+        BoundAttackOutcomeTable,
+        build_post_wally_productive_attack,
+        build_public_opponent_attack_threat,
+    )
     from card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
     from certificates import (
         deck_rule_proof,
@@ -1207,14 +1215,7 @@ def enumerate_safe_draw_supporter_routes(
                 )
                 break
 
-    critical_action_pending = any(
-        (
-            option.key.option_type == int(OptionType.PLAY)
-            and option.key.card_id in (1182, 1229)
-        )
-        for option in legal_options
-    )
-    if state.supporter_played or critical_action_pending:
+    if state.supporter_played:
         return tuple(proposals)
     hand_ids = tuple(ref_value.card_id for ref_value in state.own.hand_refs)
     missing_role = (
@@ -1655,17 +1656,22 @@ def enumerate_wally_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
     registry: PublicEffectRegistry,
 ) -> Tuple[Proposal, ...]:
-    """Save a damaged three-Prize Active while preserving a same-turn Aura."""
+    """Use Wally only when checked healing changes next-attack survival."""
 
     if (
         not features.matches(state, legal_options, registry)
+        or not attack_outcomes.matches(state, legal_options, registry)
         or state.supporter_played
         or state.energy_attached
+        or state.own.poisoned
+        or state.own.burned
         or state.own.asleep
         or state.own.paralyzed
         or state.own.confused
+        or state.own.deck_count < 1
     ):
         return ()
     target = state.own_active
@@ -1673,21 +1679,67 @@ def enumerate_wally_routes(
         target is None
         or target.ref.card_id != 678
         or target.damage <= 0
-        or len(target.energy_refs) != 1
-        or target.energy_refs[0].card_id != 6
-        or 982 not in features.legal_attack_ids
+        or not target.energy_refs
     ):
         return ()
-    large_damage = target.damage >= 180
-    three_prize_save = features.opponent_prizes_remaining <= 3
-    if not large_damage and not three_prize_save:
+    current_attack_surface_exact = bool(attack_outcomes.rows) and all(
+        outcome.authoritative
+        and outcome.legality_exact
+        and outcome.legal is True
+        and outcome.payable is True
+        and outcome.terminal_exact
+        and isinstance(outcome.wins_game, bool)
+        for outcome in attack_outcomes.rows
+    )
+    if not current_attack_surface_exact or any(
+        outcome.wins_game is True for outcome in attack_outcomes.rows
+    ):
         return ()
-    reattach_ref = min(target.energy_refs, key=lambda value: value.sort_key())
+    threat = build_public_opponent_attack_threat(state, registry)
+    if (
+        not threat.exact
+        or threat.knockout_before_heal is not True
+        or threat.knockout_after_heal is not False
+    ):
+        return ()
+    terminal_gust_exists = any(
+        proposal.proof.fact("terminal") is True
+        for proposal in enumerate_gust_routes(
+            state,
+            legal_options,
+            features,
+            attack_outcomes,
+            registry,
+        )
+    )
+    if terminal_gust_exists:
+        return ()
     for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
         if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1229:
             continue
         source_ref = _exact_hand_ref(state, option)
         if source_ref is None:
+            continue
+        post_attack = next(
+            (
+                result
+                for result in (
+                    build_post_wally_productive_attack(
+                        state,
+                        registry,
+                        source_ref,
+                        reattach_ref,
+                    )
+                    for reattach_ref in sorted(
+                        target.energy_refs,
+                        key=lambda value: value.sort_key(),
+                    )
+                )
+                if result is not None
+            ),
+            None,
+        )
+        if post_attack is None:
             continue
         action_spec = ActionSpec.single(option.key)
         proof = deck_rule_proof(
@@ -1702,18 +1754,30 @@ def enumerate_wally_routes(
                 "route_priority": 0,
                 "source_ref": source_ref,
                 "target_ref": target.ref,
-                "reattach_ref": reattach_ref,
+                "reattach_ref": post_attack.reattach_ref,
                 "damage_healed": target.damage,
-                "large_damage": large_damage,
-                "three_prize_save": three_prize_save,
-                "reattach_attack_id": 982,
+                "before_hp": target.remaining_hp,
+                "after_hp": target.max_hp,
+                "max_opponent_attack_ids": threat.max_attack_ids,
+                "max_opponent_damage": threat.max_damage,
+                "knockout_before_heal": threat.knockout_before_heal,
+                "knockout_after_heal": threat.knockout_after_heal,
+                "survives_without_wally": False,
+                "survives_with_wally": True,
+                "reestablished_attack_id": post_attack.attack_id,
+                "reestablished_attack_damage": post_attack.final_damage,
+                "deck_buffer": state.own.deck_count,
+                "no_higher_priority_supporter_route": True,
+                "current_direct_win": False,
+                "threat_unknown_reasons": threat.unknown_reasons,
+                "certificate_status": "PROVISIONAL_GENERIC_GATE_A1",
             },
         )
         plan = build_wally_plan(
             state,
             source_ref,
             target.ref,
-            reattach_ref,
+            post_attack.reattach_ref,
             action_spec,
             proof.digest(),
         )
@@ -1942,7 +2006,11 @@ def enumerate_requirement_routes(
             registry,
         )
     )
-    proposals.extend(enumerate_wally_routes(state, legal_options, features, registry))
+    proposals.extend(
+        enumerate_wally_routes(
+            state, legal_options, features, attack_outcomes, registry
+        )
+    )
     proposals.extend(
         enumerate_aura_continuity_routes(
             state, legal_options, features, attack_outcomes, registry
