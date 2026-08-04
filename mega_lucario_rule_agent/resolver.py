@@ -31,6 +31,7 @@ try:  # Package import in tests.
         SemanticOption,
         public_state_fingerprint,
     )
+    from .transactions import TransactionPlan
 except ImportError:  # Flat submission import from main.py.
     from certificates import (
         CertificateKind,
@@ -48,6 +49,7 @@ except ImportError:  # Flat submission import from main.py.
         SemanticOption,
         public_state_fingerprint,
     )
+    from transactions import TransactionPlan
 
 
 class ResolverTier(IntEnum):
@@ -160,6 +162,7 @@ class Proposal:
     certificate_kind: CertificateKind
     proof: CertificateProof
     resource_cost: ResourceCost = dataclass_field(default_factory=ResourceCost)
+    reservation_ids: Tuple[str, ...] = ()
     transaction_plan: Optional[Any] = None
     metrics: ResolverMetrics = dataclass_field(default_factory=ResolverMetrics)
     deterministic_tiebreak: Tuple[Any, ...] = ()
@@ -177,6 +180,18 @@ class Proposal:
             raise ValueError("proposal proof must be a CertificateProof")
         if not isinstance(self.resource_cost, ResourceCost):
             raise ValueError("proposal resource_cost must be a ResourceCost")
+        reservation_ids = tuple(self.reservation_ids)
+        if any(
+            not isinstance(value, str)
+            or not value
+            or value != value.strip()
+            for value in reservation_ids
+        ):
+            raise ValueError(
+                "proposal reservation_ids must be non-empty trimmed strings"
+            )
+        if len(set(reservation_ids)) != len(reservation_ids):
+            raise ValueError("proposal reservation_ids must be unique")
         if not isinstance(self.metrics, ResolverMetrics):
             raise ValueError("proposal metrics must be ResolverMetrics")
         tiebreak = tuple(self.deterministic_tiebreak)
@@ -191,13 +206,30 @@ class Proposal:
             "certificate_kind",
             CertificateKind(self.certificate_kind),
         )
+        object.__setattr__(self, "reservation_ids", tuple(sorted(reservation_ids)))
         object.__setattr__(self, "deterministic_tiebreak", tiebreak)
 
 
 @dataclass(frozen=True)
 class ProposalRejection:
+    proposal_digest: str
     rule_id: str
     action_digest: str
+    reasons: Tuple[str, ...]
+
+
+class ProposalDisposition(str, Enum):
+    SELECTED = "SELECTED"
+    VALID_NOT_SELECTED = "VALID_NOT_SELECTED"
+    REJECTED = "REJECTED"
+
+
+@dataclass(frozen=True)
+class ProposalEvaluation:
+    proposal_digest: str
+    rule_id: str
+    action_digest: str
+    disposition: ProposalDisposition
     reasons: Tuple[str, ...]
 
 
@@ -213,6 +245,7 @@ class Resolution:
     selected: Optional[Proposal]
     bound_action: Optional[Tuple[int, ...]]
     rejections: Tuple[ProposalRejection, ...]
+    evaluations: Tuple[ProposalEvaluation, ...]
     stats: ResolutionStats
 
     @property
@@ -250,6 +283,49 @@ def action_spec_digest(action_spec: ActionSpec) -> str:
     payload = {
         "order_sensitive": bool(action_spec.order_sensitive),
         "choices": [choice.canonical() for choice in action_spec.choices],
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _transaction_plan_digest(transaction_plan: Optional[Any]) -> Optional[str]:
+    if transaction_plan is None:
+        return None
+    if not isinstance(transaction_plan, TransactionPlan):
+        return "INVALID_TRANSACTION_PLAN"
+    return transaction_plan.digest()
+
+
+def proposal_digest(proposal: Proposal) -> str:
+    """Hash every policy-relevant proposal field for exact trace matching."""
+
+    if not isinstance(proposal, Proposal):
+        raise ValueError("proposal_digest requires a Proposal")
+    payload = {
+        "rule_id": proposal.rule_id,
+        "tier": int(proposal.tier),
+        "action_digest": action_spec_digest(proposal.action_spec),
+        "certificate_kind": int(proposal.certificate_kind),
+        "proof_digest": proposal.proof.digest(),
+        "resource_cost": [
+            ref_value.sort_key()
+            for ref_value in proposal.resource_cost.irreversible_refs
+        ],
+        "reservation_ids": proposal.reservation_ids,
+        "transaction_plan_digest": _transaction_plan_digest(
+            proposal.transaction_plan
+        ),
+        "metrics": {
+            "schema": proposal.metrics.schema.value,
+            "supporter_opportunity_cost": (
+                proposal.metrics.supporter_opportunity_cost
+            ),
+            "prize_liability_after": proposal.metrics.prize_liability_after,
+            "ready_attackers_after": proposal.metrics.ready_attackers_after,
+            "draw_buffer_after": proposal.metrics.draw_buffer_after,
+        },
+        "deterministic_tiebreak": proposal.deterministic_tiebreak,
     }
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -426,7 +502,16 @@ def _validate_proposal(
     )
     if proposal.resource_cost.irreversible_refs:
         reasons.append("PROFILE_RESOURCE_COST_FORBIDDEN")
+    for reservation_id in proposal.reservation_ids:
+        if ledger.get_reservation(reservation_id) is None:
+            reasons.append(
+                "UNKNOWN_RESERVATION_ID:{0}".format(reservation_id)
+            )
+    if proposal.reservation_ids:
+        reasons.append("PROFILE_RESERVATION_FORBIDDEN")
     if proposal.transaction_plan is not None:
+        if not isinstance(proposal.transaction_plan, TransactionPlan):
+            reasons.append("INVALID_TRANSACTION_PLAN")
         reasons.append("PROFILE_TRANSACTION_FORBIDDEN")
     if proposal.metrics.schema != MetricSchema.NO_CLAIMS_V1:
         reasons.append("METRIC_SCHEMA_FORBIDDEN")
@@ -461,6 +546,8 @@ def resolve_proposals(
     accepted = []
     rejected = []
     for proposal in proposal_values:
+        current_proposal_digest = proposal_digest(proposal)
+        current_action_digest = action_spec_digest(proposal.action_spec)
         reasons, bound = _validate_proposal(
             state,
             legal_options,
@@ -472,26 +559,77 @@ def resolve_proposals(
         if reasons:
             rejected.append(
                 ProposalRejection(
+                    proposal_digest=current_proposal_digest,
                     rule_id=proposal.rule_id,
-                    action_digest=action_spec_digest(proposal.action_spec),
+                    action_digest=current_action_digest,
                     reasons=reasons,
                 )
             )
         else:
-            accepted.append((_proposal_rank(proposal), proposal, bound))
+            accepted.append(
+                (
+                    _proposal_rank(proposal),
+                    proposal,
+                    bound,
+                    current_proposal_digest,
+                    current_action_digest,
+                )
+            )
 
     accepted.sort(key=lambda row: row[0])
     rejected_tuple = tuple(
         sorted(
             rejected,
-            key=lambda value: (value.rule_id, value.action_digest, value.reasons),
+            key=lambda value: (
+                value.proposal_digest,
+                value.rule_id,
+                value.action_digest,
+                value.reasons,
+            ),
         )
     )
     selected = accepted[0] if accepted else None
+    evaluations = [
+        ProposalEvaluation(
+            proposal_digest=rejection.proposal_digest,
+            rule_id=rejection.rule_id,
+            action_digest=rejection.action_digest,
+            disposition=ProposalDisposition.REJECTED,
+            reasons=rejection.reasons,
+        )
+        for rejection in rejected_tuple
+    ]
+    for index, row in enumerate(accepted):
+        evaluations.append(
+            ProposalEvaluation(
+                proposal_digest=row[3],
+                rule_id=row[1].rule_id,
+                action_digest=row[4],
+                disposition=(
+                    ProposalDisposition.SELECTED
+                    if index == 0
+                    else ProposalDisposition.VALID_NOT_SELECTED
+                ),
+                reasons=() if index == 0 else ("LOWER_RESOLVER_RANK",),
+            )
+        )
+    evaluations_tuple = tuple(
+        sorted(
+            evaluations,
+            key=lambda value: (
+                value.proposal_digest,
+                value.rule_id,
+                value.action_digest,
+                value.disposition.value,
+                value.reasons,
+            ),
+        )
+    )
     return Resolution(
         selected=None if selected is None else selected[1],
         bound_action=None if selected is None else selected[2],
         rejections=rejected_tuple,
+        evaluations=evaluations_tuple,
         stats=ResolutionStats(
             proposed=len(proposal_values),
             accepted=len(accepted),
@@ -503,6 +641,8 @@ def resolve_proposals(
 __all__ = [
     "MetricSchema",
     "Proposal",
+    "ProposalDisposition",
+    "ProposalEvaluation",
     "ProposalRejection",
     "Resolution",
     "ResolutionStats",
@@ -510,5 +650,6 @@ __all__ = [
     "ResolverTier",
     "ResourceCost",
     "action_spec_digest",
+    "proposal_digest",
     "resolve_proposals",
 ]

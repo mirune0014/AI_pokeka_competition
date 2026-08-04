@@ -839,6 +839,8 @@ def _player_public_payload(player: PlayerView) -> Dict[str, Any]:
 
 
 def _public_board_payload(state: PublicState) -> Dict[str, Any]:
+    """Agent-visible board payload, including the acting player's hidden refs."""
+
     return {
         "own": _player_public_payload(state.own),
         "opponent": _player_public_payload(state.opponent),
@@ -853,6 +855,67 @@ def _public_board_payload(state: PublicState) -> Dict[str, Any]:
         "first_player": state.first_player,
         "result": state.result,
     }
+
+
+def _public_only_player_payload(player: PlayerView) -> Dict[str, Any]:
+    """Board information visible to both players; never include hidden refs."""
+
+    return {
+        "index": player.index,
+        "active_slot_count": player.active_slot_count,
+        "hidden_active_count": player.hidden_active_count,
+        "active": sorted(_pokemon_public_payload(pokemon) for pokemon in player.active),
+        "bench": sorted(_pokemon_public_payload(pokemon) for pokemon in player.bench),
+        "discard_refs": _canonical_ref_list(player.discard_refs),
+        "counts": (
+            player.deck_count,
+            player.hand_count,
+            player.prize_count,
+            player.bench_max,
+        ),
+        "conditions": (
+            player.poisoned,
+            player.burned,
+            player.asleep,
+            player.paralyzed,
+            player.confused,
+        ),
+    }
+
+
+def public_board_payload(state: PublicState) -> Dict[str, Any]:
+    """Return a canonicalizable board snapshot with both hidden zones redacted."""
+
+    if not isinstance(state, PublicState):
+        raise ValueError("public board payload requires a PublicState")
+    return {
+        "seat": state.seat,
+        "turn": state.turn,
+        "turn_action_count": state.turn_action_count,
+        "own": _public_only_player_payload(state.own),
+        "opponent": _public_only_player_payload(state.opponent),
+        "stadium": _canonical_ref_list(state.stadium_refs),
+        "flags": (
+            state.supporter_played,
+            state.stadium_played,
+            state.energy_attached,
+            state.retreated,
+        ),
+        "first_player": state.first_player,
+        "result": state.result,
+    }
+
+
+def public_board_fingerprint(state: PublicState) -> str:
+    """Hash only information jointly observable on the public board."""
+
+    return hashlib.sha256(
+        json.dumps(
+            public_board_payload(state),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
 
 
 def relevant_zone_fingerprint(state: PublicState) -> str:
@@ -999,6 +1062,8 @@ __all__ = [
     "is_stable_main_state",
     "make_prompt_fingerprint",
     "pokemon_lineage_serial",
+    "public_board_fingerprint",
+    "public_board_payload",
     "public_state_fingerprint",
     "read_field",
     "relevant_zone_fingerprint",

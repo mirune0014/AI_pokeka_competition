@@ -9,12 +9,17 @@ from mega_lucario_rule_agent.certificates import (
 )
 from mega_lucario_rule_agent.resolver import (
     Proposal,
+    ProposalDisposition,
     ResolverMetrics,
     ResolverTier,
     ResourceCost,
+    proposal_digest,
     resolve_proposals,
 )
-from mega_lucario_rule_agent.resource_ledger import ResourceLedger
+from mega_lucario_rule_agent.resource_ledger import (
+    ReservationKind,
+    ResourceLedger,
+)
 from mega_lucario_rule_agent.state_view import (
     ActionSpec,
     AreaType,
@@ -140,6 +145,7 @@ def proposal(
     certificate_kind=CertificateKind.SAFE_FALLBACK,
     action_spec=None,
     resource_cost=None,
+    reservation_ids=(),
     transaction_plan=None,
     metrics=None,
     tiebreak=None,
@@ -164,6 +170,7 @@ def proposal(
         certificate_kind=certificate_kind,
         proof=proof,
         resource_cost=ResourceCost() if resource_cost is None else resource_cost,
+        reservation_ids=reservation_ids,
         transaction_plan=transaction_plan,
         metrics=ResolverMetrics() if metrics is None else metrics,
         deterministic_tiebreak=tiebreak,
@@ -197,6 +204,14 @@ def test_attack_fallback_precedes_pass_and_rebinds_after_option_permutation():
     assert resolution.stats.proposed == 2
     assert resolution.stats.accepted == 2
     assert resolution.stats.rejected == 0
+    evaluations = {value.rule_id: value for value in resolution.evaluations}
+    assert evaluations["ATTACK_982"].disposition == ProposalDisposition.SELECTED
+    assert evaluations["ATTACK_982"].reasons == ()
+    assert (
+        evaluations["PASS"].disposition
+        == ProposalDisposition.VALID_NOT_SELECTED
+    )
+    assert evaluations["PASS"].reasons == ("LOWER_RESOLVER_RANK",)
 
 
 def test_attack_tie_is_deterministic_and_independent_of_proposal_input_order():
@@ -223,6 +238,7 @@ def test_attack_tie_is_deterministic_and_independent_of_proposal_input_order():
     assert forward.selected.rule_id == "Z_AURA"
     assert reverse.selected.rule_id == "Z_AURA"
     assert forward.bound_action == reverse.bound_action == (1,)
+    assert forward.evaluations == reverse.evaluations
 
 
 def test_state_or_legal_option_change_invalidates_a_previously_issued_proof():
@@ -478,6 +494,10 @@ def test_safe_profile_rejects_cost_transaction_metric_and_tiebreak_claims():
         resolution,
         "WITH_TRANSACTION",
     ).reasons
+    assert "INVALID_TRANSACTION_PLAN" in rejection_for(
+        resolution,
+        "WITH_TRANSACTION",
+    ).reasons
     assert "PROFILE_METRIC_CLAIM_FORBIDDEN" in rejection_for(
         resolution,
         "WITH_METRIC",
@@ -505,6 +525,69 @@ def test_ledger_must_be_owned_by_actor_and_bound_to_current_known_refs():
     reasons = rejection_for(resolution, "LEDGER_CHECK").reasons
     assert "LEDGER_OWNER_MISMATCH" in reasons
     assert "LEDGER_REF_NOT_IN_STATE" in reasons
+
+
+def test_reservation_ids_are_exactly_traced_and_frozen_profile_rejects_them():
+    current = state()
+    attack = attack_spec(982)
+    legal = options_for(attack)
+    hand_energy = current.own.hand_refs[0]
+    ledger = ResourceLedger((hand_energy,)).reserve_exact(
+        "CURRENT_ATTACK_ENERGY",
+        ReservationKind.HARD_RESERVED,
+        "preserve current attack",
+        (hand_energy,),
+    )
+    known = proposal(
+        current,
+        legal,
+        attack,
+        "KNOWN_RESERVATION",
+        reservation_ids=("CURRENT_ATTACK_ENERGY",),
+    )
+    unknown = proposal(
+        current,
+        legal,
+        attack,
+        "UNKNOWN_RESERVATION",
+        reservation_ids=("NOT_DECLARED",),
+    )
+
+    resolution = resolve_proposals(current, legal, ledger, (unknown, known))
+
+    known_rejection = rejection_for(resolution, "KNOWN_RESERVATION")
+    unknown_rejection = rejection_for(resolution, "UNKNOWN_RESERVATION")
+    assert "PROFILE_RESERVATION_FORBIDDEN" in known_rejection.reasons
+    assert "UNKNOWN_RESERVATION_ID:NOT_DECLARED" in unknown_rejection.reasons
+    assert known_rejection.proposal_digest == proposal_digest(known)
+    assert unknown_rejection.proposal_digest == proposal_digest(unknown)
+    assert len(resolution.evaluations) == resolution.stats.proposed == 2
+    assert all(
+        value.disposition == ProposalDisposition.REJECTED
+        for value in resolution.evaluations
+    )
+
+
+def test_proposal_rejects_duplicate_or_blank_reservation_ids():
+    current = state()
+    attack = attack_spec(982)
+    legal = options_for(attack)
+    with pytest.raises(ValueError, match="unique"):
+        proposal(
+            current,
+            legal,
+            attack,
+            "DUPLICATE_RESERVATIONS",
+            reservation_ids=("ONE", "ONE"),
+        )
+    with pytest.raises(ValueError, match="trimmed"):
+        proposal(
+            current,
+            legal,
+            attack,
+            "BLANK_RESERVATION",
+            reservation_ids=(" ",),
+        )
 
 
 def test_wrong_safe_tier_option_pair_and_duplicate_rule_ids_fail_closed():

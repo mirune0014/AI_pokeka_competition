@@ -19,6 +19,8 @@ from mega_lucario_rule_agent.state_view import (
     build_semantic_options,
     is_stable_main_state,
     make_prompt_fingerprint,
+    public_board_fingerprint,
+    public_board_payload,
     public_state_fingerprint,
 )
 
@@ -351,6 +353,28 @@ def test_state_fingerprint_is_deterministic_and_public_opponent_hand_only():
     assert first.own.prize_count == 6
     assert first.opponent.prize_count == 6
     assert first.first_player == 0
+
+
+def test_public_board_fingerprint_redacts_both_hidden_hands_and_prizes():
+    obs = observation([hand_card_option(0)])
+    first = build_public_state(obs, game_epoch=2)
+    changed = deepcopy(obs)
+    changed["current"]["players"][0]["hand"][0] = card(999, 900)
+    changed["current"]["players"][0]["prize"][0] = card(998, 901)
+    second = build_public_state(changed, game_epoch=2)
+
+    assert public_state_fingerprint(first) != public_state_fingerprint(second)
+    assert public_board_fingerprint(first) == public_board_fingerprint(second)
+    payload_text = repr(public_board_payload(second))
+    assert "hand_refs" not in payload_text
+    assert "prize_refs" not in payload_text
+    assert "900" not in payload_text
+    assert "901" not in payload_text
+
+    public_change = deepcopy(changed)
+    public_change["current"]["players"][1]["active"][0]["hp"] = 50
+    third = build_public_state(public_change, game_epoch=2)
+    assert public_board_fingerprint(second) != public_board_fingerprint(third)
 
 
 def test_incomplete_own_hand_fails_closed():
