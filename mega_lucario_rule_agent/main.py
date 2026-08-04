@@ -38,10 +38,12 @@ try:  # Package imports used by tests.
     from .resource_ledger import (
         ResourceLedgerError,
         reserve_manual_attach_energy,
+        reserve_active_attack_completion_energy,
     )
     from .resolver import Proposal, Resolution, resolve_proposals
     from .routes import (
         enumerate_attack_routes,
+        enumerate_active_attack_completion_routes,
         enumerate_basic_bench_routes,
         enumerate_first_turn_riolu_attach_routes,
         enumerate_poke_pad_core_search_routes,
@@ -81,10 +83,12 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
     from resource_ledger import (
         ResourceLedgerError,
         reserve_manual_attach_energy,
+        reserve_active_attack_completion_energy,
     )
     from resolver import Proposal, Resolution, resolve_proposals
     from routes import (
         enumerate_attack_routes,
+        enumerate_active_attack_completion_routes,
         enumerate_basic_bench_routes,
         enumerate_first_turn_riolu_attach_routes,
         enumerate_poke_pad_core_search_routes,
@@ -229,10 +233,7 @@ class AgentRuntime:
             _is_exact_int(turn)
             and self._last_turn is not None
             and turn < self._last_turn
-        ) or (
-            self._saw_terminal
-            and result == -1
-        ):
+        ) or (self._saw_terminal and result == -1):
             self._begin_game()
 
     def _remember_callback(self, state: PublicState) -> None:
@@ -259,9 +260,7 @@ class AgentRuntime:
         reasons = validate_live_action(state, legal_options, values)
         if reasons:
             raise RuntimeError(
-                "runtime selected an invalid live action: {0}".format(
-                    "|".join(reasons)
-                )
+                "runtime selected an invalid live action: {0}".format("|".join(reasons))
             )
         return list(values)
 
@@ -507,6 +506,26 @@ class AgentRuntime:
             attack_outcomes,
             registry,
         )
+        active_completion_proposals = enumerate_active_attack_completion_routes(
+            state,
+            legal_options,
+            registry,
+        )
+        if len(active_completion_proposals) == 1:
+            completion_cost = active_completion_proposals[
+                0
+            ].resource_cost.irreversible_refs
+            if len(completion_cost) == 1:
+                try:
+                    reserved_ledger = reserve_active_attack_completion_energy(
+                        ledger,
+                        completion_cost[0],
+                    )
+                except ResourceLedgerError:
+                    pass
+                else:
+                    ledger = reserved_ledger
+                    proposals += active_completion_proposals
         if self._last_features is not None:
             proposals += enumerate_poke_pad_core_search_routes(
                 state,

@@ -10,7 +10,11 @@ import secrets
 from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
 
 try:  # Package import in tests.
-    from .attack_outcomes import BoundAttackOutcomeTable
+    from .attack_outcomes import (
+        BoundAttackOutcomeTable,
+        build_active_post_attach_attack_completion,
+        is_fully_exact_attack_completion_outcome,
+    )
     from .card_meta import CARD_META_BY_ID
     from .features import (
         DeckFeatures,
@@ -19,6 +23,7 @@ try:  # Package import in tests.
     from .public_effects import PublicEffectRegistry
     from .resource_ledger import (
         DeckAvailabilityProof,
+        ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
         prove_deck_availability_from_state,
     )
@@ -36,12 +41,17 @@ try:  # Package import in tests.
         semantic_option_multiset,
     )
 except ImportError:  # Flat submission import from main.py.
-    from attack_outcomes import BoundAttackOutcomeTable
+    from attack_outcomes import (
+        BoundAttackOutcomeTable,
+        build_active_post_attach_attack_completion,
+        is_fully_exact_attack_completion_outcome,
+    )
     from card_meta import CARD_META_BY_ID
     from features import DeckFeatures, PublicMatchupFlag
     from public_effects import PublicEffectRegistry
     from resource_ledger import (
         DeckAvailabilityProof,
+        ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
         prove_deck_availability_from_state,
     )
@@ -78,11 +88,20 @@ class ProofSchema(str, Enum):
     BASIC_BENCH_V1 = "basic_bench_v1"
     POKE_PAD_CORE_FORMATION_V1 = "poke_pad_core_formation_v1"
     FIRST_TURN_RIOLU_ATTACH_V1 = "first_turn_riolu_attach_v1"
+    ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1 = "active_post_attach_attack_completion_v1"
 
 
-FIRST_TURN_RIOLU_ATTACH_COVERAGE = (
-    "R_ATTACH_001_DEFAULT_CLAUSE_ONLY_V1"
+ACTIVE_ATTACK_COMPLETION_RULE_ID = (
+    "R_ATTACH_002_GOING_SECOND_OT1_ACTIVE_SINGLE_ATTACK_COMPLETION_V1"
 )
+ACTIVE_ATTACK_COMPLETION_COVERAGE = "R_ATTACH_002_ACTIVE_COMPLETION_CLAUSE_ONLY"
+ACTIVE_ATTACK_COMPLETION_UNRESOLVED = (
+    "OPPONENT_DERIVED_ATTACK_LOCK_TRACKER",
+    "METAL_TARGETS_EXCLUDED_DUE_UNSERIALIZED_IRON_DEFENDER",
+    "PERSISTENT_TRAINERS_BOUND_TO_AUDITED_CATALOG_WITNESS",
+)
+
+FIRST_TURN_RIOLU_ATTACH_COVERAGE = "R_ATTACH_001_DEFAULT_CLAUSE_ONLY_V1"
 FIRST_TURN_RIOLU_ATTACH_SCOPE = "RESOURCE_STAGING_ONLY"
 FIRST_TURN_RIOLU_ATTACH_UNRESOLVED = (
     "ALTERNATIVE_NEXT_TURN_PRIZE",
@@ -183,8 +202,7 @@ def _proof_integrity_digest(**values: Any) -> str:
 
 def legal_options_fingerprint(options: Sequence[SemanticOption]) -> str:
     payload = [
-        (key.canonical(), count)
-        for key, count in semantic_option_multiset(options)
+        (key.canonical(), count) for key, count in semantic_option_multiset(options)
     ]
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -210,15 +228,22 @@ class CertificateProof:
 
     def __post_init__(self) -> None:
         if self._issuer_token is not _PROOF_ISSUER_TOKEN:
-            raise ValueError("CertificateProof values must be created by a checked issuer")
+            raise ValueError(
+                "CertificateProof values must be created by a checked issuer"
+            )
         if not isinstance(self.action_spec, ActionSpec):
             raise ValueError("certificate action_spec must be an ActionSpec")
         if (
             not isinstance(self.state_fingerprint, str)
             or len(self.state_fingerprint) != 64
-            or any(character not in "0123456789abcdef" for character in self.state_fingerprint)
+            or any(
+                character not in "0123456789abcdef"
+                for character in self.state_fingerprint
+            )
         ):
-            raise ValueError("certificate requires a lowercase SHA-256 state fingerprint")
+            raise ValueError(
+                "certificate requires a lowercase SHA-256 state fingerprint"
+            )
         if not isinstance(self.is_valid, bool):
             raise ValueError("certificate is_valid must be boolean")
         if (
@@ -238,7 +263,9 @@ class CertificateProof:
             seen_names.add(name)
             normalized_facts.append((name, _canonical_fact_value(value)))
         normalized_reasons = tuple(sorted(set(self.rejection_reasons)))
-        if any(not isinstance(reason, str) or not reason for reason in normalized_reasons):
+        if any(
+            not isinstance(reason, str) or not reason for reason in normalized_reasons
+        ):
             raise ValueError("certificate rejection reasons must be non-empty strings")
         if self.is_valid and normalized_reasons:
             raise ValueError("a valid certificate cannot contain rejection reasons")
@@ -249,7 +276,9 @@ class CertificateProof:
             and self.kind == CertificateKind.PRIZE_GAIN_NOW
             and self.guaranteed_prizes <= 0
         ):
-            raise ValueError("Prize-gain certificates must guarantee at least one Prize")
+            raise ValueError(
+                "Prize-gain certificates must guarantee at least one Prize"
+            )
         schema_kind_compatibility = {
             ProofSchema.SAFE_FALLBACK_V1: {CertificateKind.SAFE_FALLBACK},
             ProofSchema.ATTACK_OUTCOME_V1: {
@@ -268,8 +297,14 @@ class CertificateProof:
             ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: {
                 CertificateKind.FIRST_ATTACK_ACCELERATION,
             },
+            ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: {
+                CertificateKind.ATTACK_COMPLETION,
+            },
         }
-        if CertificateKind(self.kind) not in schema_kind_compatibility[ProofSchema(self.schema)]:
+        if (
+            CertificateKind(self.kind)
+            not in schema_kind_compatibility[ProofSchema(self.schema)]
+        ):
             raise ValueError("certificate schema and kind are incompatible")
 
         expected_integrity = _proof_integrity_digest(
@@ -351,10 +386,7 @@ def _make_proof(
     rejection_reasons: Iterable[str],
 ) -> CertificateProof:
     normalized_facts = tuple(
-        sorted(
-            (name, _canonical_fact_value(value))
-            for name, value in facts.items()
-        )
+        sorted((name, _canonical_fact_value(value)) for name, value in facts.items())
     )
     normalized_reasons = tuple(sorted(set(rejection_reasons)))
     return CertificateProof(
@@ -403,7 +435,10 @@ def safe_fallback_proof(
         or action_key.attack_id <= 0
     ):
         raise ValueError("safe fallback ATTACK requires an exact positive attack_id")
-    if action_key.option_type == int(OptionType.END) and action_key.attack_id is not None:
+    if (
+        action_key.option_type == int(OptionType.END)
+        and action_key.attack_id is not None
+    ):
         raise ValueError("safe fallback END cannot carry an attack_id")
     try:
         rebound = action_spec.bind(
@@ -474,9 +509,7 @@ def _manual_attach_refs(
         )
     )
     board = (
-        state.own.active
-        if key.target_zone == int(AreaType.ACTIVE)
-        else state.own.bench
+        state.own.active if key.target_zone == int(AreaType.ACTIVE) else state.own.bench
     )
     targets = tuple(
         pokemon
@@ -521,9 +554,7 @@ def _riolu_attach_rows(
         )
         if len(deficits) != 1:
             continue
-        zone_priority = (
-            0 if target.ref.zone == int(AreaType.ACTIVE) else 1
-        )
+        zone_priority = 0 if target.ref.zone == int(AreaType.ACTIVE) else 1
         rank = (
             zone_priority,
             -int(target.remaining_hp),
@@ -575,8 +606,7 @@ def first_turn_riolu_attach_proof(
     ):
         raise ValueError("first-turn Riolu attach timing is not exact")
     if features.legal_attack_ids or any(
-        option.key.option_type == int(OptionType.ATTACK)
-        for option in legal_options
+        option.key.option_type == int(OptionType.ATTACK) for option in legal_options
     ):
         raise ValueError("first-turn Riolu attach cannot coexist with a legal attack")
     energy_profile = registry.effect_profile(_FIGHTING_ENERGY_CARD_ID)
@@ -603,9 +633,7 @@ def first_turn_riolu_attach_proof(
             max_count=state.max_count,
         )
     except SemanticBindError as error:
-        raise ValueError(
-            "first-turn Riolu attach must bind uniquely"
-        ) from error
+        raise ValueError("first-turn Riolu attach must bind uniquely") from error
     if len(rebound) != 1:
         raise ValueError("first-turn Riolu attach must resolve to one option")
 
@@ -640,6 +668,175 @@ def first_turn_riolu_attach_proof(
             "target_lineage_serial": int(target_ref.lineage_serial),
             "energy_serial": int(source_ref.serial),
             "canonical_rank": rank[:-1],
+        },
+        rejection_reasons=(),
+    )
+
+
+def _active_attack_completion_attach_refs(
+    state: PublicState,
+    key: SemanticOptionKey,
+) -> Optional[Tuple[PhysicalRef, PhysicalRef]]:
+    active = state.own_active
+    if (
+        active is None
+        or not isinstance(key, SemanticOptionKey)
+        or not _is_exact_int(key.card_serial)
+        or key.card_serial < 0
+        or not _is_exact_int(key.target_lineage_serial)
+        or key.target_lineage_serial < 0
+    ):
+        return None
+    expected = SemanticOptionKey(
+        option_type=int(OptionType.ATTACH),
+        player_index=state.seat,
+        card_id=_FIGHTING_ENERGY_CARD_ID,
+        card_serial=int(key.card_serial),
+        source_zone=int(AreaType.HAND),
+        target_zone=int(AreaType.ACTIVE),
+        target_lineage_serial=int(key.target_lineage_serial),
+    )
+    if key != expected:
+        return None
+    sources = tuple(
+        ref_value
+        for ref_value in state.own.hand_refs
+        if (
+            ref_value.card_id == _FIGHTING_ENERGY_CARD_ID
+            and ref_value.serial == key.card_serial
+            and ref_value.owner == state.seat
+            and ref_value.zone == int(AreaType.HAND)
+        )
+    )
+    if (
+        len(sources) != 1
+        or len(state.own.active) != 1
+        or active.ref.owner != state.seat
+        or active.ref.zone != int(AreaType.ACTIVE)
+        or active.ref.lineage_serial != key.target_lineage_serial
+    ):
+        return None
+    return sources[0], active.ref
+
+
+def _active_attack_completion_rows(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+) -> Tuple[Tuple[Any, ...], ...]:
+    rows = []
+    for option in legal_options:
+        refs = _active_attack_completion_attach_refs(state, option.key)
+        if refs is None:
+            continue
+        source_ref, target_ref = refs
+        completion = build_active_post_attach_attack_completion(
+            state,
+            legal_options,
+            registry,
+            source_ref,
+            target_ref,
+        )
+        if completion is None:
+            continue
+        rank = (
+            int(source_ref.serial),
+            option.key.sort_key(),
+        )
+        rows.append((rank, option.key, completion))
+    return tuple(sorted(rows, key=lambda row: row[0]))
+
+
+def active_post_attach_attack_completion_proof(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+    action_spec: ActionSpec,
+) -> CertificateProof:
+    """Certify the one-attach Active attack-completion rule."""
+
+    if not is_stable_main_state(state):
+        raise ValueError("Active attack completion requires stable MAIN")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("Active attack completion requires a checked registry")
+    if len(action_spec.choices) != 1:
+        raise ValueError("Active attack completion requires exactly one action")
+    rows = _active_attack_completion_rows(state, legal_options, registry)
+    if not rows or action_spec.choices[0] != rows[0][1]:
+        raise ValueError("Active attack completion action is not canonical")
+    try:
+        rebound = action_spec.bind(
+            legal_options,
+            min_count=state.min_count,
+            max_count=state.max_count,
+        )
+    except SemanticBindError as error:
+        raise ValueError(
+            "Active attack completion ATTACH must bind uniquely"
+        ) from error
+    if len(rebound) != 1:
+        raise ValueError("Active attack completion must resolve to one ATTACH")
+
+    _, _, completion = rows[0]
+    candidate_rows = completion.candidate_rows
+    return _make_proof(
+        kind=CertificateKind.ATTACK_COMPLETION,
+        schema=ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1,
+        state=state,
+        action_spec=action_spec,
+        is_valid=True,
+        guaranteed_prizes=0,
+        facts={
+            "legal_options_fingerprint": legal_options_fingerprint(legal_options),
+            "state_digest": public_state_fingerprint(state),
+            "registry_digest": registry.digest,
+            "catalog_sha256": completion.catalog_sha256,
+            "persistent_trainer_audit_fingerprint": (
+                completion.persistent_trainer_audit_fingerprint
+            ),
+            "rule_id": ACTIVE_ATTACK_COMPLETION_RULE_ID,
+            "option_type": int(OptionType.ATTACH),
+            "source_ref": completion.source_ref,
+            "target_ref": completion.target_ref,
+            "reservation_id": ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
+            "target_energy_type": completion.target_energy_type,
+            "target_energy_type_exact": True,
+            "metal_targets_excluded": True,
+            "persistent_trainer_tracking_scope": "FULL_CATALOG_1140_1228_WITNESS",
+            "energy_card_id": _FIGHTING_ENERGY_CARD_ID,
+            "energy_type": 6,
+            "energy_serial": int(completion.source_ref.serial),
+            "energy_types_before": completion.energy_types_before,
+            "energy_types_after": completion.energy_types_after,
+            "coverage": ACTIVE_ATTACK_COMPLETION_COVERAGE,
+            "full_requirement_compliance": False,
+            "unresolved_requirement_codes": ACTIVE_ATTACK_COMPLETION_UNRESOLVED,
+            "global_turn": 2,
+            "own_turn_number": 1,
+            "pre_payable": completion.pre_payable,
+            "post_payable": completion.post_payable,
+            "post_table_and_outcome_fully_exact": True,
+            "deficit_before": 1,
+            "deficit_after": 0,
+            "attack_id": completion.chosen_attack_id,
+            "chosen_attack_id": completion.chosen_attack_id,
+            "chosen_final_damage": completion.chosen_final_damage,
+            "chosen_future_lock_cost": completion.chosen_future_lock_cost,
+            "chosen_energy_cost": completion.chosen_energy_cost,
+            "candidate_set": candidate_rows,
+            "candidate_attack_ids": tuple(row[0] for row in candidate_rows),
+            "canonical_attack_rank": (
+                -completion.chosen_final_damage,
+                completion.chosen_future_lock_cost,
+                completion.chosen_attack_id,
+                completion.chosen_energy_cost,
+            ),
+            "currently_legal_attack_ids": completion.pre_payable,
+            "same_attack_locked": False,
+            "status_and_turn_legal": True,
+            "exact_positive_damage": True,
+            "consumes_manual_attach": True,
+            "transaction_owner_required": False,
         },
         rejection_reasons=(),
     )
@@ -798,21 +995,13 @@ def basic_bench_proof(
     if not candidate_rows:
         raise ValueError("no role-improving Basic Bench candidate is proven")
     best_priority = min(
-        _BASIC_BENCH_PURPOSE_PRIORITY[purpose]
-        for _, _, purpose in candidate_rows
+        _BASIC_BENCH_PURPOSE_PRIORITY[purpose] for _, _, purpose in candidate_rows
     )
     purpose = _basic_bench_purpose(features, int(key.card_id))
-    if (
-        purpose is None
-        or _BASIC_BENCH_PURPOSE_PRIORITY[purpose] != best_priority
-    ):
+    if purpose is None or _BASIC_BENCH_PURPOSE_PRIORITY[purpose] != best_priority:
         raise ValueError("Basic Bench action is below the current role priority")
-    if (
-        features.safe_bench_slots <= 0
-        and not (
-            purpose == "BOARD_OUT_BACKUP"
-            and features.board_out_risk
-        )
+    if features.safe_bench_slots <= 0 and not (
+        purpose == "BOARD_OUT_BACKUP" and features.board_out_risk
     ):
         raise ValueError("Basic Bench action would consume the flexible Bench slot")
     if purpose == "BOARD_OUT_BACKUP":
@@ -1148,15 +1337,9 @@ def attack_outcome_proof(
         raise ValueError("attack proof requires an exact Prize result")
     if outcome.exact_game_win:
         kind = CertificateKind.WIN_NOW
-    elif not outcome.exact:
+    elif not is_fully_exact_attack_completion_outcome(attack_outcomes, outcome):
         raise ValueError(
-            "non-winning attack proof requires a fully exact authoritative outcome"
-        )
-    elif outcome.loses_game is True or outcome.draws_game is True:
-        raise ValueError("attack proof cannot promote an exact loss or draw")
-    elif not attack_outcomes.exact:
-        raise ValueError(
-            "non-winning attack proof requires every legal attack outcome to be exact"
+            "non-winning attack proof requires full exact non-loss admission"
         )
     elif outcome.wins_game is not False:
         raise ValueError("attack proof has an inconsistent terminal result")
@@ -1193,8 +1376,7 @@ def attack_outcome_proof(
             "draws_game": outcome.draws_game,
             "future_lock_cost": outcome.future_lock_cost,
             "callback_requires_selection": bool(
-                outcome.callback is not None
-                and outcome.callback.requires_selection
+                outcome.callback is not None and outcome.callback.requires_selection
             ),
         },
         rejection_reasons=(),
@@ -1208,10 +1390,14 @@ __all__ = [
     "FIRST_TURN_RIOLU_ATTACH_SCOPE",
     "FIRST_TURN_RIOLU_ATTACH_UNRESOLVED",
     "POKE_PAD_CARD_ID",
+    "ACTIVE_ATTACK_COMPLETION_COVERAGE",
+    "ACTIVE_ATTACK_COMPLETION_RULE_ID",
+    "ACTIVE_ATTACK_COMPLETION_UNRESOLVED",
     "POKE_PAD_CORE_COVERAGE_SCOPE",
     "POKE_PAD_CORE_UNRESOLVED_PRIORITIES",
     "POKE_PAD_EFFECT_ID",
     "ProofSchema",
+    "active_post_attach_attack_completion_proof",
     "poke_pad_core_eligible_classes",
     "poke_pad_core_formation_proof",
     "attack_outcome_proof",

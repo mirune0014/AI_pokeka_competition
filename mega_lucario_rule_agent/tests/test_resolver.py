@@ -207,10 +207,7 @@ def test_attack_fallback_precedes_pass_and_rebinds_after_option_permutation():
     evaluations = {value.rule_id: value for value in resolution.evaluations}
     assert evaluations["ATTACK_982"].disposition == ProposalDisposition.SELECTED
     assert evaluations["ATTACK_982"].reasons == ()
-    assert (
-        evaluations["PASS"].disposition
-        == ProposalDisposition.VALID_NOT_SELECTED
-    )
+    assert evaluations["PASS"].disposition == ProposalDisposition.VALID_NOT_SELECTED
     assert evaluations["PASS"].reasons == ("LOWER_RESOLVER_RANK",)
 
 
@@ -265,10 +262,13 @@ def test_state_or_legal_option_change_invalidates_a_previously_issued_proof():
         ResourceLedger(()),
         (candidate,),
     )
-    assert "PROOF_STATE_STALE" in rejection_for(
+    assert (
+        "PROOF_STATE_STALE"
+        in rejection_for(
         stale_state,
         "STALE_CHECK",
     ).reasons
+    )
 
     changed_legal = options_for(attack, end_spec())
     stale_options = resolve_proposals(
@@ -277,10 +277,13 @@ def test_state_or_legal_option_change_invalidates_a_previously_issued_proof():
         ResourceLedger(()),
         (candidate,),
     )
-    assert "PROOF_OPTIONS_STALE" in rejection_for(
+    assert (
+        "PROOF_OPTIONS_STALE"
+        in rejection_for(
         stale_options,
         "STALE_CHECK",
     ).reasons
+    )
 
 
 def test_duplicate_semantic_live_option_is_rejected_instead_of_using_lowest_index():
@@ -308,9 +311,7 @@ def test_malformed_live_option_indices_are_never_returned(invalid_index):
     attack = attack_spec(982)
     legal = options_for(attack)
     candidate = proposal(current, legal, attack, "BAD_INDEX_CHECK")
-    malformed = (
-        SemanticOption(index=invalid_index, key=attack.choices[0]),
-    )
+    malformed = (SemanticOption(index=invalid_index, key=attack.choices[0]),)
 
     resolution = resolve_proposals(
         current,
@@ -319,10 +320,13 @@ def test_malformed_live_option_indices_are_never_returned(invalid_index):
         (candidate,),
     )
 
-    assert "LEGAL_OPTION_INDEX_INVALID" in rejection_for(
+    assert (
+        "LEGAL_OPTION_INDEX_INVALID"
+        in rejection_for(
         resolution,
         "BAD_INDEX_CHECK",
     ).reasons
+    )
     assert resolution.bound_action is None
 
 
@@ -425,28 +429,41 @@ def test_safe_profile_rejects_tier_kind_and_action_spec_escalation():
         (wrong_tier, wrong_kind, wrong_action),
     )
 
-    assert "PROFILE_TIER_FORBIDDEN" in rejection_for(
+    assert (
+        "PROFILE_TIER_FORBIDDEN"
+        in rejection_for(
         resolution,
         "WRONG_TIER",
     ).reasons
-    assert "CERTIFICATE_KIND_MISMATCH" in rejection_for(
+    )
+    assert (
+        "CERTIFICATE_KIND_MISMATCH"
+        in rejection_for(
         resolution,
         "WRONG_KIND",
     ).reasons
-    assert "PROFILE_KIND_FORBIDDEN" in rejection_for(
+    )
+    assert (
+        "PROFILE_KIND_FORBIDDEN"
+        in rejection_for(
         resolution,
         "WRONG_KIND",
     ).reasons
-    assert "PROOF_ACTION_MISMATCH" in rejection_for(
+    )
+    assert (
+        "PROOF_ACTION_MISMATCH"
+        in rejection_for(
         resolution,
         "WRONG_ACTION",
     ).reasons
+    )
     assert set(ProofSchema) == {
         ProofSchema.SAFE_FALLBACK_V1,
         ProofSchema.ATTACK_OUTCOME_V1,
         ProofSchema.BASIC_BENCH_V1,
         ProofSchema.POKE_PAD_CORE_FORMATION_V1,
         ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1,
+        ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1,
     }
 
 
@@ -492,26 +509,41 @@ def test_safe_profile_rejects_cost_transaction_metric_and_tiebreak_claims():
         (with_cost, with_transaction, with_metric, wrong_tiebreak),
     )
 
-    assert "PROFILE_RESOURCE_COST_FORBIDDEN" in rejection_for(
+    assert (
+        "PROFILE_RESOURCE_COST_FORBIDDEN"
+        in rejection_for(
         resolution,
         "WITH_COST",
     ).reasons
-    assert "PROFILE_TRANSACTION_FORBIDDEN" in rejection_for(
+    )
+    assert (
+        "PROFILE_TRANSACTION_FORBIDDEN"
+        in rejection_for(
         resolution,
         "WITH_TRANSACTION",
     ).reasons
-    assert "INVALID_TRANSACTION_PLAN" in rejection_for(
+    )
+    assert (
+        "INVALID_TRANSACTION_PLAN"
+        in rejection_for(
         resolution,
         "WITH_TRANSACTION",
     ).reasons
-    assert "PROFILE_METRIC_CLAIM_FORBIDDEN" in rejection_for(
+    )
+    assert (
+        "PROFILE_METRIC_CLAIM_FORBIDDEN"
+        in rejection_for(
         resolution,
         "WITH_METRIC",
     ).reasons
-    assert "NONCANONICAL_TIEBREAK" in rejection_for(
+    )
+    assert (
+        "NONCANONICAL_TIEBREAK"
+        in rejection_for(
         resolution,
         "WRONG_TIEBREAK",
     ).reasons
+    )
 
 
 def test_ledger_must_be_owned_by_actor_and_bound_to_current_known_refs():
@@ -625,14 +657,20 @@ def test_wrong_safe_tier_option_pair_and_duplicate_rule_ids_fail_closed():
         (attack_as_pass, end_as_attack, duplicate_one, duplicate_two),
     )
 
-    assert "PROFILE_OPTION_TYPE_FORBIDDEN" in rejection_for(
+    assert (
+        "PROFILE_OPTION_TYPE_FORBIDDEN"
+        in rejection_for(
         resolution,
         "ATTACK_AS_PASS",
     ).reasons
-    assert "PROFILE_OPTION_TYPE_FORBIDDEN" in rejection_for(
+    )
+    assert (
+        "PROFILE_OPTION_TYPE_FORBIDDEN"
+        in rejection_for(
         resolution,
         "END_AS_ATTACK",
     ).reasons
+    )
     duplicate_rejections = [
         value for value in resolution.rejections if value.rule_id == "DUPLICATE_RULE"
     ]

@@ -10,7 +10,7 @@ loaded.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass, field as dataclass_field, replace
 from enum import IntEnum
 import hashlib
 import json
@@ -400,7 +400,9 @@ class ActionSpec:
             hits = by_key.get(choice, [])
             if len(hits) != 1:
                 raise SemanticBindError(
-                    "expected exactly one option for {0!r}; found {1}".format(choice, len(hits))
+                    "expected exactly one option for {0!r}; found {1}".format(
+                        choice, len(hits)
+                    )
                 )
             rebound.append(hits[0])
 
@@ -447,8 +449,12 @@ class PromptFingerprint:
             "turn_action_count": self.turn_action_count,
             "select_type": self.select_type,
             "context": self.context,
-            "effect_ref": None if self.effect_ref is None else self.effect_ref.sort_key(),
-            "context_ref": None if self.context_ref is None else self.context_ref.sort_key(),
+            "effect_ref": None
+            if self.effect_ref is None
+            else self.effect_ref.sort_key(),
+            "context_ref": None
+            if self.context_ref is None
+            else self.context_ref.sort_key(),
             "effect_or_attack_id": self.effect_or_attack_id,
             "min_count": self.min_count,
             "max_count": self.max_count,
@@ -466,7 +472,9 @@ class PromptFingerprint:
         ).hexdigest()
 
 
-def _card_ref(card: Any, owner: Optional[int], zone: Optional[int]) -> Optional[PhysicalRef]:
+def _card_ref(
+    card: Any, owner: Optional[int], zone: Optional[int]
+) -> Optional[PhysicalRef]:
     if card is None:
         return None
     card_id = as_int(read_field(card, "id"))
@@ -498,7 +506,9 @@ def _pokemon_view(pokemon: Any, owner: int, zone: int) -> Optional[PokemonView]:
     pre_evolution = as_tuple(read_field(pokemon, "preEvolution", ()))
     energy_refs = tuple(
         ref_value
-        for ref_value in (_card_ref(card, owner, int(AreaType.ENERGY)) for card in energy_cards)
+        for ref_value in (
+            _card_ref(card, owner, int(AreaType.ENERGY)) for card in energy_cards
+        )
         if ref_value is not None
     )
     tool_refs = tuple(
@@ -509,7 +519,8 @@ def _pokemon_view(pokemon: Any, owner: int, zone: int) -> Optional[PokemonView]:
     pre_refs = tuple(
         ref_value
         for ref_value in (
-            _card_ref(card, owner, int(AreaType.PRE_EVOLUTION)) for card in pre_evolution
+            _card_ref(card, owner, int(AreaType.PRE_EVOLUTION))
+            for card in pre_evolution
         )
         if ref_value is not None
     )
@@ -519,8 +530,7 @@ def _pokemon_view(pokemon: Any, owner: int, zone: int) -> Optional[PokemonView]:
         max_hp=as_int(read_field(pokemon, "maxHp"), 0) or 0,
         appear_this_turn=as_bool(read_field(pokemon, "appearThisTurn", False)),
         energy_types=tuple(
-            as_int(value)
-            for value in as_tuple(read_field(pokemon, "energies", ()))
+            as_int(value) for value in as_tuple(read_field(pokemon, "energies", ()))
         ),
         energy_refs=energy_refs,
         tool_refs=tool_refs,
@@ -555,7 +565,9 @@ def _player_view(player: Any, index: int, include_private_hand: bool) -> PlayerV
             sorted(
                 (
                     ref_value
-                    for ref_value in (_card_ref(card, index, int(zone)) for card in cards)
+                    for ref_value in (
+                        _card_ref(card, index, int(zone)) for card in cards
+                    )
                     if ref_value is not None
                 ),
                 key=lambda value: value.sort_key(),
@@ -890,8 +902,7 @@ class PublicHistoryTracker:
             )
         )
         attacked = any(
-            entry.owner == seat_value and entry.turn == turn_value
-            for entry in entries
+            entry.owner == seat_value and entry.turn == turn_value for entry in entries
         )
         ppp_count = len(self._ppp_plays.get((turn_value, seat_value), set()))
         return PublicHistoryView(
@@ -987,14 +998,12 @@ def _raw_player_combat_is_complete(
             return False
     if _field_is_present(player, "prizeCount"):
         raw_prize_count = read_field(player, "prizeCount", _MISSING_PUBLIC_FIELD)
-        if (
-            not _is_exact_public_int(raw_prize_count)
-            or raw_prize_count != len(read_field(player, "prize"))
+        if not _is_exact_public_int(raw_prize_count) or raw_prize_count != len(
+            read_field(player, "prize")
         ):
             return False
     if any(
-        not _raw_card_ref_is_complete(card)
-        for card in read_field(player, "discard")
+        not _raw_card_ref_is_complete(card) for card in read_field(player, "discard")
     ):
         return False
     if any(
@@ -1144,9 +1153,7 @@ def build_public_state(
         raise ValueError("own hand must be complete and match handCount")
     own = _player_view(players[seat], seat, include_private_hand=True)
     if len(own.hand_refs) != own.hand_count or any(
-        ref_value.card_id is None
-        or ref_value.serial is None
-        or ref_value.owner != seat
+        ref_value.card_id is None or ref_value.serial is None or ref_value.owner != seat
         for ref_value in own.hand_refs
     ):
         raise ValueError("own hand cards require exact id, serial, and owner")
@@ -1204,9 +1211,7 @@ def build_public_state(
         select_type=as_int(read_field(select, "type")),
         looking_open=looking_open,
         select_deck_open=read_field(select, "deck") is not None,
-        remaining_damage_counter=as_int(
-            read_field(select, "remainDamageCounter")
-        ),
+        remaining_damage_counter=as_int(read_field(select, "remainDamageCounter")),
         remaining_energy_cost=as_int(read_field(select, "remainEnergyCost")),
         last_attack_by_lineage=history.last_attack_by_lineage,
         attacked_this_turn=history.attacked_this_turn,
@@ -1233,7 +1238,9 @@ def _raw_player(observation: Any, player_index: int) -> Any:
     return players[player_index]
 
 
-def _pokemon_at(observation: Any, player_index: int, area: Optional[int], index: int) -> Any:
+def _pokemon_at(
+    observation: Any, player_index: int, area: Optional[int], index: int
+) -> Any:
     player = _raw_player(observation, player_index)
     if player is None:
         return None
@@ -1280,7 +1287,9 @@ def _card_at(
     return zone[index]
 
 
-def _option_source_ref(observation: Any, option: Any, seat: int) -> Optional[PhysicalRef]:
+def _option_source_ref(
+    observation: Any, option: Any, seat: int
+) -> Optional[PhysicalRef]:
     option_type = as_int(read_field(option, "type"), -1)
     player_index = as_int(read_field(option, "playerIndex"), seat)
     if player_index is None:
@@ -1324,7 +1333,11 @@ def _option_source_ref(observation: Any, option: Any, seat: int) -> Optional[Phy
                     )
                 )
         return matches[0] if len(matches) == 1 else None
-    if option_type in (int(OptionType.ENERGY_CARD), int(OptionType.ENERGY), int(OptionType.TOOL_CARD)):
+    if option_type in (
+        int(OptionType.ENERGY_CARD),
+        int(OptionType.ENERGY),
+        int(OptionType.TOOL_CARD),
+    ):
         pokemon = _pokemon_at(observation, player_index, area, index)
         if pokemon is None:
             return None
@@ -1336,7 +1349,11 @@ def _option_source_ref(observation: Any, option: Any, seat: int) -> Optional[Phy
             attached = as_tuple(read_field(pokemon, "energyCards", ()))
             attached_index = as_int(read_field(option, "energyIndex"), -1)
             attached_zone = int(AreaType.ENERGY)
-        if attached_index is None or attached_index < 0 or attached_index >= len(attached):
+        if (
+            attached_index is None
+            or attached_index < 0
+            or attached_index >= len(attached)
+        ):
             return None
         return _card_ref(attached[attached_index], player_index, attached_zone)
 
@@ -1353,7 +1370,9 @@ def _option_source_ref(observation: Any, option: Any, seat: int) -> Optional[Phy
     return ref_value
 
 
-def _option_target_ref(observation: Any, option: Any, seat: int) -> Optional[PhysicalRef]:
+def _option_target_ref(
+    observation: Any, option: Any, seat: int
+) -> Optional[PhysicalRef]:
     target_area = as_int(read_field(option, "inPlayArea"))
     target_index = as_int(read_field(option, "inPlayIndex"), -1)
     if target_area is None or target_index is None or target_index < 0:
@@ -1383,16 +1402,12 @@ def semantic_key_for_option(observation: Any, option: Any) -> SemanticOptionKey:
     if option_type == int(OptionType.PLAY) and raw_source_zone is None:
         raw_source_zone = int(AreaType.HAND)
     if option_type == int(OptionType.SKILL) and source_ref is None:
-        raise ValueError(
-            "SKILL source must resolve to exactly one public in-play card"
-        )
-    source_zone = (
-        source_ref.zone
-        if source_ref is not None
-        else raw_source_zone
-    )
+        raise ValueError("SKILL source must resolve to exactly one public in-play card")
+    source_zone = source_ref.zone if source_ref is not None else raw_source_zone
     raw_source_index = as_int(read_field(option, "index"))
-    source_index = raw_source_index if source_ref is None and source_zone is not None else None
+    source_index = (
+        raw_source_index if source_ref is None and source_zone is not None else None
+    )
     source_lineage_serial = (
         source_ref.lineage_serial
         if source_ref is not None
@@ -1422,9 +1437,15 @@ def semantic_key_for_option(observation: Any, option: Any) -> SemanticOptionKey:
 
 def build_semantic_options(observation: Any) -> Tuple[SemanticOption, ...]:
     select = _select_from_observation(observation)
-    raw_options = as_tuple(read_field(select, "option", read_field(select, "options", ())))
+    raw_options = as_tuple(
+        read_field(select, "option", read_field(select, "options", ()))
+    )
     return tuple(
-        SemanticOption(index=index, key=semantic_key_for_option(observation, option), raw_option=option)
+        SemanticOption(
+            index=index,
+            key=semantic_key_for_option(observation, option),
+            raw_option=option,
+        )
         for index, option in enumerate(raw_options)
     )
 
@@ -1454,8 +1475,13 @@ def semantic_options_fingerprint(options: Sequence[SemanticOption]) -> str:
     ).hexdigest()
 
 
-def _canonical_ref_list(refs: Iterable[PhysicalRef]) -> list[Tuple[int, int, int, int, int]]:
-    return [ref_value.sort_key() for ref_value in sorted(refs, key=lambda item: item.sort_key())]
+def _canonical_ref_list(
+    refs: Iterable[PhysicalRef],
+) -> list[Tuple[int, int, int, int, int]]:
+    return [
+        ref_value.sort_key()
+        for ref_value in sorted(refs, key=lambda item: item.sort_key())
+    ]
 
 
 def _pokemon_public_payload(pokemon: PokemonView) -> Tuple[Any, ...]:
@@ -1615,11 +1641,19 @@ def relevant_zone_fingerprint(state: PublicState) -> str:
         int(SelectContext.HEAL),
     ):
         payload["active"] = [
-            (pokemon.ref.sort_key(), pokemon.hp, _canonical_ref_list(pokemon.energy_refs))
+            (
+                pokemon.ref.sort_key(),
+                pokemon.hp,
+                _canonical_ref_list(pokemon.energy_refs),
+            )
             for pokemon in state.own.active
         ]
         payload["bench"] = [
-            (pokemon.ref.sort_key(), pokemon.hp, _canonical_ref_list(pokemon.energy_refs))
+            (
+                pokemon.ref.sort_key(),
+                pokemon.hp,
+                _canonical_ref_list(pokemon.energy_refs),
+            )
             for pokemon in state.own.bench
         ]
         payload["discard"] = _canonical_ref_list(state.own.discard_refs)
@@ -1682,7 +1716,9 @@ def public_state_fingerprint(state: PublicState) -> str:
             state.remaining_energy_cost,
         ),
         "effect_ref": None if state.effect_ref is None else state.effect_ref.sort_key(),
-        "context_ref": None if state.context_ref is None else state.context_ref.sort_key(),
+        "context_ref": None
+        if state.context_ref is None
+        else state.context_ref.sort_key(),
         "history": {
             "complete": state.history_complete,
             "attacked_this_turn": state.attacked_this_turn,
@@ -1698,13 +1734,115 @@ def public_state_fingerprint(state: PublicState) -> str:
 
 
 def is_checked_public_state(state: PublicState) -> bool:
-    """Return true only for an unchanged value issued by build_public_state."""
+    """Return true only for an unchanged value issued by a checked state builder."""
 
     return (
         isinstance(state, PublicState)
         and state._builder_receipt is not None
         and state._builder_receipt == public_state_fingerprint(state)
     )
+
+
+def _derive_checked_active_energy_attach_state(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    energy_type: int,
+    post_options: Sequence[SemanticOption],
+) -> PublicState:
+    """Narrow issuer for one exact Active attach followed by one ATTACK option."""
+
+    if (
+        not is_checked_public_state(state)
+        or not isinstance(source_ref, PhysicalRef)
+        or not state.source_combat_complete
+        or not state.history_complete
+        or state.select_type != int(SelectType.MAIN)
+        or state.select_context != int(SelectContext.MAIN)
+        or state.min_count != 1
+        or state.max_count != 1
+        or state.effect_ref is not None
+        or state.context_ref is not None
+        or state.looking_refs
+        or state.looking_open
+        or state.select_deck_open
+        or state.remaining_damage_counter != 0
+        or state.remaining_energy_cost != 0
+        or state.turn <= 0
+        or state.turn_action_count < 0
+        or state.result != -1
+        or not isinstance(post_options, tuple)
+        or isinstance(energy_type, bool)
+        or not isinstance(energy_type, int)
+        or energy_type <= 0
+        or state.energy_attached
+        or len(state.own.active) != 1
+        or len(state.opponent.active) != 1
+        or state.own.hand_count <= 0
+        or source_ref.owner != state.seat
+        or source_ref.zone != int(AreaType.HAND)
+        or source_ref.card_id is None
+        or source_ref.serial is None
+        or sum(ref_value == source_ref for ref_value in state.own.hand_refs) != 1
+    ):
+        raise ValueError("derived Active attach requires one exact checked transition")
+    active = state.own.active[0]
+    defender = state.opponent.active[0]
+    if len(active.energy_types) != len(active.energy_refs) or len(post_options) != 1:
+        raise ValueError("derived Active attach requires aligned Energy evidence")
+    option = post_options[0]
+    if not isinstance(option, SemanticOption):
+        raise ValueError("derived Active attach requires one semantic ATTACK option")
+    key = option.key
+    if (
+        key.option_type != int(OptionType.ATTACK)
+        or key.player_index != state.seat
+        or key.card_id != active.ref.card_id
+        or key.card_serial != active.ref.serial
+        or key.source_zone != int(AreaType.ACTIVE)
+        or key.source_lineage_serial != active.ref.lineage_serial
+        or key.target_zone != int(AreaType.ACTIVE)
+        or key.target_lineage_serial != defender.ref.lineage_serial
+        or isinstance(key.attack_id, bool)
+        or not isinstance(key.attack_id, int)
+        or key.attack_id <= 0
+        or option.index != 0
+    ):
+        raise ValueError(
+            "derived Active attach post-surface must be exactly one own Active ATTACK"
+        )
+    attached_ref = PhysicalRef(
+        card_id=source_ref.card_id,
+        serial=source_ref.serial,
+        owner=state.seat,
+        zone=int(AreaType.ENERGY),
+        lineage_serial=source_ref.serial,
+    )
+    post_active = replace(
+        active,
+        energy_types=active.energy_types + (energy_type,),
+        energy_refs=active.energy_refs + (attached_ref,),
+    )
+    post_own = replace(
+        state.own,
+        active=(post_active,),
+        hand_refs=tuple(
+            ref_value for ref_value in state.own.hand_refs if ref_value != source_ref
+        ),
+        hand_count=state.own.hand_count - 1,
+    )
+    post_state = replace(
+        state,
+        own=post_own,
+        energy_attached=True,
+        turn_action_count=state.turn_action_count + 1,
+        source_options_fingerprint=semantic_options_fingerprint(post_options),
+    )
+    object.__setattr__(
+        post_state, "_builder_receipt", public_state_fingerprint(post_state)
+    )
+    if not is_checked_public_state(post_state):
+        raise ValueError("derived Active attach state failed its issuer receipt")
+    return post_state
 
 
 def is_stable_main_state(state: PublicState) -> bool:

@@ -15,11 +15,18 @@ import json
 from typing import Any, Optional, Sequence, Tuple
 
 try:  # Package import in tests.
-    from .attack_outcomes import build_attack_outcome_table
+    from .attack_outcomes import (
+        active_attack_completion_registry_audit,
+        build_attack_outcome_table,
+    )
     from .certificates import (
         CertificateKind,
+        ACTIVE_ATTACK_COMPLETION_COVERAGE,
+        ACTIVE_ATTACK_COMPLETION_RULE_ID,
+        ACTIVE_ATTACK_COMPLETION_UNRESOLVED,
         CertificateProof,
         ProofSchema,
+        active_post_attach_attack_completion_proof,
         basic_bench_proof,
         first_turn_riolu_attach_proof,
         legal_options_fingerprint,
@@ -30,6 +37,7 @@ try:  # Package import in tests.
     from .public_effects import PublicEffectRegistry
     from .resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         ReservationKind,
         ResourceLedger,
         ResourceLedgerError,
@@ -49,11 +57,18 @@ try:  # Package import in tests.
         build_poke_pad_core_search_plan,
     )
 except ImportError:  # Flat submission import from main.py.
-    from attack_outcomes import build_attack_outcome_table
+    from attack_outcomes import (
+        active_attack_completion_registry_audit,
+        build_attack_outcome_table,
+    )
     from certificates import (
         CertificateKind,
+        ACTIVE_ATTACK_COMPLETION_COVERAGE,
+        ACTIVE_ATTACK_COMPLETION_RULE_ID,
+        ACTIVE_ATTACK_COMPLETION_UNRESOLVED,
         CertificateProof,
         ProofSchema,
+        active_post_attach_attack_completion_proof,
         basic_bench_proof,
         first_turn_riolu_attach_proof,
         legal_options_fingerprint,
@@ -64,6 +79,7 @@ except ImportError:  # Flat submission import from main.py.
     from public_effects import PublicEffectRegistry
     from resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         ReservationKind,
         ResourceLedger,
         ResourceLedgerError,
@@ -114,7 +130,9 @@ def _optional_nonnegative_int(value: Optional[int], name: str) -> None:
     if value is None:
         return
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-        raise ValueError("{0} must be None or a non-negative exact integer".format(name))
+        raise ValueError(
+            "{0} must be None or a non-negative exact integer".format(name)
+        )
 
 
 @dataclass(frozen=True)
@@ -214,9 +232,7 @@ class Proposal:
             raise ValueError("proposal resource_cost must be a ResourceCost")
         reservation_ids = tuple(self.reservation_ids)
         if any(
-            not isinstance(value, str)
-            or not value
-            or value != value.strip()
+            not isinstance(value, str) or not value or value != value.strip()
             for value in reservation_ids
         ):
             raise ValueError(
@@ -231,7 +247,9 @@ class Proposal:
             isinstance(value, bool) or not isinstance(value, (int, str))
             for value in tiebreak
         ):
-            raise ValueError("deterministic_tiebreak must contain exact integers or strings")
+            raise ValueError(
+                "deterministic_tiebreak must contain exact integers or strings"
+            )
         object.__setattr__(self, "tier", ResolverTier(self.tier))
         object.__setattr__(
             self,
@@ -307,6 +325,9 @@ _ALLOWED_KINDS_BY_SCHEMA = {
     ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: frozenset(
         (CertificateKind.FIRST_ATTACK_ACCELERATION,)
     ),
+    ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: frozenset(
+        (CertificateKind.ATTACK_COMPLETION,)
+    ),
 }
 _ALLOWED_TIERS_BY_SCHEMA = {
     ProofSchema.SAFE_FALLBACK_V1: frozenset(
@@ -328,6 +349,9 @@ _ALLOWED_TIERS_BY_SCHEMA = {
     ),
     ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: frozenset(
         (ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,)
+    ),
+    ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: frozenset(
+        (ResolverTier.ATTACK_COMPLETION,)
     ),
 }
 _ALLOWED_COMBINATIONS = frozenset(
@@ -392,6 +416,12 @@ _ALLOWED_COMBINATIONS = frozenset(
             ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
             int(OptionType.ATTACH),
         ),
+        (
+            ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1,
+            CertificateKind.ATTACK_COMPLETION,
+            ResolverTier.ATTACK_COMPLETION,
+            int(OptionType.ATTACH),
+        ),
     )
 )
 
@@ -430,14 +460,10 @@ def proposal_digest(proposal: Proposal) -> str:
             for ref_value in proposal.resource_cost.irreversible_refs
         ],
         "reservation_ids": proposal.reservation_ids,
-        "transaction_plan_digest": _transaction_plan_digest(
-            proposal.transaction_plan
-        ),
+        "transaction_plan_digest": _transaction_plan_digest(proposal.transaction_plan),
         "metrics": {
             "schema": proposal.metrics.schema.value,
-            "supporter_opportunity_cost": (
-                proposal.metrics.supporter_opportunity_cost
-            ),
+            "supporter_opportunity_cost": (proposal.metrics.supporter_opportunity_cost),
             "prize_liability_after": proposal.metrics.prize_liability_after,
             "ready_attackers_after": proposal.metrics.ready_attackers_after,
             "draw_buffer_after": proposal.metrics.draw_buffer_after,
@@ -587,6 +613,37 @@ def canonical_proposal_tiebreak(
             int(lineage_serial),
             int(energy_serial),
         )
+    if (
+        key.option_type == int(OptionType.ATTACH)
+        and proof.schema == ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1
+    ):
+        energy_serial = proof.fact("energy_serial")
+        final_damage = proof.fact("chosen_final_damage")
+        future_lock_cost = proof.fact("chosen_future_lock_cost")
+        attack_id = proof.fact("chosen_attack_id")
+        if (
+            any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in (
+                    energy_serial,
+                    final_damage,
+                    future_lock_cost,
+                    attack_id,
+                )
+            )
+            or energy_serial < 0
+            or final_damage <= 0
+            or future_lock_cost not in (0, 1)
+            or attack_id <= 0
+        ):
+            return ()
+        return (
+            int(OptionType.ATTACH),
+            int(energy_serial),
+            -int(final_damage),
+            int(future_lock_cost),
+            int(attack_id),
+        )
     return ()
 
 
@@ -656,8 +713,7 @@ def _legal_option_index_reasons(
     )
     reasons = []
     if len(exact_indices) != len(indices) or any(
-        index < 0 or index >= len(legal_options)
-        for index in exact_indices
+        index < 0 or index >= len(legal_options) for index in exact_indices
     ):
         reasons.append("LEGAL_OPTION_INDEX_INVALID")
     if len(set(exact_indices)) != len(exact_indices):
@@ -843,13 +899,105 @@ def _validate_proposal(
                 else:
                     if expected_proof.digest() != proposal.proof.digest():
                         reasons.append("RIOLU_ATTACH_PROOF_MISMATCH")
+    elif proposal.proof.schema == ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1:
+        if proposal.proof.guaranteed_prizes != 0:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_PRIZE_CLAIM_FORBIDDEN")
+        expected_actor = (
+            state.first_player
+            if state.first_player in (0, 1) and state.turn % 2 == 1
+            else 1 - state.first_player
+            if state.first_player in (0, 1)
+            else None
+        )
+        if (
+            state.turn != 2
+            or state.first_player not in (0, 1)
+            or state.seat == state.first_player
+            or expected_actor != state.seat
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_TIMING_INVALID")
+        if (
+            proposal.rule_id != ACTIVE_ATTACK_COMPLETION_RULE_ID
+            or proposal.proof.fact("rule_id") != ACTIVE_ATTACK_COMPLETION_RULE_ID
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_RULE_ID_MISMATCH")
+        if (
+            proposal.proof.fact("coverage") != ACTIVE_ATTACK_COMPLETION_COVERAGE
+            or proposal.proof.fact("full_requirement_compliance") is not False
+            or proposal.proof.fact("unresolved_requirement_codes")
+            != ACTIVE_ATTACK_COMPLETION_UNRESOLVED
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_SCOPE_FACT_MISMATCH")
+        if (
+            proposal.proof.fact("global_turn") != 2
+            or proposal.proof.fact("own_turn_number") != 1
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_TURN_FACT_MISMATCH")
+        pre_payable = proposal.proof.fact("pre_payable")
+        post_payable = proposal.proof.fact("post_payable")
+        if pre_payable != ():
+            reasons.append("ACTIVE_ATTACK_COMPLETION_PRE_PAYABLE_NOT_EMPTY")
+        if (
+            not isinstance(post_payable, tuple)
+            or len(post_payable) != 1
+            or post_payable != (proposal.proof.fact("chosen_attack_id"),)
+            or proposal.proof.fact("candidate_attack_ids") != post_payable
+            or proposal.proof.fact("post_table_and_outcome_fully_exact") is not True
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_POST_PAYABLE_NOT_SINGLETON")
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        else:
+            if proposal.proof.fact("registry_digest") != registry.digest:
+                reasons.append("PROOF_REGISTRY_STALE")
+            registry_audit = active_attack_completion_registry_audit(registry)
+            if registry_audit is None:
+                reasons.append("ACTIVE_ATTACK_COMPLETION_REGISTRY_AUDIT_REJECTED")
+            elif (
+                proposal.proof.fact("catalog_sha256") != registry_audit[0]
+                or proposal.proof.fact("persistent_trainer_audit_fingerprint")
+                != registry_audit[1]
+            ):
+                reasons.append("ACTIVE_ATTACK_COMPLETION_REGISTRY_AUDIT_MISMATCH")
+            target = state.opponent_active
+            target_profiles = (
+                ()
+                if target is None
+                else tuple(
+                    profile
+                    for profile in registry.profiles
+                    if profile.card_id == target.ref.card_id
+                )
+            )
+            target_type = proposal.proof.fact("target_energy_type")
+            if (
+                proposal.proof.fact("target_energy_type_exact") is not True
+                or len(target_profiles) != 1
+                or isinstance(target_type, bool)
+                or not isinstance(target_type, int)
+                or target_type <= 0
+                or target_type == 8
+                or target_profiles[0].energy_type != target_type
+            ):
+                reasons.append("ACTIVE_ATTACK_COMPLETION_TARGET_TYPE_REJECTED")
+            try:
+                expected_proof = active_post_attach_attack_completion_proof(
+                    state,
+                    legal_options,
+                    registry,
+                    proposal.action_spec,
+                )
+            except ValueError:
+                reasons.append("ACTIVE_ATTACK_COMPLETION_RECOMPUTE_REJECTED")
+            else:
+                if expected_proof.digest() != proposal.proof.digest():
+                    reasons.append("ACTIVE_ATTACK_COMPLETION_PROOF_MISMATCH")
     if proposal.proof.state_fingerprint != public_state_fingerprint(state):
         reasons.append("PROOF_STATE_STALE")
     if proposal.proof.action_spec != proposal.action_spec:
         reasons.append("PROOF_ACTION_MISMATCH")
-    if (
-        proposal.proof.fact("legal_options_fingerprint")
-        != legal_options_fingerprint(legal_options)
+    if proposal.proof.fact("legal_options_fingerprint") != legal_options_fingerprint(
+        legal_options
     ):
         reasons.append("PROOF_OPTIONS_STALE")
 
@@ -962,30 +1110,23 @@ def _validate_proposal(
             reasons.append("RIOLU_ATTACH_TARGET_REF_INVALID")
         elif target_ref not in ledger.visible_refs:
             reasons.append("RIOLU_ATTACH_TARGET_NOT_IN_LEDGER")
-        if (
-            source_ref is None
-            or proposal.resource_cost.irreversible_refs != (source_ref,)
+        if source_ref is None or proposal.resource_cost.irreversible_refs != (
+            source_ref,
         ):
             reasons.append("RIOLU_ATTACH_COST_MISMATCH")
         expected_reservation_ids = (MANUAL_ATTACH_ENERGY_RESERVATION_ID,)
         if proposal.reservation_ids != expected_reservation_ids:
             reasons.append("RIOLU_ATTACH_RESERVATION_ID_MISMATCH")
-        if (
-            proposal.proof.fact("reservation_id")
-            != MANUAL_ATTACH_ENERGY_RESERVATION_ID
-        ):
+        if proposal.proof.fact("reservation_id") != MANUAL_ATTACH_ENERGY_RESERVATION_ID:
             reasons.append("RIOLU_ATTACH_PROOF_RESERVATION_MISMATCH")
-        reservation = ledger.get_reservation(
-            MANUAL_ATTACH_ENERGY_RESERVATION_ID
-        )
+        reservation = ledger.get_reservation(MANUAL_ATTACH_ENERGY_RESERVATION_ID)
         if reservation is None:
             reasons.append("RIOLU_ATTACH_RESERVATION_MISSING")
         else:
             bound_reservations = tuple(
                 value
                 for value in ledger.bound_reservations
-                if value.reservation_id
-                == MANUAL_ATTACH_ENERGY_RESERVATION_ID
+                if value.reservation_id == MANUAL_ATTACH_ENERGY_RESERVATION_ID
             )
             if reservation.kind != ReservationKind.HARD_RESERVED:
                 reasons.append("RIOLU_ATTACH_RESERVATION_NOT_HARD")
@@ -998,11 +1139,79 @@ def _validate_proposal(
             ):
                 reasons.append("RIOLU_ATTACH_RESERVATION_REF_MISMATCH")
             try:
-                ephemeral = ledger.release(
-                    MANUAL_ATTACH_ENERGY_RESERVATION_ID
-                )
+                ephemeral = ledger.release(MANUAL_ATTACH_ENERGY_RESERVATION_ID)
             except ResourceLedgerError:
                 reasons.append("RIOLU_ATTACH_RESERVATION_RELEASE_FAILED")
+            else:
+                if source_ref is not None:
+                    cost_check = ephemeral.check_cost((source_ref,))
+                    reasons.extend(
+                        "LEDGER_COST_REJECTED:{0}".format(reason)
+                        for reason in cost_check.rejection_reasons
+                    )
+    elif proposal.proof.schema == ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1:
+        source_fact = proposal.proof.fact("source_ref")
+        target_fact = proposal.proof.fact("target_ref")
+        source_matches = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == source_fact
+        )
+        target_matches = tuple(
+            pokemon.ref
+            for pokemon in state.own.active
+            if pokemon.ref.sort_key() == target_fact
+        )
+        source_ref = source_matches[0] if len(source_matches) == 1 else None
+        target_ref = target_matches[0] if len(target_matches) == 1 else None
+        if source_ref is None:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_SOURCE_REF_INVALID")
+        elif source_ref not in ledger.visible_refs:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_SOURCE_NOT_IN_LEDGER")
+        if target_ref is None:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_TARGET_REF_INVALID")
+        elif target_ref not in ledger.visible_refs:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_TARGET_NOT_IN_LEDGER")
+        if source_ref is None or proposal.resource_cost.irreversible_refs != (
+            source_ref,
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_COST_MISMATCH")
+        expected_reservation_ids = (ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,)
+        if proposal.reservation_ids != expected_reservation_ids:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_RESERVATION_ID_MISMATCH")
+        if (
+            proposal.proof.fact("reservation_id")
+            != ACTIVE_ATTACK_COMPLETION_RESERVATION_ID
+        ):
+            reasons.append("ACTIVE_ATTACK_COMPLETION_PROOF_RESERVATION_MISMATCH")
+        reservation = ledger.get_reservation(ACTIVE_ATTACK_COMPLETION_RESERVATION_ID)
+        if reservation is None:
+            reasons.append("ACTIVE_ATTACK_COMPLETION_RESERVATION_MISSING")
+            if (
+                source_ref is not None
+                and ledger.reservation_for(source_ref) is not None
+            ):
+                reasons.append("ACTIVE_ATTACK_COMPLETION_FOREIGN_RESERVATION")
+        else:
+            bound_reservations = tuple(
+                value
+                for value in ledger.bound_reservations
+                if value.reservation_id == ACTIVE_ATTACK_COMPLETION_RESERVATION_ID
+            )
+            if reservation.kind != ReservationKind.HARD_RESERVED:
+                reasons.append("ACTIVE_ATTACK_COMPLETION_RESERVATION_NOT_HARD")
+            if (
+                source_ref is None
+                or reservation.is_role_constraint
+                or reservation.refs != (source_ref,)
+                or len(bound_reservations) != 1
+                or bound_reservations[0].refs != (source_ref,)
+            ):
+                reasons.append("ACTIVE_ATTACK_COMPLETION_RESERVATION_REF_MISMATCH")
+            try:
+                ephemeral = ledger.release(ACTIVE_ATTACK_COMPLETION_RESERVATION_ID)
+            except ResourceLedgerError:
+                reasons.append("ACTIVE_ATTACK_COMPLETION_RESERVATION_RELEASE_FAILED")
             else:
                 if source_ref is not None:
                     cost_check = ephemeral.check_cost((source_ref,))
@@ -1020,9 +1229,7 @@ def _validate_proposal(
             reasons.append("PROFILE_RESOURCE_COST_FORBIDDEN")
         for reservation_id in proposal.reservation_ids:
             if ledger.get_reservation(reservation_id) is None:
-                reasons.append(
-                    "UNKNOWN_RESERVATION_ID:{0}".format(reservation_id)
-                )
+                reasons.append("UNKNOWN_RESERVATION_ID:{0}".format(reservation_id))
         if proposal.reservation_ids:
             reasons.append("PROFILE_RESERVATION_FORBIDDEN")
     if (
@@ -1102,9 +1309,7 @@ def resolution_invariant_reasons(
         if value.disposition == ProposalDisposition.REJECTED
     )
     categorized_count = (
-        len(selected_evaluations)
-        + len(valid_not_selected)
-        + len(rejected_evaluations)
+        len(selected_evaluations) + len(valid_not_selected) + len(rejected_evaluations)
     )
     if categorized_count != len(evaluations):
         reasons.append("EVALUATION_DISPOSITION_INVALID")
@@ -1151,10 +1356,7 @@ def resolution_invariant_reasons(
                     "BOUND_ACTION_REBIND:{0}".format(reason)
                     for reason in binding_reasons
                 )
-                if (
-                    not binding_reasons
-                    and resolution.bound_action != expected_bound
-                ):
+                if not binding_reasons and resolution.bound_action != expected_bound:
                     reasons.append("BOUND_ACTION_MISMATCH")
 
     if any(value.reasons for value in selected_evaluations):

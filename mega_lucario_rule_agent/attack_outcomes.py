@@ -10,7 +10,9 @@ damage value can never be mistaken for a complete win or Prize certificate.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass, field as dataclass_field, replace
+import hashlib
+import json
 import re
 from typing import Iterable, Optional, Sequence, Tuple
 
@@ -35,6 +37,7 @@ try:  # Package import in tests.
         SemanticOption,
         SemanticOptionKey,
         is_checked_public_state,
+        _derive_checked_active_energy_attach_state,
         is_stable_main_state,
         public_state_fingerprint,
         semantic_options_fingerprint,
@@ -60,10 +63,86 @@ except ImportError:  # Flat submission import from main.py.
         SemanticOption,
         SemanticOptionKey,
         is_checked_public_state,
+        _derive_checked_active_energy_attach_state,
         is_stable_main_state,
         public_state_fingerprint,
         semantic_options_fingerprint,
     )
+
+
+ACTIVE_ATTACK_COMPLETION_EXPECTED_CATALOG_SHA256 = (
+    "0c5231c8442094e8c5453f184d8c11a6feaadcedbc3a1dbf04b71d7adee40939"
+)
+ACTIVE_ATTACK_COMPLETION_TRAINER_AUDIT_FINGERPRINT = (
+    "049749c7c4f6146d76d44a2eb2e67dcc3ffe9df7ad8cd76f64eaf4b805c548cc"
+)
+_ACTIVE_ATTACK_COMPLETION_TRAINER_PROFILES = (
+    (
+        1140,
+        "iron defender",
+        1,
+        0,
+        (
+            (
+                "iron defender",
+                "98d6389529ef834dccc37410e87f7d56c9f18a698d301b7a9e23aa6232b06323",
+            ),
+        ),
+        (),
+        (
+            (
+                "iron defender",
+                "98d6389529ef834dccc37410e87f7d56c9f18a698d301b7a9e23aa6232b06323",
+            ),
+        ),
+    ),
+    (
+        1228,
+        "acerola's mischief",
+        3,
+        0,
+        (
+            (
+                "acerola's mischief",
+                "5b5b8f38efb7b81d3d9646a2787059ee5ec562f0fc17582686630ca6c04a6b55",
+            ),
+        ),
+        (),
+        (
+            (
+                "acerola's mischief",
+                "5b5b8f38efb7b81d3d9646a2787059ee5ec562f0fc17582686630ca6c04a6b55",
+            ),
+        ),
+    ),
+)
+
+
+def active_attack_completion_registry_audit(
+    registry: PublicEffectRegistry,
+) -> Optional[Tuple[str, str]]:
+    """Bind the clause to the production catalog and audited transient Trainers."""
+
+    if (
+        not isinstance(registry, PublicEffectRegistry)
+        or registry.catalog_sha256 != ACTIVE_ATTACK_COMPLETION_EXPECTED_CATALOG_SHA256
+    ):
+        return None
+    profiles = tuple(registry.effect_profile(card_id) for card_id in (1140, 1228))
+    if any(profile is None for profile in profiles):
+        return None
+    canonical = tuple(
+        profile.canonical() for profile in profiles if profile is not None
+    )
+    if canonical != _ACTIVE_ATTACK_COMPLETION_TRAINER_PROFILES:
+        return None
+    payload = json.dumps(
+        canonical, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    fingerprint = hashlib.sha256(payload).hexdigest()
+    if fingerprint != ACTIVE_ATTACK_COMPLETION_TRAINER_AUDIT_FINGERPRINT:
+        return None
+    return registry.catalog_sha256, fingerprint
 
 
 FIGHTING_ENERGY_TYPE = 6
@@ -314,7 +393,9 @@ class AttackOutcome:
         )
         if self._damage_exact and any(value is None for value in damage_outputs):
             raise ValueError("exact damage requires a complete numeric trace")
-        if not self._damage_exact and any(value is not None for value in damage_outputs):
+        if not self._damage_exact and any(
+            value is not None for value in damage_outputs
+        ):
             raise ValueError("unknown damage cannot publish a partial exact trace")
         if self._damage_exact and (
             not self._legality_exact
@@ -345,7 +426,9 @@ class AttackOutcome:
         terminal_outputs = (self.wins_game, self.loses_game, self.draws_game)
         if self._terminal_exact and any(value is None for value in terminal_outputs):
             raise ValueError("exact terminal state requires complete outputs")
-        if not self._terminal_exact and any(value is not None for value in terminal_outputs):
+        if not self._terminal_exact and any(
+            value is not None for value in terminal_outputs
+        ):
             raise ValueError("unknown terminal state cannot publish exact outputs")
 
     @property
@@ -444,6 +527,131 @@ class AttackOutcome:
         ):
             return 0
         return 1 if self.next_turn_lock_applied else 0
+
+
+@dataclass(frozen=True)
+class ActivePostAttachAttackCompletion:
+    """Clause-only proof for the going-second OT1 Active attach rule."""
+
+    source_ref: PhysicalRef
+    target_ref: PhysicalRef
+    target_energy_type: int
+    catalog_sha256: str
+    persistent_trainer_audit_fingerprint: str
+    energy_types_before: Tuple[int, ...]
+    energy_types_after: Tuple[int, ...]
+    pre_payable: Tuple[int, ...]
+    post_payable: Tuple[int, ...]
+    candidate_rows: Tuple[Tuple[int, int, int, Tuple[int, ...]], ...]
+    chosen_attack_id: int
+    chosen_final_damage: int
+    chosen_future_lock_cost: int
+    chosen_energy_cost: Tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.source_ref, PhysicalRef) or not isinstance(
+            self.target_ref,
+            PhysicalRef,
+        ):
+            raise ValueError("post-attach completion requires exact physical refs")
+        if (
+            self.source_ref.card_id != 6
+            or self.source_ref.zone != int(AreaType.HAND)
+            or self.target_ref.zone != int(AreaType.ACTIVE)
+        ):
+            raise ValueError("post-attach completion refs have invalid roles")
+        if (
+            not _is_exact_int(self.target_energy_type)
+            or self.target_energy_type <= 0
+            or self.target_energy_type == METAL_ENERGY_TYPE
+        ):
+            raise ValueError(
+                "post-attach completion requires an exact non-Metal target"
+            )
+        if (
+            not _is_sha256(self.catalog_sha256)
+            or not _is_sha256(self.persistent_trainer_audit_fingerprint)
+            or self.persistent_trainer_audit_fingerprint
+            != ACTIVE_ATTACK_COMPLETION_TRAINER_AUDIT_FINGERPRINT
+        ):
+            raise ValueError(
+                "post-attach completion requires the audited production catalog"
+            )
+        if any(
+            not _is_exact_int(value) or value <= 0
+            for value in self.energy_types_before + self.energy_types_after
+        ):
+            raise ValueError("post-attach energy types must be positive exact ints")
+        if self.energy_types_after != self.energy_types_before + (
+            FIGHTING_ENERGY_TYPE,
+        ):
+            raise ValueError(
+                "post-attach completion must add exactly one Fighting Energy"
+            )
+        if self.pre_payable:
+            raise ValueError("pre-attach payable attack set must be empty")
+        if len(self.post_payable) != 1 or any(
+            not _is_exact_int(value) or value <= 0 for value in self.post_payable
+        ):
+            raise ValueError("post-attach payable attack set must be one exact attack")
+        if len(self.candidate_rows) != 1:
+            raise ValueError("post-attach completion requires one positive candidate")
+        for (
+            attack_id,
+            final_damage,
+            future_lock_cost,
+            energy_cost,
+        ) in self.candidate_rows:
+            if (
+                not _is_exact_int(attack_id)
+                or attack_id <= 0
+                or not _is_exact_int(final_damage)
+                or final_damage <= 0
+                or future_lock_cost not in (0, 1)
+                or not energy_cost
+                or any(not _is_exact_int(value) or value <= 0 for value in energy_cost)
+            ):
+                raise ValueError(
+                    "post-attach candidate rows must be exact and positive"
+                )
+        expected = tuple(
+            sorted(
+                self.candidate_rows,
+                key=lambda row: (-row[1], row[2], row[0], row[3]),
+            )
+        )
+        if expected != self.candidate_rows:
+            raise ValueError(
+                "post-attach candidates must use exact attack-policy order"
+            )
+        chosen = self.candidate_rows[0]
+        if self.post_payable != (chosen[0],):
+            raise ValueError("post-attach payable attack must equal the candidate")
+        if (
+            self.chosen_attack_id,
+            self.chosen_final_damage,
+            self.chosen_future_lock_cost,
+            self.chosen_energy_cost,
+        ) != chosen:
+            raise ValueError("post-attach chosen attack must lead the candidate set")
+
+    def canonical(self) -> Tuple[object, ...]:
+        return (
+            self.source_ref.sort_key(),
+            self.target_ref.sort_key(),
+            self.target_energy_type,
+            self.catalog_sha256,
+            self.persistent_trainer_audit_fingerprint,
+            self.energy_types_before,
+            self.energy_types_after,
+            self.pre_payable,
+            self.post_payable,
+            self.candidate_rows,
+            self.chosen_attack_id,
+            self.chosen_final_damage,
+            self.chosen_future_lock_cost,
+            self.chosen_energy_cost,
+        )
 
 
 _BOUND_ATTACK_OUTCOME_ISSUER_TOKEN = object()
@@ -552,8 +760,7 @@ class BoundAttackOutcomeTable:
             and state.source_combat_complete
             and isinstance(registry, PublicEffectRegistry)
             and self.state_fingerprint == public_state_fingerprint(state)
-            and state.source_options_fingerprint
-            == self.semantic_options_fingerprint
+            and state.source_options_fingerprint == self.semantic_options_fingerprint
             and self.semantic_options_fingerprint
             == semantic_options_fingerprint(options)
             and self.registry_digest == registry.digest
@@ -562,6 +769,36 @@ class BoundAttackOutcomeTable:
             and self.target_ref
             == (None if state.opponent_active is None else state.opponent_active.ref)
         )
+
+
+def is_fully_exact_attack_completion_outcome(
+    table: BoundAttackOutcomeTable,
+    outcome: AttackOutcome,
+) -> bool:
+    """Shared full-exact admission for a non-losing direct attack candidate."""
+
+    return (
+        isinstance(table, BoundAttackOutcomeTable)
+        and isinstance(outcome, AttackOutcome)
+        and table.get_for_option(outcome.option_key) == outcome
+        and table.exact
+        and outcome.authoritative
+        and outcome.legality_exact
+        and outcome.legal is True
+        and outcome.payable is True
+        and outcome.exact
+        and outcome.post_attack_exact
+        and outcome.prize_exact
+        and outcome.prizes_taken is not None
+        and outcome.opponent_prizes_taken is not None
+        and outcome.own_prizes_after is not None
+        and outcome.opponent_prizes_after is not None
+        and outcome.terminal_exact
+        and isinstance(outcome.wins_game, bool)
+        and outcome.loses_game is False
+        and outcome.draws_game is False
+        and outcome.future_lock_cost is not None
+    )
 
 
 def _mint_outcome(**values: object) -> AttackOutcome:
@@ -975,10 +1212,7 @@ def _prize_reduction(
     exact_reduction = 0
     if "LEGACY_ENERGY" in energy_effects:
         reasons.append("LEGACY_ENERGY_ONCE_PER_GAME_STATE_UNKNOWN")
-    if (
-        "LILLIES_PEARL" in tool_effects
-        and profile.card_id in LILLIES_POKEMON_CARD_IDS
-    ):
+    if "LILLIES_PEARL" in tool_effects and profile.card_id in LILLIES_POKEMON_CARD_IDS:
         exact_reduction += 1
     return exact_reduction, _canonical_reasons(reasons)
 
@@ -1223,9 +1457,7 @@ def _evaluate_unique_attack(
     target_was_damaged = final_damage > 0
     spiky_damage = 0
     if target_was_damaged and "SPIKY_ENERGY" in effects.target_energy:
-        spiky_damage = SPIKY_ENERGY_DAMAGE * effects.target_energy.count(
-            "SPIKY_ENERGY"
-        )
+        spiky_damage = SPIKY_ENERGY_DAMAGE * effects.target_energy.count("SPIKY_ENERGY")
         triggered_effects.append("SPIKY_ENERGY")
     if target_was_damaged and "LUCKY_HELMET" in effects.target_tools:
         triggered_effects.append("LUCKY_HELMET")
@@ -1236,8 +1468,7 @@ def _evaluate_unique_attack(
             post_reasons.append("HANDHELD_FAN_REQUIRES_SELECTION")
     attacker_attack_effect_damage = attack.semantics.self_damage
     attacker_damage_counters_placed = (
-        SPIKY_ENERGY_DAMAGE_COUNTERS
-        * effects.target_energy.count("SPIKY_ENERGY")
+        SPIKY_ENERGY_DAMAGE_COUNTERS * effects.target_energy.count("SPIKY_ENERGY")
         if spiky_damage
         else 0
     )
@@ -1275,11 +1506,7 @@ def _evaluate_unique_attack(
         )
         opponent_prizes_taken = min(
             state.opponent.prize_count,
-            (
-                effects.attacker_profile.prize_value
-                if attacker_knockout
-                else 0
-            ),
+            (effects.attacker_profile.prize_value if attacker_knockout else 0),
         )
         own_prizes_after = max(0, state.own.prize_count - prizes_taken)
         opponent_prizes_after = max(
@@ -1357,6 +1584,288 @@ def _evaluate_unique_attack(
         prize_unknown_reasons=prize_unknown,
         post_attack_unknown_reasons=_canonical_reasons(post_reasons),
         terminal_unknown_reasons=_canonical_reasons(terminal_reasons),
+    )
+
+
+def _typed_energy_deficit(
+    attached_energy_types: Sequence[int],
+    energy_cost: Sequence[int],
+) -> Optional[int]:
+    if any(not _is_exact_int(value) or value <= 0 for value in attached_energy_types):
+        return None
+    if not energy_cost or any(
+        not _is_exact_int(value) or value <= 0 for value in energy_cost
+    ):
+        return None
+    available = Counter(int(value) for value in attached_energy_types)
+    required = Counter(int(value) for value in energy_cost)
+    return sum(
+        max(0, required[energy_type] - available[energy_type])
+        for energy_type in required
+    )
+
+
+def _registered_attack_energy_cost(
+    registry: PublicEffectRegistry,
+    card_id: int,
+    attack_id: int,
+) -> Optional[Tuple[int, ...]]:
+    attack = ATTACK_META_BY_ID.get(attack_id)
+    rows = tuple(
+        binding
+        for binding in EFFECT_BINDINGS
+        if binding.entry_kind is EntryKind.ATTACK
+        and binding.card_id == card_id
+        and binding.entry_id == attack_id
+    )
+    if (
+        attack is None
+        or attack.source_card_id != card_id
+        or len(rows) != 1
+        or not registry.binding_admitted(
+            rows[0].effect_id,
+            card_id=card_id,
+            entry_id=attack_id,
+        )
+    ):
+        return None
+    metadata_cost = tuple(
+        FIGHTING_ENERGY_TYPE if getattr(value, "value", None) == "fighting" else 0
+        for value in attack.energy_cost
+    )
+    binding_cost = tuple(int(value) for value in rows[0].energy_cost)
+    return (
+        metadata_cost
+        if metadata_cost and 0 not in metadata_cost and metadata_cost == binding_cost
+        else None
+    )
+
+
+def _hypothetical_attack_key(
+    state: PublicState,
+    attacker: PokemonView,
+    target: PokemonView,
+    attack_id: int,
+) -> SemanticOptionKey:
+    return SemanticOptionKey(
+        option_type=int(OptionType.ATTACK),
+        player_index=state.seat,
+        card_id=attacker.ref.card_id,
+        card_serial=attacker.ref.serial,
+        source_zone=int(AreaType.ACTIVE),
+        source_lineage_serial=attacker.ref.lineage_serial,
+        target_zone=int(AreaType.ACTIVE),
+        target_lineage_serial=target.ref.lineage_serial,
+        attack_id=attack_id,
+    )
+
+
+def build_active_post_attach_attack_completion(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+    source_ref: PhysicalRef,
+    target_ref: PhysicalRef,
+) -> Optional[ActivePostAttachAttackCompletion]:
+    """Prove only the going-second OT1 single-attack completion clause.
+
+    This does not claim the unresolved opponent-derived attack-lock requirement
+    or full requirement compliance.
+    """
+
+    if (
+        not isinstance(state, PublicState)
+        or not is_checked_public_state(state)
+        or not isinstance(registry, PublicEffectRegistry)
+        or not isinstance(source_ref, PhysicalRef)
+        or not isinstance(target_ref, PhysicalRef)
+        or not is_stable_main_state(state)
+        or not state.source_combat_complete
+        or not state.history_complete
+        or state.source_options_fingerprint
+        != semantic_options_fingerprint(legal_options)
+        or state.attacked_this_turn
+        or state.energy_attached
+        or state.first_player not in (0, 1)
+        or state.turn != 2
+        or state.seat == state.first_player
+        or (state.first_player if state.turn % 2 == 1 else 1 - state.first_player)
+        != state.seat
+        or state.own.asleep
+        or state.own.paralyzed
+        or state.own.confused
+        or any(
+            option.key.option_type == int(OptionType.ATTACK) for option in legal_options
+        )
+    ):
+        return None
+    attacker = state.own_active
+    defender = state.opponent_active
+    if (
+        attacker is None
+        or defender is None
+        or len(state.own.active) != 1
+        or len(state.opponent.active) != 1
+        or target_ref != attacker.ref
+        or target_ref.owner != state.seat
+        or target_ref.zone != int(AreaType.ACTIVE)
+        or source_ref.card_id != 6
+        or source_ref.owner != state.seat
+        or source_ref.zone != int(AreaType.HAND)
+        or sum(ref_value == source_ref for ref_value in state.own.hand_refs) != 1
+        or len(attacker.energy_types) != len(attacker.energy_refs)
+    ):
+        return None
+    registry_audit = active_attack_completion_registry_audit(registry)
+    if registry_audit is None:
+        return None
+    energy_profile = registry.effect_profile(6)
+    target_profiles = tuple(
+        profile
+        for profile in registry.profiles
+        if profile.card_id == defender.ref.card_id
+    )
+    if (
+        len(target_profiles) != 1
+        or not _is_exact_int(target_profiles[0].energy_type)
+        or target_profiles[0].energy_type <= 0
+        or target_profiles[0].energy_type == METAL_ENERGY_TYPE
+    ):
+        return None
+    if (
+        not registry.is_effectless_basic_energy(6)
+        or energy_profile is None
+        or energy_profile.energy_type != FIGHTING_ENERGY_TYPE
+    ):
+        return None
+    card_profile = registry.profile(attacker.ref.card_id)
+    if (
+        card_profile is None
+        or not card_profile.attack_ids
+        or (state.opponent.prize_count <= 2 and card_profile.rule_box)
+    ):
+        return None
+
+    energy_types_before = tuple(attacker.energy_types)
+    energy_types_after = energy_types_before + (FIGHTING_ENERGY_TYPE,)
+    pre_payable = []
+    post_payable = []
+    cost_by_attack = {}
+    for attack_id in tuple(sorted(card_profile.attack_ids)):
+        cost = _registered_attack_energy_cost(
+            registry,
+            int(attacker.ref.card_id),
+            int(attack_id),
+        )
+        if cost is None:
+            return None
+        deficit_before = _typed_energy_deficit(energy_types_before, cost)
+        deficit_after = _typed_energy_deficit(energy_types_after, cost)
+        if deficit_before is None or deficit_after is None:
+            return None
+        attack = ATTACK_META_BY_ID[int(attack_id)]
+        locked = (
+            attack.semantics.same_attack_lock_next_own_turn
+            and _same_attack_is_locked(state, attacker, int(attack_id))
+        )
+        if deficit_before == 0 and not locked:
+            pre_payable.append(int(attack_id))
+        if deficit_after == 0 and not locked:
+            cost_by_attack[int(attack_id)] = cost
+            post_payable.append(int(attack_id))
+    if pre_payable or len(post_payable) != 1:
+        return None
+
+    attached_ref = PhysicalRef(
+        card_id=6,
+        serial=source_ref.serial,
+        owner=state.seat,
+        zone=int(AreaType.ENERGY),
+        lineage_serial=source_ref.serial,
+    )
+    post_attacker = replace(
+        attacker,
+        energy_types=energy_types_after,
+        energy_refs=attacker.energy_refs + (attached_ref,),
+    )
+    hypothetical_options = tuple(
+        SemanticOption(
+            index=index,
+            key=_hypothetical_attack_key(
+                state,
+                post_attacker,
+                defender,
+                attack_id,
+            ),
+        )
+        for index, attack_id in enumerate(post_payable)
+    )
+    try:
+        post_state = _derive_checked_active_energy_attach_state(
+            state,
+            source_ref,
+            FIGHTING_ENERGY_TYPE,
+            hypothetical_options,
+        )
+    except ValueError:
+        return None
+    if post_state.own_active != post_attacker:
+        return None
+    table = build_attack_outcome_table(post_state, hypothetical_options, registry)
+    if table.build_unknown_reasons or len(table.rows) != len(hypothetical_options):
+        return None
+
+    candidate_rows = []
+    for outcome in table.rows:
+        if not is_fully_exact_attack_completion_outcome(table, outcome):
+            return None
+        if outcome.final_damage is None:
+            return None
+        if outcome.final_damage <= 0:
+            continue
+        cost = cost_by_attack[outcome.attack_id]
+        if (
+            _typed_energy_deficit(energy_types_before, cost) != 1
+            or _typed_energy_deficit(energy_types_after, cost) != 0
+        ):
+            continue
+        future_lock_cost = outcome.future_lock_cost
+        if future_lock_cost is None:
+            return None
+        candidate_rows.append(
+            (
+                outcome.attack_id,
+                int(outcome.final_damage),
+                int(future_lock_cost),
+                cost,
+            )
+        )
+    ranked = tuple(
+        sorted(
+            candidate_rows,
+            key=lambda row: (-row[1], row[2], row[0], row[3]),
+        )
+    )
+    # Existing direct attack selection changes rank shape for wins and Prize KOs.
+    # A singleton makes the post-attach action identical under every such tier.
+    if len(ranked) != 1:
+        return None
+    chosen = ranked[0]
+    return ActivePostAttachAttackCompletion(
+        catalog_sha256=registry_audit[0],
+        persistent_trainer_audit_fingerprint=registry_audit[1],
+        source_ref=source_ref,
+        target_ref=target_ref,
+        energy_types_before=energy_types_before,
+        target_energy_type=target_profiles[0].energy_type,
+        energy_types_after=energy_types_after,
+        pre_payable=tuple(pre_payable),
+        post_payable=tuple(post_payable),
+        candidate_rows=ranked,
+        chosen_attack_id=chosen[0],
+        chosen_final_damage=chosen[1],
+        chosen_future_lock_cost=chosen[2],
+        chosen_energy_cost=chosen[3],
     )
 
 
@@ -1486,6 +1995,8 @@ def build_attack_outcome_table(
 
 
 __all__ = [
+    "ActivePostAttachAttackCompletion",
+    "active_attack_completion_registry_audit",
     "AttackCallbackPreview",
     "AttackOutcome",
     "BoundAttackOutcomeTable",
@@ -1499,6 +2010,8 @@ __all__ = [
     "SPIKY_ENERGY_DAMAGE",
     "SPIKY_ENERGY_DAMAGE_COUNTERS",
     "STEVENS_POKEMON_CARD_IDS",
+    "build_active_post_attach_attack_completion",
     "build_attack_outcome_table",
+    "is_fully_exact_attack_completion_outcome",
     "semantic_options_fingerprint",
 ]

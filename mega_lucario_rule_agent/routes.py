@@ -10,6 +10,8 @@ try:  # Package import in tests.
     from .attack_outcomes import BoundAttackOutcomeTable
     from .certificates import (
         CertificateKind,
+        ACTIVE_ATTACK_COMPLETION_RULE_ID,
+        active_post_attach_attack_completion_proof,
         attack_outcome_proof,
         basic_bench_proof,
         first_turn_riolu_attach_proof,
@@ -20,6 +22,7 @@ try:  # Package import in tests.
     from .public_effects import PublicEffectRegistry
     from .resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         prove_deck_availability_from_state,
     )
     from .resolver import (
@@ -34,6 +37,8 @@ except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import BoundAttackOutcomeTable
     from certificates import (
         CertificateKind,
+        ACTIVE_ATTACK_COMPLETION_RULE_ID,
+        active_post_attach_attack_completion_proof,
         attack_outcome_proof,
         basic_bench_proof,
         first_turn_riolu_attach_proof,
@@ -44,6 +49,7 @@ except ImportError:  # Flat submission import from main.py.
     from public_effects import PublicEffectRegistry
     from resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         prove_deck_availability_from_state,
     )
     from resolver import (
@@ -253,6 +259,54 @@ def enumerate_first_turn_riolu_attach_routes(
     return ()
 
 
+def enumerate_active_attack_completion_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+) -> Tuple[Proposal, ...]:
+    """Emit at most one exact current-turn Active attack completion."""
+
+    if not isinstance(state, PublicState):
+        raise ValueError("Active attack completion routes require a PublicState")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("Active attack completion routes require a checked registry")
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.ATTACH):
+            continue
+        action_spec = ActionSpec.single(option.key)
+        try:
+            proof = active_post_attach_attack_completion_proof(
+                state,
+                legal_options,
+                registry,
+                action_spec,
+            )
+        except ValueError:
+            continue
+        source_refs = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == proof.fact("source_ref")
+        )
+        if len(source_refs) != 1:
+            continue
+        proposal = Proposal(
+            rule_id=ACTIVE_ATTACK_COMPLETION_RULE_ID,
+            tier=ResolverTier.ATTACK_COMPLETION,
+            action_spec=action_spec,
+            certificate_kind=CertificateKind.ATTACK_COMPLETION,
+            proof=proof,
+            resource_cost=ResourceCost(source_refs),
+            reservation_ids=(ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,),
+            deterministic_tiebreak=canonical_proposal_tiebreak(
+                action_spec,
+                proof,
+            ),
+        )
+        return (proposal,)
+    return ()
+
+
 def enumerate_poke_pad_core_search_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
@@ -339,6 +393,7 @@ def enumerate_poke_pad_core_search_routes(
 
 
 __all__ = [
+    "enumerate_active_attack_completion_routes",
     "enumerate_attack_routes",
     "enumerate_basic_bench_routes",
     "enumerate_first_turn_riolu_attach_routes",
