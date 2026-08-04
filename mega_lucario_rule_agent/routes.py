@@ -493,6 +493,13 @@ def enumerate_fighting_gong_routes(
         ),
         None,
     )
+    active_solrock_attach_legal = any(
+        option.key.option_type == int(OptionType.ATTACH)
+        and option.key.card_id == 6
+        and _exact_hand_ref(state, option) is not None
+        and _board_pokemon_for_option(state, option) == state.own_active
+        for option in legal_options
+    )
     classes: Tuple[Tuple[int, ...], ...] = ()
     purpose = ""
     if (
@@ -503,6 +510,34 @@ def enumerate_fighting_gong_routes(
     ):
         classes = ((6,),)
         purpose = "CURRENT_ATTACK_ENERGY"
+    elif (
+        state.own_active is not None
+        and state.own_active.ref.card_id == 676
+        and state.seat == state.first_player
+        and features.own_turn_number == 1
+        and 675 not in hand_ids
+        and all(
+            pokemon.ref.card_id != 675 for pokemon in state.own.active + state.own.bench
+        )
+    ):
+        if (
+            not any(
+                ref_value.card_id in (677, 678) for ref_value in state.own.hand_refs
+            )
+            and not any(
+                pokemon.ref.card_id in (677, 678)
+                for pokemon in state.own.active + state.own.bench
+            )
+            and len(state.own.bench) < state.own.bench_max
+            and not state.energy_attached
+            and features.hand_fighting_energy_count > 0
+            and active_deficit == 1
+            and active_solrock_attach_legal
+            and not features.ready_now
+            and not features.wally_reboot_candidate
+        ):
+            classes = ((675,), (677,), (6,))
+            purpose = "STALLED_SOLROCK_OPENING"
     elif features.missing_engine_card_ids:
         classes = tuple((card_id,) for card_id in features.missing_engine_card_ids)
         purpose = "MISSING_ENGINE"

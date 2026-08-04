@@ -366,6 +366,7 @@ _ALLOWED_TIERS_BY_SCHEMA = {
             ResolverTier.ATTACK_COMPLETION,
             ResolverTier.CERTIFIED_EVOLUTION,
             ResolverTier.ROUTE_CRITICAL_SEARCH,
+            ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
             ResolverTier.SAFE_DRAW_OR_DISRUPTION,
             ResolverTier.CERTIFIED_SURVIVAL,
             ResolverTier.MINIMAL_PPP,
