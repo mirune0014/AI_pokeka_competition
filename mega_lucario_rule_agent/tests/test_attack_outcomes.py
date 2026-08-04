@@ -10,11 +10,13 @@ from mega_lucario_rule_agent.attack_outcomes import (
     semantic_options_fingerprint,
 )
 from mega_lucario_rule_agent.card_meta import ATTACK_META_BY_ID
+from mega_lucario_rule_agent.fallback import safe_fallback
 from mega_lucario_rule_agent.public_effects import (
     EFFECT_BINDINGS,
     EntryKind,
     build_public_effect_registry,
 )
+from mega_lucario_rule_agent.resource_ledger import ResourceLedger
 from mega_lucario_rule_agent.state_view import (
     ActionSpec,
     LogType,
@@ -393,6 +395,87 @@ def test_table_binds_state_option_multiset_and_registry_digest():
     changed_target = pokemon_catalog_row(900, "Test Target", hp=300, weakness=6)
     changed_registry = registry_for((982, 983), target_row=changed_target)
     assert not table.matches(state, options, changed_registry)
+
+
+def test_safe_fallback_elevates_only_a_current_whole_attack_outcome_table():
+    target_row = pokemon_catalog_row(900, "Exact KO Target", hp=100)
+    registry = registry_for((983,), target_row=target_row)
+    obs = observation(
+        (983,),
+        opponent_active=pokemon(900, 110, player=1, hp=100),
+    )
+    state, options, table = table_for(obs, registry)
+
+    strict = safe_fallback(
+        state,
+        options,
+        {},
+        ResourceLedger(()),
+        attack_outcomes=table,
+        registry=registry,
+    )
+    assert strict.decision.reason_code == "FALLBACK_EXACT_KO_ATTACK_983"
+
+    missing_registry = safe_fallback(
+        state,
+        options,
+        {},
+        ResourceLedger(()),
+        attack_outcomes=table,
+    )
+    assert missing_registry.decision.reason_code == "FALLBACK_LEGAL_ATTACK_983"
+    assert missing_registry.reasons == ("ATTACK_OUTCOME_REGISTRY_REQUIRED",)
+
+    changed_options = build_semantic_options(observation((982,)))
+    option_mismatch = safe_fallback(
+        state,
+        changed_options,
+        {},
+        ResourceLedger(()),
+        attack_outcomes=table,
+        registry=registry,
+    )
+    assert option_mismatch.decision.reason_code == "FALLBACK_LEGAL_ATTACK_982"
+    assert option_mismatch.reasons == (
+        "ATTACK_OUTCOME_TABLE_BINDING_MISMATCH",
+    )
+
+    changed_target = pokemon_catalog_row(
+        900,
+        "Exact KO Target",
+        hp=100,
+        weakness=6,
+    )
+    changed_registry = registry_for((983,), target_row=changed_target)
+    registry_mismatch = safe_fallback(
+        state,
+        options,
+        {},
+        ResourceLedger(()),
+        attack_outcomes=table,
+        registry=changed_registry,
+    )
+    assert registry_mismatch.decision.reason_code == "FALLBACK_LEGAL_ATTACK_983"
+    assert registry_mismatch.reasons == (
+        "ATTACK_OUTCOME_TABLE_BINDING_MISMATCH",
+    )
+
+    changed_observation = deepcopy(obs)
+    changed_observation["current"]["players"][1]["active"][0]["serial"] = 111
+    changed_state = checked_state(changed_observation)
+    changed_state_options = build_semantic_options(changed_observation)
+    state_mismatch = safe_fallback(
+        changed_state,
+        changed_state_options,
+        {},
+        ResourceLedger(()),
+        attack_outcomes=table,
+        registry=registry,
+    )
+    assert state_mismatch.decision.reason_code == "FALLBACK_LEGAL_ATTACK_983"
+    assert state_mismatch.reasons == (
+        "ATTACK_OUTCOME_TABLE_BINDING_MISMATCH",
+    )
 
 
 def test_state_rejects_options_built_from_a_different_observation():

@@ -370,15 +370,30 @@ def test_forced_promotion_prefers_uninvested_one_prize_over_riolu_and_mega():
     assert unique.bind_now(current, unique_mega) == (0,)
 
 
-def test_safe_main_fallback_chooses_exact_ko_then_attack_before_pass():
+def test_safe_main_fallback_never_elevates_legacy_target_only_damage_to_exact_ko():
     current = state(opponent_hp=200)
     legal = options(ATTACK_982, ATTACK_983, END)
     damage = build_bound_damage_table(current, (982, 983))
     outcome = safe_fallback(current, legal, damage, empty_ledger())
-    assert outcome.proposals == (outcome.resolution.selected,)
-    assert outcome.resolution.stats.proposed == 1
-    assert outcome.decision.reason_code == "FALLBACK_EXACT_KO_ATTACK_983"
-    assert outcome.decision.bind_now(current, legal) == (1,)
+    assert len(outcome.proposals) == 2
+    assert outcome.resolution.selected == outcome.proposals[0]
+    assert outcome.resolution.stats.proposed == 2
+    assert outcome.decision.reason_code == "FALLBACK_LEGAL_ATTACK_982"
+    assert outcome.decision.bind_now(current, legal) == (0,)
+    assert "LEGACY_TARGET_ONLY_DAMAGE_UNTRUSTED" in outcome.reasons
+
+    no_legacy = safe_fallback(current, legal, {}, empty_ledger())
+    assert no_legacy.decision.choices == outcome.decision.choices
+
+    unbound_exact = safe_fallback(
+        current,
+        legal,
+        damage.as_dict(),
+        empty_ledger(),
+    )
+    assert unbound_exact.decision.choices == outcome.decision.choices
+    assert "DAMAGE_TABLE_UNBOUND" in unbound_exact.reasons
+    assert "LEGACY_TARGET_ONLY_DAMAGE_UNTRUSTED" in unbound_exact.reasons
 
     no_exact = {
         982: evaluate_attack_damage(
@@ -391,6 +406,7 @@ def test_safe_main_fallback_chooses_exact_ko_then_attack_before_pass():
     legal_attack = safe_fallback(current, legal, no_exact, empty_ledger())
     assert legal_attack.decision.reason_code == "FALLBACK_LEGAL_ATTACK_982"
     assert "DAMAGE_TABLE_UNBOUND" in legal_attack.reasons
+    assert "LEGACY_TARGET_ONLY_DAMAGE_UNTRUSTED" in legal_attack.reasons
 
     passed = safe_fallback(current, options(END), {}, empty_ledger())
     assert passed.decision.reason_code == "FALLBACK_PASS"
@@ -407,6 +423,7 @@ def test_stale_bound_damage_never_elevates_an_old_exact_ko():
 
     assert outcome.decision.reason_code == "FALLBACK_LEGAL_ATTACK_982"
     assert "DAMAGE_TABLE_STATE_STALE" in outcome.reasons
+    assert "LEGACY_TARGET_ONLY_DAMAGE_UNTRUSTED" in outcome.reasons
 
 
 def test_main_fallback_rebinds_after_permutation_and_never_uses_raw_order():

@@ -12,9 +12,11 @@ from dataclasses import dataclass, replace
 from typing import Mapping, Optional, Sequence, Tuple, Union
 
 try:  # Package import in tests.
+    from .attack_outcomes import BoundAttackOutcomeTable
     from .card_meta import get_card_meta
     from .certificates import CertificateKind, safe_fallback_proof
     from .damage import BoundDamageTable, DamageResult
+    from .public_effects import PublicEffectRegistry
     from .resolver import (
         Proposal,
         Resolution,
@@ -34,9 +36,11 @@ try:  # Package import in tests.
         public_state_fingerprint,
     )
 except ImportError:  # Flat submission import from main.py.
+    from attack_outcomes import BoundAttackOutcomeTable
     from card_meta import get_card_meta
     from certificates import CertificateKind, safe_fallback_proof
     from damage import BoundDamageTable, DamageResult
+    from public_effects import PublicEffectRegistry
     from resolver import Proposal, Resolution, ResolverTier, resolve_proposals
     from resource_ledger import ResourceLedger
     from state_view import (
@@ -437,7 +441,9 @@ def fault_containment_action(
 def _normalize_damage_table(
     state: PublicState,
     damage_table: Union[Mapping[int, DamageResult], BoundDamageTable],
-) -> Tuple[Mapping[int, DamageResult], bool, Tuple[str, ...]]:
+) -> Tuple[Mapping[int, DamageResult], Tuple[str, ...]]:
+    """Validate legacy target-only rows without granting outcome authority."""
+
     if isinstance(damage_table, BoundDamageTable):
         values = damage_table.as_dict()
         active = state.opponent_active
@@ -446,11 +452,10 @@ def _normalize_damage_table(
             and damage_table.target_ref
             == (None if active is None else active.ref)
         )
-        reasons = () if current else ("DAMAGE_TABLE_STATE_STALE",)
+        reasons = [] if current else ["DAMAGE_TABLE_STATE_STALE"]
     elif isinstance(damage_table, Mapping):
         values = damage_table
-        current = False
-        reasons = ("DAMAGE_TABLE_UNBOUND",) if values else ()
+        reasons = ["DAMAGE_TABLE_UNBOUND"] if values else []
     else:
         raise ValueError("damage_table must be a mapping or BoundDamageTable")
     for attack_id, result in values.items():
@@ -458,7 +463,9 @@ def _normalize_damage_table(
             raise ValueError("damage table keys must be positive exact attack IDs")
         if not isinstance(result, DamageResult) or result.attack_id != attack_id:
             raise ValueError("damage table entries must match their attack ID")
-    return values, current, reasons
+    if values:
+        reasons.append("LEGACY_TARGET_ONLY_DAMAGE_UNTRUSTED")
+    return values, tuple(sorted(set(reasons)))
 
 
 def safe_fallback(
@@ -466,16 +473,36 @@ def safe_fallback(
     legal_options: Sequence[SemanticOption],
     damage_table: Union[Mapping[int, DamageResult], BoundDamageTable],
     ledger: ResourceLedger,
+    *,
+    attack_outcomes: Optional[BoundAttackOutcomeTable] = None,
+    registry: Optional[PublicEffectRegistry] = None,
 ) -> FallbackOutcome:
-    """Resolve the strict stable-MAIN ATTACK > PASS fallback profile."""
+    """Resolve stable-MAIN ATTACK > PASS without trusting target-only damage."""
 
     if not isinstance(ledger, ResourceLedger):
         raise ValueError("safe_fallback requires a ResourceLedger")
-    damage_values, damage_is_current, damage_reasons = _normalize_damage_table(
+    _, damage_reasons = _normalize_damage_table(
         state,
         damage_table,
     )
     construction_reasons = list(damage_reasons)
+    outcomes_are_current = False
+    if attack_outcomes is not None:
+        if not isinstance(attack_outcomes, BoundAttackOutcomeTable):
+            raise ValueError(
+                "attack_outcomes must be a BoundAttackOutcomeTable or None"
+            )
+        if registry is None:
+            construction_reasons.append("ATTACK_OUTCOME_REGISTRY_REQUIRED")
+        elif not isinstance(registry, PublicEffectRegistry):
+            raise ValueError("registry must be a PublicEffectRegistry or None")
+        elif (
+            attack_outcomes.build_unknown_reasons
+            or not attack_outcomes.matches(state, legal_options, registry)
+        ):
+            construction_reasons.append("ATTACK_OUTCOME_TABLE_BINDING_MISMATCH")
+        else:
+            outcomes_are_current = True
     proposals = []
     if not is_stable_main_state(state):
         construction_reasons.append("UNSTABLE_MAIN_STATE")
@@ -497,10 +524,14 @@ def safe_fallback(
         exact_knockouts = tuple(
             option
             for option in unique_attacks
-            if damage_is_current
-            and option.key.attack_id in damage_values
-            and damage_values[option.key.attack_id].exact_damage
-            and damage_values[option.key.attack_id].knockout is True
+            if outcomes_are_current
+            and (
+                attack_outcomes.get_for_option(option.key)
+                if attack_outcomes is not None
+                else None
+            )
+            is not None
+            and attack_outcomes.get_for_option(option.key).exact_ko
         )
         selected_attacks = exact_knockouts or unique_attacks
         for option in selected_attacks:
