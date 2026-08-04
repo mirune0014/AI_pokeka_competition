@@ -145,6 +145,12 @@ def as_int(value: Any, default: Optional[int] = None) -> Optional[int]:
     return int(value)
 
 
+def as_bool(value: Any) -> bool:
+    if not isinstance(value, bool):
+        raise ValueError("public engine boolean fields require an exact bool")
+    return value
+
+
 def as_tuple(value: Any) -> Tuple[Any, ...]:
     if value is None:
         return ()
@@ -503,7 +509,7 @@ def _pokemon_view(pokemon: Any, owner: int, zone: int) -> Optional[PokemonView]:
         ref=ref,
         hp=as_int(read_field(pokemon, "hp"), 0) or 0,
         max_hp=as_int(read_field(pokemon, "maxHp"), 0) or 0,
-        appear_this_turn=bool(read_field(pokemon, "appearThisTurn", False)),
+        appear_this_turn=as_bool(read_field(pokemon, "appearThisTurn", False)),
         energy_types=tuple(
             as_int(value)
             for value in as_tuple(read_field(pokemon, "energies", ()))
@@ -566,11 +572,11 @@ def _player_view(player: Any, index: int, include_private_hand: bool) -> PlayerV
         )
         or 0,
         bench_max=5 if bench_max is None else bench_max,
-        poisoned=bool(read_field(player, "poisoned", False)),
-        burned=bool(read_field(player, "burned", False)),
-        asleep=bool(read_field(player, "asleep", False)),
-        paralyzed=bool(read_field(player, "paralyzed", False)),
-        confused=bool(read_field(player, "confused", False)),
+        poisoned=as_bool(read_field(player, "poisoned", False)),
+        burned=as_bool(read_field(player, "burned", False)),
+        asleep=as_bool(read_field(player, "asleep", False)),
+        paralyzed=as_bool(read_field(player, "paralyzed", False)),
+        confused=as_bool(read_field(player, "confused", False)),
     )
 
 
@@ -905,10 +911,10 @@ def build_public_state(
         turn=as_int(read_field(current, "turn"), 0) or 0,
         turn_action_count=as_int(read_field(current, "turnActionCount"), 0) or 0,
         first_player=-1 if first_player is None else first_player,
-        supporter_played=bool(read_field(current, "supporterPlayed", False)),
-        stadium_played=bool(read_field(current, "stadiumPlayed", False)),
-        energy_attached=bool(read_field(current, "energyAttached", False)),
-        retreated=bool(read_field(current, "retreated", False)),
+        supporter_played=as_bool(read_field(current, "supporterPlayed", False)),
+        stadium_played=as_bool(read_field(current, "stadiumPlayed", False)),
+        energy_attached=as_bool(read_field(current, "energyAttached", False)),
+        retreated=as_bool(read_field(current, "retreated", False)),
         result=-1 if result is None else result,
         own=own,
         opponent=opponent,
@@ -1407,6 +1413,7 @@ def is_stable_main_state(state: PublicState) -> bool:
 
 
 __all__ = [
+    "as_bool",
     "ActionSpec",
     "AttackHistoryEntry",
     "AreaType",

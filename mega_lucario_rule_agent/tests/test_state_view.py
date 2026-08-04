@@ -18,6 +18,7 @@ from mega_lucario_rule_agent.state_view import (
     SelectContext,
     SelectType,
     SemanticBindError,
+    as_bool,
     build_public_state,
     build_semantic_options,
     is_stable_main_state,
@@ -608,6 +609,45 @@ def test_malformed_public_integer_fields_fail_closed(path, value):
     with pytest.raises(ValueError, match="exact int"):
         state = build_public_state(obs)
         build_semantic_options(obs)
+
+
+@pytest.mark.parametrize(
+    "path",
+    (
+        ("current", "supporterPlayed"),
+        ("current", "stadiumPlayed"),
+        ("current", "energyAttached"),
+        ("current", "retreated"),
+        ("current", "players", 0, "poisoned"),
+        ("current", "players", 0, "burned"),
+        ("current", "players", 0, "asleep"),
+        ("current", "players", 0, "paralyzed"),
+        ("current", "players", 0, "confused"),
+        ("current", "players", 0, "active", 0, "appearThisTurn"),
+    ),
+)
+@pytest.mark.parametrize("value", ("false", 0, 1, None))
+def test_malformed_public_boolean_fields_fail_closed(path, value):
+    obs = observation([hand_card_option(0)])
+    cursor = obs
+    for component in path[:-1]:
+        cursor = cursor[component]
+    cursor[path[-1]] = value
+
+    with pytest.raises(ValueError, match="exact bool"):
+        build_public_state(obs)
+
+
+def test_missing_public_boolean_fields_use_explicit_false_defaults():
+    obs = observation([hand_card_option(0)])
+    del obs["current"]["supporterPlayed"]
+    del obs["current"]["players"][0]["active"][0]["appearThisTurn"]
+    state = build_public_state(obs)
+    assert state.supporter_played is False
+    assert state.own_active.appear_this_turn is False
+    assert as_bool(False) is False
+    with pytest.raises(ValueError, match="exact bool"):
+        as_bool(None)
 
 
 def test_facedown_active_slot_count_is_preserved_without_identity():
