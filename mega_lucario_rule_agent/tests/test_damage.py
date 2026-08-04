@@ -81,6 +81,21 @@ def test_unknown_modifier_never_certifies_knockout():
     }
 
 
+@pytest.mark.parametrize("ppp_count", (True, -1, 5, 1.5))
+def test_invalid_ppp_count_never_produces_an_exact_result(ppp_count):
+    result = evaluate_attack_damage(982, 100, ppp_count=ppp_count)
+    assert not result.exact_damage
+    assert result.final_damage is None
+    assert result.knockout is None
+    assert "INVALID_PPP_COUNT" in result.unknown_reasons
+
+
+@pytest.mark.parametrize("attack_id", (True, 0, 982.0, "982"))
+def test_malformed_attack_id_fails_closed(attack_id):
+    with pytest.raises(ValueError, match="positive exact int"):
+        evaluate_attack_damage(attack_id, 100)
+
+
 def test_damage_table_is_stably_ordered_and_unknown_attack_fails_closed():
     table = build_damage_table([983, 982, 983], 200)
     assert list(table) == [982, 983]

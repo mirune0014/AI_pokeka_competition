@@ -399,6 +399,29 @@ def test_incomplete_own_hand_fails_closed():
         build_public_state(obs)
 
 
+@pytest.mark.parametrize(
+    ("path", "value"),
+    (
+        (("current", "turn"), True),
+        (("current", "turnActionCount"), 1.5),
+        (("current", "players", 0, "hand", 0, "id"), "673"),
+        (("current", "players", 0, "hand", 0, "serial"), False),
+        (("current", "players", 0, "hand", 0, "playerIndex"), 0.0),
+        (("select", "option", 0, "area"), "2"),
+    ),
+)
+def test_malformed_public_integer_fields_fail_closed(path, value):
+    obs = observation([hand_card_option(0)])
+    cursor = obs
+    for component in path[:-1]:
+        cursor = cursor[component]
+    cursor[path[-1]] = value
+
+    with pytest.raises(ValueError, match="exact int"):
+        state = build_public_state(obs)
+        build_semantic_options(obs)
+
+
 def test_facedown_active_slot_count_is_preserved_without_identity():
     obs = observation([hand_card_option(0)])
     obs["current"]["players"][1]["active"] = [None]

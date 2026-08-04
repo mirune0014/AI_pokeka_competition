@@ -23,6 +23,10 @@ RESISTANCE_REDUCTION = 30
 PPP_DAMAGE_BONUS = 30
 
 
+def _is_exact_int(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
 @dataclass(frozen=True)
 class DamageResult:
     """Exactness of target damage, not exactness of the whole attack outcome."""
@@ -152,35 +156,61 @@ def evaluate_attack_damage(
     ``conditions`` currently supports ``lunatone_on_bench`` for Cosmic Beam.
     """
 
+    if not _is_exact_int(attack_id) or attack_id <= 0:
+        raise ValueError("attack_id must be a positive exact int")
+    raw_unknown_reasons = list(unsupported_effects)
+    if not _is_exact_int(ppp_count) or not 0 <= ppp_count <= 4:
+        raw_unknown_reasons.append("INVALID_PPP_COUNT")
+        ppp_value = 0
+    else:
+        ppp_value = ppp_count
+    if stadium_modifier is None:
+        raw_unknown_reasons.append("UNKNOWN_STADIUM_MODIFIER")
+        stadium_value = 0
+    elif not _is_exact_int(stadium_modifier):
+        raw_unknown_reasons.append("INVALID_STADIUM_MODIFIER")
+        stadium_value = 0
+    else:
+        stadium_value = stadium_modifier
+    if target_remaining_hp is not None and (
+        not _is_exact_int(target_remaining_hp) or target_remaining_hp < 0
+    ):
+        raw_unknown_reasons.append("INVALID_TARGET_HP")
+        target_value = None
+    else:
+        target_value = target_remaining_hp
+    if target_weakness is not None and not _is_exact_int(target_weakness):
+        raw_unknown_reasons.append("INVALID_TARGET_WEAKNESS")
+    if target_resistance is not None and not _is_exact_int(target_resistance):
+        raw_unknown_reasons.append("INVALID_TARGET_RESISTANCE")
+    if not isinstance(attacker_is_rule_box, bool):
+        raw_unknown_reasons.append("INVALID_ATTACKER_RULE_BOX_FLAG")
+    if not isinstance(public_rule_box_damage_prevention, bool):
+        raw_unknown_reasons.append("INVALID_PREVENTION_FLAG")
+
     if attack_id not in ATTACK_META_BY_ID:
         return _unknown_result(
             attack_id,
             0,
-            max(0, int(ppp_count)),
-            int(stadium_modifier or 0),
-            target_remaining_hp,
-            ("UNKNOWN_ATTACK",),
+            ppp_value,
+            stadium_value,
+            target_value,
+            tuple(raw_unknown_reasons) + ("UNKNOWN_ATTACK",),
         )
     attack = ATTACK_META_BY_ID[attack_id]
     if not isinstance(attack.printed_damage, int):
         return _unknown_result(
             attack_id,
             0,
-            max(0, int(ppp_count)),
-            int(stadium_modifier or 0),
-            target_remaining_hp,
-            ("UNKNOWN_PRINTED_DAMAGE",),
+            ppp_value,
+            stadium_value,
+            target_value,
+            tuple(raw_unknown_reasons) + ("UNKNOWN_PRINTED_DAMAGE",),
         )
     base_damage = int(attack.printed_damage)
-    ppp_count = max(0, min(4, int(ppp_count)))
-    unknown_reasons = list(unsupported_effects)
-    if stadium_modifier is None:
-        unknown_reasons.append("UNKNOWN_STADIUM_MODIFIER")
-        stadium_value = 0
-    else:
-        stadium_value = int(stadium_modifier)
-    if target_remaining_hp is not None and target_remaining_hp < 0:
-        unknown_reasons.append("INVALID_TARGET_HP")
+    ppp_count = ppp_value
+    target_remaining_hp = target_value
+    unknown_reasons = raw_unknown_reasons
 
     conditions = conditions or {}
     ignores_weakness_resistance = attack_id == 980
@@ -263,11 +293,17 @@ def build_damage_table(
     target_remaining_hp: Optional[int],
     **kwargs: object,
 ) -> Dict[int, DamageResult]:
+    normalized = tuple(attack_ids)
+    if any(
+        not _is_exact_int(attack_id) or attack_id <= 0
+        for attack_id in normalized
+    ):
+        raise ValueError("attack IDs must be positive exact ints")
     return {
-        int(attack_id): evaluate_attack_damage(
-            int(attack_id), target_remaining_hp=target_remaining_hp, **kwargs
+        attack_id: evaluate_attack_damage(
+            attack_id, target_remaining_hp=target_remaining_hp, **kwargs
         )
-        for attack_id in sorted(set(int(value) for value in attack_ids))
+        for attack_id in sorted(set(normalized))
     }
 
 

@@ -131,10 +131,9 @@ def read_field(value: Any, name: str, default: Any = None) -> Any:
 def as_int(value: Any, default: Optional[int] = None) -> Optional[int]:
     if value is None:
         return default
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return default
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError("public engine integer fields require an exact int")
+    return int(value)
 
 
 def as_tuple(value: Any) -> Tuple[Any, ...]:
@@ -468,7 +467,8 @@ def _pokemon_view(pokemon: Any, owner: int, zone: int) -> Optional[PokemonView]:
         max_hp=as_int(read_field(pokemon, "maxHp"), 0) or 0,
         appear_this_turn=bool(read_field(pokemon, "appearThisTurn", False)),
         energy_types=tuple(
-            int(value) for value in as_tuple(read_field(pokemon, "energies", ()))
+            as_int(value)
+            for value in as_tuple(read_field(pokemon, "energies", ()))
         ),
         energy_refs=energy_refs,
         tool_refs=tool_refs,
@@ -600,8 +600,11 @@ def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
     context_ref = _card_ref(read_field(select, "contextCard"), seat, None)
     first_player = as_int(read_field(current, "firstPlayer"), -1)
     result = as_int(read_field(current, "result"), -1)
+    epoch_value = as_int(game_epoch)
+    if epoch_value is None or epoch_value < 0:
+        raise ValueError("game_epoch must be a nonnegative exact int")
     return PublicState(
-        game_epoch=int(game_epoch),
+        game_epoch=epoch_value,
         seat=seat,
         turn=as_int(read_field(current, "turn"), 0) or 0,
         turn_action_count=as_int(read_field(current, "turnActionCount"), 0) or 0,
