@@ -176,6 +176,7 @@ _EXACT_SPREAD_ATTACKS = {
 _EXACT_SPREAD_SOURCE_FIELDS = {
     121: (
         "dragapult ex",
+        "drakloak",
         320,
         9,
         None,
@@ -193,6 +194,7 @@ _EXACT_SPREAD_SOURCE_FIELDS = {
     ),
     648: (
         "marnie's grimmsnarl ex",
+        "marnie's morgrem",
         320,
         7,
         1,
@@ -2528,6 +2530,197 @@ def build_active_post_attach_attack_completion(
     )
 
 
+def build_gust_attack_outcome_table(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+    target_ref: PhysicalRef,
+    current_attack_ids: Tuple[int, ...],
+    *,
+    evolution_source_ref: Optional[PhysicalRef] = None,
+    evolution_target_ref: Optional[PhysicalRef] = None,
+) -> Optional[Tuple[PublicState, BoundAttackOutcomeTable]]:
+    """Build the checked current-attack surface after one exact public gust.
+
+    The promoted Bench Pokémon and demoted Active preserve card, serial, and
+    lineage identity; only their zones change. Opponent Active status flags
+    are cleared because they belong to the Pokémon leaving the Active Spot.
+    """
+
+    if (
+        not isinstance(state, PublicState)
+        or not is_checked_public_state(state)
+        or not isinstance(registry, PublicEffectRegistry)
+        or not isinstance(target_ref, PhysicalRef)
+        or state.source_options_fingerprint
+        != semantic_options_fingerprint(legal_options)
+        or not state.source_combat_complete
+        or not is_stable_main_state(state)
+        or not isinstance(current_attack_ids, tuple)
+        or not current_attack_ids
+        or any(
+            not _is_exact_int(attack_id) or attack_id <= 0
+            for attack_id in current_attack_ids
+        )
+        or len(set(current_attack_ids)) != len(current_attack_ids)
+    ):
+        return None
+
+    base_state = state
+    if evolution_source_ref is not None or evolution_target_ref is not None:
+        if not isinstance(evolution_source_ref, PhysicalRef) or not isinstance(
+            evolution_target_ref, PhysicalRef
+        ):
+            return None
+        source_matches = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value == evolution_source_ref
+        )
+        target_matches = tuple(
+            pokemon
+            for pokemon in state.own.bench
+            if pokemon.ref == evolution_target_ref
+        )
+        evolved_profile = (
+            None
+            if evolution_source_ref.card_id is None
+            else registry.profile(evolution_source_ref.card_id)
+        )
+        base_profile = (
+            None
+            if evolution_target_ref.card_id is None
+            else registry.profile(evolution_target_ref.card_id)
+        )
+        if (
+            len(source_matches) != 1
+            or len(target_matches) != 1
+            or evolution_source_ref.card_id != 674
+            or evolution_source_ref.owner != state.seat
+            or evolution_source_ref.zone != int(AreaType.HAND)
+            or evolution_target_ref.card_id != 673
+            or evolution_target_ref.owner != state.seat
+            or evolution_target_ref.zone != int(AreaType.BENCH)
+            or evolved_profile is None
+            or base_profile is None
+            or evolved_profile.evolves_from != base_profile.card_name
+        ):
+            return None
+        evolution_target = target_matches[0]
+        damage = evolution_target.max_hp - evolution_target.remaining_hp
+        evolved_hp = evolved_profile.hp - damage
+        if damage < 0 or evolved_hp <= 0:
+            return None
+        evolved_ref = PhysicalRef(
+            card_id=evolution_source_ref.card_id,
+            serial=evolution_source_ref.serial,
+            owner=state.seat,
+            zone=int(AreaType.BENCH),
+            lineage_serial=evolution_target.ref.lineage_serial,
+        )
+        pre_ref = replace(
+            evolution_target.ref,
+            zone=int(AreaType.PRE_EVOLUTION),
+        )
+        evolved = replace(
+            evolution_target,
+            ref=evolved_ref,
+            hp=evolved_hp,
+            max_hp=evolved_profile.hp,
+            pre_evolution_refs=evolution_target.pre_evolution_refs + (pre_ref,),
+        )
+        post_bench = tuple(
+            evolved if pokemon.ref == evolution_target_ref else pokemon
+            for pokemon in state.own.bench
+        )
+        post_own = replace(
+            state.own,
+            bench=post_bench,
+            hand_refs=tuple(
+                ref_value
+                for ref_value in state.own.hand_refs
+                if ref_value != evolution_source_ref
+            ),
+            hand_count=state.own.hand_count - 1,
+        )
+        base_state = replace(
+            state,
+            own=post_own,
+            turn_action_count=state.turn_action_count + 1,
+        )
+        object.__setattr__(
+            base_state,
+            "_builder_receipt",
+            public_state_fingerprint(base_state),
+        )
+        if not is_checked_public_state(base_state):
+            return None
+
+    current_active = base_state.opponent_active
+    target_matches = tuple(
+        pokemon
+        for pokemon in base_state.opponent.bench
+        if pokemon.ref == target_ref
+    )
+    if current_active is None or len(target_matches) != 1:
+        return None
+    promoted = replace(
+        target_matches[0],
+        ref=replace(target_matches[0].ref, zone=int(AreaType.ACTIVE)),
+    )
+    demoted = replace(
+        current_active,
+        ref=replace(current_active.ref, zone=int(AreaType.BENCH)),
+    )
+    post_opponent = replace(
+        base_state.opponent,
+        active=(promoted,),
+        bench=tuple(
+            demoted if pokemon.ref == target_ref else pokemon
+            for pokemon in base_state.opponent.bench
+        ),
+        poisoned=False,
+        burned=False,
+        asleep=False,
+        paralyzed=False,
+        confused=False,
+    )
+    attacker = base_state.own_active
+    if attacker is None:
+        return None
+    hypothetical_options = tuple(
+        SemanticOption(
+            index=index,
+            key=_hypothetical_attack_key(
+                base_state,
+                attacker,
+                promoted,
+                int(attack_id),
+            ),
+        )
+        for index, attack_id in enumerate(current_attack_ids)
+    )
+    post_state = replace(
+        base_state,
+        opponent=post_opponent,
+        source_options_fingerprint=semantic_options_fingerprint(
+            hypothetical_options
+        ),
+    )
+    object.__setattr__(
+        post_state,
+        "_builder_receipt",
+        public_state_fingerprint(post_state),
+    )
+    if not is_checked_public_state(post_state):
+        return None
+    return post_state, build_attack_outcome_table(
+        post_state,
+        hypothetical_options,
+        registry,
+    )
+
+
 def build_attack_outcome_table(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
@@ -2674,6 +2867,7 @@ __all__ = [
     "STEVENS_POKEMON_CARD_IDS",
     "build_active_post_attach_attack_completion",
     "build_attack_outcome_table",
+    "build_gust_attack_outcome_table",
     "build_post_wally_productive_attack",
     "build_public_opponent_attack_threat",
     "is_fully_exact_attack_completion_outcome",

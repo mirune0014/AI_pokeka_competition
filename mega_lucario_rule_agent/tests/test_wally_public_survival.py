@@ -8,8 +8,9 @@ from mega_lucario_rule_agent.card_meta import (
     CardType,
     EnergyType,
 )
-from mega_lucario_rule_agent.features import build_deck_features
+from mega_lucario_rule_agent.features import build_deck_features, build_resource_ledger
 from mega_lucario_rule_agent.public_effects import build_public_effect_registry
+from mega_lucario_rule_agent.resolver import resolve_proposals
 from mega_lucario_rule_agent.routes import (
     enumerate_gust_routes,
     enumerate_safe_draw_supporter_routes,
@@ -44,6 +45,7 @@ def _card_row(meta):
         "cardId": meta.card_id,
         "cardType": _CARD_TYPES[meta.card_type],
         "name": meta.name,
+        "evolvesFrom": meta.evolves_from,
         "hp": meta.hp if isinstance(meta.hp, int) else 0,
         "energyType": _ENERGY_TYPES.get(meta.energy_type, 0),
         "weakness": _ENERGY_TYPES.get(meta.weakness),
@@ -295,7 +297,17 @@ def test_terminal_boss_is_preferred_and_wally_is_not_strong():
     assert len(gust) == 1
     assert gust[0].action_spec.choices[0].card_id == 1182
     assert gust[0].proof.fact("terminal") is True
-    assert _wally(case) == ()
+    wally = _wally(case)
+    assert len(wally) == 1
+    resolution = resolve_proposals(
+        case[0],
+        case[1],
+        build_resource_ledger(case[0]),
+        gust + wally,
+        registry=case[4],
+    )
+    assert resolution.selected is not None
+    assert resolution.selected.action_spec.choices[0].card_id == 1182
 
 
 def test_unknown_wally_does_not_suppress_judge_and_records_reason():

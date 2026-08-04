@@ -157,6 +157,7 @@ _EFFECT_CARD_PROFILE_ISSUER_TOKEN = object()
 class CombatCardProfile:
     card_id: int = dataclass_field(init=False)
     card_name: str = dataclass_field(init=False)
+    evolves_from: Optional[str] = dataclass_field(init=False)
     hp: int = dataclass_field(init=False)
     energy_type: int = dataclass_field(init=False)
     weakness: Optional[int] = dataclass_field(init=False)
@@ -179,6 +180,7 @@ class CombatCardProfile:
         *,
         card_id: int,
         card_name: str,
+        evolves_from: Optional[str] = None,
         hp: int,
         energy_type: int,
         weakness: Optional[int],
@@ -205,6 +207,15 @@ class CombatCardProfile:
             or normalize_catalog_text(card_name) != card_name
         ):
             raise ValueError("combat profile requires a normalized name")
+        if (
+            evolves_from is not None
+            and (
+                not isinstance(evolves_from, str)
+                or not evolves_from
+                or normalize_catalog_text(evolves_from) != evolves_from
+            )
+        ):
+            raise ValueError("combat profile evolution source must be normalized")
         if not _is_exact_int(hp) or hp <= 0:
             raise ValueError("combat profile requires positive HP")
         if not _is_exact_int(energy_type) or energy_type < 0:
@@ -272,6 +283,7 @@ class CombatCardProfile:
         values = {
             "card_id": card_id,
             "card_name": card_name,
+            "evolves_from": evolves_from,
             "hp": hp,
             "energy_type": energy_type,
             "weakness": weakness,
@@ -314,6 +326,7 @@ class CombatCardProfile:
         return (
             self.card_id,
             self.card_name,
+            self.evolves_from,
             self.hp,
             self.energy_type,
             self.weakness,
@@ -1117,6 +1130,7 @@ def _combat_profile_from_card(
     card_id = _read_field(card, "cardId", "card_id")
     card_type = _read_field(card, "cardType", "card_type")
     card_name = _read_field(card, "name")
+    evolves_from = _read_field(card, "evolvesFrom", "evolves_from")
     hp = _read_field(card, "hp")
     energy_type = _read_field(card, "energyType", "energy_type")
     weakness = _read_field(card, "weakness")
@@ -1139,6 +1153,8 @@ def _combat_profile_from_card(
         or card_type != 0
         or not _is_exact_int(card_id)
         or not isinstance(card_name, str)
+        or evolves_from is not None
+        and not isinstance(evolves_from, str)
         or not _is_exact_int(hp)
         or not _is_exact_int(energy_type)
         or weakness is not None
@@ -1157,6 +1173,11 @@ def _combat_profile_from_card(
         return CombatCardProfile(
             card_id=card_id,
             card_name=normalize_catalog_text(card_name),
+            evolves_from=(
+                None
+                if evolves_from is None
+                else normalize_catalog_text(evolves_from)
+            ),
             hp=hp,
             energy_type=energy_type,
             weakness=weakness,

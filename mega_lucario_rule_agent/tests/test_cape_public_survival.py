@@ -165,6 +165,7 @@ def _spread_registry():
                 "cardId": 121,
                 "cardType": 0,
                 "name": "Dragapult ex",
+                "evolvesFrom": "Drakloak",
                 "hp": 320,
                 "energyType": 9,
                 "weakness": None,

@@ -10,6 +10,7 @@ from typing import Sequence, Tuple
 try:  # Package import in tests.
     from .attack_outcomes import (
         BoundAttackOutcomeTable,
+        build_gust_attack_outcome_table,
         build_post_wally_productive_attack,
         build_public_opponent_attack_threat,
     )
@@ -61,6 +62,7 @@ try:  # Package import in tests.
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import (
         BoundAttackOutcomeTable,
+        build_gust_attack_outcome_table,
         build_post_wally_productive_attack,
         build_public_opponent_attack_threat,
     )
@@ -1430,84 +1432,290 @@ def enumerate_ultra_ball_routes(
     return ()
 
 
+_GUST_STRATEGIC_METRIC_NAMES = (
+    "terminal_win",
+    "prizes_taken",
+    "opponent_prizes_after",
+    "negative_attacks_to_next_prize",
+    "attached_energy_removed",
+    "public_threat_damage_removed",
+    "engine_denial",
+    "evolution_denial",
+    "tool_cards_removed",
+    "pre_evolution_cards_removed",
+    "negative_target_hp_after",
+    "printed_prize_value",
+)
+
+
+def _gust_physical_tiebreak(ref):
+    return (
+        -1 if ref.serial is None else ref.serial,
+        -1 if ref.lineage_serial is None else ref.lineage_serial,
+        -1 if ref.card_id is None else ref.card_id,
+    )
+
+
+def _gust_metric_row(
+    target,
+    outcome,
+    registry,
+    public_threat_damage_removed,
+    *,
+    require_exact_ko,
+):
+    profile = (
+        None
+        if target.ref.card_id is None
+        else registry.profile(target.ref.card_id)
+    )
+    if (
+        profile is None
+        or not outcome.authoritative
+        or not outcome.legality_exact
+        or outcome.legal is not True
+        or outcome.payable is not True
+        or not outcome.exact_damage
+        or require_exact_ko
+        and not outcome.exact_ko
+        or not outcome.prize_exact
+        or outcome.prizes_taken is None
+        or outcome.own_prizes_after is None
+        or outcome.opponent_prizes_after is None
+        or not outcome.terminal_exact
+        or outcome.wins_game is None
+        or outcome.loses_game is not False
+        or outcome.draws_game is not False
+        or outcome.target_hp_after is None
+    ):
+        return None
+    evolution_denial = None
+    if (
+        not registry.malformed_pokemon_card_ids
+        and not registry.ambiguous_card_ids
+    ):
+        evolution_denial = sum(
+            1
+            for candidate in registry.profiles
+            if candidate.evolves_from == profile.card_name
+        )
+    facts = {
+        "terminal_win": outcome.wins_game,
+        "exact_ko": outcome.exact_ko,
+        "prizes_taken": outcome.prizes_taken,
+        "own_prizes_after": outcome.own_prizes_after,
+        "opponent_prizes_after": outcome.opponent_prizes_after,
+        "attacks_to_next_prize": 1 if outcome.exact_ko else None,
+        "attached_energy_removed": len(target.energy_refs),
+        "tool_cards_removed": len(target.tool_refs),
+        "pre_evolution_cards_removed": len(target.pre_evolution_refs),
+        "engine_denial": len(profile.registered_skill_effect_ids),
+        "evolution_denial": evolution_denial,
+        "public_threat_damage_removed": public_threat_damage_removed,
+        "target_hp_after": outcome.target_hp_after,
+        "printed_prize_value": profile.prize_value,
+        "original_target_ref": target.ref,
+    }
+    key = (
+        int(outcome.wins_game),
+        outcome.prizes_taken,
+        outcome.opponent_prizes_after,
+        -1 if outcome.exact_ko else None,
+        len(target.energy_refs),
+        public_threat_damage_removed,
+        len(profile.registered_skill_effect_ids),
+        evolution_denial,
+        len(target.tool_refs),
+        len(target.pre_evolution_refs),
+        -outcome.target_hp_after,
+        profile.prize_value,
+    )
+    return key, facts
+
+
+def _compare_gust_keys(left, right, *, allow_shared_unknown=False):
+    if len(left) != len(_GUST_STRATEGIC_METRIC_NAMES) or len(right) != len(
+        _GUST_STRATEGIC_METRIC_NAMES
+    ):
+        return None
+    for left_value, right_value in zip(left, right):
+        if left_value is None or right_value is None:
+            if allow_shared_unknown and left_value is None and right_value is None:
+                continue
+            return None
+        if left_value != right_value:
+            return 1 if left_value > right_value else -1
+    return 0
+
+
+def _gust_dominance_field(left, right):
+    if len(left) != len(_GUST_STRATEGIC_METRIC_NAMES) or len(right) != len(
+        _GUST_STRATEGIC_METRIC_NAMES
+    ):
+        return None
+    for metric_name, left_value, right_value in zip(
+        _GUST_STRATEGIC_METRIC_NAMES, left, right
+    ):
+        if left_value is None or right_value is None:
+            return None
+        if left_value != right_value:
+            return metric_name
+    return None
+
+
+def _best_gust_outcome(
+    target, table, registry, threat_damage, *, require_exact_ko
+):
+    candidates = []
+    for outcome in table.rows:
+        metric_row = _gust_metric_row(
+            target,
+            outcome,
+            registry,
+            threat_damage,
+            require_exact_ko=require_exact_ko,
+        )
+        if metric_row is not None:
+            candidates.append((outcome, metric_row[0], metric_row[1]))
+    if not candidates:
+        return None
+    chosen = candidates[0]
+    for candidate in candidates[1:]:
+        comparison = _compare_gust_keys(
+            candidate[1], chosen[1], allow_shared_unknown=True
+        )
+        if comparison is None:
+            return None
+        if comparison > 0 or (
+            comparison == 0 and candidate[0].attack_id < chosen[0].attack_id
+        ):
+            chosen = candidate
+    return chosen
+
+
 def _narrow_gust_target(
     state: PublicState,
-    features: DeckFeatures,
+    legal_options: Sequence[SemanticOption],
     attack_outcomes: BoundAttackOutcomeTable,
     registry: PublicEffectRegistry,
 ):
-    if state.stadium_refs or any(
-        outcome.exact_game_win for outcome in attack_outcomes.rows
+    if any(outcome.exact_game_win for outcome in attack_outcomes.rows):
+        return None
+    current_attack_ids = tuple(
+        sorted(
+            {
+                outcome.attack_id
+                for outcome in attack_outcomes.rows
+                if outcome.authoritative
+                and outcome.legality_exact
+                and outcome.legal is True
+                and outcome.payable is True
+            }
+        )
+    )
+    current_target = state.opponent_active
+    if not current_attack_ids or current_target is None:
+        return None
+    current_threat = build_public_opponent_attack_threat(state, registry)
+    current_best = _best_gust_outcome(
+        current_target,
+        attack_outcomes,
+        registry,
+        current_threat.max_damage if current_threat.exact else None,
+        require_exact_ko=False,
+    )
+    if current_best is None:
+        return None
+    bench_candidates = []
+    for target in state.opponent.bench:
+        surface = build_gust_attack_outcome_table(
+            state,
+            legal_options,
+            registry,
+            target.ref,
+            current_attack_ids,
+        )
+        if surface is None:
+            continue
+        hypothetical_state, table = surface
+        threat = build_public_opponent_attack_threat(hypothetical_state, registry)
+        candidate = _best_gust_outcome(
+            hypothetical_state.opponent_active,
+            table,
+            registry,
+            threat.max_damage if threat.exact else None,
+            require_exact_ko=True,
+        )
+        if candidate is not None:
+            candidate = (
+                candidate[0],
+                candidate[1],
+                {**candidate[2], "original_target_ref": target.ref},
+            )
+            bench_candidates.append((target, candidate))
+    if not bench_candidates:
+        return None
+    maximal_candidates = []
+    for candidate in bench_candidates:
+        comparisons = tuple(
+            _compare_gust_keys(candidate[1][1], other[1][1])
+            for other in bench_candidates
+            if other is not candidate
+        )
+        if all(
+            comparison is not None and comparison >= 0
+            for comparison in comparisons
+        ):
+            maximal_candidates.append(candidate)
+    if not maximal_candidates:
+        return None
+    if any(
+        _compare_gust_keys(left[1][1], right[1][1]) != 0
+        for left in maximal_candidates
+        for right in maximal_candidates
     ):
         return None
-    attacks = []
-    for outcome in attack_outcomes.rows:
-        if (
-            not outcome.exact_damage
-            or outcome.before_weakness is None
-            or outcome.final_damage is None
-            or outcome.final_damage <= 0
-            or outcome.damage_before_prevention != outcome.final_damage
-            or outcome.damage_before_ko_prevention != outcome.final_damage
-            or outcome.prevention_effects
-        ):
-            continue
-        attacks.append(
-            (
-                min(outcome.before_weakness, outcome.final_damage),
-                outcome.attack_id,
-            )
-        )
-    if not attacks:
+    chosen = min(
+        maximal_candidates,
+        key=lambda candidate: _gust_physical_tiebreak(candidate[0].ref),
+    )
+    dominance = _compare_gust_keys(chosen[1][1], current_best[1])
+    if dominance is None or dominance <= 0:
         return None
-    damage_floor, attack_id = max(attacks)
-    feature_by_ref = {value.ref: value for value in features.opponent_bench}
-    candidates = []
-    for target in state.opponent.bench:
-        profile = registry.profile(target.ref.card_id)
-        target_features = feature_by_ref.get(target.ref)
-        if (
-            profile is None
-            or target_features is None
-            or profile.weakness is not None
-            or profile.resistance is not None
-            or profile.registered_skill_effect_ids
-            or profile.unregistered_skill_signatures
-            or target.tool_refs
-            or target.energy_refs
-            or damage_floor < target.remaining_hp
-        ):
-            continue
-        prize_value = target_features.prize_value
-        if (
-            isinstance(prize_value, bool)
-            or not isinstance(prize_value, int)
-            or prize_value <= 0
-        ):
-            continue
-        terminal = features.opponent_prizes_remaining <= prize_value
-        evolution_denial = (
-            target.ref.card_id in (673, 677) and not target.appear_this_turn
-        )
-        if not terminal and prize_value < 2 and not evolution_denial:
-            continue
-        candidates.append(
-            (
-                0 if terminal else 1,
-                0 if prize_value >= 2 else 1,
-                -prize_value,
-                target.ref.sort_key(),
-                target,
-                attack_id,
-                damage_floor,
-                prize_value,
-                terminal,
-                evolution_denial,
-            )
-        )
-    if not candidates:
+    dominance_field = _gust_dominance_field(chosen[1][1], current_best[1])
+    if dominance_field is None:
         return None
-    return min(candidates)[4:]
+    return (
+        chosen[0],
+        chosen[1][0],
+        chosen[1][1],
+        chosen[1][2],
+        current_best[1],
+        current_best[2],
+        current_attack_ids,
+        dominance_field,
+    )
+
+
+def _same_planned_gust_outcome(before, after) -> bool:
+    return (
+        after is not None
+        and after.authoritative
+        and after.legality_exact
+        and after.legal is True
+        and after.payable is True
+        and after.exact_damage
+        and after.final_damage == before.final_damage
+        and after.knockout == before.knockout
+        and after.prize_exact
+        and after.prizes_taken == before.prizes_taken
+        and after.own_prizes_after == before.own_prizes_after
+        and after.opponent_prizes_after == before.opponent_prizes_after
+        and after.terminal_exact
+        and after.wins_game == before.wins_game
+        and after.loses_game == before.loses_game
+        and after.draws_game == before.draws_game
+    )
 
 
 def enumerate_gust_routes(
@@ -1517,7 +1725,7 @@ def enumerate_gust_routes(
     attack_outcomes: BoundAttackOutcomeTable,
     registry: PublicEffectRegistry,
 ) -> Tuple[Proposal, ...]:
-    """Gust only an exact KO that is terminal, high-Prize, or denial."""
+    """Gust only for exact public strategic dominance over the current Active."""
 
     if (
         not features.matches(state, legal_options, registry)
@@ -1527,7 +1735,7 @@ def enumerate_gust_routes(
         return ()
     chosen = _narrow_gust_target(
         state,
-        features,
+        legal_options,
         attack_outcomes,
         registry,
     )
@@ -1535,14 +1743,54 @@ def enumerate_gust_routes(
         return ()
     (
         target,
-        attack_id,
-        damage_floor,
-        prize_value,
-        terminal,
-        evolution_denial,
+        planned_outcome,
+        strategic_key,
+        metric_facts,
+        current_strategic_key,
+        current_metric_facts,
+        current_attack_ids,
+        dominance_field,
     ) = chosen
+    terminal = planned_outcome.wins_game is True
+    boss_tier = (
+        ResolverTier.TERMINAL_OR_SUPERIOR_GUST
+        if terminal
+        else ResolverTier.STRICTLY_SUPERIOR_GUST
+    )
 
-    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+    def proof_facts(
+        *,
+        route_priority,
+        source_ref,
+        preserves_planned_attack,
+        supporter_opportunity_cost,
+        evolution_target_ref=None,
+    ):
+        return {
+            "route_priority": route_priority,
+            "source_ref": source_ref,
+            "evolution_target_ref": evolution_target_ref,
+            "gust_target_ref": target.ref,
+            "attack_id": planned_outcome.attack_id,
+            "damage_floor": planned_outcome.final_damage,
+            "terminal": terminal,
+            "strategic_key": strategic_key,
+            "current_active_strategic_key": current_strategic_key,
+            "dominance_field": dominance_field,
+            "current_active_terminal_win": current_metric_facts[
+                "terminal_win"
+            ],
+            "current_active_prizes_taken": current_metric_facts[
+                "prizes_taken"
+            ],
+            "preserves_planned_attack": preserves_planned_attack,
+            "supporter_opportunity_cost": supporter_opportunity_cost,
+            "certificate_status": "PROVISIONAL_GENERIC_GATE_A3",
+            **metric_facts,
+        }
+
+    heave_candidates = []
+    for option in legal_options:
         if option.key.option_type != int(OptionType.EVOLVE):
             continue
         source_ref = _exact_hand_ref(state, option)
@@ -1555,6 +1803,32 @@ def enumerate_gust_routes(
             or own_target.ref.zone != int(AreaType.BENCH)
         ):
             continue
+        post_surface = build_gust_attack_outcome_table(
+            state,
+            legal_options,
+            registry,
+            target.ref,
+            current_attack_ids,
+            evolution_source_ref=source_ref,
+            evolution_target_ref=own_target.ref,
+        )
+        if post_surface is None:
+            continue
+        post_outcome = post_surface[1].get(planned_outcome.attack_id)
+        if not _same_planned_gust_outcome(planned_outcome, post_outcome):
+            continue
+        heave_candidates.append(
+            (
+                own_target.ref.sort_key(),
+                source_ref.sort_key(),
+                option.key.sort_key(),
+                option,
+                source_ref,
+                own_target,
+            )
+        )
+    if heave_candidates:
+        _, _, _, option, source_ref, own_target = min(heave_candidates)
         action_spec = ActionSpec.single(option.key)
         proof = deck_rule_proof(
             state,
@@ -1562,19 +1836,16 @@ def enumerate_gust_routes(
             registry,
             features,
             action_spec,
-            route_code="R_GUST_HARIYAMA_EXACT_KO_V1",
+            route_code="R_GUST_HARIYAMA_EXACT_DOMINANCE_A3",
             kind=CertificateKind.PRIZE_GAIN_NOW,
-            guaranteed_prizes=prize_value,
-            facts={
-                "route_priority": 0,
-                "source_ref": source_ref,
-                "evolution_target_ref": own_target.ref,
-                "gust_target_ref": target.ref,
-                "attack_id": attack_id,
-                "damage_floor": damage_floor,
-                "terminal": terminal,
-                "evolution_denial": evolution_denial,
-            },
+            guaranteed_prizes=planned_outcome.prizes_taken,
+            facts=proof_facts(
+                route_priority=0,
+                source_ref=source_ref,
+                evolution_target_ref=own_target.ref,
+                preserves_planned_attack=True,
+                supporter_opportunity_cost=0,
+            ),
         )
         plan = build_hariyama_gust_plan(
             state,
@@ -1585,7 +1856,7 @@ def enumerate_gust_routes(
         )
         return (
             Proposal(
-                rule_id="R_GUST_HARIYAMA_EXACT_KO_V1",
+                rule_id="R_GUST_HARIYAMA_EXACT_DOMINANCE_A3",
                 tier=ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
                 action_spec=action_spec,
                 certificate_kind=proof.kind,
@@ -1601,12 +1872,18 @@ def enumerate_gust_routes(
 
     if state.supporter_played:
         return ()
-    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+    boss_candidates = []
+    for option in legal_options:
         if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1182:
             continue
         source_ref = _exact_hand_ref(state, option)
         if source_ref is None:
             continue
+        boss_candidates.append(
+            (source_ref.sort_key(), option.key.sort_key(), option, source_ref)
+        )
+    if boss_candidates:
+        _, _, option, source_ref = min(boss_candidates)
         action_spec = ActionSpec.single(option.key)
         proof = deck_rule_proof(
             state,
@@ -1614,18 +1891,15 @@ def enumerate_gust_routes(
             registry,
             features,
             action_spec,
-            route_code="R_GUST_BOSS_EXACT_KO_V1",
+            route_code="R_GUST_BOSS_EXACT_DOMINANCE_A3",
             kind=CertificateKind.PRIZE_GAIN_NOW,
-            guaranteed_prizes=prize_value,
-            facts={
-                "route_priority": 1,
-                "source_ref": source_ref,
-                "gust_target_ref": target.ref,
-                "attack_id": attack_id,
-                "damage_floor": damage_floor,
-                "terminal": terminal,
-                "evolution_denial": evolution_denial,
-            },
+            guaranteed_prizes=planned_outcome.prizes_taken,
+            facts=proof_facts(
+                route_priority=1,
+                source_ref=source_ref,
+                preserves_planned_attack=True,
+                supporter_opportunity_cost=1,
+            ),
         )
         plan = build_boss_gust_plan(
             state,
@@ -1636,8 +1910,8 @@ def enumerate_gust_routes(
         )
         return (
             Proposal(
-                rule_id="R_GUST_BOSS_EXACT_KO_V1",
-                tier=ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+                rule_id="R_GUST_BOSS_EXACT_DOMINANCE_A3",
+                tier=boss_tier,
                 action_spec=action_spec,
                 certificate_kind=proof.kind,
                 proof=proof,
@@ -1701,18 +1975,6 @@ def enumerate_wally_routes(
         or threat.knockout_before_heal is not True
         or threat.knockout_after_heal is not False
     ):
-        return ()
-    terminal_gust_exists = any(
-        proposal.proof.fact("terminal") is True
-        for proposal in enumerate_gust_routes(
-            state,
-            legal_options,
-            features,
-            attack_outcomes,
-            registry,
-        )
-    )
-    if terminal_gust_exists:
         return ()
     for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
         if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1229:
