@@ -62,7 +62,11 @@ try:  # Package imports used by tests.
         is_stable_main_state,
         read_field,
     )
-    from .telemetry import TelemetryRecorder
+    from .telemetry import (
+        TelemetryRecorder,
+        ValidationRuntimeState,
+        raw_prompt_fingerprint,
+    )
     from .transactions import (
         ResumeResult,
         ResumeStatus,
@@ -108,7 +112,7 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
         is_stable_main_state,
         read_field,
     )
-    from telemetry import TelemetryRecorder
+    from telemetry import TelemetryRecorder, ValidationRuntimeState, raw_prompt_fingerprint
     from transactions import ResumeResult, ResumeStatus, StartStatus, TransactionStore
 
 
@@ -177,7 +181,8 @@ class AgentRuntime:
         if registry is not None and not isinstance(registry, PublicEffectRegistry):
             raise ValueError("registry must be a PublicEffectRegistry or None")
         self._registry = registry
-        self._telemetry = TelemetryRecorder.off()
+        self._telemetry = TelemetryRecorder.memory(max_records=512)
+        self._validation = ValidationRuntimeState()
         self._game_epoch = -1
         self._history = PublicHistoryTracker()
         self._transactions = TransactionStore()
@@ -212,12 +217,34 @@ class AgentRuntime:
     def setup_active_choice(self) -> Optional[SemanticOptionKey]:
         return self._setup_active_choice
 
+    def validation_status(self) -> dict[str, Any]:
+        return self._validation.status(
+            self._telemetry,
+            self._transactions.owner,
+        )
+
+    def drain_validation_telemetry(self) -> dict[str, Any]:
+        envelope = self._telemetry.drain_envelope()
+        return {
+            "schema_version": "mega_lucario_validation_v1",
+            "status": self.validation_status(),
+            "telemetry": envelope,
+        }
+
+    def finalize_validation_game(self, reason: str = "GAME_END") -> dict[str, Any]:
+        self._validation.finalize_game(self._transactions, reason)
+        return self.validation_status()
+
     def _begin_game(self) -> None:
+        if self._game_epoch >= 0:
+            self._validation.audit_new_game(self._transactions)
+            if self._validation.transaction_run_fault_latched:
+                self._runtime_fault_latched = True
         self._game_epoch += 1
+        self._validation.note_epoch(self._game_epoch)
         self._history = PublicHistoryTracker()
         self._history.begin_game(self._game_epoch)
         self._transactions = TransactionStore()
-        self._runtime_fault_latched = False
         self._last_turn = None
         self._saw_terminal = False
         self._last_features = None
@@ -336,6 +363,9 @@ class AgentRuntime:
             result,
             owner_before=owner_before,
         )
+        self._validation.note_transaction(self._transactions, result)
+        if self._validation.transaction_run_fault_latched:
+            self._runtime_fault_latched = True
         return result
 
     def _issue_resolution(
@@ -366,6 +396,9 @@ class AgentRuntime:
             owner_before=owner_before,
             rule_id=selected.rule_id,
         )
+        self._validation.note_transaction(self._transactions, started)
+        if self._validation.transaction_run_fault_latched:
+            self._runtime_fault_latched = True
         if started.status is not StartStatus.STARTED or started.bound_action is None:
             return None
         return self._emit(state, legal_options, started.bound_action)
@@ -426,6 +459,7 @@ class AgentRuntime:
             ledger,
             decision_source="SAFE_FALLBACK",
         )
+        self._validation.note_resolution(fallback.resolution)
         if fallback.resolution.bound_action is None:
             return None
         return self._emit(
@@ -603,6 +637,7 @@ class AgentRuntime:
             resolution,
             ledger,
         )
+        self._validation.note_resolution(resolution)
         resolved = self._issue_resolution(
             state,
             legal_options,
@@ -621,16 +656,20 @@ class AgentRuntime:
         )
         if fallback is not None:
             return fallback
+        self._validation.note_unsupported_stable_main()
         raise RuntimeError("stable MAIN prompt has no certified fallback action")
 
     def act(self, observation: Any) -> list[int]:
         if read_field(observation, "select") is None:
             return self._serve_deck()
 
-        self._sync_game_boundary(observation)
         state: Optional[PublicState] = None
         legal_options: Tuple[SemanticOption, ...] = ()
+        prompt_fingerprint: Optional[str] = None
         try:
+            prompt_fingerprint = raw_prompt_fingerprint(observation)
+            self._validation.note_prompt(prompt_fingerprint)
+            self._sync_game_boundary(observation)
             legal_options = build_semantic_options(observation)
             state = build_public_state(
                 observation,
@@ -641,6 +680,14 @@ class AgentRuntime:
             return self._decide_checked(observation, state, legal_options)
         except Exception as exc:
             self._runtime_fault_latched = True
+            self._validation.note_exception(exc)
+            self._telemetry.record_validation_fault(
+                epoch=self._game_epoch,
+                code="RUNTIME_EXCEPTION",
+                prompt_fingerprint=prompt_fingerprint or "0" * 64,
+                exception=exc,
+                transaction_state=self._transactions.owner,
+            )
             if state is not None:
                 self._telemetry.record_fault(
                     state,
@@ -656,10 +703,69 @@ class AgentRuntime:
                         ledger,
                     )
                     if contained is not None:
+                        self._validation.note_containment(
+                            "CERTIFIED_CONTAINMENT_AFTER_EXCEPTION",
+                            exception_derived=True,
+                        )
+                        self._telemetry.record_validation_fault(
+                            epoch=self._game_epoch,
+                            code="EXCEPTION_CONTAINED",
+                            prompt_fingerprint=prompt_fingerprint or "0" * 64,
+                            containment_reason=(
+                                "CERTIFIED_CONTAINMENT_AFTER_EXCEPTION"
+                            ),
+                            exception_derived=True,
+                            transaction_state=self._transactions.owner,
+                        )
                         return contained
-                except Exception:
-                    pass
-            return _raw_containment_action(observation)
+                except Exception as secondary:
+                    self._validation.note_exception(
+                        secondary,
+                        code="CONTAINMENT_SECONDARY_EXCEPTION",
+                    )
+                    self._telemetry.record_validation_fault(
+                        epoch=self._game_epoch,
+                        code="CONTAINMENT_SECONDARY_EXCEPTION",
+                        prompt_fingerprint=prompt_fingerprint or "0" * 64,
+                        exception=secondary,
+                        containment_reason="CERTIFIED_CONTAINMENT_FAILED",
+                        exception_derived=True,
+                        transaction_state=self._transactions.owner,
+                    )
+            try:
+                raw_action = _raw_containment_action(observation)
+            except Exception as secondary:
+                self._validation.note_exception(
+                    secondary,
+                    code="RAW_CONTAINMENT_SECONDARY_EXCEPTION",
+                )
+                self._validation.note_containment(
+                    "RAW_MINIMUM_AFTER_EXCEPTION_FAILED",
+                    exception_derived=True,
+                )
+                self._telemetry.record_validation_fault(
+                    epoch=self._game_epoch,
+                    code="RAW_CONTAINMENT_SECONDARY_EXCEPTION",
+                    prompt_fingerprint=prompt_fingerprint or "0" * 64,
+                    exception=secondary,
+                    containment_reason="RAW_MINIMUM_AFTER_EXCEPTION_FAILED",
+                    exception_derived=True,
+                    transaction_state=self._transactions.owner,
+                )
+                return []
+            self._validation.note_containment(
+                "RAW_MINIMUM_AFTER_EXCEPTION",
+                exception_derived=True,
+            )
+            self._telemetry.record_validation_fault(
+                epoch=self._game_epoch,
+                code="RAW_MINIMUM_AFTER_EXCEPTION",
+                prompt_fingerprint=prompt_fingerprint or "0" * 64,
+                containment_reason="RAW_MINIMUM_AFTER_EXCEPTION",
+                exception_derived=True,
+                transaction_state=self._transactions.owner,
+            )
+            return raw_action
 
 
 _RUNTIME = AgentRuntime()
@@ -667,3 +773,15 @@ _RUNTIME = AgentRuntime()
 
 def agent(observation: dict[str, Any]) -> list[int]:
     return _RUNTIME.act(observation)
+
+
+def validation_status() -> dict[str, Any]:
+    return _RUNTIME.validation_status()
+
+
+def drain_validation_telemetry() -> dict[str, Any]:
+    return _RUNTIME.drain_validation_telemetry()
+
+
+def finalize_validation_game(reason: str = "GAME_END") -> dict[str, Any]:
+    return _RUNTIME.finalize_validation_game(reason)

@@ -801,6 +801,11 @@ class TelemetryRecorder:
         self._last_dropped_sequence: Optional[int] = None
         self._record_error_count = 0
         self._sink_error_count = 0
+        self._lifetime_dropped_count = 0
+        self._lifetime_record_error_count = 0
+        self._lifetime_sink_error_count = 0
+        self._health_fault_latched = False
+        self._health_failure_codes: list[str] = []
         self._transaction_origins: Dict[
             Tuple[int, int, str],
             Dict[str, Optional[str]],
@@ -842,6 +847,30 @@ class TelemetryRecorder:
     @property
     def dropped_count(self) -> int:
         return self._dropped_count
+
+    def _mark_health_failure(self, code: str) -> None:
+        self._health_fault_latched = True
+        if code not in self._health_failure_codes:
+            self._health_failure_codes.append(code)
+
+    def _mark_record_error(self) -> None:
+        self._record_error_count += 1
+        self._lifetime_record_error_count += 1
+        self._mark_health_failure("TELEMETRY_RECORD_ERROR")
+
+    def validation_health(self) -> Dict[str, Any]:
+        return {
+            "enabled": self.enabled,
+            "healthy": self.enabled and not self._health_fault_latched,
+            "fault_latched": self._health_fault_latched,
+            "failure_codes": tuple(self._health_failure_codes),
+            "max_records": self._max_records,
+            "buffered_records": len(self._records),
+            "lifetime_dropped_count": self._lifetime_dropped_count,
+            "lifetime_record_error_count": self._lifetime_record_error_count,
+            "lifetime_sink_error_count": self._lifetime_sink_error_count,
+            "next_sequence": self._next_sequence,
+        }
 
     def _remember_transaction_origin(
         self,
@@ -943,15 +972,70 @@ class TelemetryRecorder:
                     self._mirror_sink(line)
                 except Exception:
                     self._sink_error_count += 1
+                    self._lifetime_sink_error_count += 1
+                    self._mark_health_failure("TELEMETRY_SINK_ERROR")
             if len(self._records) >= self._max_records:
                 dropped_sequence, _ = self._records.pop(0)
                 self._dropped_count += 1
+                self._lifetime_dropped_count += 1
+                self._mark_health_failure("TELEMETRY_BUFFER_OVERFLOW")
                 if self._first_dropped_sequence is None:
                     self._first_dropped_sequence = dropped_sequence
                 self._last_dropped_sequence = dropped_sequence
             self._records.append((sequence, line))
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
+
+    def record_validation_fault(
+        self,
+        *,
+        epoch: int,
+        code: str,
+        prompt_fingerprint: Optional[str],
+        exception: Optional[BaseException] = None,
+        containment_reason: Optional[str] = None,
+        exception_derived: bool = False,
+        transaction_state: Optional[TransactionState] = None,
+    ) -> None:
+        """Record a bounded fault even when PublicState construction failed."""
+
+        if not self.enabled:
+            return
+        try:
+            exception_payload = None
+            if exception is not None:
+                exception_payload = {
+                    "class": type(exception).__name__,
+                    "message": _bounded_diagnostic_text(exception),
+                }
+            self._append(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "record_type": RecordType.FAULT.value,
+                    "projection": self._projection.value,
+                    "validation_fault": {
+                        "epoch": int(epoch),
+                        "code": _bounded_diagnostic_text(code, 256),
+                        "prompt_fingerprint": prompt_fingerprint,
+                        "exception": exception_payload,
+                        "containment_reason": (
+                            None
+                            if containment_reason is None
+                            else _bounded_diagnostic_text(
+                                containment_reason,
+                                256,
+                            )
+                        ),
+                        "exception_derived": bool(exception_derived),
+                        "transaction_state": _transaction_state_payload(
+                            transaction_state,
+                            self._projection,
+                        ),
+                    },
+                }
+            )
+        except Exception:
+            self._mark_record_error()
 
     def record_resolution(
         self,
@@ -997,7 +1081,7 @@ class TelemetryRecorder:
                 )
             self._append(event)
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def record_transaction(
         self,
@@ -1050,7 +1134,7 @@ class TelemetryRecorder:
             )
             self._append(event)
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def record_fault(
         self,
@@ -1102,7 +1186,7 @@ class TelemetryRecorder:
                 )
             )
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def record_event(self, record: Mapping[str, Any]) -> None:
         """Internal-only hook for a checked runner event mapping."""
@@ -1126,7 +1210,7 @@ class TelemetryRecorder:
                 raise ValueError("record_event accepts runner records only")
             self._append(record)
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def record_turn_end(
         self,
@@ -1146,7 +1230,7 @@ class TelemetryRecorder:
                 )
             )
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def record_game_end(
         self,
@@ -1180,7 +1264,7 @@ class TelemetryRecorder:
                 if key[0] != final_state.game_epoch
             }
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def record_first_difference(
         self,
@@ -1206,7 +1290,7 @@ class TelemetryRecorder:
             if event is not None:
                 self._append(event)
         except Exception:
-            self._record_error_count += 1
+            self._mark_record_error()
 
     def snapshot(self) -> Tuple[Dict[str, Any], ...]:
         return tuple(json.loads(line) for _, line in self._records)
@@ -1227,6 +1311,7 @@ class TelemetryRecorder:
                 "sink_error_count": self._sink_error_count,
                 "next_sequence": self._next_sequence,
             },
+            "lifetime_health": self.validation_health(),
         }
         self._records = []
         self._dropped_count = 0
@@ -1256,6 +1341,232 @@ class TelemetryRecorder:
             }
             return (status,) + tuple(envelope["records"])
         return tuple(envelope["records"])
+
+
+def _bounded_diagnostic_text(value: object, limit: int = 512) -> str:
+    text = str(value).replace("\r", " ").replace("\n", " ")
+    text = " ".join(text.split())
+    return text[:limit]
+
+
+def _owner_validation_payload(owner: Optional[TransactionState]) -> Optional[Dict[str, Any]]:
+    if owner is None:
+        return None
+    return {
+        "transaction_id": owner.transaction_id,
+        "owner_kind": owner.owner_kind.value,
+        "stage": owner.stage.value,
+        "game_epoch": owner.game_epoch,
+        "turn": owner.turn,
+        "committed": owner.committed,
+        "fault_latched": owner.fault_latched,
+        "fault_code": owner.fault_code,
+        "last_prompt_fingerprint": (
+            None
+            if owner.last_prompt_fingerprint is None
+            else owner.last_prompt_fingerprint.digest()
+        ),
+    }
+
+
+class ValidationRuntimeState:
+    """Run-lifetime validation state, independent from games and ring drains."""
+
+    def __init__(self) -> None:
+        self.runtime_fault_latched = False
+        self.transaction_run_fault_latched = False
+        self.exception_derived_containment_count = 0
+        self.unsupported_stable_main_count = 0
+        self.unfinished_owner_at_game_end = 0
+        self.owner_at_new_game_start = 0
+        self.failure_codes: list[str] = []
+        self.last_exception: Optional[Dict[str, str]] = None
+        self.last_containment_reason: Optional[str] = None
+        self.last_prompt_fingerprint: Optional[str] = None
+        self.last_first_difference: Optional[Dict[str, Any]] = None
+        self.last_route_id: Optional[str] = None
+        self.last_certificate_id: Optional[str] = None
+        self.last_owner_snapshot: Optional[Dict[str, Any]] = None
+        self.last_finalize_reason: Optional[str] = None
+        self.epoch = -1
+        self._finalized_epochs: set[int] = set()
+
+    def _fail(self, code: str) -> None:
+        normalized = _bounded_diagnostic_text(code, 256)
+        if normalized and normalized not in self.failure_codes:
+            self.failure_codes.append(normalized)
+
+    def note_epoch(self, epoch: int) -> None:
+        self.epoch = int(epoch)
+
+    def note_prompt(self, fingerprint: str) -> None:
+        self.last_prompt_fingerprint = fingerprint
+
+    def note_exception(self, exc: BaseException, *, code: str = "RUNTIME_EXCEPTION") -> None:
+        self.runtime_fault_latched = True
+        self._fail(code)
+        self._fail(type(exc).__name__)
+        self.last_exception = {
+            "class": type(exc).__name__,
+            "message": _bounded_diagnostic_text(exc),
+        }
+
+    def note_containment(self, reason: str, *, exception_derived: bool) -> None:
+        self.last_containment_reason = _bounded_diagnostic_text(reason, 256)
+        if exception_derived:
+            self.exception_derived_containment_count += 1
+
+    def note_unsupported_stable_main(self) -> None:
+        self.runtime_fault_latched = True
+        self.unsupported_stable_main_count += 1
+        self._fail("UNSUPPORTED_STABLE_MAIN")
+
+    def note_resolution(self, resolution: Resolution) -> None:
+        selected = resolution.selected
+        if selected is None:
+            return
+        self.last_route_id = selected.rule_id
+        self.last_certificate_id = "{0}:{1}".format(
+            selected.certificate_kind.name,
+            selected.proof.schema.value,
+        )
+
+    def note_transaction(self, store: Any, result: Any) -> None:
+        status = getattr(getattr(result, "status", None), "value", None)
+        if status == "IRREVERSIBLE_FAULT" or bool(getattr(store, "run_fault_latched", False)):
+            self.runtime_fault_latched = True
+            self.transaction_run_fault_latched = True
+            self._fail("TRANSACTION_RUN_FAULT")
+            for reason in getattr(result, "reasons", ()):
+                self._fail(reason)
+            for record in getattr(store, "fault_history", ()):
+                self._fail(record.code)
+        self.last_owner_snapshot = _owner_validation_payload(
+            getattr(store, "owner", None)
+        )
+
+    def audit_new_game(self, store: Any) -> None:
+        if bool(store.run_fault_latched):
+            self.runtime_fault_latched = True
+            self.transaction_run_fault_latched = True
+            self._fail("TRANSACTION_RUN_FAULT")
+        if store.owner is not None:
+            self.runtime_fault_latched = True
+            self.owner_at_new_game_start += 1
+            self.last_owner_snapshot = _owner_validation_payload(store.owner)
+            self._fail("OWNER_AT_NEW_GAME_START")
+
+    def finalize_game(self, store: Any, reason: str = "GAME_END") -> None:
+        if self.epoch in self._finalized_epochs:
+            return
+        self._finalized_epochs.add(self.epoch)
+        if bool(store.run_fault_latched):
+            self.runtime_fault_latched = True
+            self.transaction_run_fault_latched = True
+            self._fail("TRANSACTION_RUN_FAULT")
+        if store.owner is not None:
+            self.runtime_fault_latched = True
+            self.unfinished_owner_at_game_end += 1
+            self.last_owner_snapshot = _owner_validation_payload(store.owner)
+            self._fail("UNFINISHED_OWNER_AT_GAME_END")
+        self.last_finalize_reason = _bounded_diagnostic_text(reason, 256)
+
+    def status(
+        self,
+        recorder: TelemetryRecorder,
+        active_owner: Optional[TransactionState],
+    ) -> Dict[str, Any]:
+        health = recorder.validation_health()
+        codes = list(self.failure_codes)
+        for code in health["failure_codes"]:
+            if code not in codes:
+                codes.append(code)
+        run_failed = bool(
+            self.runtime_fault_latched
+            or self.transaction_run_fault_latched
+            or codes
+            or not health["healthy"]
+        )
+        return {
+            "schema_version": "mega_lucario_validation_v1",
+            "telemetry_enabled": recorder.enabled,
+            "run_failed": run_failed,
+            "failure_codes": tuple(codes),
+            "runtime_fault_latched": self.runtime_fault_latched,
+            "transaction_run_fault_latched": self.transaction_run_fault_latched,
+            "exception_derived_containment_count": (
+                self.exception_derived_containment_count
+            ),
+            "unsupported_stable_main_count": self.unsupported_stable_main_count,
+            "unfinished_owner_at_game_end": self.unfinished_owner_at_game_end,
+            "owner_at_new_game_start": self.owner_at_new_game_start,
+            "epoch": self.epoch,
+            "active_owner": _owner_validation_payload(active_owner),
+            "last_owner_snapshot": self.last_owner_snapshot,
+            "last_prompt_fingerprint": self.last_prompt_fingerprint,
+            "last_exception": self.last_exception,
+            "last_containment_reason": self.last_containment_reason,
+            "last_finalize_reason": self.last_finalize_reason,
+            "last_first_difference": self.last_first_difference,
+            "last_route_id": self.last_route_id,
+            "last_certificate_id": self.last_certificate_id,
+            "telemetry_health": health,
+        }
+
+
+def raw_prompt_fingerprint(observation: Any) -> str:
+    """Canonical raw prompt hash usable even before PublicState construction."""
+
+    def exact_or_none(value: Any) -> Optional[int]:
+        return int(value) if _exact_int(value) else None
+
+    select = (
+        observation.get("select")
+        if isinstance(observation, Mapping)
+        else getattr(observation, "select", None)
+    )
+    if isinstance(select, Mapping):
+        getter = select.get
+    else:
+        def getter(name: str, default: Any = None) -> Any:
+            return getattr(select, name, default)
+
+    raw_options = getter("option", getter("options", ()))
+    if not isinstance(raw_options, Sequence) or isinstance(
+        raw_options, (str, bytes, bytearray)
+    ):
+        raw_options = ()
+    option_fields = (
+        "type",
+        "playerIndex",
+        "cardId",
+        "serial",
+        "area",
+        "index",
+        "inPlayArea",
+        "inPlayIndex",
+        "attackId",
+        "count",
+        "number",
+    )
+    identities = []
+    for option in raw_options:
+        if isinstance(option, Mapping):
+            identities.append(tuple(exact_or_none(option.get(name)) for name in option_fields))
+        else:
+            identities.append(
+                tuple(exact_or_none(getattr(option, name, None)) for name in option_fields)
+            )
+    payload = {
+        "type": exact_or_none(getter("type")),
+        "context": exact_or_none(getter("context")),
+        "min_count": exact_or_none(getter("minCount")),
+        "max_count": exact_or_none(getter("maxCount")),
+        "options": identities,
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 def make_turn_end_event(
@@ -1838,7 +2149,9 @@ __all__ = [
     "TelemetryMode",
     "TelemetryProjection",
     "TelemetryRecorder",
+    "ValidationRuntimeState",
     "canonical_json_line",
+    "raw_prompt_fingerprint",
     "find_first_difference",
     "make_fault_event",
     "make_game_end_event",
