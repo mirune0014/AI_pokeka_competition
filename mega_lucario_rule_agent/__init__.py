@@ -1,0 +1,41 @@
+"""Static foundation metadata for the Mega Lucario rule-based agent."""
+
+from .card_meta import (
+    ADOPTED_CANONICAL_COUNTER_HASH,
+    ATTACK_META,
+    ATTACK_META_BY_ID,
+    ATTACK_ROLE_BY_ID,
+    CARD_META,
+    CARD_META_BY_ID,
+    CARD_ROLE_BY_ID,
+    DECK_CARD_IDS,
+    DECK_COUNTER,
+    EFFECT_META_BY_CARD_ID,
+    EXPECTED_DECK_FILE_SHA256,
+    EXPECTED_SOURCE_DECK_HASH,
+    UNKNOWN,
+    canonical_deck_hash,
+    canonical_deck_text,
+    get_attack_meta,
+    get_card_meta,
+)
+
+__all__ = [
+    "ADOPTED_CANONICAL_COUNTER_HASH",
+    "ATTACK_META",
+    "ATTACK_META_BY_ID",
+    "ATTACK_ROLE_BY_ID",
+    "CARD_META",
+    "CARD_META_BY_ID",
+    "CARD_ROLE_BY_ID",
+    "DECK_CARD_IDS",
+    "DECK_COUNTER",
+    "EFFECT_META_BY_CARD_ID",
+    "EXPECTED_DECK_FILE_SHA256",
+    "EXPECTED_SOURCE_DECK_HASH",
+    "UNKNOWN",
+    "canonical_deck_hash",
+    "canonical_deck_text",
+    "get_attack_meta",
+    "get_card_meta",
+]
