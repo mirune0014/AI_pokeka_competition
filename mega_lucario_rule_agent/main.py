@@ -38,10 +38,13 @@ try:  # Package imports used by tests.
     from .resolver import Proposal, Resolution, resolve_proposals
     from .routes import enumerate_attack_routes
     from .state_view import (
+        AreaType,
         OptionType,
         PublicHistoryTracker,
         PublicState,
+        SelectContext,
         SemanticOption,
+        SemanticOptionKey,
         build_public_state,
         build_semantic_options,
         is_stable_main_state,
@@ -69,10 +72,13 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
     from resolver import Proposal, Resolution, resolve_proposals
     from routes import enumerate_attack_routes
     from state_view import (
+        AreaType,
         OptionType,
         PublicHistoryTracker,
         PublicState,
+        SelectContext,
         SemanticOption,
+        SemanticOptionKey,
         build_public_state,
         build_semantic_options,
         is_stable_main_state,
@@ -85,6 +91,7 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
 _FIXED_DECK = tuple(int(card_id) for card_id in DECK_CARD_IDS)
 if len(_FIXED_DECK) != 60:
     raise RuntimeError("Mega Lucario fixed deck must contain exactly 60 cards")
+_SETUP_BASIC_CARD_IDS = frozenset((673, 675, 676, 677))
 
 
 def _is_exact_int(value: object) -> bool:
@@ -154,6 +161,7 @@ class AgentRuntime:
         self._last_turn: Optional[int] = None
         self._saw_terminal = False
         self._last_features: Optional[DeckFeatures] = None
+        self._setup_active_choice: Optional[SemanticOptionKey] = None
         self._begin_game()
 
     @property
@@ -176,6 +184,10 @@ class AgentRuntime:
     def last_features(self) -> Optional[DeckFeatures]:
         return self._last_features
 
+    @property
+    def setup_active_choice(self) -> Optional[SemanticOptionKey]:
+        return self._setup_active_choice
+
     def _begin_game(self) -> None:
         self._game_epoch += 1
         self._history = PublicHistoryTracker()
@@ -185,6 +197,7 @@ class AgentRuntime:
         self._last_turn = None
         self._saw_terminal = False
         self._last_features = None
+        self._setup_active_choice = None
 
     def _serve_deck(self) -> list[int]:
         self._begin_game()
@@ -254,6 +267,32 @@ class AgentRuntime:
                 int(selected_attack_ids[0]),
             )
 
+    def _record_setup_active_choice(
+        self,
+        state: PublicState,
+        legal_options: Sequence[SemanticOption],
+        action: Sequence[int],
+    ) -> None:
+        if state.select_context != int(SelectContext.SETUP_ACTIVE_POKEMON):
+            return
+        self._setup_active_choice = None
+        if len(action) != 1:
+            return
+        index = action[0]
+        if index < 0 or index >= len(legal_options):
+            return
+        key = legal_options[index].key
+        if (
+            key.option_type == int(OptionType.CARD)
+            and key.player_index == state.seat
+            and key.source_zone == int(AreaType.HAND)
+            and _is_exact_int(key.card_id)
+            and key.card_id in _SETUP_BASIC_CARD_IDS
+            and _is_exact_int(key.card_serial)
+            and key.card_serial >= 0
+        ):
+            self._setup_active_choice = key
+
     def _emit(
         self,
         state: PublicState,
@@ -261,6 +300,7 @@ class AgentRuntime:
         action: Sequence[int],
     ) -> list[int]:
         checked = self._checked_action(state, legal_options, action)
+        self._record_setup_active_choice(state, legal_options, checked)
         self._record_emitted_attack(state, legal_options, checked)
         return checked
 
@@ -321,9 +361,19 @@ class AgentRuntime:
     ) -> Optional[list[int]]:
         decision: Optional[FallbackDecision]
         if fault_containment:
-            decision = fault_containment_action(state, legal_options, ledger)
+            decision = fault_containment_action(
+                state,
+                legal_options,
+                ledger,
+                setup_active_choice=self._setup_active_choice,
+            )
         else:
-            decision = resolve_forced_or_setup(state, legal_options, ledger)
+            decision = resolve_forced_or_setup(
+                state,
+                legal_options,
+                ledger,
+                setup_active_choice=self._setup_active_choice,
+            )
         if decision is None:
             return None
         return self._emit(

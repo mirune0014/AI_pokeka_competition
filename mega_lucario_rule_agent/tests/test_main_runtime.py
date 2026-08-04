@@ -210,6 +210,7 @@ def test_deck_callback_returns_exact_fixed_deck_and_resets_runtime():
     )
     assert runtime.game_epoch == epoch_before + 1
     assert runtime.transactions is not store_before
+    assert runtime.setup_active_choice is None
 
 
 def test_runtime_connects_setup_first_and_active_priority():
@@ -229,6 +230,8 @@ def test_runtime_connects_setup_first_and_active_priority():
         card(676, 42),
         card(676, 41),
         card(675, 43),
+        card(673, 44),
+        card(677, 45),
     )
     setup_active = observation(
         [
@@ -245,6 +248,53 @@ def test_runtime_connects_setup_first_and_active_priority():
         hand=hand,
     )
     assert runtime.act(setup_active) == [2]
+    assert runtime.setup_active_choice.card_id == 676
+    assert runtime.setup_active_choice.card_serial == 41
+
+    intermediate = observation(
+        [{"type": int(OptionType.NUMBER), "number": 1}],
+        context=SelectContext.DRAW_COUNT,
+        min_count=1,
+        max_count=1,
+        own_active=None,
+        hand=hand,
+    )
+    intermediate["current"]["players"][0]["active"] = [None]
+    intermediate["current"]["players"][1]["active"] = [None]
+    assert runtime.act(intermediate) == [0]
+    assert runtime.setup_active_choice.card_serial == 41
+
+    bench_hand = (
+        card(677, 40),
+        card(676, 42),
+        card(675, 43),
+        card(673, 44),
+        card(677, 45),
+    )
+    setup_bench = observation(
+        [
+            {
+                "type": int(OptionType.CARD),
+                "area": int(AreaType.HAND),
+                "index": index,
+                "playerIndex": 0,
+            }
+            for index in range(len(bench_hand))
+        ],
+        context=SelectContext.SETUP_BENCH_POKEMON,
+        min_count=0,
+        max_count=5,
+        own_active=None,
+        hand=bench_hand,
+    )
+    setup_bench["current"]["players"][0]["active"] = [None]
+    setup_bench["current"]["players"][1]["active"] = [None]
+
+    assert runtime.act(setup_bench) == [0, 2, 3]
+    assert runtime.setup_active_choice.card_id == 676
+
+    runtime.act({"select": None})
+    assert runtime.setup_active_choice is None
 
 
 def test_stable_main_without_attack_uses_checked_pass():

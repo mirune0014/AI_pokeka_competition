@@ -26,6 +26,7 @@ try:  # Package import in tests.
     from .resource_ledger import ResourceLedger
     from .state_view import (
         ActionSpec,
+        AreaType,
         OptionType,
         PhysicalRef,
         PublicState,
@@ -45,6 +46,7 @@ except ImportError:  # Flat submission import from main.py.
     from resource_ledger import ResourceLedger
     from state_view import (
         ActionSpec,
+        AreaType,
         OptionType,
         PhysicalRef,
         PublicState,
@@ -61,6 +63,16 @@ _SETUP_ACTIVE_ORDER = {
     677: 1,  # Riolu
     675: 2,  # Lunatone
     673: 3,  # Makuhita
+}
+_SETUP_BASIC_CARD_IDS = frozenset(_SETUP_ACTIVE_ORDER)
+_SETUP_NORMAL_BENCH_LIMIT = 4
+_SETUP_ROLE_BY_CARD_ID = {
+    673: "HARIYAMA_LINE",
+    674: "HARIYAMA_LINE",
+    675: "LUNATONE_ENGINE",
+    676: "SOLROCK_ENGINE",
+    677: "LUCARIO_LINE",
+    678: "LUCARIO_LINE",
 }
 _RESOURCE_CONSUMING_TYPES = frozenset(
     (
@@ -263,6 +275,233 @@ def _setup_rank(option: SemanticOption) -> Tuple[object, ...]:
     )
 
 
+def _setup_choice_identity(
+    key: Optional[SemanticOptionKey],
+    seat: int,
+) -> Optional[Tuple[int, int, int, int]]:
+    """Return an exact own setup-Basic identity or fail closed."""
+
+    if key is None or not isinstance(key, SemanticOptionKey):
+        return None
+    values = (key.card_id, key.card_serial, key.player_index, key.source_zone)
+    if any(not _is_exact_int(value) for value in values):
+        return None
+    if (
+        key.option_type != int(OptionType.CARD)
+        or key.player_index != seat
+        or key.source_zone != int(AreaType.HAND)
+        or key.card_id not in _SETUP_BASIC_CARD_IDS
+        or key.card_serial < 0
+    ):
+        return None
+    return (
+        int(key.card_id),
+        int(key.card_serial),
+        int(key.player_index),
+        int(key.source_zone),
+    )
+
+
+def _setup_candidate_options(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+) -> Tuple[SemanticOption, ...]:
+    """Bind legal setup candidates to exact cards in the public own hand."""
+
+    hand_identities = {
+        (
+            ref_value.card_id,
+            ref_value.serial,
+            ref_value.owner,
+            ref_value.zone,
+        )
+        for ref_value in state.own.hand_refs
+        if ref_value.card_id in _SETUP_BASIC_CARD_IDS
+    }
+    selected = []
+    seen = set()
+    for option in sorted(legal_options, key=_setup_rank):
+        identity = _setup_choice_identity(option.key, state.seat)
+        if identity is None or identity not in hand_identities or identity in seen:
+            continue
+        seen.add(identity)
+        selected.append(option)
+    return tuple(selected)
+
+
+def _setup_visible_active_identity(
+    state: PublicState,
+) -> Optional[Tuple[int, int, int, int]]:
+    visible = tuple(
+        pokemon.ref
+        for pokemon in state.own.active
+        if (
+            pokemon.ref.card_id in _SETUP_BASIC_CARD_IDS
+            and _is_exact_int(pokemon.ref.serial)
+            and pokemon.ref.owner == state.seat
+            and pokemon.ref.zone == int(AreaType.ACTIVE)
+        )
+    )
+    if len(visible) != 1:
+        return None
+    ref_value = visible[0]
+    return (
+        int(ref_value.card_id),
+        int(ref_value.serial),
+        int(ref_value.owner),
+        int(AreaType.HAND),
+    )
+
+
+def _setup_active_card_id(
+    state: PublicState,
+    setup_active_choice: Optional[SemanticOptionKey],
+) -> Optional[int]:
+    cached = _setup_choice_identity(setup_active_choice, state.seat)
+    visible = _setup_visible_active_identity(state)
+    if cached is not None and visible is not None and cached[:3] != visible[:3]:
+        return None
+    identity = cached if cached is not None else visible
+    return None if identity is None else int(identity[0])
+
+
+def _setup_role(card_id: Optional[int]) -> Optional[str]:
+    if not _is_exact_int(card_id):
+        return None
+    return _SETUP_ROLE_BY_CARD_ID.get(int(card_id))
+
+
+def _setup_boardout_rank(
+    option: SemanticOption,
+    occupied_roles: frozenset[str],
+) -> Tuple[object, ...]:
+    key = option.key
+    role = _setup_role(key.card_id)
+    meta = get_card_meta(key.card_id) if _is_exact_int(key.card_id) else None
+    hp = meta.hp if meta is not None and _is_exact_int(meta.hp) else 0
+    return (
+        int(role is None or role in occupied_roles),
+        -int(hp),
+        key.card_id if _is_exact_int(key.card_id) else 2**63 - 1,
+        key.card_serial if _is_exact_int(key.card_serial) else 2**63 - 1,
+        key.sort_key(),
+        option.index,
+    )
+
+
+def _setup_bench_decision(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    setup_active_choice: Optional[SemanticOptionKey],
+) -> FallbackDecision:
+    """Build a role-aware initial Bench from exact own public identities."""
+
+    candidates = list(_setup_candidate_options(state, legal_options))
+    active_card_id = _setup_active_card_id(state, setup_active_choice)
+    existing_card_ids = tuple(
+        pokemon.ref.card_id
+        for pokemon in state.own.bench
+        if _is_exact_int(pokemon.ref.card_id)
+    )
+    occupied_card_ids = tuple(
+        value
+        for value in (active_card_id,) + existing_card_ids
+        if _is_exact_int(value)
+    )
+    occupied_roles = {
+        role
+        for role in (_setup_role(value) for value in occupied_card_ids)
+        if role is not None
+    }
+
+    physical_slots = max(0, state.own.bench_max - len(state.own.bench))
+    prompt_capacity = min(state.max_count, len(legal_options))
+    normal_capacity = min(
+        prompt_capacity,
+        physical_slots,
+        max(0, _SETUP_NORMAL_BENCH_LIMIT - len(state.own.bench)),
+    )
+    chosen = []
+
+    def take_card(card_id: int) -> bool:
+        if len(chosen) >= normal_capacity:
+            return False
+        for index, option in enumerate(candidates):
+            if option.key.card_id == card_id:
+                chosen.append(option)
+                candidates.pop(index)
+                occupied_roles.add(_SETUP_ROLE_BY_CARD_ID[card_id])
+                return True
+        return False
+
+    # When the cached Active is unavailable or conflicts with a visible Active,
+    # do not speculate about roles. The board-out guard below remains valid.
+    if active_card_id is not None:
+        if active_card_id == 676:
+            engine_order = (675,)
+        elif active_card_id == 675:
+            engine_order = (676,)
+        else:
+            engine_order = (676, 675)
+        for card_id in engine_order:
+            if _setup_role(card_id) not in occupied_roles:
+                take_card(card_id)
+
+        if "LUCARIO_LINE" not in occupied_roles:
+            take_card(677)
+
+    conceptual_active_count = max(
+        state.own.active_slot_count,
+        int(active_card_id is not None),
+    )
+    if (
+        conceptual_active_count + len(state.own.bench) + len(chosen) < 2
+        and len(chosen) < normal_capacity
+        and candidates
+    ):
+        boardout = min(
+            candidates,
+            key=lambda option: _setup_boardout_rank(
+                option,
+                frozenset(occupied_roles),
+            ),
+        )
+        chosen.append(boardout)
+        candidates.remove(boardout)
+        role = _setup_role(boardout.key.card_id)
+        if role is not None:
+            occupied_roles.add(role)
+
+    if active_card_id is not None and "HARIYAMA_LINE" not in occupied_roles:
+        take_card(673)
+
+    # A second Riolu is deliberately held during the hidden-information setup
+    # prompt. It is promoted only by a later public spread/high-damage rule.
+
+    # Engine minCount is authoritative. Fill it without treating unknown or
+    # duplicate cards as strategic choices, and never persist raw indices.
+    mandatory_target = min(state.min_count, prompt_capacity)
+    if len(chosen) < mandatory_target:
+        remaining = [
+            option for option in legal_options
+            if option not in chosen
+        ]
+        remaining.sort(
+            key=lambda option: (
+                int(option not in candidates),
+                _setup_boardout_rank(option, frozenset(occupied_roles)),
+            )
+        )
+        chosen.extend(remaining[: mandatory_target - len(chosen)])
+
+    if not chosen:
+        return FallbackDecision((), "SETUP_BENCH_ROLE_HOLD")
+    return FallbackDecision(
+        tuple(option.key for option in chosen),
+        "SETUP_BENCH_ROLE_PLAN",
+    )
+
+
 def _promotion_rank(
     state: PublicState,
     option: SemanticOption,
@@ -316,6 +555,8 @@ def resolve_forced_or_setup(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     ledger: ResourceLedger,
+    *,
+    setup_active_choice: Optional[SemanticOptionKey] = None,
 ) -> Optional[FallbackDecision]:
     """Resolve setup or a mandatory non-MAIN prompt without starting effects."""
 
@@ -353,14 +594,10 @@ def resolve_forced_or_setup(
         )
 
     if state.select_context == int(SelectContext.SETUP_BENCH_POKEMON):
-        if state.min_count == 0:
-            return FallbackDecision((), "SETUP_BENCH_CONSERVATIVE_STOP")
-        return _decision_from_options(
+        return _setup_bench_decision(
+            state,
             option_values,
-            state.min_count,
-            "SETUP_BENCH_MINIMUM",
-            _setup_rank,
-            unsupported_effect=False,
+            setup_active_choice,
         )
 
     if state.min_count == 0:
@@ -423,10 +660,17 @@ def fault_containment_action(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     ledger: ResourceLedger,
+    *,
+    setup_active_choice: Optional[SemanticOptionKey] = None,
 ) -> Optional[FallbackDecision]:
     """Choose a legal conservative response without clearing the fault latch."""
 
-    decision = resolve_forced_or_setup(state, legal_options, ledger)
+    decision = resolve_forced_or_setup(
+        state,
+        legal_options,
+        ledger,
+        setup_active_choice=setup_active_choice,
+    )
     if decision is None:
         return None
     return replace(

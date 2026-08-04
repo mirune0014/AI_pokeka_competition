@@ -124,6 +124,7 @@ def state(
 def key(
     option_type,
     *,
+    player_index=0,
     card_id=None,
     serial=None,
     zone=None,
@@ -132,7 +133,7 @@ def key(
 ):
     return SemanticOptionKey(
         option_type=int(option_type),
-        player_index=0,
+        player_index=player_index,
         card_id=card_id,
         card_serial=serial,
         source_zone=None if zone is None else int(zone),
@@ -150,6 +151,32 @@ def options(*keys):
 
 def empty_ledger():
     return ResourceLedger(())
+
+
+def hidden_setup_bench_state(
+    hand_refs,
+    *,
+    min_count=0,
+    max_count=5,
+    own_bench=(),
+):
+    current = state(
+        context=SelectContext.SETUP_BENCH_POKEMON,
+        select_type=SelectType.CARD,
+        min_count=min_count,
+        max_count=max_count,
+        own_bench=own_bench,
+        hand_refs=hand_refs,
+    )
+    return replace(
+        current,
+        own=replace(
+            current.own,
+            active=(),
+            active_slot_count=1,
+            hidden_active_count=1,
+        ),
+    )
 
 
 ATTACK_982 = key(OptionType.ATTACK, attack_id=982)
@@ -315,7 +342,7 @@ def test_setup_active_uses_required_priority_and_lowest_serial():
     assert decision.bind_now(current, legal) == (3,)
 
 
-def test_setup_first_chooses_yes_and_optional_bench_stops():
+def test_setup_first_chooses_yes():
     first_state = state(
         context=SelectContext.IS_FIRST,
         select_type=SelectType.YES_NO,
@@ -328,21 +355,266 @@ def test_setup_first_chooses_yes_and_optional_bench_stops():
     assert first.reason_code == "SETUP_CHOOSE_FIRST"
     assert first.choices == (YES,)
 
-    bench_state = state(
-        context=SelectContext.SETUP_BENCH_POKEMON,
-        select_type=SelectType.CARD,
-        min_count=0,
-        max_count=5,
+
+
+def test_setup_bench_active_solrock_completes_roles_and_holds_duplicates():
+    hand = (
+        ref(675, 20, 0, AreaType.HAND),
+        ref(677, 30, 0, AreaType.HAND),
+        ref(677, 31, 0, AreaType.HAND),
+        ref(673, 40, 0, AreaType.HAND),
+        ref(676, 41, 0, AreaType.HAND),
     )
-    bench = resolve_forced_or_setup(
-        bench_state,
-        options(key(OptionType.CARD, card_id=677, serial=40, zone=AreaType.HAND)),
+    current = hidden_setup_bench_state(hand)
+    legal = options(
+        key(OptionType.CARD, card_id=677, serial=31, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=676, serial=41, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=673, serial=40, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=675, serial=20, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=677, serial=30, zone=AreaType.HAND),
+    )
+    active = key(
+        OptionType.CARD,
+        card_id=676,
+        serial=10,
+        zone=AreaType.HAND,
+    )
+
+    decision = resolve_forced_or_setup(
+        current,
+        legal,
         empty_ledger(),
+        setup_active_choice=active,
     )
-    assert bench.reason_code == "SETUP_BENCH_CONSERVATIVE_STOP"
-    assert bench.bind_now(bench_state, options(
-        key(OptionType.CARD, card_id=677, serial=40, zone=AreaType.HAND)
-    )) == ()
+
+    assert decision.reason_code == "SETUP_BENCH_ROLE_PLAN"
+    assert {
+        (choice.card_id, choice.card_serial)
+        for choice in decision.choices
+    } == {(675, 20), (677, 30), (673, 40)}
+    assert decision.bind_now(current, legal) == (2, 3, 4)
+
+    permuted = options(*(option.key for option in reversed(legal)))
+    rebound = resolve_forced_or_setup(
+        current,
+        permuted,
+        empty_ledger(),
+        setup_active_choice=active,
+    )
+    assert set(rebound.choices) == set(decision.choices)
+    assert rebound.bind_now(current, permuted) == (0, 1, 2)
+
+
+@pytest.mark.parametrize(
+    ("active_card_id", "expected_card_ids"),
+    (
+        (677, {676, 675, 673}),
+        (673, {676, 675, 677}),
+    ),
+)
+def test_setup_bench_nonengine_active_builds_both_engine_halves(
+    active_card_id,
+    expected_card_ids,
+):
+    hand = (
+        ref(676, 20, 0, AreaType.HAND),
+        ref(675, 21, 0, AreaType.HAND),
+        ref(677, 22, 0, AreaType.HAND),
+        ref(673, 23, 0, AreaType.HAND),
+    )
+    current = hidden_setup_bench_state(hand)
+    legal = options(
+        key(OptionType.CARD, card_id=677, serial=22, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=673, serial=23, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=675, serial=21, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=676, serial=20, zone=AreaType.HAND),
+    )
+    active = key(
+        OptionType.CARD,
+        card_id=active_card_id,
+        serial=10,
+        zone=AreaType.HAND,
+    )
+
+    decision = resolve_forced_or_setup(
+        current,
+        legal,
+        empty_ledger(),
+        setup_active_choice=active,
+    )
+
+    assert {choice.card_id for choice in decision.choices} == expected_card_ids
+    assert len(decision.choices) == 3
+
+
+def test_setup_bench_boardout_guard_can_use_only_duplicate_role():
+    hand = (ref(676, 20, 0, AreaType.HAND),)
+    current = hidden_setup_bench_state(hand)
+    legal = options(
+        key(OptionType.CARD, card_id=676, serial=20, zone=AreaType.HAND),
+    )
+    active = key(
+        OptionType.CARD,
+        card_id=676,
+        serial=10,
+        zone=AreaType.HAND,
+    )
+
+    decision = resolve_forced_or_setup(
+        current,
+        legal,
+        empty_ledger(),
+        setup_active_choice=active,
+    )
+
+    assert decision.choices == (legal[0].key,)
+    assert decision.bind_now(current, legal) == (0,)
+
+
+def test_setup_bench_without_trusted_active_only_applies_boardout_guard():
+    hand = (
+        ref(677, 30, 0, AreaType.HAND),
+        ref(676, 20, 0, AreaType.HAND),
+        ref(675, 21, 0, AreaType.HAND),
+        ref(673, 40, 0, AreaType.HAND),
+    )
+    current = hidden_setup_bench_state(hand)
+    legal = options(
+        key(OptionType.CARD, card_id=677, serial=30, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=676, serial=20, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=675, serial=21, zone=AreaType.HAND),
+        key(OptionType.CARD, card_id=673, serial=40, zone=AreaType.HAND),
+    )
+
+    decision = resolve_forced_or_setup(current, legal, empty_ledger())
+
+    assert len(decision.choices) == 1
+    assert (decision.choices[0].card_id, decision.choices[0].card_serial) == (
+        675,
+        21,
+    )
+
+
+def test_setup_bench_min_count_overrides_normal_four_card_limit():
+    hand = (
+        ref(675, 20, 0, AreaType.HAND),
+        ref(677, 30, 0, AreaType.HAND),
+        ref(677, 31, 0, AreaType.HAND),
+        ref(673, 40, 0, AreaType.HAND),
+        ref(676, 41, 0, AreaType.HAND),
+    )
+    current = hidden_setup_bench_state(hand, min_count=5, max_count=5)
+    legal = options(
+        *(
+            key(
+                OptionType.CARD,
+                card_id=ref_value.card_id,
+                serial=ref_value.serial,
+                zone=AreaType.HAND,
+            )
+            for ref_value in hand
+        )
+    )
+    active = key(
+        OptionType.CARD,
+        card_id=676,
+        serial=10,
+        zone=AreaType.HAND,
+    )
+
+    decision = resolve_forced_or_setup(
+        current,
+        legal,
+        empty_ledger(),
+        setup_active_choice=active,
+    )
+
+    assert len(decision.choices) == 5
+    assert decision.bind_now(current, legal) == (0, 1, 2, 3, 4)
+
+
+def test_setup_bench_rejects_nonhand_foreign_unknown_and_duplicate_physical_options():
+    hand = (
+        ref(675, 20, 0, AreaType.HAND),
+        ref(999, 50, 0, AreaType.HAND),
+    )
+    current = hidden_setup_bench_state(hand)
+    valid = key(
+        OptionType.CARD,
+        card_id=675,
+        serial=20,
+        zone=AreaType.HAND,
+    )
+    legal = options(
+        key(OptionType.CARD, card_id=675, serial=20, zone=AreaType.DECK),
+        key(
+            OptionType.CARD,
+            player_index=1,
+            card_id=675,
+            serial=20,
+            zone=AreaType.HAND,
+        ),
+        key(OptionType.CARD, card_id=999, serial=50, zone=AreaType.HAND),
+        valid,
+        valid,
+    )
+    active = key(
+        OptionType.CARD,
+        card_id=676,
+        serial=10,
+        zone=AreaType.HAND,
+    )
+
+    decision = resolve_forced_or_setup(
+        current,
+        legal,
+        empty_ledger(),
+        setup_active_choice=active,
+    )
+
+    assert decision.choices == (valid,)
+    assert decision.bind_now(current, legal) == (3,)
+
+
+def test_setup_bench_uses_current_seat_instead_of_hardcoded_player_zero():
+    hand = (ref(675, 20, 1, AreaType.HAND),)
+    current = hidden_setup_bench_state(())
+    current = replace(
+        current,
+        seat=1,
+        own=replace(
+            current.own,
+            index=1,
+            hand_refs=hand,
+            hand_count=1,
+        ),
+        opponent=replace(current.opponent, index=0),
+    )
+    legal = options(
+        key(
+            OptionType.CARD,
+            player_index=1,
+            card_id=675,
+            serial=20,
+            zone=AreaType.HAND,
+        ),
+    )
+    active = key(
+        OptionType.CARD,
+        player_index=1,
+        card_id=676,
+        serial=10,
+        zone=AreaType.HAND,
+    )
+
+    decision = resolve_forced_or_setup(
+        current,
+        legal,
+        empty_ledger(),
+        setup_active_choice=active,
+    )
+
+    assert decision.choices == (legal[0].key,)
 
 
 def test_forced_promotion_prefers_uninvested_one_prize_over_riolu_and_mega():
