@@ -5,6 +5,9 @@ from .card_meta import (
     ATTACK_META,
     ATTACK_META_BY_ID,
     ATTACK_ROLE_BY_ID,
+    AttackCallbackKind,
+    AttackCondition,
+    AttackSemantics,
     CARD_META,
     CARD_META_BY_ID,
     CARD_ROLE_BY_ID,
@@ -21,6 +24,9 @@ from .card_meta import (
 )
 
 __all__ = [
+    "AttackCallbackKind",
+    "AttackCondition",
+    "AttackSemantics",
     "ADOPTED_CANONICAL_COUNTER_HASH",
     "ATTACK_META",
     "ATTACK_META_BY_ID",

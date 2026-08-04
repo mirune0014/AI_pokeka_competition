@@ -4,6 +4,8 @@ import importlib
 import json
 from pathlib import Path
 
+import pytest
+
 import mega_lucario_rule_agent.card_meta as card_meta
 
 
@@ -34,7 +36,9 @@ EXPECTED_COUNTER = Counter(
 
 
 def deck_ids():
-    return [int(line) for line in DECK_PATH.read_text(encoding="utf-8").splitlines() if line]
+    return [
+        int(line) for line in DECK_PATH.read_text(encoding="utf-8").splitlines() if line
+    ]
 
 
 def test_deck_has_60_ids_and_exact_counter():
@@ -58,7 +62,9 @@ def test_source_file_and_counter_hashes_are_distinct_and_reproducible():
     assert file_hash == card_meta.EXPECTED_DECK_FILE_SHA256
     assert card_meta.canonical_counter_text(ids) == canonical_text
     assert card_meta.canonical_deck_text(ids) == canonical_text
-    assert card_meta.canonical_deck_hash(ids) == card_meta.ADOPTED_CANONICAL_COUNTER_HASH
+    assert (
+        card_meta.canonical_deck_hash(ids) == card_meta.ADOPTED_CANONICAL_COUNTER_HASH
+    )
     assert card_meta.ADOPTED_CANONICAL_COUNTER_HASH == (
         "2b06e469703b77e42e271be046070d44227db4f32c0568c7e2ec74137a6c1a99"
     )
@@ -69,20 +75,26 @@ def test_source_file_and_counter_hashes_are_distinct_and_reproducible():
         "6fad93e49ed5f20753ffb920711346766def2e3ee7417ad67c7f24d03b1c2643"
     )
     assert card_meta.EXPECTED_SOURCE_DECK_HASH != file_hash
-    assert card_meta.EXPECTED_SOURCE_DECK_HASH != card_meta.ADOPTED_CANONICAL_COUNTER_HASH
+    assert (
+        card_meta.EXPECTED_SOURCE_DECK_HASH != card_meta.ADOPTED_CANONICAL_COUNTER_HASH
+    )
 
 
 def test_required_card_ids_are_complete_and_have_unique_primary_roles():
     assert set(card_meta.CARD_META_BY_ID) == set(EXPECTED_COUNTER)
     assert set(card_meta.REQUIRED_CARD_IDS) == set(EXPECTED_COUNTER)
-    assert len(card_meta.CARD_ROLE_BY_ID) == len(set(card_meta.CARD_ROLE_BY_ID.values()))
+    assert len(card_meta.CARD_ROLE_BY_ID) == len(
+        set(card_meta.CARD_ROLE_BY_ID.values())
+    )
 
 
 def test_attack_ids_and_sources_are_one_to_one():
     expected_attack_ids = set(range(976, 984))
     assert set(card_meta.ATTACK_META_BY_ID) == expected_attack_ids
     assert set(card_meta.REQUIRED_ATTACK_IDS) == expected_attack_ids
-    assert len(card_meta.ATTACK_ROLE_BY_ID) == len(set(card_meta.ATTACK_ROLE_BY_ID.values()))
+    assert len(card_meta.ATTACK_ROLE_BY_ID) == len(
+        set(card_meta.ATTACK_ROLE_BY_ID.values())
+    )
 
     mapped_attack_ids = [
         attack_id
@@ -114,9 +126,61 @@ def test_checked_attack_values_and_aura_limit():
         assert attack.source_card_id == source_card_id
         assert attack.printed_damage == damage
         assert len(attack.energy_cost) == energy_count
-        assert all(energy == card_meta.EnergyType.FIGHTING for energy in attack.energy_cost)
+        assert all(
+            energy == card_meta.EnergyType.FIGHTING for energy in attack.energy_cost
+        )
 
     assert card_meta.ATTACK_META_BY_ID[982].effect_max_count == 3
+
+
+def test_structured_attack_semantics_976_to_983():
+    attacks = card_meta.ATTACK_META_BY_ID
+    neutral = card_meta.AttackSemantics()
+    assert attacks[976].semantics == neutral
+    assert attacks[977].semantics == neutral
+    assert attacks[979].semantics == neutral
+
+    assert attacks[978].semantics.self_damage == 70
+    assert attacks[978].semantics.callback_kind is None
+
+    cosmic = attacks[980].semantics
+    assert cosmic.condition is card_meta.AttackCondition.LUNATONE_ON_BENCH
+    assert cosmic.condition_false_damage == 0
+    assert cosmic.ignores_weakness_resistance
+
+    assert attacks[981].semantics.same_attack_lock_next_own_turn
+    assert attacks[983].semantics.same_attack_lock_next_own_turn
+    assert not attacks[982].semantics.same_attack_lock_next_own_turn
+
+    aura = attacks[982].semantics
+    assert aura.callback_kind is (
+        card_meta.AttackCallbackKind.AURA_BASIC_FIGHTING_TO_BENCH
+    )
+    assert aura.callback_max_count == attacks[982].effect_max_count == 3
+    assert aura.callback_source_basic_energy_card_id == 6
+    assert aura.callback_targets_bench_only
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    (
+        {"condition": "lunatone_on_bench", "condition_false_damage": 0},
+        {"ignores_weakness_resistance": 1},
+        {"self_damage": True},
+        {"self_damage": -1},
+        {"condition_false_damage": 0},
+        {"callback_max_count": 3},
+        {
+            "callback_kind": card_meta.AttackCallbackKind.AURA_BASIC_FIGHTING_TO_BENCH,
+            "callback_max_count": 3,
+            "callback_source_basic_energy_card_id": 6,
+            "callback_targets_bench_only": False,
+        },
+    ),
+)
+def test_malformed_structured_attack_semantics_fail_closed(kwargs):
+    with pytest.raises(ValueError):
+        card_meta.AttackSemantics(**kwargs)
 
 
 def test_effect_ids_are_explicitly_unregistered_when_cg_api_has_no_numeric_id():

@@ -59,6 +59,15 @@ class SemanticRole(str, Enum):
     HEAL_ENERGY_RECOVERY = "heal_energy_recovery"
 
 
+class AttackCondition(str, Enum):
+    NONE = "none"
+    LUNATONE_ON_BENCH = "lunatone_on_bench"
+
+
+class AttackCallbackKind(str, Enum):
+    AURA_BASIC_FIGHTING_TO_BENCH = "aura_basic_fighting_to_bench"
+
+
 class AttackRole(str, Enum):
     MINIMUM_ATTACK = "minimum_attack"
     SMALL_ATTACK = "small_attack"
@@ -68,6 +77,67 @@ class AttackRole(str, Enum):
     EARLY_ATTACK = "early_attack"
     AURA_ACCELERATION = "aura_acceleration"
     MEGA_BRAVE_FINISHER = "mega_brave_finisher"
+
+
+def _is_exact_int(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+@dataclass(frozen=True)
+class AttackSemantics:
+    condition: AttackCondition = AttackCondition.NONE
+    condition_false_damage: Optional[int] = None
+    ignores_weakness_resistance: bool = False
+    self_damage: int = 0
+    same_attack_lock_next_own_turn: bool = False
+    callback_kind: Optional[AttackCallbackKind] = None
+    callback_max_count: int = 0
+    callback_source_basic_energy_card_id: Optional[int] = None
+    callback_targets_bench_only: bool = False
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.condition, AttackCondition):
+            raise ValueError("condition must be a registered AttackCondition")
+        if self.callback_kind is not None and not isinstance(
+            self.callback_kind, AttackCallbackKind
+        ):
+            raise ValueError("callback kind must be registered")
+        if any(
+            not isinstance(value, bool)
+            for value in (
+                self.ignores_weakness_resistance,
+                self.same_attack_lock_next_own_turn,
+                self.callback_targets_bench_only,
+            )
+        ):
+            raise ValueError("attack semantic flags must be exact bools")
+        if not _is_exact_int(self.self_damage) or self.self_damage < 0:
+            raise ValueError("self damage must be a non-negative exact int")
+        if self.condition is AttackCondition.NONE:
+            if self.condition_false_damage is not None:
+                raise ValueError("an unconditional attack cannot have false damage")
+        elif (
+            not _is_exact_int(self.condition_false_damage)
+            or self.condition_false_damage < 0
+        ):
+            raise ValueError("conditional attacks require non-negative false damage")
+        if self.callback_kind is None:
+            if (
+                self.callback_max_count != 0
+                or self.callback_source_basic_energy_card_id is not None
+                or self.callback_targets_bench_only
+            ):
+                raise ValueError("callback metadata requires a callback kind")
+        elif (
+            not _is_exact_int(self.callback_max_count)
+            or self.callback_max_count <= 0
+            or not _is_exact_int(self.callback_source_basic_energy_card_id)
+            or self.callback_source_basic_energy_card_id <= 0
+            or not self.callback_targets_bench_only
+        ):
+            raise ValueError(
+                "callback metadata must identify its source and Bench limit"
+            )
 
 
 @dataclass(frozen=True)
@@ -130,6 +200,7 @@ class AttackMeta:
     energy_cost: Tuple[EnergyType, ...]
     effect_text: str
     effect_max_count: StaticValue = UNKNOWN
+    semantics: AttackSemantics = AttackSemantics()
 
     @property
     def damage(self) -> StaticValue:
@@ -165,7 +236,9 @@ DECK_COUNTER = Counter(
         1229: 2,
     }
 )
-DECK_CARD_IDS = tuple(sorted(card_id for card_id, count in DECK_COUNTER.items() for _ in range(count)))
+DECK_CARD_IDS = tuple(
+    sorted(card_id for card_id, count in DECK_COUNTER.items() for _ in range(count))
+)
 REQUIRED_CARD_IDS = frozenset(DECK_COUNTER)
 
 
@@ -180,7 +253,9 @@ def canonical_counter_text(card_ids: Iterable[int]) -> str:
 
     counter = Counter(int(card_id) for card_id in card_ids)
     normalized = {str(card_id): counter[card_id] for card_id in sorted(counter)}
-    return json.dumps(normalized, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+    return json.dumps(
+        normalized, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    )
 
 
 def canonical_deck_text(card_ids: Iterable[int]) -> str:
@@ -202,10 +277,14 @@ def canonical_deck_hash(card_ids: Iterable[int]) -> str:
 ADOPTED_CANONICAL_COUNTER_HASH = canonical_counter_hash(DECK_CARD_IDS)
 """Reproducible hash under the package's explicitly documented Counter format."""
 
-EXPECTED_SOURCE_DECK_HASH = "6fad93e49ed5f20753ffb920711346766def2e3ee7417ad67c7f24d03b1c2643"
+EXPECTED_SOURCE_DECK_HASH = (
+    "6fad93e49ed5f20753ffb920711346766def2e3ee7417ad67c7f24d03b1c2643"
+)
 """Requirements-document value retained as provenance-only; not recomputed here."""
 
-EXPECTED_DECK_FILE_SHA256 = "5ddb7ca2790518e3c1eac6e2ff8b7fdb6ff0a817bf888536349a090ec7582a9f"
+EXPECTED_DECK_FILE_SHA256 = (
+    "5ddb7ca2790518e3c1eac6e2ff8b7fdb6ff0a817bf888536349a090ec7582a9f"
+)
 """SHA-256 of the committed LF-terminated one-ID-per-line ``deck.csv`` bytes."""
 
 
@@ -725,6 +804,7 @@ ATTACK_META_BY_ID: Dict[int, AttackMeta] = {
     ),
     978: AttackMeta(
         attack_id=978,
+        semantics=AttackSemantics(self_damage=70),
         name="Wild Press",
         source_card_id=674,
         role=AttackRole.ONE_PRIZE_HIGH_DAMAGE,
@@ -743,6 +823,11 @@ ATTACK_META_BY_ID: Dict[int, AttackMeta] = {
     ),
     980: AttackMeta(
         attack_id=980,
+        semantics=AttackSemantics(
+            condition=AttackCondition.LUNATONE_ON_BENCH,
+            condition_false_damage=0,
+            ignores_weakness_resistance=True,
+        ),
         name="Cosmic Beam",
         source_card_id=676,
         role=AttackRole.BRIDGE_ATTACK,
@@ -755,6 +840,7 @@ ATTACK_META_BY_ID: Dict[int, AttackMeta] = {
     ),
     981: AttackMeta(
         attack_id=981,
+        semantics=AttackSemantics(same_attack_lock_next_own_turn=True),
         name="Accelerating Stab",
         source_card_id=677,
         role=AttackRole.EARLY_ATTACK,
@@ -764,6 +850,12 @@ ATTACK_META_BY_ID: Dict[int, AttackMeta] = {
     ),
     982: AttackMeta(
         attack_id=982,
+        semantics=AttackSemantics(
+            callback_kind=AttackCallbackKind.AURA_BASIC_FIGHTING_TO_BENCH,
+            callback_max_count=3,
+            callback_source_basic_energy_card_id=6,
+            callback_targets_bench_only=True,
+        ),
         name="Aura Jab",
         source_card_id=678,
         role=AttackRole.AURA_ACCELERATION,
@@ -777,6 +869,7 @@ ATTACK_META_BY_ID: Dict[int, AttackMeta] = {
     ),
     983: AttackMeta(
         attack_id=983,
+        semantics=AttackSemantics(same_attack_lock_next_own_turn=True),
         name="Mega Brave",
         source_card_id=678,
         role=AttackRole.MEGA_BRAVE_FINISHER,
@@ -788,9 +881,15 @@ ATTACK_META_BY_ID: Dict[int, AttackMeta] = {
 
 
 REQUIRED_ATTACK_IDS = frozenset(ATTACK_META_BY_ID)
-CARD_ROLE_BY_ID = {card_id: meta.role.value for card_id, meta in CARD_META_BY_ID.items()}
-ATTACK_ROLE_BY_ID = {attack_id: meta.role.value for attack_id, meta in ATTACK_META_BY_ID.items()}
-ATTACK_TO_CARD_ID = {attack_id: meta.source_card_id for attack_id, meta in ATTACK_META_BY_ID.items()}
+CARD_ROLE_BY_ID = {
+    card_id: meta.role.value for card_id, meta in CARD_META_BY_ID.items()
+}
+ATTACK_ROLE_BY_ID = {
+    attack_id: meta.role.value for attack_id, meta in ATTACK_META_BY_ID.items()
+}
+ATTACK_TO_CARD_ID = {
+    attack_id: meta.source_card_id for attack_id, meta in ATTACK_META_BY_ID.items()
+}
 EFFECT_META_BY_CARD_ID = {
     card_id: meta.effects for card_id, meta in CARD_META_BY_ID.items() if meta.effects
 }
@@ -809,6 +908,9 @@ def get_attack_meta(attack_id: int) -> Optional[AttackMeta]:
 
 
 __all__ = [
+    "AttackCallbackKind",
+    "AttackCondition",
+    "AttackSemantics",
     "ADOPTED_CANONICAL_COUNTER_HASH",
     "ATTACK_META",
     "ATTACK_META_BY_ID",
