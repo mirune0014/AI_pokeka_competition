@@ -3,12 +3,14 @@ from dataclasses import replace
 import pytest
 
 from mega_lucario_rule_agent.resource_ledger import (
+    MANUAL_ATTACH_ENERGY_RESERVATION_ID,
     InsufficientUnreservedResources,
     ReservationKind,
     ResourceLedger,
     ResourceLedgerError,
     prove_deck_availability,
     prove_deck_availability_from_state,
+    reserve_manual_attach_energy,
 )
 from mega_lucario_rule_agent.state_view import (
     AreaType,
@@ -394,3 +396,31 @@ def test_state_availability_collects_known_own_zones_and_rejects_looking_state()
     selecting_proof = prove_deck_availability_from_state(selecting, (678,))
     assert not selecting_proof.is_guaranteed
     assert "UNSTABLE_SELECTION_CONTEXT" in selecting_proof.rejection_reasons
+
+
+def test_manual_attach_helper_hard_reserves_one_exact_visible_fighting_energy():
+    energy = ref(6, 501)
+    surplus = ref(6, 502)
+    ledger = ResourceLedger((surplus, energy))
+    reserved = reserve_manual_attach_energy(ledger, energy)
+
+    reservation = reserved.get_reservation(MANUAL_ATTACH_ENERGY_RESERVATION_ID)
+    assert reservation is not None
+    assert reservation.kind is ReservationKind.HARD_RESERVED
+    assert reservation.refs == (energy,)
+    assert reservation.role_card_ids == (6,)
+    assert reserved.is_hard_reserved(energy)
+    assert not ledger.is_reserved(energy)
+
+    with pytest.raises(ResourceLedgerError, match="already exists"):
+        reserve_manual_attach_energy(reserved, surplus)
+    with pytest.raises(ResourceLedgerError, match="HAND Fighting Energy"):
+        reserve_manual_attach_energy(ledger, ref(677, 503))
+    with pytest.raises(ResourceLedgerError, match="HAND Fighting Energy"):
+        reserve_manual_attach_energy(ledger, ref(6, 501, zone=AreaType.DISCARD))
+
+    released = reserved.release(MANUAL_ATTACH_ENERGY_RESERVATION_ID)
+    assert released.affords((energy,))
+    assert released.affords((surplus,))
+    assert released.reservations == ()
+    assert ledger.reservations == ()

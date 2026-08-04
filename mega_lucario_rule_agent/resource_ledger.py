@@ -43,6 +43,11 @@ class ReservationKind(IntEnum):
     MATCHUP_MINIMUM = 3
     ROLE_RESERVED_ONE = 4
 
+MANUAL_ATTACH_ENERGY_RESERVATION_ID = (
+    "R_ATTACH_001_MANUAL_FIGHTING_ENERGY"
+)
+
+
 
 FIXED_DECK_COUNTS = tuple(
     sorted((int(card_id), int(count)) for card_id, count in DECK_COUNTER.items())
@@ -512,6 +517,38 @@ class ResourceLedger:
         )
 
 
+def reserve_manual_attach_energy(
+    ledger: ResourceLedger,
+    source_ref: PhysicalRef,
+) -> ResourceLedger:
+    """Hard-reserve the one exact hand Energy owned by R-ATTACH-001."""
+
+    if not isinstance(ledger, ResourceLedger):
+        raise ResourceLedgerError("manual attach reservation requires a ledger")
+    _require_exact_ref(source_ref)
+    if (
+        source_ref.card_id != 6
+        or source_ref.zone != int(AreaType.HAND)
+        or ledger.owner is None
+        or source_ref.owner != ledger.owner
+        or source_ref not in ledger.visible_refs
+    ):
+        raise ResourceLedgerError(
+            "manual attach reservation requires one visible own HAND Fighting Energy"
+        )
+    if ledger.get_reservation(MANUAL_ATTACH_ENERGY_RESERVATION_ID) is not None:
+        raise ResourceLedgerError("manual attach reservation already exists")
+    if ledger.reservation_for(source_ref) is not None:
+        raise ResourceLedgerError("manual attach source is already reserved")
+    return ledger.reserve_exact(
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ReservationKind.HARD_RESERVED,
+        "R-ATTACH-001 current-turn manual Fighting Energy",
+        (source_ref,),
+        role_card_ids=(6,),
+    )
+
+
 @dataclass(frozen=True)
 class DeckAvailabilityProof:
     card_ids: Tuple[int, ...]
@@ -743,10 +780,12 @@ __all__ = [
     "FIXED_DECK_COUNTER_HASH",
     "FIXED_DECK_SIZE",
     "InsufficientUnreservedResources",
+    "MANUAL_ATTACH_ENERGY_RESERVATION_ID",
     "Reservation",
     "ReservationKind",
     "ResourceLedger",
     "ResourceLedgerError",
     "prove_deck_availability",
     "prove_deck_availability_from_state",
+    "reserve_manual_attach_energy",
 ]
