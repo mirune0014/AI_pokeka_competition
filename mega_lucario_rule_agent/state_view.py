@@ -238,6 +238,8 @@ class PublicState:
     select_type: Optional[int] = None
     looking_open: bool = False
     select_deck_open: bool = False
+    remaining_damage_counter: Optional[int] = None
+    remaining_energy_cost: Optional[int] = None
 
     @property
     def own_active(self) -> Optional[PokemonView]:
@@ -371,6 +373,8 @@ class PromptFingerprint:
     relevant_zone_fingerprint: str
     looking_open: bool
     select_deck_open: bool
+    remaining_damage_counter: Optional[int]
+    remaining_energy_cost: Optional[int]
 
     def digest(self) -> str:
         payload = {
@@ -392,6 +396,8 @@ class PromptFingerprint:
             "relevant_zone_fingerprint": self.relevant_zone_fingerprint,
             "looking_open": self.looking_open,
             "select_deck_open": self.select_deck_open,
+            "remaining_damage_counter": self.remaining_damage_counter,
+            "remaining_energy_cost": self.remaining_energy_cost,
         }
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -606,6 +612,10 @@ def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
         select_type=as_int(read_field(select, "type")),
         looking_open=looking_open,
         select_deck_open=read_field(select, "deck") is not None,
+        remaining_damage_counter=as_int(
+            read_field(select, "remainDamageCounter")
+        ),
+        remaining_energy_cost=as_int(read_field(select, "remainEnergyCost")),
     )
 
 
@@ -849,6 +859,8 @@ def relevant_zone_fingerprint(state: PublicState) -> str:
         "context": context,
         "looking_open": state.looking_open,
         "select_deck_open": state.select_deck_open,
+        "remaining_damage_counter": state.remaining_damage_counter,
+        "remaining_energy_cost": state.remaining_energy_cost,
     }
     if context == int(SelectContext.MAIN):
         payload["board"] = _public_board_payload(state)
@@ -910,6 +922,8 @@ def make_prompt_fingerprint(
         relevant_zone_fingerprint=relevant_zone_fingerprint(state),
         looking_open=state.looking_open,
         select_deck_open=state.select_deck_open,
+        remaining_damage_counter=state.remaining_damage_counter,
+        remaining_energy_cost=state.remaining_energy_cost,
     )
 
 
@@ -927,6 +941,8 @@ def public_state_fingerprint(state: PublicState) -> str:
             state.max_count,
             state.looking_open,
             state.select_deck_open,
+            state.remaining_damage_counter,
+            state.remaining_energy_cost,
         ),
         "effect_ref": None if state.effect_ref is None else state.effect_ref.sort_key(),
         "context_ref": None if state.context_ref is None else state.context_ref.sort_key(),
@@ -949,6 +965,8 @@ def is_stable_main_state(state: PublicState) -> bool:
         and not state.looking_refs
         and not state.looking_open
         and not state.select_deck_open
+        and state.remaining_damage_counter == 0
+        and state.remaining_energy_cost == 0
         and state.turn > 0
         and state.turn_action_count >= 0
         and state.result == -1

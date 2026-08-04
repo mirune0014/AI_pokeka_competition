@@ -100,6 +100,8 @@ def state():
         effect_ref=None,
         context_ref=None,
         select_type=int(SelectType.MAIN),
+        remaining_damage_counter=0,
+        remaining_energy_cost=0,
     )
 
 

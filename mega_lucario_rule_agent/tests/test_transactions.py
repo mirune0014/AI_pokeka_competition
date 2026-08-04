@@ -83,6 +83,8 @@ def state(
     max_count=1,
     looking_open=False,
     deck_open=False,
+    remaining_damage=0,
+    remaining_energy=0,
     result=-1,
 ):
     effect_ref = (
@@ -120,6 +122,8 @@ def state(
         select_type=int(select_type),
         looking_open=looking_open,
         select_deck_open=deck_open,
+        remaining_damage_counter=remaining_damage,
+        remaining_energy_cost=remaining_energy,
     )
 
 
@@ -479,6 +483,13 @@ def test_postcommit_unexpected_prompt_latches_fault_until_strict_main_boundary()
     not_stable = state(action_count=7, looking_open=True)
     still_held = store.resume(not_stable, options(END_KEY))
     assert still_held.status == ResumeStatus.FAULT_CONTAINMENT
+    assert store.has_owner
+
+    remaining_cost = store.resume(
+        state(action_count=7, remaining_energy=1),
+        options(END_KEY),
+    )
+    assert remaining_cost.status == ResumeStatus.FAULT_CONTAINMENT
     assert store.has_owner
 
     released = store.resume(state(action_count=7), options(END_KEY))

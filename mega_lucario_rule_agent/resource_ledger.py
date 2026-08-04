@@ -673,6 +673,8 @@ def prove_deck_availability_from_state(
         or state.effect_ref is not None
         or state.context_ref is not None
         or state.select_deck_open
+        or state.remaining_damage_counter != 0
+        or state.remaining_energy_cost != 0
         or state.turn <= 0
         or state.result != -1
     ):

@@ -45,6 +45,8 @@ def observation(options, context=SelectContext.MAIN, min_count=1, max_count=1):
             "context": int(context),
             "minCount": min_count,
             "maxCount": max_count,
+            "remainDamageCounter": 0,
+            "remainEnergyCost": 0,
             "option": options,
             "deck": None,
             "contextCard": None,
@@ -359,6 +361,8 @@ def test_selection_surface_flags_distinguish_closed_and_empty_open_zones():
     assert closed_state.select_type == int(SelectType.MAIN)
     assert not closed_state.looking_open
     assert not closed_state.select_deck_open
+    assert closed_state.remaining_damage_counter == 0
+    assert closed_state.remaining_energy_cost == 0
 
     opened = deepcopy(obs)
     opened["current"]["looking"] = []
@@ -405,8 +409,36 @@ def test_stable_main_requires_a_fully_closed_main_selection_surface():
     wrong_counts = deepcopy(obs)
     wrong_counts["select"]["minCount"] = 0
     variants.append(wrong_counts)
+    remaining_damage = deepcopy(obs)
+    remaining_damage["select"]["remainDamageCounter"] = 1
+    variants.append(remaining_damage)
+    remaining_energy = deepcopy(obs)
+    remaining_energy["select"]["remainEnergyCost"] = 1
+    variants.append(remaining_energy)
 
     assert all(
         not is_stable_main_state(build_public_state(variant))
         for variant in variants
     )
+
+
+def test_remaining_selection_costs_change_state_and_prompt_fingerprints():
+    obs = observation([hand_card_option(0)])
+    baseline = build_public_state(obs)
+    baseline_prompt = make_prompt_fingerprint(
+        baseline,
+        build_semantic_options(obs),
+    )
+
+    for field in ("remainDamageCounter", "remainEnergyCost"):
+        changed = deepcopy(obs)
+        changed["select"][field] = 1
+        changed_state = build_public_state(changed)
+        changed_prompt = make_prompt_fingerprint(
+            changed_state,
+            build_semantic_options(changed),
+        )
+        assert public_state_fingerprint(changed_state) != public_state_fingerprint(
+            baseline
+        )
+        assert changed_prompt.digest() != baseline_prompt.digest()
