@@ -790,6 +790,16 @@ EFFECT_BINDINGS: Tuple[EffectBinding, ...] = (
         "Nighttime Mine",
         "0a420e41475097553586efda1eef52b21525c67df1b0fbc199e42e5718cb5856",
     ),
+    _binding(
+        "POKE_PAD_CORE_SEARCH",
+        EffectPhase.NON_COMBAT,
+        1152,
+        EntryKind.SKILL,
+        0,
+        "Pok\u00e9 Pad",
+        "Pok\u00e9 Pad",
+        "b5e9db9a4bf1478147daa3bc4eaee3be7344337b60c71a70b30f1dab68200d4d",
+    ),
 )
 
 
@@ -924,7 +934,7 @@ def _manifest_sha256() -> str:
 
 EFFECT_MANIFEST_SHA256 = _manifest_sha256()
 EXPECTED_EFFECT_MANIFEST_SHA256 = (
-    "9b34f65531e6a53113a822225fe9894ee584ba71661a4c17c60b1e9042caa897"
+    "115efef4fad9b81b0daf6c169962b3362a599643698ea27fa81c02284f53af4d"
 )
 if EFFECT_MANIFEST_SHA256 != EXPECTED_EFFECT_MANIFEST_SHA256:
     raise RuntimeError("public effect manifest changed without an explicit audit")

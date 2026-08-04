@@ -13,11 +13,14 @@ try:  # Package import in tests.
         attack_outcome_proof,
         basic_bench_proof,
         first_turn_riolu_attach_proof,
+        poke_pad_core_eligible_classes,
+        poke_pad_core_formation_proof,
     )
     from .features import DeckFeatures
     from .public_effects import PublicEffectRegistry
     from .resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        prove_deck_availability_from_state,
     )
     from .resolver import (
         Proposal,
@@ -26,6 +29,7 @@ try:  # Package import in tests.
         canonical_proposal_tiebreak,
     )
     from .state_view import ActionSpec, OptionType, PublicState, SemanticOption
+    from .transactions import build_poke_pad_core_search_plan
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import BoundAttackOutcomeTable
     from certificates import (
@@ -33,15 +37,23 @@ except ImportError:  # Flat submission import from main.py.
         attack_outcome_proof,
         basic_bench_proof,
         first_turn_riolu_attach_proof,
+        poke_pad_core_eligible_classes,
+        poke_pad_core_formation_proof,
     )
     from features import DeckFeatures
     from public_effects import PublicEffectRegistry
     from resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        prove_deck_availability_from_state,
     )
-    from resolver import Proposal, ResolverTier, canonical_proposal_tiebreak
+    from resolver import (
+        Proposal,
+        ResourceCost,
+        ResolverTier,
+        canonical_proposal_tiebreak,
+    )
     from state_view import ActionSpec, OptionType, PublicState, SemanticOption
-    from resolver import ResourceCost
+    from transactions import build_poke_pad_core_search_plan
 
 
 _ATTACK_TIERS = {
@@ -241,8 +253,94 @@ def enumerate_first_turn_riolu_attach_routes(
     return ()
 
 
+def enumerate_poke_pad_core_search_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
+    registry: PublicEffectRegistry,
+) -> Tuple[Proposal, ...]:
+    """Emit at most one closed Poke Pad core-formation transaction."""
+
+    if not isinstance(state, PublicState):
+        raise ValueError("Poke Pad routes require a PublicState")
+    if not isinstance(features, DeckFeatures):
+        raise ValueError("Poke Pad routes require checked DeckFeatures")
+    if not isinstance(attack_outcomes, BoundAttackOutcomeTable):
+        raise ValueError("Poke Pad routes require a checked attack table")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("Poke Pad routes require a checked registry")
+    if not features.matches(state, legal_options, registry):
+        return ()
+    classes = poke_pad_core_eligible_classes(state)
+    if not classes:
+        return ()
+    acceptable_ids = tuple(
+        sorted(card_id for card_class in classes for card_id in card_class)
+    )
+    availability = prove_deck_availability_from_state(
+        state,
+        acceptable_ids,
+        required_count=1,
+    )
+    if not availability.is_guaranteed:
+        return ()
+    for option in sorted(
+        legal_options,
+        key=lambda value: value.key.sort_key(),
+    ):
+        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1152:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        try:
+            proof = poke_pad_core_formation_proof(
+                state,
+                legal_options,
+                registry,
+                features,
+                attack_outcomes,
+                availability,
+                action_spec,
+            )
+        except ValueError:
+            continue
+        source_fact = proof.fact("source_ref")
+        source_refs = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == source_fact
+        )
+        if len(source_refs) != 1:
+            continue
+        transaction_plan = build_poke_pad_core_search_plan(
+            state,
+            source_refs[0],
+            action_spec,
+            classes,
+            availability,
+            proof.digest(),
+        )
+        return (
+            Proposal(
+                rule_id="R_SEARCH_POKE_PAD_CORE_FORMATION_V1",
+                tier=ResolverTier.ROUTE_CRITICAL_SEARCH,
+                action_spec=action_spec,
+                certificate_kind=CertificateKind.RESOURCE_IMPROVEMENT,
+                proof=proof,
+                resource_cost=ResourceCost(source_refs),
+                transaction_plan=transaction_plan,
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+    return ()
+
+
 __all__ = [
     "enumerate_attack_routes",
     "enumerate_basic_bench_routes",
     "enumerate_first_turn_riolu_attach_routes",
+    "enumerate_poke_pad_core_search_routes",
 ]

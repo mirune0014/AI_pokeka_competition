@@ -17,6 +17,9 @@ try:  # Package import in tests.
         PhysicalRef,
         PromptFingerprint,
         PublicState,
+        SelectContext,
+        SelectType,
+        public_state_fingerprint,
         SemanticBindError,
         SemanticOption,
         is_stable_main_state,
@@ -36,6 +39,9 @@ except ImportError:  # Flat submission import from main.py.
         PhysicalRef,
         PromptFingerprint,
         PublicState,
+        SelectContext,
+        SelectType,
+        public_state_fingerprint,
         SemanticBindError,
         SemanticOption,
         is_stable_main_state,
@@ -456,6 +462,112 @@ class TransactionPlan:
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest()
+
+
+def build_poke_pad_core_search_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    ordered_card_id_classes: Sequence[Sequence[int]],
+    availability_proof: DeckAvailabilityProof,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Build the one approved Poke Pad initiation/search transaction."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Poke Pad search plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    if (
+        source_ref.card_id != 1152
+        or source_ref.owner != state.seat
+        or source_ref.zone != int(AreaType.HAND)
+        or source_ref not in state.own.hand_refs
+    ):
+        raise ValueError("Poke Pad search source must be one exact own HAND card")
+    if not isinstance(action_spec, ActionSpec) or len(action_spec.choices) != 1:
+        raise ValueError("Poke Pad search plan requires one initiation action")
+    _validate_persisted_action_spec(action_spec)
+    key = action_spec.choices[0]
+    if (
+        key.option_type != int(OptionType.PLAY)
+        or key.player_index != state.seat
+        or key.card_id != source_ref.card_id
+        or key.card_serial != source_ref.serial
+        or key.source_zone != source_ref.zone
+    ):
+        raise ValueError("Poke Pad initiation must bind the exact physical source")
+    if not isinstance(availability_proof, DeckAvailabilityProof):
+        raise ValueError("Poke Pad plan requires a deck availability proof")
+    if (
+        not isinstance(proof_digest, str)
+        or len(proof_digest) != 64
+        or any(character not in "0123456789abcdef" for character in proof_digest)
+    ):
+        raise ValueError("Poke Pad plan requires a lowercase proof SHA-256")
+    classes = tuple(tuple(card_ids) for card_ids in ordered_card_id_classes)
+    policy = DeferredCardClassChoice(
+        ordered_card_id_classes=classes,
+        owner=state.seat,
+        allowed_source_zones=(int(AreaType.DECK),),
+        option_type=int(OptionType.CARD),
+        selection_count=1,
+        require_match=True,
+        availability_proof=availability_proof,
+    )
+    transaction_payload = {
+        "profile": "R_SEARCH_POKE_PAD_CORE_FORMATION_V1",
+        "state": public_state_fingerprint(state),
+        "source_ref": source_ref.sort_key(),
+        "action": action_spec.canonical(),
+        "classes": classes,
+        "availability": availability_proof.canonical(),
+        "proof_digest": proof_digest,
+    }
+    transaction_hash = hashlib.sha256(
+        json.dumps(
+            transaction_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="POKE_PAD_CORE_{0}".format(transaction_hash[:24]),
+        owner_kind=OwnerKind.SEARCH_RESOLUTION,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(),
+        reserved_refs=(),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            expected_effect_ref=None,
+            expected_context_ref=None,
+            effect_or_attack_id=1152,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_SEARCH_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.TO_HAND),
+                expected_min_count=0,
+                expected_max_count=1,
+                action_spec=None,
+                irreversible_on_emit=False,
+                expected_effect_ref=source_ref,
+                expected_context_ref=None,
+                effect_or_attack_id=1152,
+                deferred_card_choice=policy,
+            ),
+        ),
+    )
 
 
 _STATE_ISSUER_TOKEN = object()
@@ -1198,4 +1310,5 @@ __all__ = [
     "TransactionStep",
     "TransactionStore",
     "TransactionStoreError",
+    "build_poke_pad_core_search_plan",
 ]

@@ -18,7 +18,9 @@ try:  # Package import in tests.
     )
     from .public_effects import PublicEffectRegistry
     from .resource_ledger import (
+        DeckAvailabilityProof,
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        prove_deck_availability_from_state,
     )
     from .state_view import (
         ActionSpec,
@@ -39,7 +41,9 @@ except ImportError:  # Flat submission import from main.py.
     from features import DeckFeatures, PublicMatchupFlag
     from public_effects import PublicEffectRegistry
     from resource_ledger import (
+        DeckAvailabilityProof,
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        prove_deck_availability_from_state,
     )
     from state_view import (
         ActionSpec,
@@ -72,6 +76,7 @@ class ProofSchema(str, Enum):
     SAFE_FALLBACK_V1 = "safe_fallback_v1"
     ATTACK_OUTCOME_V1 = "attack_outcome_v1"
     BASIC_BENCH_V1 = "basic_bench_v1"
+    POKE_PAD_CORE_FORMATION_V1 = "poke_pad_core_formation_v1"
     FIRST_TURN_RIOLU_ATTACH_V1 = "first_turn_riolu_attach_v1"
 
 
@@ -83,6 +88,17 @@ FIRST_TURN_RIOLU_ATTACH_UNRESOLVED = (
     "ALTERNATIVE_NEXT_TURN_PRIZE",
     "NEXT_OPPONENT_TURN_MAX_DAMAGE",
 )
+
+POKE_PAD_CORE_COVERAGE_SCOPE = "POKE_PAD_CORE_FORMATION_ONLY"
+POKE_PAD_CORE_UNRESOLVED_PRIORITIES = (
+    "CURRENT_TURN_WIN_OR_PRIZE_SEARCH",
+    "CURRENT_ATTACK_COMPLETION_SEARCH",
+    "SAME_ATTACK_NEXT_ATTACKER_SEARCH",
+    "MATCHUP_AND_SECOND_LINE_SEARCH",
+)
+POKE_PAD_EFFECT_ID = "POKE_PAD_CORE_SEARCH"
+POKE_PAD_CARD_ID = 1152
+POKE_PAD_ITEM_CARD_TYPE = 1
 _FIGHTING_ENERGY_CARD_ID = 6
 _RIOLU_CARD_ID = 677
 _ACCELERATING_STAB_ATTACK_ID = 981
@@ -244,6 +260,9 @@ class CertificateProof:
             ProofSchema.BASIC_BENCH_V1: {
                 CertificateKind.FIRST_ATTACK_ACCELERATION,
                 CertificateKind.ENGINE_COMPLETION,
+                CertificateKind.RESOURCE_IMPROVEMENT,
+            },
+            ProofSchema.POKE_PAD_CORE_FORMATION_V1: {
                 CertificateKind.RESOURCE_IMPROVEMENT,
             },
             ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: {
@@ -851,6 +870,231 @@ def basic_bench_proof(
     )
 
 
+def poke_pad_core_eligible_classes(
+    state: PublicState,
+) -> Tuple[Tuple[int, ...], ...]:
+    """Return only currently missing core Basic roles in approved order."""
+
+    if not isinstance(state, PublicState):
+        raise ValueError("Poke Pad role derivation requires a PublicState")
+    known_ids = {
+        int(ref_value.card_id)
+        for ref_value in state.own.hand_refs
+        if _is_exact_int(ref_value.card_id)
+    }
+    for pokemon in state.own.active + state.own.bench:
+        if _is_exact_int(pokemon.ref.card_id):
+            known_ids.add(int(pokemon.ref.card_id))
+        known_ids.update(
+            int(ref_value.card_id)
+            for ref_value in pokemon.pre_evolution_refs
+            if _is_exact_int(ref_value.card_id)
+        )
+    classes = []
+    for engine_card_id in (675, 676):
+        if engine_card_id not in known_ids:
+            classes.append((engine_card_id,))
+    if not known_ids.intersection((677, 678)):
+        classes.append((677,))
+    return tuple(classes)
+
+
+def _poke_pad_source_rows(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+) -> Tuple[Tuple[SemanticOptionKey, PhysicalRef], ...]:
+    rows = []
+    hand_refs = {
+        (
+            ref_value.card_id,
+            ref_value.serial,
+            ref_value.owner,
+            ref_value.zone,
+        ): ref_value
+        for ref_value in state.own.hand_refs
+        if ref_value.card_id == POKE_PAD_CARD_ID
+    }
+    for option in legal_options:
+        key = option.key
+        expected = SemanticOptionKey(
+            option_type=int(OptionType.PLAY),
+            player_index=state.seat,
+            card_id=POKE_PAD_CARD_ID,
+            card_serial=key.card_serial,
+            source_zone=int(AreaType.HAND),
+        )
+        if key != expected or not _is_exact_int(key.card_serial) or key.card_serial < 0:
+            continue
+        source_ref = hand_refs.get(
+            (
+                POKE_PAD_CARD_ID,
+                int(key.card_serial),
+                state.seat,
+                int(AreaType.HAND),
+            )
+        )
+        if source_ref is not None:
+            rows.append((key, source_ref))
+    return tuple(
+        sorted(
+            rows,
+            key=lambda row: (int(row[1].serial), row[0].sort_key()),
+        )
+    )
+
+
+def _poke_pad_attack_preservation_facts(
+    attack_outcomes: BoundAttackOutcomeTable,
+) -> Tuple[Tuple[object, ...], ...]:
+    if attack_outcomes.rows:
+        if attack_outcomes.build_unknown_reasons or any(
+            not row.exact or row.callback is not None for row in attack_outcomes.rows
+        ):
+            raise ValueError("Poke Pad requires exact current attack rows")
+    elif attack_outcomes.build_unknown_reasons != ("NO_ATTACK_OPTION",):
+        raise ValueError("Poke Pad requires an exact empty attack surface")
+    return tuple(
+        (
+            row.option_key.canonical(),
+            row.attack_id,
+            row.exact_game_win,
+            row.exact_ko,
+            row.prizes_taken,
+            row.wins_game,
+        )
+        for row in attack_outcomes.rows
+    )
+
+
+def poke_pad_core_formation_proof(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+    features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
+    availability_proof: DeckAvailabilityProof,
+    action_spec: ActionSpec,
+) -> CertificateProof:
+    """Certify the narrow Poke Pad engine/first-Riolu formation prefix."""
+
+    if not is_stable_main_state(state):
+        raise ValueError("Poke Pad search requires stable MAIN")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("Poke Pad search requires a checked registry")
+    if not isinstance(features, DeckFeatures) or not features.matches(
+        state,
+        legal_options,
+        registry,
+    ):
+        raise ValueError("Poke Pad search requires current checked features")
+    if not isinstance(attack_outcomes, BoundAttackOutcomeTable) or not (
+        attack_outcomes.matches(state, legal_options, registry)
+    ):
+        raise ValueError("Poke Pad search requires the current attack table")
+    attack_facts = _poke_pad_attack_preservation_facts(attack_outcomes)
+    effect_profile = registry.effect_profile(POKE_PAD_CARD_ID)
+    if (
+        effect_profile is None
+        or effect_profile.card_name != "poke pad"
+        or effect_profile.card_type != POKE_PAD_ITEM_CARD_TYPE
+        or effect_profile.energy_type != 0
+        or not effect_profile.all_skills_registered
+        or len(effect_profile.skill_signatures) != 1
+        or effect_profile.registered_skill_effect_ids != (POKE_PAD_EFFECT_ID,)
+        or not registry.binding_admitted(
+            POKE_PAD_EFFECT_ID,
+            card_id=POKE_PAD_CARD_ID,
+            entry_id=0,
+        )
+    ):
+        raise ValueError("Poke Pad catalog/effect identity is not fully admitted")
+    if features.safe_bench_slots <= 0:
+        raise ValueError("Poke Pad target has no flex-safe Bench slot")
+    classes = poke_pad_core_eligible_classes(state)
+    if not classes:
+        raise ValueError("Poke Pad has no missing approved core role")
+    acceptable_ids = tuple(
+        sorted(card_id for card_class in classes for card_id in card_class)
+    )
+    current_availability = prove_deck_availability_from_state(
+        state,
+        acceptable_ids,
+        required_count=1,
+    )
+    if (
+        not isinstance(availability_proof, DeckAvailabilityProof)
+        or availability_proof != current_availability
+        or not availability_proof.is_guaranteed
+        or availability_proof.rejection_reasons
+    ):
+        raise ValueError("Poke Pad acceptable union is not guaranteed in deck")
+    if len(action_spec.choices) != 1:
+        raise ValueError("Poke Pad search requires one initiation action")
+    source_rows = _poke_pad_source_rows(state, legal_options)
+    if not source_rows or action_spec.choices[0] != source_rows[0][0]:
+        raise ValueError("Poke Pad source is not the lowest legal physical serial")
+    try:
+        rebound = action_spec.bind(
+            legal_options,
+            min_count=state.min_count,
+            max_count=state.max_count,
+        )
+    except SemanticBindError as error:
+        raise ValueError("Poke Pad PLAY must bind uniquely") from error
+    if len(rebound) != 1:
+        raise ValueError("Poke Pad PLAY must resolve to one option")
+    source_ref = source_rows[0][1]
+    attack_required_refs = tuple(
+        ref_value.sort_key()
+        for ref_value in (attack_outcomes.attacker_ref, attack_outcomes.target_ref)
+        if ref_value is not None
+    )
+    return _make_proof(
+        kind=CertificateKind.RESOURCE_IMPROVEMENT,
+        schema=ProofSchema.POKE_PAD_CORE_FORMATION_V1,
+        state=state,
+        action_spec=action_spec,
+        is_valid=True,
+        guaranteed_prizes=0,
+        facts={
+            "legal_options_fingerprint": legal_options_fingerprint(legal_options),
+            "registry_digest": registry.digest,
+            "features_digest": features.digest(),
+            "attack_state_fingerprint": attack_outcomes.state_fingerprint,
+            "attack_options_fingerprint": (
+                attack_outcomes.semantic_options_fingerprint
+            ),
+            "attack_registry_digest": attack_outcomes.registry_digest,
+            "attack_build_reasons": attack_outcomes.build_unknown_reasons,
+            "attack_rows": attack_facts,
+            "attack_required_refs_preserved": attack_required_refs,
+            "option_type": int(OptionType.PLAY),
+            "source_ref": source_ref,
+            "source_card_id": POKE_PAD_CARD_ID,
+            "source_effect_id": POKE_PAD_EFFECT_ID,
+            "source_effect_profile": effect_profile.canonical(),
+            "resource_cost_refs": (source_ref,),
+            "consumes_attack_action": False,
+            "consumes_manual_attach": False,
+            "consumes_supporter": False,
+            "manual_attach_used_before": features.manual_attach_used,
+            "supporter_used_before": features.supporter_used,
+            "eligible_classes": classes,
+            "eligible_acceptable_ids": acceptable_ids,
+            "availability_proof": availability_proof.canonical(),
+            "required_count": 1,
+            "safe_bench_slots_before": features.safe_bench_slots,
+            "coverage_scope": POKE_PAD_CORE_COVERAGE_SCOPE,
+            "full_requirement_covered": False,
+            "unresolved_higher_search_priorities": (
+                POKE_PAD_CORE_UNRESOLVED_PRIORITIES
+            ),
+            "acceptable_set_preservation_outside_scope": False,
+        },
+        rejection_reasons=(),
+    )
+
+
 def attack_outcome_proof(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
@@ -963,7 +1207,13 @@ __all__ = [
     "FIRST_TURN_RIOLU_ATTACH_COVERAGE",
     "FIRST_TURN_RIOLU_ATTACH_SCOPE",
     "FIRST_TURN_RIOLU_ATTACH_UNRESOLVED",
+    "POKE_PAD_CARD_ID",
+    "POKE_PAD_CORE_COVERAGE_SCOPE",
+    "POKE_PAD_CORE_UNRESOLVED_PRIORITIES",
+    "POKE_PAD_EFFECT_ID",
     "ProofSchema",
+    "poke_pad_core_eligible_classes",
+    "poke_pad_core_formation_proof",
     "attack_outcome_proof",
     "basic_bench_proof",
     "first_turn_riolu_attach_proof",

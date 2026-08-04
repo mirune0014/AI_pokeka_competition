@@ -44,6 +44,7 @@ try:  # Package imports used by tests.
         enumerate_attack_routes,
         enumerate_basic_bench_routes,
         enumerate_first_turn_riolu_attach_routes,
+        enumerate_poke_pad_core_search_routes,
     )
     from .state_view import (
         AreaType,
@@ -86,6 +87,7 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
         enumerate_attack_routes,
         enumerate_basic_bench_routes,
         enumerate_first_turn_riolu_attach_routes,
+        enumerate_poke_pad_core_search_routes,
     )
     from state_view import (
         AreaType,
@@ -506,6 +508,13 @@ class AgentRuntime:
             registry,
         )
         if self._last_features is not None:
+            proposals += enumerate_poke_pad_core_search_routes(
+                state,
+                legal_options,
+                self._last_features,
+                attack_outcomes,
+                registry,
+            )
             attach_proposals = enumerate_first_turn_riolu_attach_routes(
                 state,
                 legal_options,

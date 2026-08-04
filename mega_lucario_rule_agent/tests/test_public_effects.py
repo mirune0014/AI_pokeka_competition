@@ -127,10 +127,10 @@ def test_catalog_normalization_is_unicode_and_whitespace_stable():
 def test_manifest_is_explicit_stable_and_complete():
     assert EFFECT_MANIFEST_SHA256 == EXPECTED_EFFECT_MANIFEST_SHA256
     assert EFFECT_MANIFEST_SHA256 == (
-        "9b34f65531e6a53113a822225fe9894ee584ba71661a4c17c60b1e9042caa897"
+        "115efef4fad9b81b0daf6c169962b3362a599643698ea27fa81c02284f53af4d"
     )
-    assert len(EFFECT_BINDINGS) == len(registry_manifest()) == 36
-    assert len(REQUIRED_EFFECT_IDS) == 36
+    assert len(EFFECT_BINDINGS) == len(registry_manifest()) == 37
+    assert len(REQUIRED_EFFECT_IDS) == 37
     keys = [
         (row.effect_id, row.card_id, row.entry_kind, row.entry_id)
         for row in EFFECT_BINDINGS

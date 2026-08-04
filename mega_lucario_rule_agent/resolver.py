@@ -15,6 +15,7 @@ import json
 from typing import Any, Optional, Sequence, Tuple
 
 try:  # Package import in tests.
+    from .attack_outcomes import build_attack_outcome_table
     from .certificates import (
         CertificateKind,
         CertificateProof,
@@ -22,6 +23,8 @@ try:  # Package import in tests.
         basic_bench_proof,
         first_turn_riolu_attach_proof,
         legal_options_fingerprint,
+        poke_pad_core_eligible_classes,
+        poke_pad_core_formation_proof,
     )
     from .features import build_deck_features
     from .public_effects import PublicEffectRegistry
@@ -30,6 +33,7 @@ try:  # Package import in tests.
         ReservationKind,
         ResourceLedger,
         ResourceLedgerError,
+        prove_deck_availability_from_state,
     )
     from .state_view import (
         ActionSpec,
@@ -40,8 +44,12 @@ try:  # Package import in tests.
         SemanticOption,
         public_state_fingerprint,
     )
-    from .transactions import TransactionPlan
+    from .transactions import (
+        TransactionPlan,
+        build_poke_pad_core_search_plan,
+    )
 except ImportError:  # Flat submission import from main.py.
+    from attack_outcomes import build_attack_outcome_table
     from certificates import (
         CertificateKind,
         CertificateProof,
@@ -49,6 +57,8 @@ except ImportError:  # Flat submission import from main.py.
         basic_bench_proof,
         first_turn_riolu_attach_proof,
         legal_options_fingerprint,
+        poke_pad_core_eligible_classes,
+        poke_pad_core_formation_proof,
     )
     from features import build_deck_features
     from public_effects import PublicEffectRegistry
@@ -57,6 +67,7 @@ except ImportError:  # Flat submission import from main.py.
         ReservationKind,
         ResourceLedger,
         ResourceLedgerError,
+        prove_deck_availability_from_state,
     )
     from state_view import (
         ActionSpec,
@@ -67,7 +78,10 @@ except ImportError:  # Flat submission import from main.py.
         SemanticOption,
         public_state_fingerprint,
     )
-    from transactions import TransactionPlan
+    from transactions import (
+        TransactionPlan,
+        build_poke_pad_core_search_plan,
+    )
 
 
 class ResolverTier(IntEnum):
@@ -287,6 +301,9 @@ _ALLOWED_KINDS_BY_SCHEMA = {
             CertificateKind.RESOURCE_IMPROVEMENT,
         )
     ),
+    ProofSchema.POKE_PAD_CORE_FORMATION_V1: frozenset(
+        (CertificateKind.RESOURCE_IMPROVEMENT,)
+    ),
     ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: frozenset(
         (CertificateKind.FIRST_ATTACK_ACCELERATION,)
     ),
@@ -306,6 +323,9 @@ _ALLOWED_TIERS_BY_SCHEMA = {
         )
     ),
     ProofSchema.BASIC_BENCH_V1: frozenset((ResolverTier.SAFE_ENGINE_COMPLETION,)),
+    ProofSchema.POKE_PAD_CORE_FORMATION_V1: frozenset(
+        (ResolverTier.ROUTE_CRITICAL_SEARCH,)
+    ),
     ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: frozenset(
         (ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,)
     ),
@@ -358,6 +378,12 @@ _ALLOWED_COMBINATIONS = frozenset(
             ProofSchema.BASIC_BENCH_V1,
             CertificateKind.RESOURCE_IMPROVEMENT,
             ResolverTier.SAFE_ENGINE_COMPLETION,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.POKE_PAD_CORE_FORMATION_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.ROUTE_CRITICAL_SEARCH,
             int(OptionType.PLAY),
         ),
         (
@@ -515,6 +541,24 @@ def canonical_proposal_tiebreak(
         return (
             int(OptionType.PLAY),
             int(purpose_priority),
+            int(key.card_id),
+            int(key.card_serial),
+        )
+    if (
+        key.option_type == int(OptionType.PLAY)
+        and proof.schema == ProofSchema.POKE_PAD_CORE_FORMATION_V1
+    ):
+        if (
+            isinstance(key.card_id, bool)
+            or not isinstance(key.card_id, int)
+            or key.card_id != 1152
+            or isinstance(key.card_serial, bool)
+            or not isinstance(key.card_serial, int)
+            or key.card_serial < 0
+        ):
+            return ()
+        return (
+            int(OptionType.PLAY),
             int(key.card_id),
             int(key.card_serial),
         )
@@ -719,6 +763,54 @@ def _validate_proposal(
                 else:
                     if expected_proof.digest() != proposal.proof.digest():
                         reasons.append("BASIC_BENCH_PROOF_MISMATCH")
+    elif proposal.proof.schema == ProofSchema.POKE_PAD_CORE_FORMATION_V1:
+        if proposal.proof.guaranteed_prizes != 0:
+            reasons.append("POKE_PAD_PRIZE_CLAIM_FORBIDDEN")
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        else:
+            try:
+                current_features = build_deck_features(
+                    state,
+                    legal_options,
+                    registry,
+                )
+                current_attack_outcomes = build_attack_outcome_table(
+                    state,
+                    legal_options,
+                    registry,
+                )
+                current_classes = poke_pad_core_eligible_classes(state)
+                current_acceptable_ids = tuple(
+                    sorted(
+                        card_id
+                        for card_class in current_classes
+                        for card_id in card_class
+                    )
+                )
+                current_availability = prove_deck_availability_from_state(
+                    state,
+                    current_acceptable_ids,
+                    required_count=1,
+                )
+                expected_proof = poke_pad_core_formation_proof(
+                    state,
+                    legal_options,
+                    registry,
+                    current_features,
+                    current_attack_outcomes,
+                    current_availability,
+                    proposal.action_spec,
+                )
+            except (RuntimeError, ValueError):
+                reasons.append("POKE_PAD_RECOMPUTE_REJECTED")
+            else:
+                if proposal.proof.fact("registry_digest") != registry.digest:
+                    reasons.append("PROOF_REGISTRY_STALE")
+                if proposal.proof.fact("features_digest") != current_features.digest():
+                    reasons.append("POKE_PAD_FEATURES_STALE")
+                if expected_proof.digest() != proposal.proof.digest():
+                    reasons.append("POKE_PAD_PROOF_MISMATCH")
     elif proposal.proof.schema == ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1:
         if proposal.proof.guaranteed_prizes != 0:
             reasons.append("RIOLU_ATTACH_PRIZE_CLAIM_FORBIDDEN")
@@ -791,7 +883,63 @@ def _validate_proposal(
                 reasons.append(
                     "BASIC_BENCH_SOURCE_RESERVED:{0}".format(reservation.reservation_id)
                 )
-    if proposal.proof.schema == ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1:
+    if proposal.proof.schema == ProofSchema.POKE_PAD_CORE_FORMATION_V1:
+        source_fact = proposal.proof.fact("source_ref")
+        source_matches = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == source_fact
+        )
+        source_ref = source_matches[0] if len(source_matches) == 1 else None
+        if source_ref is None:
+            reasons.append("POKE_PAD_SOURCE_REF_INVALID")
+        elif source_ref not in ledger.visible_refs:
+            reasons.append("POKE_PAD_SOURCE_NOT_IN_LEDGER")
+        if source_ref is None or proposal.resource_cost.irreversible_refs != (
+            source_ref,
+        ):
+            reasons.append("POKE_PAD_COST_MISMATCH")
+        if proposal.reservation_ids:
+            reasons.append("POKE_PAD_RESERVATION_FORBIDDEN")
+        cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
+        reasons.extend(
+            "LEDGER_COST_REJECTED:{0}".format(reason)
+            for reason in cost_check.rejection_reasons
+        )
+        if not isinstance(proposal.transaction_plan, TransactionPlan):
+            reasons.append("POKE_PAD_TRANSACTION_REQUIRED")
+        else:
+            try:
+                current_classes = poke_pad_core_eligible_classes(state)
+                current_acceptable_ids = tuple(
+                    sorted(
+                        card_id
+                        for card_class in current_classes
+                        for card_id in card_class
+                    )
+                )
+                current_availability = prove_deck_availability_from_state(
+                    state,
+                    current_acceptable_ids,
+                    required_count=1,
+                )
+                expected_plan = build_poke_pad_core_search_plan(
+                    state,
+                    source_ref,
+                    proposal.action_spec,
+                    current_classes,
+                    current_availability,
+                    proposal.proof.digest(),
+                )
+            except (RuntimeError, ValueError):
+                reasons.append("POKE_PAD_TRANSACTION_RECOMPUTE_REJECTED")
+            else:
+                if (
+                    proposal.transaction_plan != expected_plan
+                    or proposal.transaction_plan.digest() != expected_plan.digest()
+                ):
+                    reasons.append("POKE_PAD_TRANSACTION_PLAN_MISMATCH")
+    elif proposal.proof.schema == ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1:
         source_fact = proposal.proof.fact("source_ref")
         target_fact = proposal.proof.fact("target_ref")
         source_matches = tuple(
@@ -877,7 +1025,10 @@ def _validate_proposal(
                 )
         if proposal.reservation_ids:
             reasons.append("PROFILE_RESERVATION_FORBIDDEN")
-    if proposal.transaction_plan is not None:
+    if (
+        proposal.proof.schema != ProofSchema.POKE_PAD_CORE_FORMATION_V1
+        and proposal.transaction_plan is not None
+    ):
         if not isinstance(proposal.transaction_plan, TransactionPlan):
             reasons.append("INVALID_TRANSACTION_PLAN")
         reasons.append("PROFILE_TRANSACTION_FORBIDDEN")
