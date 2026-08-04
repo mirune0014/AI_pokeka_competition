@@ -1174,7 +1174,7 @@ class TelemetryRecorder:
             self._transaction_origins = {
                 key: value
                 for key, value in self._transaction_origins.items()
-                if key[:2] != (final_state.game_epoch, final_state.seat)
+                if key[0] != final_state.game_epoch
             }
         except Exception:
             self._record_error_count += 1
@@ -1424,6 +1424,25 @@ def _trace_records(
             reasons.append("{0}:RECORD_TYPE_INVALID".format(label))
         if any(not isinstance(record.get("run"), Mapping) for record in records):
             reasons.append("{0}:RECORD_RUN_MISSING".format(label))
+        if any(
+            record.get("record_type") == RecordType.TRANSACTION.value
+            and record.get("transaction", {}).get("result", {}).get("action")
+            is not None
+            and (
+                record.get("transaction", {})
+                .get("correlation", {})
+                .get("complete")
+                is not True
+                or record.get("transaction", {})
+                .get("correlation", {})
+                .get("integrity_reasons")
+                not in ((), [])
+            )
+            for record in records
+        ):
+            reasons.append(
+                "{0}:TRANSACTION_CORRELATION_INCOMPLETE".format(label)
+            )
     buffer = trace.get("buffer")
     if not isinstance(buffer, Mapping):
         reasons.append("{0}:BUFFER_METADATA_MISSING".format(label))

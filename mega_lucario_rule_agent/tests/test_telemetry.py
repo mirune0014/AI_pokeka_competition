@@ -26,6 +26,7 @@ from mega_lucario_rule_agent.telemetry import (
     TelemetryRecorder,
     canonical_json_line,
     find_first_difference,
+    make_fault_event,
     make_game_end_event,
     make_resolution_event,
     make_transaction_event,
@@ -449,6 +450,15 @@ def test_unordered_transaction_action_is_canonical_and_origin_registry_is_bounde
         rule_id="SECOND",
     )
     assert len(recorder._transaction_origins) == 1
+    recorder._remember_transaction_origin(
+        (transaction_state().game_epoch, 1, "TX-OTHER-SEAT"),
+        {
+            "origin_proposal_digest": "e" * 64,
+            "rule_id": "OTHER_SEAT",
+            "plan_digest": "f" * 64,
+        },
+    )
+    assert next(iter(recorder._transaction_origins))[1] == 1
 
     recorder.record_game_end(
         RUN,
@@ -589,6 +599,28 @@ def test_first_difference_requires_complete_same_run_trace_envelopes():
     assert mismatch["comparison"]["fault_code"] == "RUN_CONTEXT_MISMATCH"
     assert mismatch["comparison"]["candidate_mismatch_indices"] == (0,)
 
+    baseline_fault = make_fault_event(
+        current,
+        source="RUNNER",
+        code="BASELINE_FAULT",
+        run_context=RUN,
+    )
+    wrong_run_fault = make_fault_event(
+        current,
+        source="RUNNER",
+        code="CANDIDATE_FAULT",
+        run_context=replace(RUN, seed=RUN.seed + 1),
+    )
+    fault_run_mismatch = find_first_difference(
+        _trace(baseline_fault),
+        _trace(wrong_run_fault),
+        run_context=RUN,
+    )
+    assert (
+        fault_run_mismatch["comparison"]["fault_code"]
+        == "RUN_CONTEXT_MISMATCH"
+    )
+
 
 def test_first_difference_compares_transaction_actions_and_legal_surface():
     current = transaction_effect_state(SelectContext.ACTIVATE)
@@ -673,6 +705,34 @@ def test_first_difference_compares_transaction_actions_and_legal_surface():
         == "STATE_DESYNC:LEGAL_SURFACE_MISMATCH"
     )
 
+    incomplete_correlation = dict(
+        yes_event,
+        transaction=dict(
+            yes_event["transaction"],
+            correlation={
+                "origin_proposal_digest": None,
+                "rule_id": None,
+                "plan_digest": None,
+                "complete": False,
+                "integrity_reasons": (
+                    "ORIGIN_PROPOSAL_DIGEST_MISSING",
+                    "ORIGIN_RULE_ID_MISSING",
+                    "PLAN_DIGEST_MISSING",
+                ),
+            },
+        ),
+    )
+    correlation_fault = find_first_difference(
+        _trace(incomplete_correlation),
+        _trace(no_event),
+        run_context=RUN,
+    )
+    assert correlation_fault["comparison"]["fault_code"] == "TRACE_INCOMPLETE"
+    assert (
+        "BASELINE:TRANSACTION_CORRELATION_INCOMPLETE"
+        in correlation_fault["comparison"]["baseline_integrity_reasons"]
+    )
+
 
 def test_first_difference_ignores_record_container_for_same_semantic_action():
     current = state()
@@ -688,6 +748,8 @@ def test_first_difference_ignores_record_container_for_same_semantic_action():
             "correlation": {
                 "origin_proposal_digest": selected["proposal_digest"],
                 "rule_id": selected["rule_id"],
+                "complete": True,
+                "integrity_reasons": (),
             },
             "result": {"action": selected["action"]},
         },
