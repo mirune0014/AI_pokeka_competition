@@ -10,6 +10,11 @@ from mega_lucario_rule_agent.attack_outcomes import (
     semantic_options_fingerprint,
 )
 from mega_lucario_rule_agent.card_meta import ATTACK_META_BY_ID
+from mega_lucario_rule_agent.certificates import (
+    CertificateKind,
+    ProofSchema,
+    attack_outcome_proof,
+)
 from mega_lucario_rule_agent.fallback import safe_fallback
 from mega_lucario_rule_agent.public_effects import (
     EFFECT_BINDINGS,
@@ -17,6 +22,11 @@ from mega_lucario_rule_agent.public_effects import (
     build_public_effect_registry,
 )
 from mega_lucario_rule_agent.resource_ledger import ResourceLedger
+from mega_lucario_rule_agent.resolver import (
+    ResolverTier,
+    resolve_proposals,
+)
+from mega_lucario_rule_agent.routes import enumerate_attack_routes
 from mega_lucario_rule_agent.state_view import (
     ActionSpec,
     LogType,
@@ -476,6 +486,319 @@ def test_safe_fallback_elevates_only_a_current_whole_attack_outcome_table():
     assert state_mismatch.reasons == (
         "ATTACK_OUTCOME_TABLE_BINDING_MISMATCH",
     )
+
+
+def test_attack_routes_certify_nonterminal_prizes_and_prefer_aura_same_ko():
+    target_row = pokemon_catalog_row(900, "Exact KO Target", hp=100)
+    bench_row = pokemon_catalog_row(901, "Public Bench", hp=100)
+    registry = registry_for(
+        (982, 983),
+        target_row=target_row,
+        extra_rows=(bench_row,),
+    )
+    obs = observation(
+        (982, 983),
+        opponent_active=pokemon(900, 110, player=1, hp=100),
+        opponent_bench=(pokemon(901, 111, player=1, hp=100),),
+        own_prizes=2,
+    )
+    state, options, table = table_for(obs, registry)
+
+    proposals = enumerate_attack_routes(state, options, table, registry)
+
+    assert len(proposals) == 2
+    assert {proposal.certificate_kind for proposal in proposals} == {
+        CertificateKind.PRIZE_GAIN_NOW
+    }
+    assert {proposal.proof.schema for proposal in proposals} == {
+        ProofSchema.ATTACK_OUTCOME_V1
+    }
+    assert all(
+        proposal.tier == ResolverTier.EXACT_CURRENT_TURN_PRIZE
+        for proposal in proposals
+    )
+    resolution = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        proposals,
+        registry=registry,
+    )
+    assert resolution.selected.action_spec.choices[0].attack_id == 982
+    assert resolution.selected.proof.guaranteed_prizes == 1
+
+
+def test_attack_routes_choose_greatest_damage_margin_when_both_attacks_win():
+    target_row = pokemon_catalog_row(900, "Final Prize Target", hp=100)
+    bench_row = pokemon_catalog_row(901, "Public Bench", hp=100)
+    registry = registry_for(
+        (982, 983),
+        target_row=target_row,
+        extra_rows=(bench_row,),
+    )
+    obs = observation(
+        (982, 983),
+        opponent_active=pokemon(900, 110, player=1, hp=100),
+        opponent_bench=(pokemon(901, 111, player=1, hp=100),),
+        own_prizes=1,
+    )
+    state, options, table = table_for(obs, registry)
+
+    proposals = enumerate_attack_routes(state, options, table, registry)
+    resolution = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        proposals,
+        registry=registry,
+    )
+
+    assert len(proposals) == 2
+    assert all(
+        proposal.certificate_kind == CertificateKind.WIN_NOW
+        for proposal in proposals
+    )
+    assert resolution.selected.tier == ResolverTier.EXACT_WIN_NOW
+    assert resolution.selected.action_spec.choices[0].attack_id == 983
+    assert resolution.selected.proof.fact("damage_margin") == 170
+
+
+def test_non_ko_attack_routes_require_the_whole_attack_surface_to_be_exact():
+    target_row = pokemon_catalog_row(900, "Large Target", hp=300)
+    registry = registry_for((982, 983), target_row=target_row)
+    obs = observation(
+        (982, 983),
+        opponent_active=pokemon(900, 110, player=1, hp=300),
+    )
+    state, options, table = table_for(obs, registry)
+    proposals = enumerate_attack_routes(state, options, table, registry)
+    resolution = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        proposals,
+        registry=registry,
+    )
+
+    assert len(proposals) == 2
+    assert all(
+        proposal.certificate_kind == CertificateKind.ATTACK_COMPLETION
+        for proposal in proposals
+    )
+    assert resolution.selected.tier == ResolverTier.BEST_CERTIFIED_ATTACK
+    assert resolution.selected.action_spec.choices[0].attack_id == 983
+
+    unknown_obs = deepcopy(obs)
+    unknown_obs["current"]["players"][0]["confused"] = True
+    unknown_state = checked_state(unknown_obs)
+    unknown_options = build_semantic_options(unknown_obs)
+    unknown_table = build_attack_outcome_table(
+        unknown_state,
+        unknown_options,
+        registry,
+    )
+    assert not unknown_table.exact
+    assert (
+        enumerate_attack_routes(
+            unknown_state,
+            unknown_options,
+            unknown_table,
+            registry,
+        )
+        == ()
+    )
+
+
+def test_attack_proof_fails_closed_on_stale_bindings_and_field_replacement():
+    target_row = pokemon_catalog_row(900, "Exact KO Target", hp=100)
+    bench_row = pokemon_catalog_row(901, "Public Bench", hp=100)
+    registry = registry_for(
+        (983,),
+        target_row=target_row,
+        extra_rows=(bench_row,),
+    )
+    obs = observation(
+        (983,),
+        opponent_active=pokemon(900, 110, player=1, hp=100),
+        opponent_bench=(pokemon(901, 111, player=1, hp=100),),
+        own_prizes=2,
+    )
+    state, options, table = table_for(obs, registry)
+    spec = ActionSpec.single(options[0].key)
+    proof = attack_outcome_proof(state, options, registry, table, spec)
+
+    with pytest.raises(ValueError, match="integrity receipt"):
+        replace(proof, guaranteed_prizes=2)
+
+    changed_obs = deepcopy(obs)
+    changed_obs["current"]["turnActionCount"] += 1
+    changed_state = checked_state(changed_obs)
+    changed_options = build_semantic_options(changed_obs)
+    with pytest.raises(ValueError, match="must match"):
+        attack_outcome_proof(
+            changed_state,
+            changed_options,
+            registry,
+            table,
+            spec,
+        )
+    assert (
+        enumerate_attack_routes(
+            changed_state,
+            changed_options,
+            table,
+            registry,
+        )
+        == ()
+    )
+
+
+def test_attack_resolver_rechecks_integrity_and_current_registry():
+    target_row = pokemon_catalog_row(900, "Exact KO Target", hp=100)
+    bench_row = pokemon_catalog_row(901, "Public Bench", hp=100)
+    registry = registry_for(
+        (983,),
+        target_row=target_row,
+        extra_rows=(bench_row,),
+    )
+    obs = observation(
+        (983,),
+        opponent_active=pokemon(900, 110, player=1, hp=100),
+        opponent_bench=(pokemon(901, 111, player=1, hp=100),),
+        own_prizes=2,
+    )
+    state, options, table = table_for(obs, registry)
+
+    missing_registry_proposal = enumerate_attack_routes(
+        state,
+        options,
+        table,
+        registry,
+    )[0]
+    missing_registry = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        (missing_registry_proposal,),
+    )
+    assert missing_registry.selected is None
+    assert "CURRENT_REGISTRY_REQUIRED" in missing_registry.rejections[0].reasons
+
+    changed_registry = registry_for(
+        (983,),
+        target_row=pokemon_catalog_row(
+            900,
+            "Exact KO Target",
+            hp=100,
+            weakness=6,
+        ),
+        extra_rows=(bench_row,),
+    )
+    stale_registry_proposal = enumerate_attack_routes(
+        state,
+        options,
+        table,
+        registry,
+    )[0]
+    stale_registry = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        (stale_registry_proposal,),
+        registry=changed_registry,
+    )
+    assert stale_registry.selected is None
+    assert "PROOF_REGISTRY_STALE" in stale_registry.rejections[0].reasons
+
+    tampered_proposal = enumerate_attack_routes(
+        state,
+        options,
+        table,
+        registry,
+    )[0]
+    object.__setattr__(
+        tampered_proposal.proof,
+        "guaranteed_prizes",
+        tampered_proposal.proof.guaranteed_prizes + 1,
+    )
+    tampered = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        (tampered_proposal,),
+        registry=registry,
+    )
+    assert tampered.selected is None
+    assert "PROOF_INTEGRITY_INVALID" in tampered.rejections[0].reasons
+
+
+def test_terminal_aura_win_does_not_require_irrelevant_callback_completion():
+    target_row = pokemon_catalog_row(900, "Final Prize Target", hp=100)
+    own_bench_row = pokemon_catalog_row(677, "Riolu", hp=70)
+    opponent_bench_row = pokemon_catalog_row(901, "Public Bench", hp=100)
+    registry = registry_for(
+        (982,),
+        target_row=target_row,
+        extra_rows=(own_bench_row, opponent_bench_row),
+    )
+    obs = observation(
+        (982,),
+        own_bench=(pokemon(677, 12, hp=70),),
+        own_discard=(card(6, 51),),
+        opponent_active=pokemon(900, 110, player=1, hp=100),
+        opponent_bench=(pokemon(901, 111, player=1, hp=100),),
+        own_prizes=1,
+    )
+    state, options, table = table_for(obs, registry)
+    outcome = table.get(982)
+
+    assert outcome.exact_game_win
+    assert not outcome.exact
+    assert outcome.callback.requires_selection
+    proposals = enumerate_attack_routes(state, options, table, registry)
+    assert len(proposals) == 1
+    assert proposals[0].certificate_kind == CertificateKind.WIN_NOW
+    resolution = resolve_proposals(
+        state,
+        options,
+        ResourceLedger(()),
+        proposals,
+        registry=registry,
+    )
+    assert resolution.selected.action_spec.choices[0].attack_id == 982
+
+
+def test_board_out_win_can_be_certified_even_when_prize_reduction_yields_zero():
+    target_row = pokemon_catalog_row(272, "Lillie's Target", hp=100)
+    registry = registry_for(
+        (983,),
+        target_row=target_row,
+        extra_rows=(effect_catalog_row("LILLIES_PEARL"),),
+    )
+    obs = observation(
+        (983,),
+        opponent_active=pokemon(
+            272,
+            110,
+            player=1,
+            hp=100,
+            tools=((1172, 211),),
+        ),
+        own_prizes=6,
+    )
+    state, options, table = table_for(obs, registry)
+
+    assert table.get(983).exact_game_win
+    assert table.get(983).prizes_taken == 0
+    proof = attack_outcome_proof(
+        state,
+        options,
+        registry,
+        table,
+        ActionSpec.single(options[0].key),
+    )
+    assert proof.kind == CertificateKind.WIN_NOW
+    assert proof.guaranteed_prizes == 0
 
 
 def test_state_rejects_options_built_from_a_different_observation():

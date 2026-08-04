@@ -441,7 +441,10 @@ def test_safe_profile_rejects_tier_kind_and_action_spec_escalation():
         resolution,
         "WRONG_ACTION",
     ).reasons
-    assert set(ProofSchema) == {ProofSchema.SAFE_FALLBACK_V1}
+    assert set(ProofSchema) == {
+        ProofSchema.SAFE_FALLBACK_V1,
+        ProofSchema.ATTACK_OUTCOME_V1,
+    }
 
 
 def test_safe_profile_rejects_cost_transaction_metric_and_tiebreak_claims():

@@ -304,5 +304,5 @@ def test_safe_schema_cannot_be_relabelled_as_a_stronger_certificate():
         spec,
         "LEGAL_ATTACK_FALLBACK",
     )
-    with pytest.raises(ValueError, match="schema and kind"):
+    with pytest.raises(ValueError, match="schema and kind|integrity receipt"):
         replace(proof, kind=CertificateKind.ATTACK_COMPLETION)

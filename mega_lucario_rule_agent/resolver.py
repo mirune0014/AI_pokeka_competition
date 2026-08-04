@@ -21,6 +21,7 @@ try:  # Package import in tests.
         ProofSchema,
         legal_options_fingerprint,
     )
+    from .public_effects import PublicEffectRegistry
     from .resource_ledger import ResourceLedger
     from .state_view import (
         ActionSpec,
@@ -39,6 +40,7 @@ except ImportError:  # Flat submission import from main.py.
         ProofSchema,
         legal_options_fingerprint,
     )
+    from public_effects import PublicEffectRegistry
     from resource_ledger import ResourceLedger
     from state_view import (
         ActionSpec,
@@ -253,15 +255,32 @@ class Resolution:
         return self.selected is not None
 
 
-_BASELINE_ALLOWED_SCHEMA = ProofSchema.SAFE_FALLBACK_V1
-_BASELINE_ALLOWED_KIND = CertificateKind.SAFE_FALLBACK
-_BASELINE_ALLOWED_TIERS = frozenset(
-    (
-        ResolverTier.RESOURCE_PRESERVING_FALLBACK,
-        ResolverTier.PASS,
-    )
-)
-_BASELINE_ALLOWED_COMBINATIONS = frozenset(
+_ALLOWED_KINDS_BY_SCHEMA = {
+    ProofSchema.SAFE_FALLBACK_V1: frozenset((CertificateKind.SAFE_FALLBACK,)),
+    ProofSchema.ATTACK_OUTCOME_V1: frozenset(
+        (
+            CertificateKind.WIN_NOW,
+            CertificateKind.PRIZE_GAIN_NOW,
+            CertificateKind.ATTACK_COMPLETION,
+        )
+    ),
+}
+_ALLOWED_TIERS_BY_SCHEMA = {
+    ProofSchema.SAFE_FALLBACK_V1: frozenset(
+        (
+            ResolverTier.RESOURCE_PRESERVING_FALLBACK,
+            ResolverTier.PASS,
+        )
+    ),
+    ProofSchema.ATTACK_OUTCOME_V1: frozenset(
+        (
+            ResolverTier.EXACT_WIN_NOW,
+            ResolverTier.EXACT_CURRENT_TURN_PRIZE,
+            ResolverTier.BEST_CERTIFIED_ATTACK,
+        )
+    ),
+}
+_ALLOWED_COMBINATIONS = frozenset(
     (
         (
             ProofSchema.SAFE_FALLBACK_V1,
@@ -274,6 +293,24 @@ _BASELINE_ALLOWED_COMBINATIONS = frozenset(
             CertificateKind.SAFE_FALLBACK,
             ResolverTier.PASS,
             int(OptionType.END),
+        ),
+        (
+            ProofSchema.ATTACK_OUTCOME_V1,
+            CertificateKind.WIN_NOW,
+            ResolverTier.EXACT_WIN_NOW,
+            int(OptionType.ATTACK),
+        ),
+        (
+            ProofSchema.ATTACK_OUTCOME_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.EXACT_CURRENT_TURN_PRIZE,
+            int(OptionType.ATTACK),
+        ),
+        (
+            ProofSchema.ATTACK_OUTCOME_V1,
+            CertificateKind.ATTACK_COMPLETION,
+            ResolverTier.BEST_CERTIFIED_ATTACK,
+            int(OptionType.ATTACK),
         ),
     )
 )
@@ -349,10 +386,20 @@ def _own_known_refs(state: PublicState) -> frozenset[PhysicalRef]:
     return frozenset(refs)
 
 
-def _expected_tiebreak(proposal: Proposal) -> Tuple[int, ...]:
-    if len(proposal.action_spec.choices) != 1:
+def canonical_proposal_tiebreak(
+    action_spec: ActionSpec,
+    proof: CertificateProof,
+) -> Tuple[int, ...]:
+    """Return the only accepted deterministic tiebreak for a checked proof."""
+
+    if not isinstance(action_spec, ActionSpec) or not isinstance(
+        proof,
+        CertificateProof,
+    ):
+        raise ValueError("canonical tiebreak requires an action and proof")
+    if len(action_spec.choices) != 1:
         return ()
-    key = proposal.action_spec.choices[0]
+    key = action_spec.choices[0]
     if key.option_type == int(OptionType.ATTACK):
         if (
             isinstance(key.attack_id, bool)
@@ -360,10 +407,45 @@ def _expected_tiebreak(proposal: Proposal) -> Tuple[int, ...]:
             or key.attack_id <= 0
         ):
             return ()
+        if proof.schema == ProofSchema.ATTACK_OUTCOME_V1:
+            damage_margin = proof.fact("damage_margin")
+            final_damage = proof.fact("final_damage")
+            future_lock_cost = proof.fact("future_lock_cost")
+            if any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in (damage_margin, final_damage, future_lock_cost)
+            ):
+                return ()
+            if proof.kind == CertificateKind.WIN_NOW:
+                return (
+                    int(OptionType.ATTACK),
+                    -damage_margin,
+                    future_lock_cost,
+                    int(key.attack_id),
+                )
+            if proof.kind == CertificateKind.PRIZE_GAIN_NOW:
+                return (
+                    int(OptionType.ATTACK),
+                    future_lock_cost,
+                    -final_damage,
+                    int(key.attack_id),
+                )
+            if proof.kind == CertificateKind.ATTACK_COMPLETION:
+                return (
+                    int(OptionType.ATTACK),
+                    -final_damage,
+                    future_lock_cost,
+                    int(key.attack_id),
+                )
+            return ()
         return int(OptionType.ATTACK), int(key.attack_id)
     if key.option_type == int(OptionType.END):
         return (int(OptionType.END),)
     return ()
+
+
+def _expected_tiebreak(proposal: Proposal) -> Tuple[int, ...]:
+    return canonical_proposal_tiebreak(proposal.action_spec, proposal.proof)
 
 
 def proposal_rank_key(proposal: Proposal) -> Tuple[Any, ...]:
@@ -446,6 +528,7 @@ def _validate_proposal(
     proposal: Proposal,
     duplicate_rule_id: bool,
     legal_option_index_reasons: Tuple[str, ...],
+    registry: Optional[PublicEffectRegistry],
 ) -> Tuple[Tuple[str, ...], Optional[Tuple[int, ...]]]:
     reasons = []
     if duplicate_rule_id:
@@ -453,13 +536,17 @@ def _validate_proposal(
     reasons.extend(legal_option_index_reasons)
     if not proposal.proof.is_valid:
         reasons.append("PROOF_INVALID")
+    if not proposal.proof.verify_integrity():
+        reasons.append("PROOF_INTEGRITY_INVALID")
     if proposal.certificate_kind != proposal.proof.kind:
         reasons.append("CERTIFICATE_KIND_MISMATCH")
-    if proposal.proof.schema != _BASELINE_ALLOWED_SCHEMA:
+    allowed_kinds = _ALLOWED_KINDS_BY_SCHEMA.get(proposal.proof.schema, frozenset())
+    allowed_tiers = _ALLOWED_TIERS_BY_SCHEMA.get(proposal.proof.schema, frozenset())
+    if proposal.proof.schema not in _ALLOWED_KINDS_BY_SCHEMA:
         reasons.append("PROFILE_SCHEMA_FORBIDDEN")
-    if proposal.certificate_kind != _BASELINE_ALLOWED_KIND:
+    if proposal.certificate_kind not in allowed_kinds:
         reasons.append("PROFILE_KIND_FORBIDDEN")
-    if proposal.tier not in _BASELINE_ALLOWED_TIERS:
+    if proposal.tier not in allowed_tiers:
         reasons.append("PROFILE_TIER_FORBIDDEN")
 
     option_type = (
@@ -473,10 +560,31 @@ def _validate_proposal(
         proposal.tier,
         option_type,
     )
-    if combination not in _BASELINE_ALLOWED_COMBINATIONS:
+    if combination not in _ALLOWED_COMBINATIONS:
         reasons.append("PROFILE_OPTION_TYPE_FORBIDDEN")
-    if proposal.proof.guaranteed_prizes != 0:
-        reasons.append("PROFILE_PRIZE_CLAIM_FORBIDDEN")
+    if proposal.proof.schema == ProofSchema.SAFE_FALLBACK_V1:
+        if proposal.proof.guaranteed_prizes != 0:
+            reasons.append("PROFILE_PRIZE_CLAIM_FORBIDDEN")
+    elif proposal.proof.schema == ProofSchema.ATTACK_OUTCOME_V1:
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        elif proposal.proof.fact("registry_digest") != registry.digest:
+            reasons.append("PROOF_REGISTRY_STALE")
+        proven_prizes = proposal.proof.fact("prizes_taken")
+        if (
+            isinstance(proven_prizes, bool)
+            or not isinstance(proven_prizes, int)
+            or proven_prizes < 0
+        ):
+            reasons.append("ATTACK_PRIZE_FACT_INVALID")
+        elif proposal.certificate_kind in (
+            CertificateKind.WIN_NOW,
+            CertificateKind.PRIZE_GAIN_NOW,
+        ):
+            if proposal.proof.guaranteed_prizes != proven_prizes:
+                reasons.append("ATTACK_PRIZE_CLAIM_MISMATCH")
+        elif proposal.proof.guaranteed_prizes != 0:
+            reasons.append("ATTACK_COMPLETION_PRIZE_CLAIM_FORBIDDEN")
     if proposal.proof.state_fingerprint != public_state_fingerprint(state):
         reasons.append("PROOF_STATE_STALE")
     if proposal.proof.action_spec != proposal.action_spec:
@@ -676,11 +784,15 @@ def resolve_proposals(
     legal_options: Sequence[SemanticOption],
     ledger: ResourceLedger,
     proposals: Sequence[Proposal],
+    *,
+    registry: Optional[PublicEffectRegistry] = None,
 ) -> Resolution:
     """Select one proposal without mutating transactions or synthesizing PASS."""
 
     if not isinstance(ledger, ResourceLedger):
         raise ValueError("resolver requires a ResourceLedger")
+    if registry is not None and not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("resolver registry must be a PublicEffectRegistry")
     proposal_values = tuple(proposals)
     if any(not isinstance(proposal, Proposal) for proposal in proposal_values):
         raise ValueError("resolver proposals must all be Proposal values")
@@ -699,6 +811,7 @@ def resolve_proposals(
             proposal,
             duplicate_rule_id=rule_counts[proposal.rule_id] > 1,
             legal_option_index_reasons=legal_option_index_reasons,
+            registry=registry,
         )
         if reasons:
             rejected.append(
@@ -805,6 +918,7 @@ __all__ = [
     "ResolverTier",
     "ResourceCost",
     "action_spec_digest",
+    "canonical_proposal_tiebreak",
     "proposal_digest",
     "proposal_rank_key",
     "resolve_proposals",
