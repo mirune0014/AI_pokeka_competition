@@ -66,10 +66,7 @@ def _canonical_fact_value(value: Any) -> Any:
 
 
 def _canonical_action_spec(action_spec: ActionSpec) -> Tuple[Any, ...]:
-    return (
-        bool(action_spec.order_sensitive),
-        tuple(choice.canonical() for choice in action_spec.choices),
-    )
+    return action_spec.canonical()
 
 
 def legal_options_fingerprint(options: Sequence[SemanticOption]) -> str:

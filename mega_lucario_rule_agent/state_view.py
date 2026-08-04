@@ -325,6 +325,17 @@ class ActionSpec:
     def empty(cls) -> "ActionSpec":
         return cls(())
 
+    def canonical_choices(self) -> Tuple[Tuple[Optional[int], ...], ...]:
+        ordered = (
+            self.choices
+            if self.order_sensitive
+            else tuple(sorted(self.choices, key=lambda choice: choice.sort_key()))
+        )
+        return tuple(choice.canonical() for choice in ordered)
+
+    def canonical(self) -> Tuple[Any, ...]:
+        return bool(self.order_sensitive), self.canonical_choices()
+
     def bind(
         self,
         options: Sequence[SemanticOption],
@@ -884,16 +895,23 @@ def _public_only_player_payload(player: PlayerView) -> Dict[str, Any]:
 
 
 def public_board_payload(state: PublicState) -> Dict[str, Any]:
-    """Return a canonicalizable board snapshot with both hidden zones redacted."""
+    """Return an absolute-seat board snapshot with both hidden zones redacted."""
 
     if not isinstance(state, PublicState):
         raise ValueError("public board payload requires a PublicState")
+    players = {
+        state.own.index: _public_only_player_payload(state.own),
+        state.opponent.index: _public_only_player_payload(state.opponent),
+    }
+    if set(players) != {0, 1}:
+        raise ValueError("public board requires exactly one player for each seat")
     return {
-        "seat": state.seat,
         "turn": state.turn,
         "turn_action_count": state.turn_action_count,
-        "own": _public_only_player_payload(state.own),
-        "opponent": _public_only_player_payload(state.opponent),
+        "players": {
+            "p0": players[0],
+            "p1": players[1],
+        },
         "stadium": _canonical_ref_list(state.stadium_refs),
         "flags": (
             state.supporter_played,

@@ -282,7 +282,7 @@ _BASELINE_ALLOWED_COMBINATIONS = frozenset(
 def action_spec_digest(action_spec: ActionSpec) -> str:
     payload = {
         "order_sensitive": bool(action_spec.order_sensitive),
-        "choices": [choice.canonical() for choice in action_spec.choices],
+        "choices": action_spec.canonical_choices(),
     }
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -366,7 +366,11 @@ def _expected_tiebreak(proposal: Proposal) -> Tuple[int, ...]:
     return ()
 
 
-def _proposal_rank(proposal: Proposal) -> Tuple[Any, ...]:
+def proposal_rank_key(proposal: Proposal) -> Tuple[Any, ...]:
+    """Return the complete deterministic resolver ordering key."""
+
+    if not isinstance(proposal, Proposal):
+        raise ValueError("proposal_rank_key requires a Proposal")
     sentinel = 2**63 - 1
     key = proposal.action_spec.choices[0]
     card_id = key.card_id if key.card_id is not None else sentinel
@@ -379,7 +383,7 @@ def _proposal_rank(proposal: Proposal) -> Tuple[Any, ...]:
         int(serial),
         proposal.deterministic_tiebreak,
         proposal.rule_id,
-        tuple(choice.canonical() for choice in proposal.action_spec.choices),
+        proposal.action_spec.canonical_choices(),
         proposal.proof.digest(),
     )
 
@@ -527,6 +531,146 @@ def _validate_proposal(
     return unique_reasons, None if unique_reasons else bound
 
 
+def resolution_invariant_reasons(
+    proposals: Sequence[Proposal],
+    resolution: Resolution,
+    *,
+    state: Optional[PublicState] = None,
+    legal_options: Optional[Sequence[SemanticOption]] = None,
+) -> Tuple[str, ...]:
+    """Audit the trace contract and, when supplied, the emitted raw binding."""
+
+    if not isinstance(resolution, Resolution):
+        return ("RESOLUTION_TYPE_INVALID",)
+    proposal_values = tuple(proposals)
+    if any(not isinstance(proposal, Proposal) for proposal in proposal_values):
+        return ("PROPOSAL_TYPE_INVALID",)
+    reasons = []
+    evaluations = tuple(resolution.evaluations)
+    if len(evaluations) != len(proposal_values):
+        reasons.append("EVALUATION_COUNT_MISMATCH")
+    if resolution.stats.proposed != len(proposal_values):
+        reasons.append("PROPOSED_STATS_MISMATCH")
+
+    proposal_keys = Counter(
+        (
+            proposal_digest(proposal),
+            proposal.rule_id,
+            action_spec_digest(proposal.action_spec),
+        )
+        for proposal in proposal_values
+    )
+    evaluation_keys = Counter(
+        (
+            evaluation.proposal_digest,
+            evaluation.rule_id,
+            evaluation.action_digest,
+        )
+        for evaluation in evaluations
+    )
+    if proposal_keys != evaluation_keys:
+        reasons.append("EVALUATION_PROPOSAL_DIGEST_MISMATCH")
+
+    selected_evaluations = tuple(
+        value
+        for value in evaluations
+        if value.disposition == ProposalDisposition.SELECTED
+    )
+    valid_not_selected = tuple(
+        value
+        for value in evaluations
+        if value.disposition == ProposalDisposition.VALID_NOT_SELECTED
+    )
+    rejected_evaluations = tuple(
+        value
+        for value in evaluations
+        if value.disposition == ProposalDisposition.REJECTED
+    )
+    categorized_count = (
+        len(selected_evaluations)
+        + len(valid_not_selected)
+        + len(rejected_evaluations)
+    )
+    if categorized_count != len(evaluations):
+        reasons.append("EVALUATION_DISPOSITION_INVALID")
+    if resolution.stats.accepted != len(selected_evaluations) + len(valid_not_selected):
+        reasons.append("ACCEPTED_STATS_MISMATCH")
+    if resolution.stats.rejected != len(rejected_evaluations):
+        reasons.append("REJECTED_STATS_MISMATCH")
+    if len(resolution.rejections) != len(rejected_evaluations):
+        reasons.append("REJECTION_COUNT_MISMATCH")
+
+    if resolution.selected is None:
+        if selected_evaluations:
+            reasons.append("SELECTED_DISPOSITION_WITHOUT_SELECTION")
+        if resolution.bound_action is not None:
+            reasons.append("BOUND_ACTION_WITHOUT_SELECTION")
+    else:
+        selected_key = (
+            proposal_digest(resolution.selected),
+            resolution.selected.rule_id,
+            action_spec_digest(resolution.selected.action_spec),
+        )
+        if len(selected_evaluations) != 1:
+            reasons.append("SELECTED_DISPOSITION_COUNT_INVALID")
+        elif (
+            selected_evaluations[0].proposal_digest,
+            selected_evaluations[0].rule_id,
+            selected_evaluations[0].action_digest,
+        ) != selected_key:
+            reasons.append("SELECTED_DISPOSITION_MISMATCH")
+        if resolution.bound_action is None:
+            reasons.append("SELECTION_WITHOUT_BOUND_ACTION")
+        if (state is None) != (legal_options is None):
+            reasons.append("BOUND_ACTION_VALIDATION_CONTEXT_INCOMPLETE")
+        elif state is not None and legal_options is not None:
+            if not isinstance(state, PublicState):
+                reasons.append("BOUND_ACTION_STATE_INVALID")
+            else:
+                binding_reasons, expected_bound = _matching_option_reasons(
+                    state,
+                    legal_options,
+                    resolution.selected.action_spec,
+                )
+                reasons.extend(
+                    "BOUND_ACTION_REBIND:{0}".format(reason)
+                    for reason in binding_reasons
+                )
+                if (
+                    not binding_reasons
+                    and resolution.bound_action != expected_bound
+                ):
+                    reasons.append("BOUND_ACTION_MISMATCH")
+
+    if any(value.reasons for value in selected_evaluations):
+        reasons.append("SELECTED_HAS_REASONS")
+    if any(value.reasons != ("LOWER_RESOLVER_RANK",) for value in valid_not_selected):
+        reasons.append("VALID_NOT_SELECTED_REASON_INVALID")
+    if any(not value.reasons for value in rejected_evaluations):
+        reasons.append("REJECTED_WITHOUT_REASONS")
+    rejection_keys = Counter(
+        (
+            value.proposal_digest,
+            value.rule_id,
+            value.action_digest,
+            value.reasons,
+        )
+        for value in resolution.rejections
+    )
+    rejected_evaluation_keys = Counter(
+        (
+            value.proposal_digest,
+            value.rule_id,
+            value.action_digest,
+            value.reasons,
+        )
+        for value in rejected_evaluations
+    )
+    if rejection_keys != rejected_evaluation_keys:
+        reasons.append("REJECTION_EVALUATION_MISMATCH")
+    return tuple(sorted(set(reasons)))
+
+
 def resolve_proposals(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
@@ -568,7 +712,7 @@ def resolve_proposals(
         else:
             accepted.append(
                 (
-                    _proposal_rank(proposal),
+                    proposal_rank_key(proposal),
                     proposal,
                     bound,
                     current_proposal_digest,
@@ -625,7 +769,7 @@ def resolve_proposals(
             ),
         )
     )
-    return Resolution(
+    resolution = Resolution(
         selected=None if selected is None else selected[1],
         bound_action=None if selected is None else selected[2],
         rejections=rejected_tuple,
@@ -636,6 +780,17 @@ def resolve_proposals(
             rejected=len(rejected_tuple),
         ),
     )
+    invariant_reasons = resolution_invariant_reasons(
+        proposal_values,
+        resolution,
+        state=state,
+        legal_options=legal_options,
+    )
+    if invariant_reasons:
+        raise RuntimeError(
+            "resolver trace invariant failed: {0}".format("|".join(invariant_reasons))
+        )
+    return resolution
 
 
 __all__ = [
@@ -651,5 +806,7 @@ __all__ = [
     "ResourceCost",
     "action_spec_digest",
     "proposal_digest",
+    "proposal_rank_key",
     "resolve_proposals",
+    "resolution_invariant_reasons",
 ]

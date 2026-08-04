@@ -220,7 +220,7 @@ class TransactionStep:
             self.expected_context,
             self.expected_min_count,
             self.expected_max_count,
-            tuple(choice.canonical() for choice in self.action_spec.choices),
+            self.action_spec.canonical_choices(),
             bool(self.action_spec.order_sensitive),
             self.irreversible_on_emit,
             (

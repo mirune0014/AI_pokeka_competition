@@ -1,4 +1,5 @@
 from copy import deepcopy
+from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
@@ -375,6 +376,20 @@ def test_public_board_fingerprint_redacts_both_hidden_hands_and_prizes():
     public_change["current"]["players"][1]["active"][0]["hp"] = 50
     third = build_public_state(public_change, game_epoch=2)
     assert public_board_fingerprint(second) != public_board_fingerprint(third)
+
+
+def test_public_board_fingerprint_is_absolute_and_seat_independent():
+    obs = observation([hand_card_option(0)])
+    seat_zero = build_public_state(obs, game_epoch=2)
+    seat_one = replace(
+        seat_zero,
+        seat=1,
+        own=seat_zero.opponent,
+        opponent=seat_zero.own,
+    )
+
+    assert public_board_payload(seat_zero) == public_board_payload(seat_one)
+    assert public_board_fingerprint(seat_zero) == public_board_fingerprint(seat_one)
 
 
 def test_incomplete_own_hand_fails_closed():
