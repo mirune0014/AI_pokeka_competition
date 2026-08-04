@@ -96,6 +96,26 @@ def pokemon_catalog_row(
     }
 
 
+def basic_energy_catalog_row(card_id=6, name="Basic {F} Energy", energy_type=6):
+    return {
+        "cardId": card_id,
+        "cardType": 5,
+        "name": name,
+        "hp": 0,
+        "energyType": energy_type,
+        "weakness": None,
+        "resistance": None,
+        "basic": False,
+        "stage1": False,
+        "stage2": False,
+        "ex": False,
+        "megaEx": False,
+        "tera": False,
+        "attacks": [],
+        "skills": [],
+    }
+
+
 def test_catalog_normalization_is_unicode_and_whitespace_stable():
     assert normalize_catalog_text("  HÉRO’S\u00a0 Cape\n") == "hero's cape"
     assert normalized_text_hash("") == (
@@ -319,6 +339,20 @@ def test_registry_builds_rule_box_and_weakness_profiles_deterministically():
     assert not unknown.all_skills_registered
     assert unknown.registered_skill_effect_ids == ()
     assert len(unknown.unregistered_skill_signatures) == 1
+
+
+def test_registry_certifies_only_effectless_basic_energy_from_catalog():
+    basic = basic_energy_catalog_row()
+    malformed = basic_energy_catalog_row(7, "Malformed Basic", energy_type=0)
+    special = basic_energy_catalog_row(20, "Rock Fighting Energy")
+    special["cardType"] = 6
+    special["skills"] = [{"name": "Rock Fighting Energy", "text": "Has an effect."}]
+    registry = build_public_effect_registry([special, malformed, basic], [])
+
+    assert registry.effectless_basic_energy_cards == ((6, "basic {f} energy", 6),)
+    assert registry.is_effectless_basic_energy(6)
+    assert not registry.is_effectless_basic_energy(7)
+    assert not registry.is_effectless_basic_energy(20)
 
 
 def test_registered_ability_requires_exact_card_name_skill_name_and_text():

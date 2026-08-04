@@ -22,9 +22,11 @@ from mega_lucario_rule_agent.state_view import (
     build_public_state,
     build_semantic_options,
     is_stable_main_state,
+    is_checked_public_state,
     make_prompt_fingerprint,
     public_board_fingerprint,
     public_board_payload,
+    public_combat_input_complete,
     public_state_fingerprint,
 )
 
@@ -142,6 +144,65 @@ def test_same_card_id_different_serial_binds_physical_copy_after_permutation():
     permuted["select"]["option"] = [hand_card_option(0), hand_card_option(1)]
     rebound = build_semantic_options(permuted)
     assert wanted.bind(rebound, 1, 1) == [0]
+
+
+def test_public_state_builder_receipt_is_bound_to_unchanged_normalized_state():
+    obs = observation([])
+    current = build_public_state(obs)
+    assert current.source_combat_complete
+    assert public_combat_input_complete(obs)
+    assert is_checked_public_state(current)
+
+    changed = replace(current, turn_action_count=current.turn_action_count + 1)
+    assert not is_checked_public_state(changed)
+
+
+def test_missing_combat_field_is_explicitly_incomplete_not_silently_trusted():
+    obs = observation([])
+    del obs["current"]["players"][1]["confused"]
+    current = build_public_state(obs)
+    assert not current.source_combat_complete
+    assert not public_combat_input_complete(obs)
+    assert is_checked_public_state(current)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    (
+        lambda obs: obs.pop("logs"),
+        lambda obs: obs["current"]["players"][0].pop("discard"),
+        lambda obs: obs["current"]["players"][1].pop("prize"),
+        lambda obs: obs["current"]["players"][0].pop("benchMax"),
+        lambda obs: obs["current"]["players"][0].pop("deckCount"),
+        lambda obs: obs["current"]["players"][1].pop("handCount"),
+        lambda obs: obs["current"]["players"][1]["active"][0].pop("maxHp"),
+        lambda obs: obs["current"]["players"][0]["bench"][0].pop("energyCards"),
+        lambda obs: obs["select"].pop("deck"),
+        lambda obs: obs["select"].pop("contextCard"),
+        lambda obs: obs["select"].pop("effect"),
+    ),
+)
+def test_combat_integrity_rejects_every_outcome_critical_missing_field(mutate):
+    obs = observation([])
+    mutate(obs)
+    assert not public_combat_input_complete(obs)
+
+
+def test_history_marks_missing_logs_incomplete():
+    obs = observation([])
+    del obs["logs"]
+    tracker = PublicHistoryTracker()
+    current = build_public_state(obs, game_epoch=1, history_tracker=tracker)
+    assert not current.history_complete
+    assert current.ppp_count is None
+
+
+def test_official_pokemon_shape_does_not_require_player_index():
+    obs = observation([])
+    for player in obs["current"]["players"]:
+        for raw_pokemon in player["active"] + player["bench"]:
+            raw_pokemon.pop("playerIndex", None)
+    assert public_combat_input_complete(obs)
 
 
 def test_ambiguous_semantic_key_fails_closed():

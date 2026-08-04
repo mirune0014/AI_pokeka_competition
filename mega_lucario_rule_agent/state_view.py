@@ -278,6 +278,13 @@ class PublicState:
     attacked_this_turn: bool = False
     ppp_count: Optional[int] = None
     history_complete: bool = False
+    source_combat_complete: bool = False
+    _builder_receipt: Optional[str] = dataclass_field(
+        init=False,
+        default=None,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def own_active(self) -> Optional[PokemonView]:
@@ -769,10 +776,14 @@ class PublicHistoryTracker:
             self._complete = False
         self._last_current_turn = turn
         self._remember_board_lineages(current)
-        raw_logs = read_field(observation, "logs", ())
-        if not isinstance(raw_logs, Sequence) or isinstance(
+        raw_logs = read_field(observation, "logs", None)
+        if (
+            not _field_is_present(observation, "logs")
+            or not isinstance(raw_logs, Sequence)
+            or isinstance(
             raw_logs,
             (str, bytes, bytearray),
+            )
         ):
             self._complete = False
             logs = ()
@@ -835,6 +846,209 @@ class PublicHistoryTracker:
             ppp_count=ppp_count if self._complete else None,
             complete=self._complete,
         )
+
+
+_MISSING_PUBLIC_FIELD = object()
+
+
+def _field_is_present(value: Any, name: str) -> bool:
+    if isinstance(value, Mapping):
+        return name in value
+    return value is not None and hasattr(value, name)
+
+
+def _is_exact_public_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _is_public_sequence(value: Any) -> bool:
+    return isinstance(value, Sequence) and not isinstance(
+        value,
+        (str, bytes, bytearray),
+    )
+
+
+def _raw_card_ref_is_complete(card: Any) -> bool:
+    if card is None:
+        return False
+    return all(
+        _field_is_present(card, name)
+        and _is_exact_public_int(read_field(card, name, _MISSING_PUBLIC_FIELD))
+        for name in ("id", "serial", "playerIndex")
+    )
+
+
+def _raw_pokemon_combat_is_complete(pokemon: Any) -> bool:
+    if pokemon is None:
+        return True
+    exact_int_fields = ("id", "serial", "hp", "maxHp")
+    if not all(
+        _field_is_present(pokemon, name)
+        and _is_exact_public_int(read_field(pokemon, name, _MISSING_PUBLIC_FIELD))
+        for name in exact_int_fields
+    ):
+        return False
+    if not _field_is_present(pokemon, "appearThisTurn") or not isinstance(
+        read_field(pokemon, "appearThisTurn", _MISSING_PUBLIC_FIELD),
+        bool,
+    ):
+        return False
+    for name in ("energies", "energyCards", "tools", "preEvolution"):
+        if not _field_is_present(pokemon, name) or not _is_public_sequence(
+            read_field(pokemon, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    if any(
+        not _is_exact_public_int(value) for value in read_field(pokemon, "energies")
+    ):
+        return False
+    return all(
+        _raw_card_ref_is_complete(card)
+        for name in ("energyCards", "tools", "preEvolution")
+        for card in read_field(pokemon, name)
+    )
+
+
+def _raw_player_combat_is_complete(
+    player: Any,
+    include_private_hand: bool,
+) -> bool:
+    if player is None:
+        return False
+    for name in ("active", "bench"):
+        if not _field_is_present(player, name) or not _is_public_sequence(
+            read_field(player, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+        if any(
+            not _raw_pokemon_combat_is_complete(pokemon)
+            for pokemon in read_field(player, name)
+        ):
+            return False
+    for name in ("discard", "prize"):
+        if not _field_is_present(player, name) or not _is_public_sequence(
+            read_field(player, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    if any(
+        not _raw_card_ref_is_complete(card)
+        for card in read_field(player, "discard")
+    ):
+        return False
+    if any(
+        card is not None and not _raw_card_ref_is_complete(card)
+        for card in read_field(player, "prize")
+    ):
+        return False
+    for name in ("benchMax", "deckCount", "handCount"):
+        if not _field_is_present(player, name) or not _is_exact_public_int(
+            read_field(player, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    if not _field_is_present(player, "hand"):
+        return False
+    raw_hand = read_field(player, "hand", _MISSING_PUBLIC_FIELD)
+    if include_private_hand:
+        if not _is_public_sequence(raw_hand) or any(
+            not _raw_card_ref_is_complete(card) for card in raw_hand
+        ):
+            return False
+        if read_field(player, "handCount") != len(raw_hand):
+            return False
+    elif raw_hand is not None:
+        return False
+    for name in (
+        "poisoned",
+        "burned",
+        "asleep",
+        "paralyzed",
+        "confused",
+    ):
+        if not _field_is_present(player, name) or not isinstance(
+            read_field(player, name, _MISSING_PUBLIC_FIELD),
+            bool,
+        ):
+            return False
+    return True
+
+
+def public_combat_input_complete(observation: Any) -> bool:
+    """Check that every raw field used by strict combat proof was explicit."""
+
+    current = _current_from_observation(observation)
+    select = _select_from_observation(observation)
+    if current is None or select is None:
+        return False
+    for name in ("turn", "turnActionCount", "yourIndex", "firstPlayer", "result"):
+        if not _field_is_present(current, name) or not _is_exact_public_int(
+            read_field(current, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    for name in (
+        "supporterPlayed",
+        "stadiumPlayed",
+        "energyAttached",
+        "retreated",
+    ):
+        if not _field_is_present(current, name) or not isinstance(
+            read_field(current, name, _MISSING_PUBLIC_FIELD),
+            bool,
+        ):
+            return False
+    for name in ("players", "stadium"):
+        if not _field_is_present(current, name) or not _is_public_sequence(
+            read_field(current, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    players = tuple(read_field(current, "players"))
+    seat = read_field(current, "yourIndex")
+    if len(players) != 2 or seat not in (0, 1):
+        return False
+    if not all(
+        _raw_player_combat_is_complete(
+            player,
+            include_private_hand=index == seat,
+        )
+        for index, player in enumerate(players)
+    ):
+        return False
+    if any(
+        not _raw_card_ref_is_complete(card) for card in read_field(current, "stadium")
+    ):
+        return False
+    raw_looking = read_field(current, "looking", _MISSING_PUBLIC_FIELD)
+    if raw_looking is _MISSING_PUBLIC_FIELD or (
+        raw_looking is not None and not _is_public_sequence(raw_looking)
+    ):
+        return False
+    raw_logs = read_field(observation, "logs", _MISSING_PUBLIC_FIELD)
+    if raw_logs is _MISSING_PUBLIC_FIELD or not _is_public_sequence(raw_logs):
+        return False
+    if raw_looking is not None and any(
+        not _raw_card_ref_is_complete(card) for card in raw_looking
+    ):
+        return False
+    for name in (
+        "type",
+        "context",
+        "minCount",
+        "maxCount",
+        "remainDamageCounter",
+        "remainEnergyCost",
+    ):
+        if not _field_is_present(select, name) or not _is_exact_public_int(
+            read_field(select, name, _MISSING_PUBLIC_FIELD)
+        ):
+            return False
+    for name in ("deck", "contextCard", "effect"):
+        if not _field_is_present(select, name):
+            return False
+    raw_options = read_field(
+        select,
+        "option",
+        read_field(select, "options", _MISSING_PUBLIC_FIELD),
+    )
+    return _is_public_sequence(raw_options)
 
 
 def build_public_state(
@@ -905,7 +1119,7 @@ def build_public_state(
         if history_tracker is None
         else history_tracker.update(observation, epoch_value)
     )
-    return PublicState(
+    state = PublicState(
         game_epoch=epoch_value,
         seat=seat,
         turn=as_int(read_field(current, "turn"), 0) or 0,
@@ -936,7 +1150,14 @@ def build_public_state(
         attacked_this_turn=history.attacked_this_turn,
         ppp_count=history.ppp_count,
         history_complete=history.complete,
+        source_combat_complete=public_combat_input_complete(observation),
     )
+    object.__setattr__(
+        state,
+        "_builder_receipt",
+        public_state_fingerprint(state),
+    )
+    return state
 
 
 def _raw_player(observation: Any, player_index: int) -> Any:
@@ -1364,6 +1585,7 @@ def public_state_fingerprint(state: PublicState) -> str:
         "seat": state.seat,
         "turn": state.turn,
         "turn_action_count": state.turn_action_count,
+        "source_combat_complete": state.source_combat_complete,
         "board": _public_board_payload(state),
         "select": (
             state.select_type,
@@ -1389,6 +1611,16 @@ def public_state_fingerprint(state: PublicState) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
+
+
+def is_checked_public_state(state: PublicState) -> bool:
+    """Return true only for an unchanged value issued by build_public_state."""
+
+    return (
+        isinstance(state, PublicState)
+        and state._builder_receipt is not None
+        and state._builder_receipt == public_state_fingerprint(state)
+    )
 
 
 def is_stable_main_state(state: PublicState) -> bool:
@@ -1436,10 +1668,12 @@ __all__ = [
     "build_public_state",
     "build_semantic_options",
     "is_stable_main_state",
+    "is_checked_public_state",
     "make_prompt_fingerprint",
     "pokemon_lineage_serial",
     "public_board_fingerprint",
     "public_board_payload",
+    "public_combat_input_complete",
     "public_state_fingerprint",
     "read_field",
     "relevant_zone_fingerprint",

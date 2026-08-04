@@ -1004,6 +1004,9 @@ _PUBLIC_EFFECT_REGISTRY_ISSUER_TOKEN = object()
 class PublicEffectRegistry:
     admission: CatalogAdmission = dataclass_field(init=False)
     profiles: Tuple[CombatCardProfile, ...] = dataclass_field(init=False)
+    effectless_basic_energy_cards: Tuple[Tuple[int, str, int], ...] = dataclass_field(
+        init=False
+    )
     malformed_pokemon_card_ids: Tuple[int, ...] = dataclass_field(init=False)
     catalog_sha256: str = dataclass_field(init=False)
     digest: str = dataclass_field(init=False)
@@ -1025,10 +1028,30 @@ class PublicEffectRegistry:
         )
         card_index = _catalog_index(card_rows, ("cardId", "card_id"))
         profiles = []
+        effectless_basic_energy_cards = []
         malformed = []
         for card_id in sorted(card_index):
             card = card_index[card_id]
-            if card is None or _read_field(card, "cardType", "card_type") != 0:
+            if card is None:
+                continue
+            card_type = _read_field(card, "cardType", "card_type")
+            if card_type == 5:
+                name = _read_field(card, "name")
+                energy_type = _read_field(card, "energyType", "energy_type")
+                skills = _read_field(card, "skills")
+                if (
+                    isinstance(name, str)
+                    and normalize_catalog_text(name)
+                    and _is_exact_int(energy_type)
+                    and energy_type > 0
+                    and isinstance(skills, (tuple, list))
+                    and not skills
+                ):
+                    effectless_basic_energy_cards.append(
+                        (card_id, normalize_catalog_text(name), energy_type)
+                    )
+                continue
+            if card_type != 0:
                 continue
             profile = _combat_profile_from_card(card, admission)
             if profile is None:
@@ -1036,9 +1059,11 @@ class PublicEffectRegistry:
             else:
                 profiles.append(profile)
         profile_tuple = tuple(profiles)
+        basic_energy_tuple = tuple(effectless_basic_energy_cards)
         malformed_tuple = tuple(malformed)
         catalog_payload = {
             "profiles": tuple(profile.canonical() for profile in profile_tuple),
+            "effectless_basic_energy_cards": basic_energy_tuple,
             "malformed_pokemon_card_ids": malformed_tuple,
         }
         catalog_sha256 = hashlib.sha256(
@@ -1065,6 +1090,11 @@ class PublicEffectRegistry:
         ).hexdigest()
         object.__setattr__(self, "admission", admission)
         object.__setattr__(self, "profiles", profile_tuple)
+        object.__setattr__(
+            self,
+            "effectless_basic_energy_cards",
+            basic_energy_tuple,
+        )
         object.__setattr__(self, "malformed_pokemon_card_ids", malformed_tuple)
         object.__setattr__(self, "catalog_sha256", catalog_sha256)
         object.__setattr__(self, "digest", digest)
@@ -1077,6 +1107,12 @@ class PublicEffectRegistry:
         return next(
             (profile for profile in self.profiles if profile.card_id == card_id),
             None,
+        )
+
+    def is_effectless_basic_energy(self, card_id: int) -> bool:
+        return any(
+            registered_card_id == card_id
+            for registered_card_id, _, _ in self.effectless_basic_energy_cards
         )
 
     def binding_admitted(
