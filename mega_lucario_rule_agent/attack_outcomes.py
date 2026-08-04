@@ -155,6 +155,70 @@ SPIKY_ENERGY_DAMAGE_COUNTERS = 2
 MAX_PPP_COUNT = 4
 LILLIES_POKEMON_CARD_IDS = frozenset((272, 278, 279, 280))
 STEVENS_POKEMON_CARD_IDS = frozenset((635, 636, 637, 638, 639, 640, 641))
+_EXACT_SPREAD_ATTACKS = {
+    154: (
+        121,
+        "phantom dive",
+        "d8f96901640021b5dabbaa4ed8e751745b2c35b6e2bf72f9d4159dcf068e5e7f",
+        200,
+        (2, 5),
+        60,
+    ),
+    937: (
+        648,
+        "shadow bullet",
+        "ee16136a9e9300bb7e963b6c31b52e77ab1f7eb76ffe01133b3bcb36f405d148",
+        180,
+        (7, 7),
+        30,
+    ),
+}
+_EXACT_SPREAD_SOURCE_FIELDS = {
+    121: (
+        "dragapult ex",
+        320,
+        9,
+        None,
+        None,
+        False,
+        False,
+        True,
+        True,
+        False,
+        True,
+        (153, 154),
+        (),
+        (),
+        (),
+    ),
+    648: (
+        "marnie's grimmsnarl ex",
+        320,
+        7,
+        1,
+        None,
+        False,
+        False,
+        True,
+        True,
+        False,
+        False,
+        (937,),
+        (
+            (
+                "punk up",
+                "b89ef242ee6bbde36fb333f8010f1461be486d3f8c944a57f94d7887c17b4825",
+            ),
+        ),
+        (),
+        (
+            (
+                "punk up",
+                "b89ef242ee6bbde36fb333f8010f1461be486d3f8c944a57f94d7887c17b4825",
+            ),
+        ),
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -194,6 +258,7 @@ class OpponentAttackThreatSurface:
     max_attack_ids: Tuple[int, ...]
     knockout_before_heal: Optional[bool]
     knockout_after_heal: Optional[bool]
+    jamming_active: Optional[bool]
     unknown_reasons: Tuple[str, ...]
 
     @property
@@ -1176,11 +1241,56 @@ def _fixed_public_attack_damage(
     return final_damage, not sturdy_applied and final_damage >= target_hp
 
 
+def _is_exact_spread_source(profile: CombatCardProfile) -> bool:
+    expected = _EXACT_SPREAD_SOURCE_FIELDS.get(profile.card_id)
+    return expected is not None and profile.canonical()[1:] == expected
+
+
+def _exact_spread_target_loss(
+    attacker_profile: CombatCardProfile,
+    attack_profile,
+    registry: PublicEffectRegistry,
+) -> Optional[int]:
+    expected = _EXACT_SPREAD_ATTACKS.get(attack_profile.attack_id)
+    if expected is None:
+        return None
+    (
+        source_card_id,
+        attack_name,
+        text_hash,
+        printed_damage,
+        energy_cost,
+        bench_loss,
+    ) = expected
+    owners = tuple(
+        profile
+        for profile in registry.profiles
+        if attack_profile.attack_id in profile.attack_ids
+    )
+    if (
+        len(owners) != 1
+        or owners[0] != attacker_profile
+        or attacker_profile.card_id != source_card_id
+        or not _is_exact_spread_source(attacker_profile)
+        or attack_profile.attack_name != attack_name
+        or attack_profile.text_hash != text_hash
+        or attack_profile.printed_damage != printed_damage
+        or attack_profile.energy_cost != energy_cost
+    ):
+        return None
+    return bench_loss
+
+
 def build_public_opponent_attack_threat(
     state: PublicState,
     registry: PublicEffectRegistry,
+    *,
+    target_ref: Optional[PhysicalRef] = None,
+    before_hp_state: Optional[Tuple[int, int]] = None,
+    after_hp_state: Optional[Tuple[int, int]] = None,
+    admit_spread_attacks: bool = False,
 ) -> OpponentAttackThreatSurface:
-    """Evaluate the opponent Active's current public attacks at current/full HP.
+    """Evaluate public opponent attacks at two exact target HP states.
 
     Hidden draws, future attachments and future evolution are intentionally not
     assumed. Any currently payable attack with unsupported printed text makes
@@ -1189,21 +1299,35 @@ def build_public_opponent_attack_threat(
 
     reasons = []
     attacker = state.opponent_active if isinstance(state, PublicState) else None
-    target = state.own_active if isinstance(state, PublicState) else None
+    target = None
     if not isinstance(state, PublicState) or not is_checked_public_state(state):
         reasons.append("UNCHECKED_PUBLIC_STATE")
     elif not state.source_combat_complete or not is_stable_main_state(state):
         reasons.append("INCOMPLETE_OR_UNSTABLE_PUBLIC_COMBAT_STATE")
+    elif target_ref is None:
+        target = state.own_active
+    elif not isinstance(target_ref, PhysicalRef):
+        reasons.append("INVALID_OWN_TARGET_PHYSICAL_REF")
+    else:
+        target_matches = tuple(
+            pokemon
+            for pokemon in state.own.active + state.own.bench
+            if pokemon.ref == target_ref
+        )
+        if len(target_matches) == 1:
+            target = target_matches[0]
+        else:
+            reasons.append("OWN_TARGET_NOT_UNIQUE_AND_PUBLIC")
     if attacker is None or len(state.opponent.active) != 1:
         reasons.append("OPPONENT_ACTIVE_NOT_UNIQUE_AND_PUBLIC")
-    if target is None or len(state.own.active) != 1:
+    if target_ref is None and (target is None or len(state.own.active) != 1):
         reasons.append("OWN_ACTIVE_NOT_UNIQUE_AND_PUBLIC")
     if attacker is not None and not _active_ref_is_complete(
         attacker.ref,
         state.opponent.index,
     ):
         reasons.append("INCOMPLETE_OPPONENT_ATTACKER_PHYSICAL_REF")
-    if target is not None and not _active_ref_is_complete(target.ref, state.seat):
+    if target is not None and not _board_ref_is_complete(target.ref, state.seat):
         reasons.append("INCOMPLETE_OWN_TARGET_PHYSICAL_REF")
     if any(
         (
@@ -1224,6 +1348,7 @@ def build_public_opponent_attack_threat(
         reasons.append("MISSING_OPPONENT_COMBAT_PROFILE")
     else:
         reasons.extend(effects.unknown_reasons)
+    jamming_active = None if effects is None else effects.jamming_active
     energy_types: Tuple[int, ...] = ()
     if attacker is not None:
         energy_types, energy_reasons = _exact_basic_energy_types(attacker, registry)
@@ -1239,6 +1364,27 @@ def build_public_opponent_attack_threat(
             or target.max_hp != expected_max_hp
         ):
             reasons.append("OWN_TARGET_HP_NOT_EXACT_FROM_PUBLIC_EFFECTS")
+    if target is not None:
+        if before_hp_state is None:
+            before_hp_state = (target.remaining_hp, target.max_hp)
+        if after_hp_state is None:
+            after_hp_state = (target.max_hp, target.max_hp)
+        for label, hp_state in (
+            ("BEFORE", before_hp_state),
+            ("AFTER", after_hp_state),
+        ):
+            if (
+                not isinstance(hp_state, tuple)
+                or len(hp_state) != 2
+                or any(
+                    not _is_exact_int(value) or value <= 0
+                    for value in hp_state
+                )
+                or hp_state[0] > hp_state[1]
+            ):
+                reasons.append(f"{label}_TARGET_HP_STATE_NOT_EXACT")
+        if before_hp_state != (target.remaining_hp, target.max_hp):
+            reasons.append("BEFORE_TARGET_HP_STATE_NOT_CURRENT_PUBLIC_STATE")
     attack_ids = () if effects is None else effects.attacker_profile.attack_ids
     rows = []
     unpayable = []
@@ -1255,21 +1401,39 @@ def build_public_opponent_attack_threat(
             if not payable:
                 unpayable.append(attack_id)
                 continue
-            if profile.effect_text:
+            spread_loss = _exact_spread_target_loss(
+                effects.attacker_profile,
+                profile,
+                registry,
+            )
+            if profile.effect_text and (
+                not admit_spread_attacks or spread_loss is None
+            ):
                 reasons.append(f"UNSUPPORTED_PAYABLE_ATTACK_EFFECT_{attack_id}")
                 continue
-            before_damage, before_ko = _fixed_public_attack_damage(
-                effects,
-                profile.printed_damage,
-                target_hp=target.remaining_hp,
-                target_max_hp=target.max_hp,
-            )
-            after_damage, after_ko = _fixed_public_attack_damage(
-                effects,
-                profile.printed_damage,
-                target_hp=target.max_hp,
-                target_max_hp=target.max_hp,
-            )
+            assert before_hp_state is not None
+            assert after_hp_state is not None
+            assert target is not None
+            if target.ref.zone == int(AreaType.BENCH):
+                target_loss = spread_loss if profile.effect_text else 0
+                assert target_loss is not None
+                before_damage = target_loss
+                after_damage = target_loss
+                before_ko = target_loss >= before_hp_state[0]
+                after_ko = target_loss >= after_hp_state[0]
+            else:
+                before_damage, before_ko = _fixed_public_attack_damage(
+                    effects,
+                    profile.printed_damage,
+                    target_hp=before_hp_state[0],
+                    target_max_hp=before_hp_state[1],
+                )
+                after_damage, after_ko = _fixed_public_attack_damage(
+                    effects,
+                    profile.printed_damage,
+                    target_hp=after_hp_state[0],
+                    target_max_hp=after_hp_state[1],
+                )
             if before_damage != after_damage:
                 reasons.append(f"HP_DEPENDENT_DAMAGE_UNSUPPORTED_{attack_id}")
                 continue
@@ -1302,6 +1466,7 @@ def build_public_opponent_attack_threat(
         max_attack_ids=max_attack_ids,
         knockout_before_heal=knockout_before,
         knockout_after_heal=knockout_after,
+        jamming_active=jamming_active,
         unknown_reasons=unknown_reasons,
     )
 
@@ -1509,6 +1674,19 @@ def _active_ref_is_complete(ref_value: PhysicalRef, owner: int) -> bool:
     return (
         ref_value.owner == owner
         and ref_value.zone == int(AreaType.ACTIVE)
+        and _is_exact_int(ref_value.card_id)
+        and ref_value.card_id > 0
+        and _is_exact_int(ref_value.serial)
+        and ref_value.serial >= 0
+        and _is_exact_int(ref_value.lineage_serial)
+        and ref_value.lineage_serial >= 0
+    )
+
+
+def _board_ref_is_complete(ref_value: PhysicalRef, owner: int) -> bool:
+    return (
+        ref_value.owner == owner
+        and ref_value.zone in (int(AreaType.ACTIVE), int(AreaType.BENCH))
         and _is_exact_int(ref_value.card_id)
         and ref_value.card_id > 0
         and _is_exact_int(ref_value.serial)

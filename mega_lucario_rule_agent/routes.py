@@ -1908,49 +1908,158 @@ def enumerate_cape_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
     registry: PublicEffectRegistry,
 ) -> Tuple[Proposal, ...]:
-    """Attach Hero's Cape only to one explicit protection target."""
+    """Attach Hero's Cape only for an exact public survival delta."""
 
-    if not features.matches(state, legal_options, registry):
+    if (
+        not features.matches(state, legal_options, registry)
+        or not attack_outcomes.matches(state, legal_options, registry)
+    ):
         return ()
-    ex_block = PublicMatchupFlag.EX_DAMAGE_PREVENTION in features.public_flags
-    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+
+    def exact_target(option: SemanticOption):
+        key = option.key
+        matches = tuple(
+            pokemon
+            for pokemon in state.own.active + state.own.bench
+            if pokemon.ref.zone == key.target_zone
+            and pokemon.ref.lineage_serial == key.target_lineage_serial
+        )
+        return matches[0] if len(matches) == 1 else None
+
+    def exact_prize_value(target) -> int | None:
+        profile = (
+            None
+            if target.ref.card_id is None
+            else registry.profile(target.ref.card_id)
+        )
+        if profile is None:
+            return None
+        for energy_ref in target.energy_refs:
+            if (
+                energy_ref.card_id is None
+                or not registry.is_effectless_basic_energy(energy_ref.card_id)
+            ):
+                return None
+        return profile.prize_value
+
+    def productive_attack(target):
+        rows = []
+        for row in attack_outcomes.rows:
+            if (
+                row.attacker_ref != target.ref
+                or not row.authoritative
+                or not row.legality_exact
+                or row.legal is not True
+                or row.payable is not True
+                or not row.exact_damage
+                or row.final_damage is None
+                or row.final_damage <= 0
+                or row.knockout is not False
+                or row.attacker_damage != 0
+                or not row.post_attack_exact
+                or row.attacker_hp_after is None
+                or row.attacker_hp_after <= 0
+                or not row.terminal_exact
+                or row.loses_game is not False
+                or row.draws_game is not False
+            ):
+                continue
+            rows.append(
+                (-row.final_damage, row.attack_id, row.option_key.sort_key(), row)
+            )
+        if not rows:
+            return None
+        chosen = min(rows)[-1]
+        return chosen.attack_id, chosen.attacker_hp_after
+
+    candidates = []
+    for option in legal_options:
         if (
             option.key.option_type != int(OptionType.ATTACH)
             or option.key.card_id != 1159
         ):
             continue
         source_ref = _exact_hand_ref(state, option)
-        target = _board_pokemon_for_option(state, option)
+        target = exact_target(option)
         if source_ref is None or target is None or target.tool_refs:
             continue
-        purpose = None
-        route_priority = 99
-        if target.ref.card_id == 678 and (
-            target.damage >= 180
-            or (
-                target.ref.zone == int(AreaType.ACTIVE)
-                and features.opponent_prizes_remaining <= 3
-            )
+        prize_value = exact_prize_value(target)
+        if prize_value is None:
+            continue
+        profile = registry.profile(target.ref.card_id)
+        if profile is None:
+            continue
+        if (
+            target.ref.zone == int(AreaType.BENCH)
+            and target.ref.card_id == 677
+            and target.damage > 0
         ):
-            purpose = "THREE_PRIZE_MEGA"
-            route_priority = 0
-        elif (
-            target.ref.card_id == 677
-            and target.ref.zone == int(AreaType.BENCH)
-            and features.public_bench_damage_threat is True
-        ):
-            purpose = "SPREAD_RIOLU"
+            branch = "BENCH_SPREAD"
             route_priority = 1
-        elif (
-            target.ref.card_id == 674
-            and ex_block
-            and (target.ref.zone == int(AreaType.ACTIVE) or target.damage > 0)
+        elif target.ref.zone == int(AreaType.ACTIVE):
+            branch = "ACTIVE_RESPONSE"
+            if profile.mega_ex and prize_value == 3:
+                route_priority = 0
+            elif target.ref.card_id == 674:
+                route_priority = 2
+            elif prize_value == 1:
+                route_priority = 3
+            else:
+                continue
+        else:
+            continue
+        before_hp = (target.remaining_hp, target.max_hp)
+        after_hp = (target.remaining_hp + 100, target.max_hp + 100)
+        threat = build_public_opponent_attack_threat(
+            state,
+            registry,
+            target_ref=target.ref,
+            before_hp_state=before_hp,
+            after_hp_state=after_hp,
+            admit_spread_attacks=True,
+        )
+        if (
+            not threat.exact
+            or threat.jamming_active is not False
+            or threat.knockout_before_heal is not True
+            or threat.knockout_after_heal is not False
         ):
-            purpose = "ANTI_EX_HARIYAMA"
-            route_priority = 2
-        if purpose is None:
+            continue
+        response_target = (
+            state.own_active if branch == "BENCH_SPREAD" else target
+        )
+        if response_target is None:
+            continue
+        if branch == "BENCH_SPREAD":
+            active_hp = (
+                response_target.remaining_hp,
+                response_target.max_hp,
+            )
+            active_threat = build_public_opponent_attack_threat(
+                state,
+                registry,
+                target_ref=response_target.ref,
+                before_hp_state=active_hp,
+                after_hp_state=active_hp,
+                admit_spread_attacks=True,
+            )
+            if (
+                not active_threat.exact
+                or active_threat.jamming_active is not False
+                or active_threat.knockout_before_heal is not False
+            ):
+                continue
+        productive = productive_attack(response_target)
+        preserves_productive_attack = productive is not None
+        prevents_terminal_prize_loss = state.opponent.prize_count <= prize_value
+        if (
+            branch == "ACTIVE_RESPONSE"
+            and not preserves_productive_attack
+            and not prevents_terminal_prize_loss
+        ):
             continue
         action_spec = ActionSpec.single(option.key)
         proof = deck_rule_proof(
@@ -1965,12 +2074,37 @@ def enumerate_cape_routes(
                 "route_priority": route_priority,
                 "source_ref": source_ref,
                 "target_ref": target.ref,
-                "purpose": purpose,
-                "damage_before": target.damage,
+                "branch": branch,
+                "hp_before": before_hp[0],
+                "max_hp_before": before_hp[1],
+                "hp_after": after_hp[0],
+                "max_hp_after": after_hp[1],
+                "opponent_attack_ids": threat.max_attack_ids,
+                "max_target_loss": threat.max_damage,
+                "ko_without": threat.knockout_before_heal,
+                "ko_with": threat.knockout_after_heal,
+                "target_prize_value": prize_value,
+                "prevented_prizes": (
+                    prize_value if prevents_terminal_prize_loss else 0
+                ),
+                "productive_attack_id": (
+                    None if productive is None else productive[0]
+                ),
+                "post_attack_hp": (
+                    None
+                    if productive is None
+                    else productive[1]
+                    + (100 if branch == "ACTIVE_RESPONSE" else 0)
+                ),
+                "jamming_active": threat.jamming_active,
+                "existing_tool_refs": target.tool_refs,
+                "preserves_productive_attack": preserves_productive_attack,
+                "prevents_terminal_prize_loss": prevents_terminal_prize_loss,
+                "other_tool_opportunity_cost": 0,
+                "certificate_status": "PROVISIONAL_GENERIC_GATE_A2",
             },
         )
-        return (
-            Proposal(
+        proposal = Proposal(
                 rule_id="R_CAPE_EXPLICIT_PROTECTION_V1",
                 tier=ResolverTier.CERTIFIED_SURVIVAL,
                 action_spec=action_spec,
@@ -1981,9 +2115,16 @@ def enumerate_cape_routes(
                     action_spec,
                     proof,
                 ),
-            ),
         )
-    return ()
+        candidates.append(
+            (
+                route_priority,
+                target.ref.sort_key(),
+                source_ref.sort_key(),
+                proposal,
+            )
+        )
+    return () if not candidates else (min(candidates)[-1],)
 
 
 def enumerate_requirement_routes(
@@ -2041,7 +2182,9 @@ def enumerate_requirement_routes(
     proposals.extend(
         enumerate_fighting_gong_routes(state, legal_options, features, registry)
     )
-    proposals.extend(enumerate_cape_routes(state, legal_options, features, registry))
+    proposals.extend(
+        enumerate_cape_routes(state, legal_options, features, attack_outcomes, registry)
+    )
     proposals.extend(
         enumerate_safe_draw_supporter_routes(state, legal_options, features, registry)
     )

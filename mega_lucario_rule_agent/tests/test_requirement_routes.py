@@ -416,9 +416,11 @@ def test_switch_and_cape_emit_only_for_explicit_targets():
             {"type": int(OptionType.ATTACK), "attackId": 982},
         ),
     )
-    proposals = enumerate_cape_routes(current[0], current[1], current[2], current[4])
-    assert len(proposals) == 1
-    assert proposals[0].proof.fact("purpose") == "THREE_PRIZE_MEGA"
+    proposals = enumerate_cape_routes(
+        current[0], current[1], current[2], current[3], current[4]
+    )
+    # An opponent with no public attack is no longer a Cape survival claim.
+    assert proposals == ()
 
 
 def test_midgame_attach_completes_exact_active_deficit():
