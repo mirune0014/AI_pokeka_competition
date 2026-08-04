@@ -89,6 +89,20 @@ def _single_decision(current, attack_id, rule_id, legal=None):
 
 
 def _trace(*events, dropped_count=0, record_error_count=0):
+    if not any(
+        event.get("record_type") == RecordType.GAME_END.value
+        for event in events
+    ):
+        events = events + (
+            make_game_end_event(
+                RUN,
+                replace(state(), result=0),
+                steps=1,
+                action_errors=0,
+                hit_max_steps=False,
+                exit_code=0,
+            ),
+        )
     sequenced = tuple(
         dict(event, sequence=index + dropped_count)
         for index, event in enumerate(events)
@@ -619,6 +633,87 @@ def test_first_difference_requires_complete_same_run_trace_envelopes():
     assert (
         fault_run_mismatch["comparison"]["fault_code"]
         == "RUN_CONTEXT_MISMATCH"
+    )
+
+    missing_game_end = _trace(baseline)
+    missing_game_end["records"] = missing_game_end["records"][:-1]
+    missing_game_end["buffer"]["next_sequence"] -= 1
+    incomplete_end = find_first_difference(
+        missing_game_end,
+        _trace(candidate),
+        run_context=RUN,
+    )
+    assert incomplete_end["comparison"]["fault_code"] == "TRACE_INCOMPLETE"
+    assert (
+        "BASELINE:GAME_END_COUNT_INVALID"
+        in incomplete_end["comparison"]["baseline_integrity_reasons"]
+    )
+
+
+def test_first_difference_detects_fault_only_differences_in_order():
+    current = state()
+    action = _single_decision(current, 982, "SAME_ACTION")
+    candidate_fault = make_fault_event(
+        current,
+        source="TRANSACTION",
+        code="CANDIDATE_ONLY_FAULT",
+        run_context=RUN,
+    )
+    difference = find_first_difference(
+        _trace(action),
+        _trace(action, candidate_fault),
+        run_context=RUN,
+    )
+    assert difference["comparison"]["fault_code"] == "FAULT_EVENT_COUNT_MISMATCH"
+    assert (
+        difference["comparison"]["difference_kind"]
+        == DifferenceKind.IMPLEMENTATION_FAULT.value
+    )
+
+    same_fault = make_fault_event(
+        current,
+        source="TRANSACTION",
+        code="SAME_FAULT",
+        run_context=RUN,
+    )
+    assert (
+        find_first_difference(
+            _trace(action, same_fault),
+            _trace(action, same_fault),
+            run_context=RUN,
+        )
+        is None
+    )
+
+
+def test_irreversible_transaction_status_is_a_fault_without_fault_record():
+    current = transaction_effect_state(SelectContext.ACTIVATE)
+    legal = transaction_options(YES_KEY, NO_KEY)
+    transaction_fault = make_transaction_event(
+        current,
+        legal,
+        ResumeResult(
+            ResumeStatus.IRREVERSIBLE_FAULT,
+            None,
+            None,
+            None,
+            ("UNEXPECTED_SELECT_TYPE",),
+        ),
+        owner_before=None,
+        origin_proposal_digest=None,
+        rule_id=None,
+        plan_digest=None,
+        run_context=RUN,
+    )
+    difference = find_first_difference(
+        _trace(),
+        _trace(transaction_fault),
+        run_context=RUN,
+    )
+    assert difference["comparison"]["fault_code"] == "FAULT_EVENT_COUNT_MISMATCH"
+    assert (
+        difference["comparison"]["difference_kind"]
+        == DifferenceKind.IMPLEMENTATION_FAULT.value
     )
 
 

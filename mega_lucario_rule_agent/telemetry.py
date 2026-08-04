@@ -1425,6 +1425,15 @@ def _trace_records(
             reasons.append("{0}:RECORD_TYPE_INVALID".format(label))
         if any(not isinstance(record.get("run"), Mapping) for record in records):
             reasons.append("{0}:RECORD_RUN_MISSING".format(label))
+        game_end_indices = tuple(
+            index
+            for index, record in enumerate(records)
+            if record.get("record_type") == RecordType.GAME_END.value
+        )
+        if len(game_end_indices) != 1:
+            reasons.append("{0}:GAME_END_COUNT_INVALID".format(label))
+        elif game_end_indices[0] != len(records) - 1:
+            reasons.append("{0}:GAME_END_NOT_LAST".format(label))
         if any(
             record.get("record_type") == RecordType.TRANSACTION.value
             and record.get("transaction", {}).get("result", {}).get("action")
@@ -1500,13 +1509,48 @@ def _trace_integrity_fault(
     }
 
 
-def _action_rows(events: Sequence[Mapping[str, Any]]) -> Tuple[Mapping[str, Any], ...]:
+def _comparison_rows(
+    events: Sequence[Mapping[str, Any]],
+) -> Tuple[Mapping[str, Any], ...]:
     return tuple(
         event
         for event in events
-        if event.get("record_type")
-        in (RecordType.DECISION.value, RecordType.TRANSACTION.value)
-        and _selected_signature(event)[2] is not None
+        if (
+            event.get("record_type")
+            in (RecordType.DECISION.value, RecordType.TRANSACTION.value)
+            and _selected_signature(event)[2] is not None
+        )
+        or event.get("record_type") == RecordType.FAULT.value
+        or (
+            event.get("record_type") == RecordType.TRANSACTION.value
+            and event.get("transaction", {}).get("result", {}).get("status")
+            == "IRREVERSIBLE_FAULT"
+        )
+    )
+
+
+def _row_kind(event: Mapping[str, Any]) -> str:
+    return "ACTION" if _selected_signature(event)[2] is not None else "FAULT"
+
+
+def _fault_signature(event: Mapping[str, Any]) -> Tuple[Any, ...]:
+    if event.get("record_type") == RecordType.FAULT.value:
+        fault = event.get("fault", {})
+        correlation = fault.get("transaction_correlation")
+        return (
+            RecordType.FAULT.value,
+            fault.get("source"),
+            fault.get("code"),
+            correlation,
+        )
+    transaction = event.get("transaction", {})
+    result = transaction.get("result", {})
+    correlation = transaction.get("correlation", {})
+    return (
+        RecordType.TRANSACTION.value,
+        result.get("status"),
+        result.get("reason_codes"),
+        correlation,
     )
 
 
@@ -1563,8 +1607,8 @@ def find_first_difference(
         raise ValueError(
             "first-difference comparison requires INTERNAL_AGENT_VISIBLE actions"
         )
-    baseline = _action_rows(baseline_events)
-    candidate = _action_rows(candidate_events)
+    baseline = _comparison_rows(baseline_events)
+    candidate = _comparison_rows(candidate_events)
     if any(
         event.get("projection")
         != TelemetryProjection.INTERNAL_AGENT_VISIBLE.value
@@ -1626,7 +1670,13 @@ def find_first_difference(
         public_state_matches = baseline_public_state == candidate_public_state
         baseline_legal = baseline_observed.get("legal_semantic_action_multiset")
         candidate_legal = candidate_observed.get("legal_semantic_action_multiset")
-        legal_surface_matches = baseline_legal == candidate_legal
+        baseline_kind = _row_kind(baseline[index])
+        candidate_kind = _row_kind(candidate[index])
+        legal_surface_matches = (
+            baseline_legal == candidate_legal
+            if baseline_kind == candidate_kind == "ACTION"
+            else True
+        )
         if not agent_state_matches or not public_state_matches or not legal_surface_matches:
             if not agent_state_matches or not public_state_matches:
                 fault_code = "STATE_DESYNC"
@@ -1655,6 +1705,44 @@ def find_first_difference(
                     ),
                 },
             }
+
+        if baseline_kind != candidate_kind:
+            return {
+                "schema_version": SCHEMA_VERSION,
+                "record_type": RecordType.FIRST_DIFFERENCE.value,
+                "projection": TelemetryProjection.INTERNAL_AGENT_VISIBLE.value,
+                "run": _runner_payload(run_context),
+                "comparison": {
+                    "index": index,
+                    "common_prefix_verified": True,
+                    "common_prefix_length": common_prefix,
+                    "fault_code": "FAULT_ACTION_SEQUENCE_MISMATCH",
+                    "difference_kind": DifferenceKind.IMPLEMENTATION_FAULT.value,
+                    "baseline_row_kind": baseline_kind,
+                    "candidate_row_kind": candidate_kind,
+                },
+            }
+        if baseline_kind == "FAULT":
+            baseline_fault = _fault_signature(baseline[index])
+            candidate_fault = _fault_signature(candidate[index])
+            if baseline_fault != candidate_fault:
+                return {
+                    "schema_version": SCHEMA_VERSION,
+                    "record_type": RecordType.FIRST_DIFFERENCE.value,
+                    "projection": TelemetryProjection.INTERNAL_AGENT_VISIBLE.value,
+                    "run": _runner_payload(run_context),
+                    "comparison": {
+                        "index": index,
+                        "common_prefix_verified": True,
+                        "common_prefix_length": common_prefix,
+                        "fault_code": "FAULT_RECORD_MISMATCH",
+                        "difference_kind": DifferenceKind.IMPLEMENTATION_FAULT.value,
+                        "baseline_fault": baseline_fault,
+                        "candidate_fault": candidate_fault,
+                    },
+                }
+            common_prefix += 1
+            continue
 
         baseline_selected = _selected_signature(baseline[index])
         candidate_selected = _selected_signature(candidate[index])
@@ -1710,6 +1798,14 @@ def find_first_difference(
         common_prefix += 1
 
     if len(baseline) != len(candidate):
+        remaining = (
+            baseline[common_prefix:]
+            if len(baseline) > len(candidate)
+            else candidate[common_prefix:]
+        )
+        fault_only = bool(remaining) and all(
+            _row_kind(event) == "FAULT" for event in remaining
+        )
         return {
             "schema_version": SCHEMA_VERSION,
             "record_type": RecordType.FIRST_DIFFERENCE.value,
@@ -1719,7 +1815,11 @@ def find_first_difference(
                 "index": common_prefix,
                 "common_prefix_verified": False,
                 "common_prefix_length": common_prefix,
-                "fault_code": "STATE_DESYNC:ACTION_EVENT_COUNT_MISMATCH",
+                "fault_code": (
+                    "FAULT_EVENT_COUNT_MISMATCH"
+                    if fault_only
+                    else "STATE_DESYNC:ACTION_EVENT_COUNT_MISMATCH"
+                ),
                 "difference_kind": DifferenceKind.IMPLEMENTATION_FAULT.value,
                 "baseline_action_event_count": len(baseline),
                 "candidate_action_event_count": len(candidate),
