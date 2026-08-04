@@ -13,7 +13,7 @@ from typing import Mapping, Optional, Sequence, Tuple, Union
 
 try:  # Package import in tests.
     from .attack_outcomes import BoundAttackOutcomeTable
-    from .card_meta import get_card_meta
+    from .card_meta import get_attack_meta, get_card_meta
     from .certificates import CertificateKind, safe_fallback_proof
     from .damage import BoundDamageTable, DamageResult
     from .public_effects import PublicEffectRegistry
@@ -38,7 +38,7 @@ try:  # Package import in tests.
     )
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import BoundAttackOutcomeTable
-    from card_meta import get_card_meta
+    from card_meta import get_attack_meta, get_card_meta
     from certificates import CertificateKind, safe_fallback_proof
     from damage import BoundDamageTable, DamageResult
     from public_effects import PublicEffectRegistry
@@ -404,9 +404,7 @@ def _setup_bench_decision(
         if _is_exact_int(pokemon.ref.card_id)
     )
     occupied_card_ids = tuple(
-        value
-        for value in (active_card_id,) + existing_card_ids
-        if _is_exact_int(value)
+        value for value in (active_card_id,) + existing_card_ids if _is_exact_int(value)
     )
     occupied_roles = {
         role
@@ -482,10 +480,7 @@ def _setup_bench_decision(
     # duplicate cards as strategic choices, and never persist raw indices.
     mandatory_target = min(state.min_count, prompt_capacity)
     if len(chosen) < mandatory_target:
-        remaining = [
-            option for option in legal_options
-            if option not in chosen
-        ]
+        remaining = [option for option in legal_options if option not in chosen]
         remaining.sort(
             key=lambda option: (
                 int(option not in candidates),
@@ -509,25 +504,49 @@ def _promotion_rank(
     key = option.key
     meta = get_card_meta(key.card_id) if _is_exact_int(key.card_id) else None
     prize_value = (
-        meta.prize_value
-        if meta is not None and _is_exact_int(meta.prize_value)
-        else 99
+        meta.prize_value if meta is not None and _is_exact_int(meta.prize_value) else 99
     )
     serial = key.card_serial if _is_exact_int(key.card_serial) else None
     pokemon = next(
         (
             value
             for value in state.own.active + state.own.bench
-            if serial is not None
-            and serial in (value.ref.serial, value.lineage_serial)
+            if serial is not None and serial in (value.ref.serial, value.lineage_serial)
         ),
         None,
     )
-    energy_count = len(pokemon.energy_refs) if pokemon is not None else 99
+    energy_count = len(pokemon.energy_refs) if pokemon is not None else 0
+    costs = tuple(
+        len(attack.energy_cost)
+        for attack_id in (() if meta is None else meta.attack_ids)
+        for attack in (get_attack_meta(attack_id),)
+        if attack is not None
+    )
+    minimum_cost = min(costs) if costs else None
+    ready_one_prize = (
+        prize_value == 1 and minimum_cost is not None and energy_count >= minimum_cost
+    )
+    mega_in_hand = any(ref_value.card_id == 678 for ref_value in state.own.hand_refs)
+    evolvable_riolu = (
+        key.card_id == 677
+        and mega_in_hand
+        and pokemon is not None
+        and not pokemon.appear_this_turn
+    )
+    if ready_one_prize:
+        category = 0
+    elif evolvable_riolu:
+        category = 1
+    elif key.card_id != 678:
+        category = 2
+    else:
+        category = 3
+    remaining_hp = pokemon.remaining_hp if pokemon is not None else 0
     return (
+        category,
         int(prize_value),
-        int(key.card_id == 677),  # Preserve the first Lucario evolution source.
-        energy_count,
+        -remaining_hp,
+        -energy_count,
         key.card_id if _is_exact_int(key.card_id) else 2**63 - 1,
         serial if serial is not None else 2**63 - 1,
         key.sort_key(),
@@ -567,12 +586,15 @@ def resolve_forced_or_setup(
     option_values = tuple(legal_options)
     if not option_values:
         if state.min_count == 0:
-            return FallbackDecision((), "EMPTY_OPTIONAL_PROMPT", unsupported_effect=True)
+            return FallbackDecision(
+                (), "EMPTY_OPTIONAL_PROMPT", unsupported_effect=True
+            )
         return None
 
     if state.select_context == int(SelectContext.IS_FIRST):
         yes = tuple(
-            option for option in option_values
+            option
+            for option in option_values
             if option.key.option_type == int(OptionType.YES)
         )
         if yes:
@@ -601,7 +623,9 @@ def resolve_forced_or_setup(
         )
 
     if state.min_count == 0:
-        return FallbackDecision((), "UNSUPPORTED_OPTIONAL_SKIP", unsupported_effect=True)
+        return FallbackDecision(
+            (), "UNSUPPORTED_OPTIONAL_SKIP", unsupported_effect=True
+        )
     if len(option_values) == 1:
         return FallbackDecision(
             (option_values[0].key,),
@@ -610,7 +634,8 @@ def resolve_forced_or_setup(
         )
 
     no_options = tuple(
-        option for option in option_values
+        option
+        for option in option_values
         if option.key.option_type == int(OptionType.NO)
     )
     if no_options and state.min_count == 1:
@@ -623,7 +648,8 @@ def resolve_forced_or_setup(
         )
 
     end_options = tuple(
-        option for option in option_values
+        option
+        for option in option_values
         if option.key.option_type == int(OptionType.END)
     )
     if end_options and state.min_count == 1:
@@ -691,11 +717,9 @@ def _normalize_damage_table(
     if isinstance(damage_table, BoundDamageTable):
         values = damage_table.as_dict()
         active = state.opponent_active
-        current = (
-            damage_table.state_fingerprint == public_state_fingerprint(state)
-            and damage_table.target_ref
-            == (None if active is None else active.ref)
-        )
+        current = damage_table.state_fingerprint == public_state_fingerprint(
+            state
+        ) and damage_table.target_ref == (None if active is None else active.ref)
         reasons = [] if current else ["DAMAGE_TABLE_STATE_STALE"]
     elif isinstance(damage_table, Mapping):
         values = damage_table
@@ -740,9 +764,8 @@ def safe_fallback(
             construction_reasons.append("ATTACK_OUTCOME_REGISTRY_REQUIRED")
         elif not isinstance(registry, PublicEffectRegistry):
             raise ValueError("registry must be a PublicEffectRegistry or None")
-        elif (
-            attack_outcomes.build_unknown_reasons
-            or not attack_outcomes.matches(state, legal_options, registry)
+        elif attack_outcomes.build_unknown_reasons or not attack_outcomes.matches(
+            state, legal_options, registry
         ):
             construction_reasons.append("ATTACK_OUTCOME_TABLE_BINDING_MISMATCH")
         else:

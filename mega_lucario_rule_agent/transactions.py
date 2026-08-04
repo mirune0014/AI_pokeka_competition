@@ -882,6 +882,471 @@ def build_aura_jab_plan(
     )
 
 
+def build_ultra_ball_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    discard_refs: Sequence[PhysicalRef],
+    action_spec: ActionSpec,
+    ordered_card_id_classes: Sequence[Sequence[int]],
+    availability_proof: DeckAvailabilityProof,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Discard two safe exact cards, then take one guaranteed Pokemon."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Ultra Ball plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    if (
+        source_ref.card_id != 1121
+        or source_ref.owner != state.seat
+        or source_ref.zone != int(AreaType.HAND)
+        or source_ref not in state.own.hand_refs
+    ):
+        raise ValueError("Ultra Ball source must be one exact own HAND card")
+    discards = _normalize_refs(discard_refs)
+    if len(discards) != 2 or source_ref in discards:
+        raise ValueError("Ultra Ball requires two distinct non-source discards")
+    if any(
+        ref_value.owner != state.seat
+        or ref_value.zone != int(AreaType.HAND)
+        or ref_value not in state.own.hand_refs
+        for ref_value in discards
+    ):
+        raise ValueError("Ultra Ball discard refs must be exact own HAND cards")
+    _validate_persisted_action_spec(action_spec)
+    key = action_spec.choices[0]
+    if (
+        key.option_type != int(OptionType.PLAY)
+        or key.card_id != source_ref.card_id
+        or key.card_serial != source_ref.serial
+        or key.source_zone != source_ref.zone
+    ):
+        raise ValueError("Ultra Ball initiation must bind its physical source")
+    if not isinstance(availability_proof, DeckAvailabilityProof):
+        raise ValueError("Ultra Ball requires a deck availability proof")
+    _require_proof_digest(proof_digest)
+    classes = tuple(tuple(card_ids) for card_ids in ordered_card_id_classes)
+    policy = DeferredCardClassChoice(
+        ordered_card_id_classes=classes,
+        owner=state.seat,
+        allowed_source_zones=(int(AreaType.DECK),),
+        option_type=int(OptionType.CARD),
+        selection_count=1,
+        require_match=True,
+        availability_proof=availability_proof,
+    )
+    payload = (
+        "ULTRA_BALL_SAFE_ROUTE_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        tuple(ref_value.sort_key() for ref_value in discards),
+        action_spec.canonical(),
+        classes,
+        availability_proof.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="ULTRA_BALL_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.ULTRA_BALL_ROUTE,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(),
+        reserved_refs=discards,
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=1121,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_COST,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.DISCARD),
+                expected_min_count=2,
+                expected_max_count=2,
+                action_spec=ActionSpec(
+                    tuple(
+                        _card_spec_for_ref(ref_value).choices[0]
+                        for ref_value in discards
+                    )
+                ),
+                irreversible_on_emit=True,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=1121,
+            ),
+            TransactionStep(
+                stage=TransactionStage.SELECT_SEARCH_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.TO_HAND),
+                expected_min_count=0,
+                expected_max_count=1,
+                action_spec=None,
+                irreversible_on_emit=False,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=1121,
+                deferred_card_choice=policy,
+            ),
+        ),
+    )
+
+
+def build_boss_gust_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    target_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Select one exact opposing Bench target after Boss's Orders."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Boss gust plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    _require_exact_ref(target_ref)
+    _require_proof_digest(proof_digest)
+    if (
+        source_ref.card_id != 1182
+        or source_ref not in state.own.hand_refs
+        or target_ref not in tuple(pokemon.ref for pokemon in state.opponent.bench)
+    ):
+        raise ValueError("Boss gust refs must identify its source and opposing Bench")
+    _validate_persisted_action_spec(action_spec)
+    if (
+        action_spec.choices[0].option_type != int(OptionType.PLAY)
+        or action_spec.choices[0].card_id != 1182
+    ):
+        raise ValueError("Boss gust initiation must be Boss's Orders")
+    payload = (
+        "BOSS_GUST_EXACT_KO_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        target_ref.sort_key(),
+        action_spec.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="BOSS_GUST_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.BOSS_GUST,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(target_ref,),
+        reserved_refs=(),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=1182,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_GUST_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.SWITCH),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=_card_spec_for_ref(target_ref),
+                irreversible_on_emit=True,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=1182,
+            ),
+        ),
+    )
+
+
+def build_hariyama_gust_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    target_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Accept Heave-Ho Catcher and gust one exact opposing Bench target."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Hariyama gust plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    _require_exact_ref(target_ref)
+    _require_proof_digest(proof_digest)
+    if (
+        source_ref.card_id != 674
+        or source_ref not in state.own.hand_refs
+        or target_ref not in tuple(pokemon.ref for pokemon in state.opponent.bench)
+    ):
+        raise ValueError("Hariyama gust refs must identify its source and target")
+    _validate_persisted_action_spec(action_spec)
+    key = action_spec.choices[0]
+    if key.option_type != int(OptionType.EVOLVE) or key.card_id != 674:
+        raise ValueError("Hariyama gust initiation must be an evolution")
+    yes_spec = ActionSpec.single(
+        SemanticOptionKey(
+            option_type=int(OptionType.YES),
+            player_index=state.seat,
+        )
+    )
+    payload = (
+        "HARIYAMA_HEAVE_HO_EXACT_KO_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        target_ref.sort_key(),
+        action_spec.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="HARIYAMA_GUST_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.HARIYAMA_GUST,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(target_ref,),
+        reserved_refs=(),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=674,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_EFFECT_TARGET,
+                expected_select_type=int(SelectType.YES_NO),
+                expected_context=int(SelectContext.ACTIVATE),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=yes_spec,
+                irreversible_on_emit=True,
+                expected_context_ref=source_ref,
+                effect_or_attack_id=674,
+            ),
+            TransactionStep(
+                stage=TransactionStage.SELECT_GUST_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.SWITCH),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=_card_spec_for_ref(target_ref),
+                irreversible_on_emit=True,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=674,
+            ),
+        ),
+    )
+
+
+def build_wally_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    target_ref: PhysicalRef,
+    reattach_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Heal one exact evolved target, reattach one returned Energy, then replan."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Wally plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    _require_exact_ref(target_ref)
+    _require_exact_ref(reattach_ref)
+    _require_proof_digest(proof_digest)
+    target = next(
+        (
+            pokemon
+            for pokemon in state.own.active + state.own.bench
+            if pokemon.ref == target_ref
+        ),
+        None,
+    )
+    if (
+        source_ref.card_id != 1229
+        or source_ref not in state.own.hand_refs
+        or target is None
+        or target_ref.card_id not in (674, 678)
+    ):
+        raise ValueError("Wally refs must identify its source and evolved target")
+    if (
+        reattach_ref.card_id != 6
+        or target is None
+        or reattach_ref not in target.energy_refs
+    ):
+        raise ValueError("Wally reattach must be one exact attached Fighting Energy")
+    reattach_spec = ActionSpec.single(
+        SemanticOptionKey(
+            option_type=int(OptionType.ATTACH),
+            player_index=state.seat,
+            card_id=reattach_ref.card_id,
+            card_serial=reattach_ref.serial,
+            source_zone=int(AreaType.HAND),
+            target_zone=target_ref.zone,
+            target_lineage_serial=target_ref.lineage_serial,
+        )
+    )
+    _validate_persisted_action_spec(action_spec)
+    if (
+        action_spec.choices[0].option_type != int(OptionType.PLAY)
+        or action_spec.choices[0].card_id != 1229
+    ):
+        raise ValueError("Wally initiation must bind Wally's Compassion")
+    payload = (
+        "WALLY_REBOOT_NARROW_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        reattach_ref.sort_key(),
+        target_ref.sort_key(),
+        action_spec.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="WALLY_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.WALLY_REBOOT,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(target_ref,),
+        reserved_refs=(reattach_ref,),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=1229,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_EFFECT_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.HEAL),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=_card_spec_for_ref(target_ref),
+                irreversible_on_emit=True,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=1229,
+            ),
+            TransactionStep(
+                stage=TransactionStage.SELECT_ENERGY,
+                expected_select_type=int(SelectType.MAIN),
+                expected_context=int(SelectContext.MAIN),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=reattach_spec,
+                irreversible_on_emit=True,
+                effect_or_attack_id=1229,
+            ),
+        ),
+    )
+
+
+def build_switch_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    target_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Switch to one exact own Bench attacker."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Switch plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    _require_exact_ref(target_ref)
+    _require_proof_digest(proof_digest)
+    if (
+        source_ref.card_id != 1123
+        or source_ref not in state.own.hand_refs
+        or target_ref not in tuple(pokemon.ref for pokemon in state.own.bench)
+    ):
+        raise ValueError("Switch refs must identify its source and own Bench")
+    _validate_persisted_action_spec(action_spec)
+    if (
+        action_spec.choices[0].option_type != int(OptionType.PLAY)
+        or action_spec.choices[0].card_id != 1123
+    ):
+        raise ValueError("Switch initiation must bind the Switch item")
+    payload = (
+        "SWITCH_READY_ATTACKER_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        target_ref.sort_key(),
+        action_spec.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="SWITCH_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.SWITCH_RESOLUTION,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(target_ref,),
+        reserved_refs=(),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=1123,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_SWITCH_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.SWITCH),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=_card_spec_for_ref(target_ref),
+                irreversible_on_emit=True,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=1123,
+            ),
+        ),
+    )
+
+
 _STATE_ISSUER_TOKEN = object()
 
 
@@ -1605,6 +2070,11 @@ __all__ = [
     "TransactionStoreError",
     "build_poke_pad_core_search_plan",
     "build_aura_jab_plan",
+    "build_boss_gust_plan",
+    "build_hariyama_gust_plan",
+    "build_switch_plan",
+    "build_ultra_ball_plan",
+    "build_wally_plan",
     "build_deck_search_plan",
     "build_lunar_cycle_plan",
 ]

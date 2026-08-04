@@ -506,7 +506,13 @@ _DECK_RULE_COMBINATIONS = frozenset(
         ),
         (
             ProofSchema.DECK_RULE_V1,
-            CertificateKind.DENY_CERTAIN_LOSS,
+            CertificateKind.ATTACK_COMPLETION,
+            ResolverTier.ATTACK_COMPLETION,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
             ResolverTier.SURVIVAL_CRITICAL_WALLY,
             int(OptionType.PLAY),
         ),
@@ -518,7 +524,7 @@ _DECK_RULE_COMBINATIONS = frozenset(
         ),
         (
             ProofSchema.DECK_RULE_V1,
-            CertificateKind.DENY_CERTAIN_LOSS,
+            CertificateKind.RESOURCE_IMPROVEMENT,
             ResolverTier.CERTIFIED_SURVIVAL,
             int(OptionType.ATTACH),
         ),

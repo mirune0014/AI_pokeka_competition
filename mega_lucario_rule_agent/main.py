@@ -535,6 +535,7 @@ class AgentRuntime:
                 self._last_features,
                 attack_outcomes,
                 registry,
+                ledger,
             )
             aura_callback_required = any(
                 proposal.transaction_plan is not None

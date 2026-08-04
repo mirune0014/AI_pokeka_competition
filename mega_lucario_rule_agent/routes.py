@@ -9,6 +9,7 @@ from typing import Sequence, Tuple
 
 try:  # Package import in tests.
     from .attack_outcomes import BoundAttackOutcomeTable
+    from .card_meta import CARD_META_BY_ID
     from .certificates import (
         CertificateKind,
         ACTIVE_ATTACK_COMPLETION_RULE_ID,
@@ -25,6 +26,7 @@ try:  # Package import in tests.
     from .resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
         ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
+        ResourceLedger,
         prove_deck_availability_from_state,
     )
     from .resolver import (
@@ -43,12 +45,18 @@ try:  # Package import in tests.
     )
     from .transactions import (
         build_aura_jab_plan,
+        build_boss_gust_plan,
+        build_hariyama_gust_plan,
+        build_switch_plan,
         build_deck_search_plan,
         build_lunar_cycle_plan,
         build_poke_pad_core_search_plan,
+        build_ultra_ball_plan,
+        build_wally_plan,
     )
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import BoundAttackOutcomeTable
+    from card_meta import CARD_META_BY_ID
     from certificates import (
         deck_rule_proof,
         CertificateKind,
@@ -66,6 +74,7 @@ except ImportError:  # Flat submission import from main.py.
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
         ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
         prove_deck_availability_from_state,
+        ResourceLedger,
     )
     from resolver import (
         Proposal,
@@ -84,8 +93,13 @@ except ImportError:  # Flat submission import from main.py.
     from transactions import (
         build_aura_jab_plan,
         build_deck_search_plan,
+        build_boss_gust_plan,
+        build_hariyama_gust_plan,
+        build_switch_plan,
         build_lunar_cycle_plan,
         build_poke_pad_core_search_plan,
+        build_ultra_ball_plan,
+        build_wally_plan,
     )
 
 
@@ -1076,27 +1090,673 @@ def enumerate_safe_draw_supporter_routes(
     return tuple(proposals)
 
 
-def enumerate_requirement_routes(
+def _ultra_search_classes(
+    state: PublicState,
+    features: DeckFeatures,
+) -> Tuple[Tuple[int, ...], ...]:
+    board_ids = tuple(
+        pokemon.ref.card_id for pokemon in state.own.active + state.own.bench
+    )
+    hand_ids = tuple(ref_value.card_id for ref_value in state.own.hand_refs)
+    classes = []
+    if 677 in board_ids and 678 not in board_ids and 678 not in hand_ids:
+        classes.append((678,))
+    classes.extend(
+        (card_id,)
+        for card_id in features.missing_engine_card_ids
+        if card_id not in hand_ids
+    )
+    if features.lucario_line_count == 0 and 677 not in hand_ids:
+        classes.append((677,))
+    if 673 in board_ids and 674 not in board_ids and 674 not in hand_ids:
+        classes.append((674,))
+    return tuple(classes)
+
+
+def _ultra_discard_pair(
+    state: PublicState,
+    ledger: ResourceLedger,
+    source_ref: PhysicalRef,
+) -> Tuple[PhysicalRef, ...]:
+    if ledger.is_reserved(source_ref):
+        return ()
+    unreserved = tuple(
+        ref_value
+        for ref_value in ledger.unreserved_refs(allowed_zones=(int(AreaType.HAND),))
+        if ref_value != source_ref
+    )
+    candidates = []
+    for card_id in (1121, 1142, 1152, 1213, 1227):
+        values = tuple(
+            sorted(
+                (ref_value for ref_value in unreserved if ref_value.card_id == card_id),
+                key=lambda value: value.sort_key(),
+            )
+        )
+        keep = 0 if card_id == 1121 else 1
+        candidates.extend(values[keep:])
+    return tuple(candidates[:2]) if len(candidates) >= 2 else ()
+
+
+def enumerate_ultra_ball_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+    ledger: ResourceLedger,
+) -> Tuple[Proposal, ...]:
+    """Use Ultra Ball only with a guaranteed target and two safe surplus costs."""
+
+    if (
+        not features.matches(state, legal_options, registry)
+        or not isinstance(ledger, ResourceLedger)
+        or state.own.deck_count <= 1
+    ):
+        return ()
+    classes = _ultra_search_classes(state, features)
+    if not classes:
+        return ()
+    acceptable_ids = tuple(
+        sorted(card_id for card_class in classes for card_id in card_class)
+    )
+    availability = prove_deck_availability_from_state(
+        state,
+        acceptable_ids,
+        required_count=1,
+    )
+    if not availability.is_guaranteed:
+        return ()
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1121:
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        if source_ref is None:
+            continue
+        discard_refs = _ultra_discard_pair(state, ledger, source_ref)
+        if len(discard_refs) != 2:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        proof = deck_rule_proof(
+            state,
+            legal_options,
+            registry,
+            features,
+            action_spec,
+            route_code="R_SEARCH_ULTRA_BALL_SAFE_GUARANTEED_V1",
+            kind=CertificateKind.RESOURCE_IMPROVEMENT,
+            facts={
+                "route_priority": 0,
+                "source_ref": source_ref,
+                "discard_refs": tuple(
+                    ref_value.sort_key() for ref_value in discard_refs
+                ),
+                "ordered_card_id_classes": classes,
+                "availability": availability.canonical(),
+            },
+        )
+        plan = build_ultra_ball_plan(
+            state,
+            source_ref,
+            discard_refs,
+            action_spec,
+            classes,
+            availability,
+            proof.digest(),
+        )
+        return (
+            Proposal(
+                rule_id="R_SEARCH_ULTRA_BALL_SAFE_GUARANTEED_V1",
+                tier=ResolverTier.ROUTE_CRITICAL_SEARCH,
+                action_spec=action_spec,
+                certificate_kind=proof.kind,
+                proof=proof,
+                resource_cost=ResourceCost((source_ref,) + discard_refs),
+                transaction_plan=plan,
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+    return ()
+
+
+def _narrow_gust_target(
+    state: PublicState,
+    features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
+    registry: PublicEffectRegistry,
+):
+    if state.stadium_refs or any(
+        outcome.exact_game_win for outcome in attack_outcomes.rows
+    ):
+        return None
+    attacks = []
+    for outcome in attack_outcomes.rows:
+        if (
+            not outcome.exact_damage
+            or outcome.before_weakness is None
+            or outcome.final_damage is None
+            or outcome.final_damage <= 0
+            or outcome.damage_before_prevention != outcome.final_damage
+            or outcome.damage_before_ko_prevention != outcome.final_damage
+            or outcome.prevention_effects
+        ):
+            continue
+        attacks.append(
+            (
+                min(outcome.before_weakness, outcome.final_damage),
+                outcome.attack_id,
+            )
+        )
+    if not attacks:
+        return None
+    damage_floor, attack_id = max(attacks)
+    feature_by_ref = {value.ref: value for value in features.opponent_bench}
+    candidates = []
+    for target in state.opponent.bench:
+        profile = registry.profile(target.ref.card_id)
+        target_features = feature_by_ref.get(target.ref)
+        if (
+            profile is None
+            or target_features is None
+            or profile.weakness is not None
+            or profile.resistance is not None
+            or profile.registered_skill_effect_ids
+            or profile.unregistered_skill_signatures
+            or target.tool_refs
+            or target.energy_refs
+            or damage_floor < target.remaining_hp
+        ):
+            continue
+        prize_value = target_features.prize_value
+        if (
+            isinstance(prize_value, bool)
+            or not isinstance(prize_value, int)
+            or prize_value <= 0
+        ):
+            continue
+        terminal = features.opponent_prizes_remaining <= prize_value
+        evolution_denial = (
+            target.ref.card_id in (673, 677) and not target.appear_this_turn
+        )
+        if not terminal and prize_value < 2 and not evolution_denial:
+            continue
+        candidates.append(
+            (
+                0 if terminal else 1,
+                0 if prize_value >= 2 else 1,
+                -prize_value,
+                target.ref.sort_key(),
+                target,
+                attack_id,
+                damage_floor,
+                prize_value,
+                terminal,
+                evolution_denial,
+            )
+        )
+    if not candidates:
+        return None
+    return min(candidates)[4:]
+
+
+def enumerate_gust_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     features: DeckFeatures,
     attack_outcomes: BoundAttackOutcomeTable,
     registry: PublicEffectRegistry,
 ) -> Tuple[Proposal, ...]:
-    """Enumerate the integrated high-frequency requirement routes."""
+    """Gust only an exact KO that is terminal, high-Prize, or denial."""
+
+    if (
+        not features.matches(state, legal_options, registry)
+        or not attack_outcomes.matches(state, legal_options, registry)
+        or not state.opponent.bench
+    ):
+        return ()
+    chosen = _narrow_gust_target(
+        state,
+        features,
+        attack_outcomes,
+        registry,
+    )
+    if chosen is None:
+        return ()
+    (
+        target,
+        attack_id,
+        damage_floor,
+        prize_value,
+        terminal,
+        evolution_denial,
+    ) = chosen
+
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.EVOLVE):
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        own_target = _board_pokemon_for_option(state, option)
+        if (
+            source_ref is None
+            or source_ref.card_id != 674
+            or own_target is None
+            or own_target.ref.card_id != 673
+            or own_target.ref.zone != int(AreaType.BENCH)
+        ):
+            continue
+        action_spec = ActionSpec.single(option.key)
+        proof = deck_rule_proof(
+            state,
+            legal_options,
+            registry,
+            features,
+            action_spec,
+            route_code="R_GUST_HARIYAMA_EXACT_KO_V1",
+            kind=CertificateKind.PRIZE_GAIN_NOW,
+            guaranteed_prizes=prize_value,
+            facts={
+                "route_priority": 0,
+                "source_ref": source_ref,
+                "evolution_target_ref": own_target.ref,
+                "gust_target_ref": target.ref,
+                "attack_id": attack_id,
+                "damage_floor": damage_floor,
+                "terminal": terminal,
+                "evolution_denial": evolution_denial,
+            },
+        )
+        plan = build_hariyama_gust_plan(
+            state,
+            source_ref,
+            target.ref,
+            action_spec,
+            proof.digest(),
+        )
+        return (
+            Proposal(
+                rule_id="R_GUST_HARIYAMA_EXACT_KO_V1",
+                tier=ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+                action_spec=action_spec,
+                certificate_kind=proof.kind,
+                proof=proof,
+                resource_cost=ResourceCost((source_ref,)),
+                transaction_plan=plan,
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+
+    if state.supporter_played:
+        return ()
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1182:
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        if source_ref is None:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        proof = deck_rule_proof(
+            state,
+            legal_options,
+            registry,
+            features,
+            action_spec,
+            route_code="R_GUST_BOSS_EXACT_KO_V1",
+            kind=CertificateKind.PRIZE_GAIN_NOW,
+            guaranteed_prizes=prize_value,
+            facts={
+                "route_priority": 1,
+                "source_ref": source_ref,
+                "gust_target_ref": target.ref,
+                "attack_id": attack_id,
+                "damage_floor": damage_floor,
+                "terminal": terminal,
+                "evolution_denial": evolution_denial,
+            },
+        )
+        plan = build_boss_gust_plan(
+            state,
+            source_ref,
+            target.ref,
+            action_spec,
+            proof.digest(),
+        )
+        return (
+            Proposal(
+                rule_id="R_GUST_BOSS_EXACT_KO_V1",
+                tier=ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+                action_spec=action_spec,
+                certificate_kind=proof.kind,
+                proof=proof,
+                resource_cost=ResourceCost((source_ref,)),
+                transaction_plan=plan,
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+    return ()
+
+
+def enumerate_wally_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+) -> Tuple[Proposal, ...]:
+    """Save a damaged three-Prize Active while preserving a same-turn Aura."""
+
+    if (
+        not features.matches(state, legal_options, registry)
+        or state.supporter_played
+        or state.energy_attached
+        or state.own.asleep
+        or state.own.paralyzed
+        or state.own.confused
+    ):
+        return ()
+    target = state.own_active
+    if (
+        target is None
+        or target.ref.card_id != 678
+        or target.damage <= 0
+        or len(target.energy_refs) != 1
+        or target.energy_refs[0].card_id != 6
+        or 982 not in features.legal_attack_ids
+    ):
+        return ()
+    large_damage = target.damage >= 180
+    three_prize_save = features.opponent_prizes_remaining <= 3
+    if not large_damage and not three_prize_save:
+        return ()
+    reattach_ref = min(target.energy_refs, key=lambda value: value.sort_key())
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1229:
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        if source_ref is None:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        proof = deck_rule_proof(
+            state,
+            legal_options,
+            registry,
+            features,
+            action_spec,
+            route_code="R_WALLY_THREE_PRIZE_REBOOT_V1",
+            kind=CertificateKind.RESOURCE_IMPROVEMENT,
+            facts={
+                "route_priority": 0,
+                "source_ref": source_ref,
+                "target_ref": target.ref,
+                "reattach_ref": reattach_ref,
+                "damage_healed": target.damage,
+                "large_damage": large_damage,
+                "three_prize_save": three_prize_save,
+                "reattach_attack_id": 982,
+            },
+        )
+        plan = build_wally_plan(
+            state,
+            source_ref,
+            target.ref,
+            reattach_ref,
+            action_spec,
+            proof.digest(),
+        )
+        return (
+            Proposal(
+                rule_id="R_WALLY_THREE_PRIZE_REBOOT_V1",
+                tier=ResolverTier.SURVIVAL_CRITICAL_WALLY,
+                action_spec=action_spec,
+                certificate_kind=proof.kind,
+                proof=proof,
+                resource_cost=ResourceCost((source_ref,)),
+                transaction_plan=plan,
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+    return ()
+
+
+def enumerate_switch_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+) -> Tuple[Proposal, ...]:
+    """Switch only to a ready attacker or effective anti-ex non-ex pivot."""
+
+    if not features.matches(state, legal_options, registry):
+        return ()
+    active = state.own_active
+    if active is None or not state.own.bench:
+        return ()
+    ex_block = PublicMatchupFlag.EX_DAMAGE_PREVENTION in features.public_flags
+    status_block = state.own.asleep or state.own.paralyzed or state.own.confused
+    if (
+        features.ready_now
+        and not status_block
+        and not (ex_block and active.ref.card_id == 678)
+    ):
+        return ()
+    deficits = {
+        value.target_ref: value.deficit_now
+        for value in features.attack_energy_deficit_by_target
+    }
+    board_ids = tuple(
+        pokemon.ref.card_id for pokemon in state.own.active + state.own.bench
+    )
+    candidates = []
+    for target in state.own.bench:
+        meta = CARD_META_BY_ID.get(target.ref.card_id)
+        non_ex = meta is not None and not meta.ex and not meta.mega_ex
+        if deficits.get(target.ref) != 0:
+            continue
+        if target.ref.card_id == 676 and 675 not in board_ids:
+            continue
+        if ex_block and not non_ex:
+            continue
+        prize_value = (
+            meta.prize_value
+            if meta is not None
+            and isinstance(meta.prize_value, int)
+            and not isinstance(meta.prize_value, bool)
+            else 99
+        )
+        candidates.append(
+            (
+                0 if non_ex else 1,
+                prize_value,
+                -target.remaining_hp,
+                target.ref.sort_key(),
+                target,
+            )
+        )
+    if not candidates:
+        return ()
+    target = min(candidates)[-1]
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.PLAY) or option.key.card_id != 1123:
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        if source_ref is None:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        proof = deck_rule_proof(
+            state,
+            legal_options,
+            registry,
+            features,
+            action_spec,
+            route_code="R_SWITCH_READY_ATTACKER_V1",
+            kind=CertificateKind.ATTACK_COMPLETION,
+            facts={
+                "route_priority": 0,
+                "source_ref": source_ref,
+                "target_ref": target.ref,
+                "status_block": status_block,
+                "ex_damage_prevention": ex_block,
+            },
+        )
+        plan = build_switch_plan(
+            state,
+            source_ref,
+            target.ref,
+            action_spec,
+            proof.digest(),
+        )
+        return (
+            Proposal(
+                rule_id="R_SWITCH_READY_ATTACKER_V1",
+                tier=ResolverTier.ATTACK_COMPLETION,
+                action_spec=action_spec,
+                certificate_kind=proof.kind,
+                proof=proof,
+                resource_cost=ResourceCost((source_ref,)),
+                transaction_plan=plan,
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+    return ()
+
+
+def enumerate_cape_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+) -> Tuple[Proposal, ...]:
+    """Attach Hero's Cape only to one explicit protection target."""
+
+    if not features.matches(state, legal_options, registry):
+        return ()
+    ex_block = PublicMatchupFlag.EX_DAMAGE_PREVENTION in features.public_flags
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if (
+            option.key.option_type != int(OptionType.ATTACH)
+            or option.key.card_id != 1159
+        ):
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        target = _board_pokemon_for_option(state, option)
+        if source_ref is None or target is None or target.tool_refs:
+            continue
+        purpose = None
+        route_priority = 99
+        if target.ref.card_id == 678 and (
+            target.damage >= 180
+            or (
+                target.ref.zone == int(AreaType.ACTIVE)
+                and features.opponent_prizes_remaining <= 3
+            )
+        ):
+            purpose = "THREE_PRIZE_MEGA"
+            route_priority = 0
+        elif (
+            target.ref.card_id == 677
+            and target.ref.zone == int(AreaType.BENCH)
+            and features.public_bench_damage_threat is True
+        ):
+            purpose = "SPREAD_RIOLU"
+            route_priority = 1
+        elif (
+            target.ref.card_id == 674
+            and ex_block
+            and (target.ref.zone == int(AreaType.ACTIVE) or target.damage > 0)
+        ):
+            purpose = "ANTI_EX_HARIYAMA"
+            route_priority = 2
+        if purpose is None:
+            continue
+        action_spec = ActionSpec.single(option.key)
+        proof = deck_rule_proof(
+            state,
+            legal_options,
+            registry,
+            features,
+            action_spec,
+            route_code="R_CAPE_EXPLICIT_PROTECTION_V1",
+            kind=CertificateKind.RESOURCE_IMPROVEMENT,
+            facts={
+                "route_priority": route_priority,
+                "source_ref": source_ref,
+                "target_ref": target.ref,
+                "purpose": purpose,
+                "damage_before": target.damage,
+            },
+        )
+        return (
+            Proposal(
+                rule_id="R_CAPE_EXPLICIT_PROTECTION_V1",
+                tier=ResolverTier.CERTIFIED_SURVIVAL,
+                action_spec=action_spec,
+                certificate_kind=proof.kind,
+                proof=proof,
+                resource_cost=ResourceCost((source_ref,)),
+                deterministic_tiebreak=canonical_proposal_tiebreak(
+                    action_spec,
+                    proof,
+                ),
+            ),
+        )
+    return ()
+
+
+def enumerate_requirement_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    attack_outcomes: BoundAttackOutcomeTable,
+    registry: PublicEffectRegistry,
+    ledger: ResourceLedger,
+) -> Tuple[Proposal, ...]:
+    """Enumerate the integrated fixed-deck productive routes."""
 
     proposals = []
+    proposals.extend(
+        enumerate_gust_routes(
+            state,
+            legal_options,
+            features,
+            attack_outcomes,
+            registry,
+        )
+    )
+    proposals.extend(enumerate_wally_routes(state, legal_options, features, registry))
     proposals.extend(
         enumerate_aura_continuity_routes(
             state, legal_options, features, attack_outcomes, registry
         )
     )
+    proposals.extend(enumerate_switch_routes(state, legal_options, features, registry))
     proposals.extend(
         enumerate_evolution_routes(state, legal_options, features, registry)
     )
     proposals.extend(
+        enumerate_ultra_ball_routes(
+            state,
+            legal_options,
+            features,
+            registry,
+            ledger,
+        )
+    )
+    proposals.extend(
         enumerate_fighting_gong_routes(state, legal_options, features, registry)
     )
+    proposals.extend(enumerate_cape_routes(state, legal_options, features, registry))
     proposals.extend(
         enumerate_safe_draw_supporter_routes(state, legal_options, features, registry)
     )
@@ -1113,11 +1773,16 @@ __all__ = [
     "enumerate_attack_routes",
     "enumerate_aura_continuity_routes",
     "enumerate_basic_bench_routes",
+    "enumerate_cape_routes",
     "enumerate_evolution_routes",
     "enumerate_fighting_gong_routes",
+    "enumerate_gust_routes",
     "enumerate_first_turn_riolu_attach_routes",
     "enumerate_minimal_ppp_routes",
     "enumerate_poke_pad_core_search_routes",
     "enumerate_requirement_routes",
     "enumerate_safe_draw_supporter_routes",
+    "enumerate_switch_routes",
+    "enumerate_ultra_ball_routes",
+    "enumerate_wally_routes",
 ]
