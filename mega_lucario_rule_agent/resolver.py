@@ -512,6 +512,18 @@ _DECK_RULE_COMBINATIONS = frozenset(
         ),
         (
             ProofSchema.DECK_RULE_V1,
+            CertificateKind.ATTACK_COMPLETION,
+            ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
+            int(OptionType.ATTACH),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.FIRST_ATTACK_ACCELERATION,
+            ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
+            int(OptionType.ATTACH),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
             CertificateKind.RESOURCE_IMPROVEMENT,
             ResolverTier.SURVIVAL_CRITICAL_WALLY,
             int(OptionType.PLAY),

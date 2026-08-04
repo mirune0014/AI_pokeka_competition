@@ -9,7 +9,7 @@ from typing import Sequence, Tuple
 
 try:  # Package import in tests.
     from .attack_outcomes import BoundAttackOutcomeTable
-    from .card_meta import CARD_META_BY_ID
+    from .card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
     from .certificates import (
         CertificateKind,
         ACTIVE_ATTACK_COMPLETION_RULE_ID,
@@ -22,7 +22,7 @@ try:  # Package import in tests.
         poke_pad_core_formation_proof,
     )
     from .features import DeckFeatures, PublicMatchupFlag
-    from .public_effects import PublicEffectRegistry
+    from .public_effects import EFFECT_BINDINGS, EntryKind, PublicEffectRegistry
     from .resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
         ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
@@ -56,7 +56,7 @@ try:  # Package import in tests.
     )
 except ImportError:  # Flat submission import from main.py.
     from attack_outcomes import BoundAttackOutcomeTable
-    from card_meta import CARD_META_BY_ID
+    from card_meta import ATTACK_META_BY_ID, CARD_META_BY_ID
     from certificates import (
         deck_rule_proof,
         CertificateKind,
@@ -69,7 +69,7 @@ except ImportError:  # Flat submission import from main.py.
         poke_pad_core_formation_proof,
     )
     from features import DeckFeatures, PublicMatchupFlag
-    from public_effects import PublicEffectRegistry
+    from public_effects import EFFECT_BINDINGS, EntryKind, PublicEffectRegistry
     from resource_ledger import (
         MANUAL_ATTACH_ENERGY_RESERVATION_ID,
         ACTIVE_ATTACK_COMPLETION_RESERVATION_ID,
@@ -572,6 +572,172 @@ def enumerate_fighting_gong_routes(
     return ()
 
 
+def _registered_attack_deficit(
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+    target,
+) -> int | None:
+    meta = CARD_META_BY_ID.get(target.ref.card_id)
+    profile = registry.profile(target.ref.card_id)
+    registered_attacks = tuple(
+        binding
+        for binding in EFFECT_BINDINGS
+        if binding.entry_kind is EntryKind.ATTACK
+        and binding.card_id == target.ref.card_id
+        and binding.entry_id in (() if meta is None else meta.attack_ids)
+    )
+    if (
+        meta is None
+        or profile is None
+        or not meta.attack_ids
+        or tuple(profile.attack_ids) != tuple(meta.attack_ids)
+        or len(registered_attacks) != len(meta.attack_ids)
+        or {binding.entry_id for binding in registered_attacks} != set(meta.attack_ids)
+        or any(
+            not registry.binding_admitted(
+                binding.effect_id,
+                binding.card_id,
+                binding.entry_id,
+            )
+            or binding.entry_id not in ATTACK_META_BY_ID
+            or len(binding.energy_cost)
+            != len(ATTACK_META_BY_ID[binding.entry_id].energy_cost)
+            for binding in registered_attacks
+        )
+    ):
+        return None
+    minimum_cost = min(len(binding.energy_cost) for binding in registered_attacks)
+    feature_rows = tuple(
+        value
+        for value in features.attack_energy_deficit_by_target
+        if value.target_ref == target.ref
+    )
+    if (
+        len(feature_rows) != 1
+        or feature_rows[0].minimum_attack_cost != minimum_cost
+        or feature_rows[0].attached_energy_count != len(target.energy_refs)
+    ):
+        return None
+    return max(0, minimum_cost - len(target.energy_refs))
+
+
+def enumerate_continuity_attach_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+    ledger: ResourceLedger,
+) -> Tuple[Proposal, ...]:
+    """Attach one exact Fighting Energy for current or next-attacker continuity."""
+
+    if (
+        not features.matches(state, legal_options, registry)
+        or features.own_turn_number <= 1
+        or state.energy_attached
+    ):
+        return ()
+    board_ids = {pokemon.ref.card_id for pokemon in state.own.active + state.own.bench}
+    ex_block = PublicMatchupFlag.EX_DAMAGE_PREVENTION in features.public_flags
+    candidates = []
+    for option in sorted(legal_options, key=lambda value: value.key.sort_key()):
+        if option.key.option_type != int(OptionType.ATTACH):
+            continue
+        source_ref = _exact_hand_ref(state, option)
+        target = _board_pokemon_for_option(state, option)
+        if (
+            source_ref is None
+            or source_ref.card_id != 6
+            or target is None
+            or not ledger.affords((source_ref,))
+        ):
+            continue
+        deficit = _registered_attack_deficit(features, registry, target)
+        if (
+            deficit is not None
+            and target.ref.card_id == 673
+            and any(ref_value.card_id == 674 for ref_value in state.own.hand_refs)
+        ):
+            deficit = max(0, 3 - len(target.energy_refs))
+        if deficit is None or deficit <= 0:
+            continue
+        if target.ref.card_id == 676 and 675 not in board_ids:
+            continue
+        if target.ref.zone == int(AreaType.ACTIVE):
+            if (
+                features.ready_now
+                or deficit != 1
+                or state.own.asleep
+                or state.own.paralyzed
+                or state.own.confused
+            ):
+                continue
+            rank = (0, 0, 0, target.ref.sort_key())
+            purpose = "CURRENT_ATTACK_COMPLETION"
+            kind = CertificateKind.ATTACK_COMPLETION
+        elif target.ref.zone == int(AreaType.BENCH) and features.ready_now:
+            role_priority = {
+                678: 0,
+                677: 0,
+                674: 1,
+                673: 1,
+                676: 2,
+                675: 2,
+            }.get(target.ref.card_id)
+            if role_priority is None:
+                continue
+            meta = CARD_META_BY_ID[target.ref.card_id]
+            non_ex = not meta.ex and not meta.mega_ex
+            rank = (
+                1,
+                int(ex_block and not non_ex),
+                int(deficit != 1),
+                role_priority,
+                deficit,
+                target.ref.sort_key(),
+            )
+            purpose = "NEXT_ATTACKER_CONCENTRATION"
+            kind = CertificateKind.FIRST_ATTACK_ACCELERATION
+        else:
+            continue
+        candidates.append((rank, option, source_ref, target, deficit, purpose, kind))
+    if not candidates:
+        return ()
+    _, option, source_ref, target, deficit, purpose, kind = min(
+        candidates, key=lambda value: value[0]
+    )
+    action_spec = ActionSpec.single(option.key)
+    proof = deck_rule_proof(
+        state,
+        legal_options,
+        registry,
+        features,
+        action_spec,
+        route_code="R_ATTACH_002_CONTINUITY_V1",
+        kind=kind,
+        facts={
+            "route_priority": 0 if purpose == "CURRENT_ATTACK_COMPLETION" else 1,
+            "source_ref": source_ref,
+            "target_ref": target.ref,
+            "purpose": purpose,
+            "deficit_before": deficit,
+            "deficit_after": deficit - 1,
+            "current_attack_preserved": features.ready_now,
+            "ex_damage_prevention": ex_block,
+        },
+    )
+    return (
+        Proposal(
+            rule_id="R_ATTACH_002_CONTINUITY_V1",
+            tier=ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
+            action_spec=action_spec,
+            certificate_kind=proof.kind,
+            proof=proof,
+            resource_cost=ResourceCost((source_ref,)),
+            deterministic_tiebreak=canonical_proposal_tiebreak(action_spec, proof),
+        ),
+    )
+
+
 def enumerate_evolution_routes(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
@@ -593,6 +759,9 @@ def enumerate_evolution_routes(
             continue
         action_spec = ActionSpec.single(option.key)
         if source_ref.card_id == 678 and target.ref.card_id == 677:
+            energy_continuity = (
+                len(target.energy_refs) >= 1 and features.opponent_prizes_remaining > 3
+            )
             active_ready = (
                 target.ref.zone == int(AreaType.ACTIVE)
                 and len(target.energy_refs) >= 1
@@ -603,7 +772,7 @@ def enumerate_evolution_routes(
                 target.ref.zone == int(AreaType.BENCH)
                 and features.public_bench_damage_threat is True
             )
-            if not active_ready and not spread_protection:
+            if not active_ready and not spread_protection and not energy_continuity:
                 continue
             if features.opponent_prizes_remaining <= 3:
                 active_target = features.opponent_active
@@ -613,7 +782,7 @@ def enumerate_evolution_routes(
                     and active_target is not None
                     and active_target.remaining_hp <= 130
                 )
-                if not immediate_prize:
+                if not immediate_prize and not spread_protection:
                     continue
             kind = (
                 CertificateKind.ATTACK_COMPLETION
@@ -634,6 +803,7 @@ def enumerate_evolution_routes(
                     "target_ref": target.ref,
                     "same_turn_attack": active_ready,
                     "spread_protection": spread_protection,
+                    "energy_continuity": energy_continuity,
                     "opponent_prizes_remaining": features.opponent_prizes_remaining,
                 },
             )
@@ -650,11 +820,13 @@ def enumerate_evolution_routes(
                     ),
                 )
             )
-        elif (
-            source_ref.card_id == 674
-            and target.ref.card_id == 673
-            and PublicMatchupFlag.EX_DAMAGE_PREVENTION in features.public_flags
-        ):
+        elif source_ref.card_id == 674 and target.ref.card_id == 673:
+            energy_ready = len(target.energy_refs) >= 3
+            ex_prevention = (
+                PublicMatchupFlag.EX_DAMAGE_PREVENTION in features.public_flags
+            )
+            if not energy_ready and not ex_prevention:
+                continue
             proof = deck_rule_proof(
                 state,
                 legal_options,
@@ -667,7 +839,8 @@ def enumerate_evolution_routes(
                     "route_priority": 2,
                     "source_ref": source_ref,
                     "target_ref": target.ref,
-                    "ex_damage_prevention": True,
+                    "energy_ready": energy_ready,
+                    "ex_damage_prevention": ex_prevention,
                 },
             )
             hariyama_proposals.append(
@@ -1745,6 +1918,15 @@ def enumerate_requirement_routes(
         enumerate_evolution_routes(state, legal_options, features, registry)
     )
     proposals.extend(
+        enumerate_continuity_attach_routes(
+            state,
+            legal_options,
+            features,
+            registry,
+            ledger,
+        )
+    )
+    proposals.extend(
         enumerate_ultra_ball_routes(
             state,
             legal_options,
@@ -1774,6 +1956,7 @@ __all__ = [
     "enumerate_aura_continuity_routes",
     "enumerate_basic_bench_routes",
     "enumerate_cape_routes",
+    "enumerate_continuity_attach_routes",
     "enumerate_evolution_routes",
     "enumerate_fighting_gong_routes",
     "enumerate_gust_routes",

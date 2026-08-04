@@ -10,6 +10,7 @@ from mega_lucario_rule_agent.public_effects import build_public_effect_registry
 from mega_lucario_rule_agent.routes import (
     enumerate_aura_continuity_routes,
     enumerate_cape_routes,
+    enumerate_continuity_attach_routes,
     enumerate_evolution_routes,
     enumerate_fighting_gong_routes,
     enumerate_gust_routes,
@@ -423,3 +424,114 @@ def test_switch_and_cape_emit_only_for_explicit_targets():
     proposals = enumerate_cape_routes(current[0], current[1], current[2], current[4])
     assert len(proposals) == 1
     assert proposals[0].proof.fact("purpose") == "THREE_PRIZE_MEGA"
+
+
+def test_midgame_attach_completes_exact_active_deficit():
+    current = _case(
+        active=pokemon(677, 10, hp=80),
+        hand=(card(6, 30),),
+        raw_options=(
+            {
+                "type": int(OptionType.ATTACH),
+                "area": int(AreaType.HAND),
+                "index": 0,
+                "inPlayArea": int(AreaType.ACTIVE),
+                "inPlayIndex": 0,
+            },
+        ),
+    )
+    proposals = enumerate_continuity_attach_routes(
+        current[0],
+        current[1],
+        current[2],
+        current[4],
+        build_resource_ledger(current[0]),
+    )
+    assert len(proposals) == 1
+    assert proposals[0].proof.fact("purpose") == "CURRENT_ATTACK_COMPLETION"
+    assert proposals[0].proof.fact("deficit_after") == 0
+    assert proposals[0].action_spec.choices[0].target_lineage_serial == 10
+
+
+def test_midgame_attach_builds_hariyama_threshold_without_surplus_attach():
+    current = _case(
+        attack_ids=(982,),
+        active=pokemon(678, 10, hp=340, energy_cards=((6, 50),)),
+        bench=(pokemon(673, 20, hp=80, energy_cards=((6, 60),)),),
+        hand=(card(6, 30), card(674, 31)),
+        raw_options=(
+            {
+                "type": int(OptionType.ATTACH),
+                "area": int(AreaType.HAND),
+                "index": 0,
+                "inPlayArea": int(AreaType.BENCH),
+                "inPlayIndex": 0,
+            },
+            {"type": int(OptionType.ATTACK), "attackId": 982},
+        ),
+    )
+    proposals = enumerate_continuity_attach_routes(
+        current[0],
+        current[1],
+        current[2],
+        current[4],
+        build_resource_ledger(current[0]),
+    )
+    assert len(proposals) == 1
+    assert proposals[0].proof.fact("target_ref")[2] == 673
+    assert proposals[0].proof.fact("deficit_before") == 2
+    assert proposals[0].proof.fact("deficit_after") == 1
+
+
+def test_midgame_energy_backed_mega_and_hariyama_evolution_emit():
+    current = _case(
+        attack_ids=(982,),
+        active=pokemon(678, 10, hp=340, energy_cards=((6, 50),)),
+        bench=(pokemon(677, 20, hp=80, energy_cards=((6, 60),)),),
+        hand=(card(678, 30),),
+        raw_options=(
+            {
+                "type": int(OptionType.EVOLVE),
+                "area": int(AreaType.HAND),
+                "index": 0,
+                "inPlayArea": int(AreaType.BENCH),
+                "inPlayIndex": 0,
+            },
+            {"type": int(OptionType.ATTACK), "attackId": 982},
+        ),
+    )
+    proposals = enumerate_evolution_routes(
+        current[0], current[1], current[2], current[4]
+    )
+    assert len(proposals) == 1
+    assert proposals[0].proof.fact("energy_continuity") is True
+    assert proposals[0].proof.fact("same_turn_attack") is False
+
+    current = _case(
+        attack_ids=(982,),
+        active=pokemon(678, 10, hp=340, energy_cards=((6, 50),)),
+        bench=(
+            pokemon(
+                673,
+                20,
+                hp=80,
+                energy_cards=((6, 60), (6, 61), (6, 62)),
+            ),
+        ),
+        hand=(card(674, 30),),
+        raw_options=(
+            {
+                "type": int(OptionType.EVOLVE),
+                "area": int(AreaType.HAND),
+                "index": 0,
+                "inPlayArea": int(AreaType.BENCH),
+                "inPlayIndex": 0,
+            },
+            {"type": int(OptionType.ATTACK), "attackId": 982},
+        ),
+    )
+    proposals = enumerate_evolution_routes(
+        current[0], current[1], current[2], current[4]
+    )
+    assert len(proposals) == 1
+    assert proposals[0].proof.fact("energy_ready") is True
