@@ -160,7 +160,8 @@ def step(
     context,
     key,
     *,
-    source=SOURCE,
+    effect_source=SOURCE,
+    context_source=None,
     stochastic=False,
     irreversible=False,
     select_type=SelectType.YES_NO,
@@ -173,7 +174,8 @@ def step(
         expected_max_count=1,
         action_spec=ActionSpec.single(key),
         irreversible_on_emit=irreversible,
-        expected_source_ref=source,
+        expected_effect_ref=effect_source,
+        expected_context_ref=context_source,
         effect_or_attack_id=1121,
         stochastic_boundary=stochastic,
     )
@@ -188,7 +190,8 @@ def initiation(irreversible=True):
         expected_max_count=1,
         action_spec=ActionSpec.single(ROOT_KEY),
         irreversible_on_emit=irreversible,
-        expected_source_ref=None,
+        expected_effect_ref=None,
+        expected_context_ref=None,
     )
 
 
@@ -328,6 +331,58 @@ def test_select_type_mismatch_aborts_before_commit_and_faults_after_commit():
     assert postcommit.reasons == ("UNEXPECTED_SELECT_TYPE",)
 
 
+def test_effect_and_context_receipts_are_verified_independently():
+    mega = ref(678, 10, 0, AreaType.ACTIVE)
+    energy = ref(6, 73, 0, AreaType.DISCARD)
+    aura_step = step(
+        TransactionStage.SELECT_ENERGY,
+        SelectContext.ATTACH_FROM,
+        NO_KEY,
+        effect_source=mega,
+        context_source=energy,
+        select_type=SelectType.CARD,
+    )
+    aura_plan = plan(aura_step)
+    exact_prompt = replace(
+        state(
+            context=SelectContext.ATTACH_FROM,
+            select_type=SelectType.CARD,
+            action_count=5,
+        ),
+        effect_ref=PhysicalRef(678, 10, 0, None, 10),
+        context_ref=PhysicalRef(6, 73, 0, None, 73),
+    )
+
+    exact_store = TransactionStore()
+    exact_store.start(aura_plan, state(), options(ROOT_KEY))
+    exact = exact_store.resume(exact_prompt, options(NO_KEY))
+    assert exact.status == ResumeStatus.ADVANCED_ISSUE
+
+    wrong_context_store = TransactionStore()
+    wrong_context_store.start(aura_plan, state(), options(ROOT_KEY))
+    wrong_context = wrong_context_store.resume(
+        replace(
+            exact_prompt,
+            context_ref=PhysicalRef(6, 74, 0, None, 74),
+        ),
+        options(NO_KEY),
+    )
+    assert wrong_context.status == ResumeStatus.IRREVERSIBLE_FAULT
+    assert wrong_context.reasons == ("UNEXPECTED_CONTEXT_REF",)
+
+    wrong_effect_store = TransactionStore()
+    wrong_effect_store.start(aura_plan, state(), options(ROOT_KEY))
+    wrong_effect = wrong_effect_store.resume(
+        replace(
+            exact_prompt,
+            effect_ref=PhysicalRef(678, 11, 0, None, 11),
+        ),
+        options(NO_KEY),
+    )
+    assert wrong_effect.status == ResumeStatus.IRREVERSIBLE_FAULT
+    assert wrong_effect.reasons == ("UNEXPECTED_EFFECT_REF",)
+
+
 def test_matching_select_type_still_reissues_after_option_permutation():
     transaction_plan = plan(
         TransactionStep(
@@ -338,7 +393,8 @@ def test_matching_select_type_still_reissues_after_option_permutation():
             expected_max_count=1,
             action_spec=ActionSpec.single(YES_KEY),
             irreversible_on_emit=False,
-            expected_source_ref=SOURCE,
+            expected_effect_ref=SOURCE,
+            expected_context_ref=None,
             effect_or_attack_id=1121,
         )
     )
@@ -703,7 +759,8 @@ def test_transaction_step_accepts_a_physically_resolved_skill_source():
         expected_max_count=1,
         action_spec=ActionSpec.single(skill_key),
         irreversible_on_emit=False,
-        expected_source_ref=ref(675, 21, 0, AreaType.BENCH),
+        expected_effect_ref=ref(675, 21, 0, AreaType.BENCH),
+        expected_context_ref=None,
     )
 
     assert skill_step.action_spec.choices == (skill_key,)
@@ -724,6 +781,8 @@ def test_transaction_state_constructor_is_closed():
             source_ref=None,
             target_refs=(),
             reserved_refs=(),
+            expected_effect_ref=None,
+            expected_context_ref=None,
             expected_select_type=0,
             expected_context=0,
             expected_min_count=1,

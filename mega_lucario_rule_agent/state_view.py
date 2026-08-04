@@ -375,7 +375,8 @@ class PromptFingerprint:
     turn_action_count: int
     select_type: Optional[int]
     context: Optional[int]
-    source_ref: Optional[PhysicalRef]
+    effect_ref: Optional[PhysicalRef]
+    context_ref: Optional[PhysicalRef]
     effect_or_attack_id: Optional[int]
     min_count: int
     max_count: int
@@ -396,7 +397,8 @@ class PromptFingerprint:
             "turn_action_count": self.turn_action_count,
             "select_type": self.select_type,
             "context": self.context,
-            "source_ref": None if self.source_ref is None else self.source_ref.sort_key(),
+            "effect_ref": None if self.effect_ref is None else self.effect_ref.sort_key(),
+            "context_ref": None if self.context_ref is None else self.context_ref.sort_key(),
             "effect_or_attack_id": self.effect_or_attack_id,
             "min_count": self.min_count,
             "max_count": self.max_count,
@@ -1031,7 +1033,8 @@ def make_prompt_fingerprint(
         turn_action_count=state.turn_action_count,
         select_type=state.select_type,
         context=state.select_context,
-        source_ref=state.effect_ref or state.context_ref,
+        effect_ref=state.effect_ref,
+        context_ref=state.context_ref,
         effect_or_attack_id=effect_or_attack_id,
         min_count=state.min_count,
         max_count=state.max_count,

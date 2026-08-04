@@ -370,6 +370,25 @@ def test_prompt_fingerprint_ignores_option_order_but_preserves_multiplicity():
     assert duplicate.digest() != first.digest()
 
 
+def test_prompt_fingerprint_keeps_effect_and_context_identity_separate():
+    obs = observation([hand_card_option(0)], context=SelectContext.ATTACH_FROM)
+    obs["select"]["type"] = int(SelectType.CARD)
+    obs["select"]["effect"] = card(678, 10)
+    obs["select"]["contextCard"] = card(6, 73)
+    first_state = build_public_state(obs)
+    first = make_prompt_fingerprint(first_state, build_semantic_options(obs))
+
+    changed = deepcopy(obs)
+    changed["select"]["contextCard"] = card(6, 74)
+    second_state = build_public_state(changed)
+    second = make_prompt_fingerprint(second_state, build_semantic_options(changed))
+
+    assert first.effect_ref.card_id == 678
+    assert first.context_ref.serial == 73
+    assert second.context_ref.serial == 74
+    assert first.digest() != second.digest()
+
+
 def test_main_prompt_fingerprint_changes_with_public_board_state():
     obs = observation([hand_card_option(0)])
     first_state = build_public_state(obs)

@@ -174,7 +174,8 @@ class TransactionStep:
     expected_max_count: int
     action_spec: ActionSpec
     irreversible_on_emit: bool
-    expected_source_ref: Optional[PhysicalRef] = None
+    expected_effect_ref: Optional[PhysicalRef] = None
+    expected_context_ref: Optional[PhysicalRef] = None
     effect_or_attack_id: Optional[int] = None
     stochastic_boundary: bool = False
 
@@ -209,8 +210,10 @@ class TransactionStep:
             <= self.expected_max_count
         ):
             raise ValueError("transaction action count is outside the expected bounds")
-        if self.expected_source_ref is not None:
-            _require_exact_ref(self.expected_source_ref)
+        if self.expected_effect_ref is not None:
+            _require_exact_ref(self.expected_effect_ref)
+        if self.expected_context_ref is not None:
+            _require_exact_ref(self.expected_context_ref)
         if self.effect_or_attack_id is not None and (
             not _is_exact_int(self.effect_or_attack_id)
             or self.effect_or_attack_id <= 0
@@ -231,8 +234,13 @@ class TransactionStep:
             self.irreversible_on_emit,
             (
                 None
-                if self.expected_source_ref is None
-                else self.expected_source_ref.sort_key()
+                if self.expected_effect_ref is None
+                else self.expected_effect_ref.sort_key()
+            ),
+            (
+                None
+                if self.expected_context_ref is None
+                else self.expected_context_ref.sort_key()
             ),
             self.effect_or_attack_id,
             self.stochastic_boundary,
@@ -344,6 +352,8 @@ class TransactionState:
     source_ref: Optional[PhysicalRef]
     target_refs: Tuple[PhysicalRef, ...]
     reserved_refs: Tuple[PhysicalRef, ...]
+    expected_effect_ref: Optional[PhysicalRef]
+    expected_context_ref: Optional[PhysicalRef]
     expected_select_type: int
     expected_context: int
     expected_min_count: int
@@ -461,9 +471,10 @@ def _prompt_match_reasons(
         reasons.append("UNEXPECTED_MIN_COUNT")
     if state.max_count != step.expected_max_count:
         reasons.append("UNEXPECTED_MAX_COUNT")
-    actual_source = state.effect_ref or state.context_ref
-    if not _source_identity_matches(step.expected_source_ref, actual_source):
-        reasons.append("UNEXPECTED_SOURCE_REF")
+    if not _source_identity_matches(step.expected_effect_ref, state.effect_ref):
+        reasons.append("UNEXPECTED_EFFECT_REF")
+    if not _source_identity_matches(step.expected_context_ref, state.context_ref):
+        reasons.append("UNEXPECTED_CONTEXT_REF")
     bound = None
     try:
         bound = tuple(
@@ -591,6 +602,8 @@ class TransactionStore:
             source_ref=plan.source_ref,
             target_refs=plan.target_refs,
             reserved_refs=plan.reserved_refs,
+            expected_effect_ref=plan.initiation.expected_effect_ref,
+            expected_context_ref=plan.initiation.expected_context_ref,
             expected_select_type=plan.initiation.expected_select_type,
             expected_context=plan.initiation.expected_context,
             expected_min_count=plan.initiation.expected_min_count,
@@ -759,6 +772,8 @@ class TransactionStore:
             self._owner,
             owner_kind=self._owner.origin_owner_kind,
             stage=step.stage,
+            expected_effect_ref=step.expected_effect_ref,
+            expected_context_ref=step.expected_context_ref,
             expected_select_type=step.expected_select_type,
             expected_context=step.expected_context,
             expected_min_count=step.expected_min_count,
