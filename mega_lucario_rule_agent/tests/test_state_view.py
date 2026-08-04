@@ -13,6 +13,8 @@ from mega_lucario_rule_agent.state_view import (
     ActionSpec,
     AreaType,
     OptionType,
+    LogType,
+    PublicHistoryTracker,
     SelectContext,
     SelectType,
     SemanticBindError,
@@ -431,6 +433,114 @@ def test_state_fingerprint_is_deterministic_and_public_opponent_hand_only():
     assert first.own.prize_count == 6
     assert first.opponent.prize_count == 6
     assert first.first_player == 0
+
+
+def test_public_history_reconstructs_cross_turn_logs_without_stale_assignment():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(2)
+    initial = observation([hand_card_option(0)])
+    initial["current"]["turn"] = 1
+    build_public_state(initial, game_epoch=2, history_tracker=tracker)
+
+    current = observation([hand_card_option(0)])
+    current["current"]["turn"] = 4
+    current["logs"] = [
+        {
+            "type": int(LogType.ATTACK),
+            "playerIndex": 1,
+            "cardId": 100,
+            "serial": 110,
+            "attackId": 980,
+        },
+        {"type": int(LogType.TURN_END), "playerIndex": 1},
+        {"type": int(LogType.TURN_START), "playerIndex": 0},
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1141,
+            "serial": 50,
+        },
+        {"type": int(LogType.TURN_END), "playerIndex": 0},
+        {"type": int(LogType.TURN_START), "playerIndex": 1},
+    ]
+    state = build_public_state(current, game_epoch=2, history_tracker=tracker)
+
+    assert state.history_complete
+    assert state.last_attack_by_lineage == (
+        state.last_attack_by_lineage[0],
+    )
+    assert state.last_attack_by_lineage[0].owner == 1
+    assert state.last_attack_by_lineage[0].lineage_serial == 110
+    assert state.last_attack_by_lineage[0].attack_id == 980
+    assert state.last_attack_by_lineage[0].turn == 2
+    assert not state.attacked_this_turn
+    assert state.ppp_count == 0
+
+
+def test_public_history_counts_distinct_ppp_serials_once_per_event_turn():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(4)
+    initial = observation([hand_card_option(0)])
+    initial["current"]["turn"] = 1
+    build_public_state(initial, game_epoch=4, history_tracker=tracker)
+
+    first = observation([hand_card_option(0)])
+    first["current"]["turn"] = 3
+    first["logs"] = [
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1141,
+            "serial": 50,
+        }
+    ]
+    one = build_public_state(first, game_epoch=4, history_tracker=tracker)
+    repeated = build_public_state(first, game_epoch=4, history_tracker=tracker)
+    assert one.ppp_count == repeated.ppp_count == 1
+
+    second = deepcopy(first)
+    second["logs"].append(
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1141,
+            "serial": 51,
+        }
+    )
+    two = build_public_state(second, game_epoch=4, history_tracker=tracker)
+    assert two.ppp_count == 2
+
+
+def test_emitted_attack_is_recorded_by_lineage_across_evolution_card_serial():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(5)
+    obs = observation([hand_card_option(0)])
+    obs["current"]["turn"] = 6
+    obs["current"]["players"][0]["active"] = [
+        pokemon(678, 91, hp=340, pre=[card(677, 85)])
+    ]
+    current = build_public_state(obs, game_epoch=5)
+    tracker.record_emitted_attack(current, 983)
+
+    same_turn = tracker.snapshot(0, 6)
+    next_own_turn = tracker.snapshot(0, 8)
+    assert same_turn.attacked_this_turn
+    assert next_own_turn.last_attack_by_lineage[0].lineage_serial == 85
+    assert next_own_turn.last_attack_by_lineage[0].attack_id == 983
+    assert next_own_turn.last_attack_by_lineage[0].turn == 6
+
+
+def test_invalid_turn_marker_actor_marks_public_history_incomplete():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(6)
+    obs = observation([hand_card_option(0)])
+    obs["current"]["turn"] = 1
+    obs["logs"] = [
+        {"type": int(LogType.TURN_START), "playerIndex": 1}
+    ]
+    state = build_public_state(obs, game_epoch=6, history_tracker=tracker)
+    assert not state.history_complete
+    assert state.ppp_count is None
 
 
 def test_public_board_fingerprint_redacts_both_hidden_hands_and_prizes():

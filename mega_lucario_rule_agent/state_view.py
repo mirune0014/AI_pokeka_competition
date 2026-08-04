@@ -118,6 +118,15 @@ class SelectContext(IntEnum):
     RECOVER_SPECIAL_CONDITION = 48
 
 
+class LogType(IntEnum):
+    TURN_START = 2
+    TURN_END = 3
+    CHANGE = 9
+    PLAY = 10
+    EVOLVE = 12
+    ATTACK = 15
+
+
 def read_field(value: Any, name: str, default: Any = None) -> Any:
     """Read a field from either a mapping or a dataclass-like object."""
 
@@ -214,6 +223,26 @@ class PlayerView:
 
 
 @dataclass(frozen=True)
+class AttackHistoryEntry:
+    owner: int
+    lineage_serial: int
+    attack_id: int
+    turn: int
+
+    def canonical(self) -> Tuple[int, int, int, int]:
+        return self.owner, self.lineage_serial, self.attack_id, self.turn
+
+
+@dataclass(frozen=True)
+class PublicHistoryView:
+    game_epoch: int
+    last_attack_by_lineage: Tuple[AttackHistoryEntry, ...]
+    attacked_this_turn: bool
+    ppp_count: Optional[int]
+    complete: bool
+
+
+@dataclass(frozen=True)
 class PublicState:
     game_epoch: int
     seat: int
@@ -239,6 +268,10 @@ class PublicState:
     select_deck_open: bool = False
     remaining_damage_counter: Optional[int] = None
     remaining_energy_cost: Optional[int] = None
+    last_attack_by_lineage: Tuple[AttackHistoryEntry, ...] = ()
+    attacked_this_turn: bool = False
+    ppp_count: Optional[int] = None
+    history_complete: bool = False
 
     @property
     def own_active(self) -> Optional[PokemonView]:
@@ -546,10 +579,266 @@ def _current_from_observation(observation: Any) -> Any:
     return read_field(observation, "current")
 
 
-def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
+class PublicHistoryTracker:
+    """Bounded public-log ledger for turn-scoped cards and lineage attack locks."""
+
+    def __init__(self) -> None:
+        self._game_epoch: Optional[int] = None
+        self._complete = False
+        self._seen_events: set[Tuple[int, ...]] = set()
+        self._top_to_lineage: Dict[Tuple[int, int], int] = {}
+        self._last_attack: Dict[Tuple[int, int], AttackHistoryEntry] = {}
+        self._ppp_plays: Dict[Tuple[int, int], set[int]] = {}
+        self._last_current_turn: Optional[int] = None
+
+    def begin_game(self, game_epoch: int) -> None:
+        epoch = as_int(game_epoch)
+        if epoch is None or epoch < 0:
+            raise ValueError("history game_epoch must be a nonnegative exact int")
+        self._game_epoch = epoch
+        self._complete = True
+        self._seen_events = set()
+        self._top_to_lineage = {}
+        self._last_attack = {}
+        self._ppp_plays = {}
+        self._last_current_turn = None
+
+    @staticmethod
+    def _turn_actor(turn: int, first_player: int) -> Optional[int]:
+        if turn < 1 or first_player not in (0, 1):
+            return None
+        return first_player if turn % 2 == 1 else 1 - first_player
+
+    def _remember_board_lineages(self, current: Any) -> None:
+        players = as_tuple(read_field(current, "players", ()))
+        if len(players) != 2:
+            self._complete = False
+            return
+        try:
+            for owner, player in enumerate(players):
+                for pokemon in (
+                    as_tuple(read_field(player, "active", ()))
+                    + as_tuple(read_field(player, "bench", ()))
+                ):
+                    if pokemon is None:
+                        continue
+                    serial = as_int(read_field(pokemon, "serial"))
+                    lineage = pokemon_lineage_serial(pokemon)
+                    if serial is None or lineage is None:
+                        self._complete = False
+                        continue
+                    key = (owner, serial)
+                    previous = self._top_to_lineage.get(key)
+                    if previous is not None and previous != lineage:
+                        self._complete = False
+                        continue
+                    self._top_to_lineage[key] = lineage
+        except ValueError:
+            self._complete = False
+
+    def _event_turns(
+        self,
+        logs: Tuple[Any, ...],
+        current_turn: int,
+        first_player: int,
+    ) -> Tuple[Tuple[Any, int], ...]:
+        cursor = current_turn
+        reversed_rows = []
+        try:
+            for entry in reversed(logs):
+                log_type = as_int(read_field(entry, "type"))
+                if log_type is None:
+                    self._complete = False
+                    continue
+                event_turn = cursor
+                if log_type in (int(LogType.TURN_START), int(LogType.TURN_END)):
+                    actor = as_int(read_field(entry, "playerIndex"))
+                    expected = self._turn_actor(cursor, first_player)
+                    if actor != expected:
+                        self._complete = False
+                    if log_type == int(LogType.TURN_START):
+                        if cursor <= 0:
+                            self._complete = False
+                        else:
+                            cursor -= 1
+                reversed_rows.append((entry, event_turn))
+        except ValueError:
+            self._complete = False
+            return ()
+        reversed_rows.reverse()
+        return tuple(reversed_rows)
+
+    def _ingest_event(self, entry: Any, event_turn: int) -> None:
+        try:
+            log_type = as_int(read_field(entry, "type"))
+            owner = as_int(read_field(entry, "playerIndex"))
+            if log_type is None or owner not in (0, 1) or event_turn < 0:
+                return
+            card_id = as_int(read_field(entry, "cardId"))
+            serial = as_int(read_field(entry, "serial"))
+            attack_id = as_int(read_field(entry, "attackId"))
+            serial_target = as_int(read_field(entry, "serialTarget"))
+        except ValueError:
+            self._complete = False
+            return
+
+        if log_type == int(LogType.EVOLVE):
+            if serial is None or serial_target is None:
+                self._complete = False
+                return
+            lineage = self._top_to_lineage.get((owner, serial_target), serial_target)
+            self._top_to_lineage[(owner, serial)] = lineage
+            return
+
+        if log_type == int(LogType.PLAY) and card_id == 1141:
+            if serial is None:
+                self._complete = False
+                return
+            event_key = (
+                int(self._game_epoch or 0),
+                event_turn,
+                log_type,
+                owner,
+                card_id,
+                serial,
+            )
+            if event_key in self._seen_events:
+                return
+            self._seen_events.add(event_key)
+            self._ppp_plays.setdefault((event_turn, owner), set()).add(serial)
+            return
+
+        if log_type == int(LogType.ATTACK):
+            if serial is None or attack_id is None or attack_id <= 0:
+                self._complete = False
+                return
+            lineage = self._top_to_lineage.get((owner, serial))
+            if lineage is None:
+                self._complete = False
+                return
+            event_key = (
+                int(self._game_epoch or 0),
+                event_turn,
+                log_type,
+                owner,
+                serial,
+                attack_id,
+            )
+            if event_key in self._seen_events:
+                return
+            self._seen_events.add(event_key)
+            self._last_attack[(owner, lineage)] = AttackHistoryEntry(
+                owner=owner,
+                lineage_serial=lineage,
+                attack_id=attack_id,
+                turn=event_turn,
+            )
+
+    def update(self, observation: Any, game_epoch: int) -> PublicHistoryView:
+        epoch = as_int(game_epoch)
+        if epoch is None or epoch < 0:
+            raise ValueError("history game_epoch must be a nonnegative exact int")
+        if self._game_epoch != epoch:
+            self.begin_game(epoch)
+        current = _current_from_observation(observation)
+        if current is None:
+            self._complete = False
+            return self.snapshot(0, 0)
+        try:
+            turn = as_int(read_field(current, "turn"))
+            seat = as_int(read_field(current, "yourIndex"))
+            first_player = as_int(read_field(current, "firstPlayer"))
+        except ValueError:
+            self._complete = False
+            return self.snapshot(0, 0)
+        if turn is None or turn < 0 or seat not in (0, 1):
+            self._complete = False
+            return self.snapshot(0, 0)
+        if self._last_current_turn is None and turn > 2:
+            self._complete = False
+        if self._last_current_turn is not None and turn < self._last_current_turn:
+            self._complete = False
+        self._last_current_turn = turn
+        self._remember_board_lineages(current)
+        raw_logs = read_field(observation, "logs", ())
+        if not isinstance(raw_logs, Sequence) or isinstance(
+            raw_logs,
+            (str, bytes, bytearray),
+        ):
+            self._complete = False
+            logs = ()
+        else:
+            logs = tuple(raw_logs)
+        if logs and first_player not in (0, 1):
+            self._complete = False
+        else:
+            for entry, event_turn in self._event_turns(logs, turn, first_player):
+                self._ingest_event(entry, event_turn)
+        return self.snapshot(seat, turn)
+
+    def record_emitted_attack(self, state: PublicState, attack_id: int) -> None:
+        if not isinstance(state, PublicState):
+            raise ValueError("emitted attack requires a PublicState")
+        if self._game_epoch != state.game_epoch:
+            self.begin_game(state.game_epoch)
+        attack = as_int(attack_id)
+        active = state.own_active
+        if attack is None or attack <= 0 or active is None:
+            self._complete = False
+            raise ValueError("emitted attack requires an active lineage and attack ID")
+        lineage = active.lineage_serial
+        if (
+            lineage is None
+            or not isinstance(active.ref.serial, int)
+            or isinstance(active.ref.serial, bool)
+            or active.ref.serial < 0
+        ):
+            self._complete = False
+            raise ValueError("emitted attack active lineage is unknown")
+        self._top_to_lineage[(state.seat, active.ref.serial)] = lineage
+        self._last_attack[(state.seat, lineage)] = AttackHistoryEntry(
+            owner=state.seat,
+            lineage_serial=lineage,
+            attack_id=attack,
+            turn=state.turn,
+        )
+
+    def snapshot(self, seat: int, turn: int) -> PublicHistoryView:
+        seat_value = as_int(seat)
+        turn_value = as_int(turn)
+        if seat_value not in (0, 1) or turn_value is None or turn_value < 0:
+            raise ValueError("history snapshot requires exact seat and turn")
+        entries = tuple(
+            sorted(
+                self._last_attack.values(),
+                key=lambda entry: entry.canonical(),
+            )
+        )
+        attacked = any(
+            entry.owner == seat_value and entry.turn == turn_value
+            for entry in entries
+        )
+        ppp_count = len(self._ppp_plays.get((turn_value, seat_value), set()))
+        return PublicHistoryView(
+            game_epoch=int(self._game_epoch or 0),
+            last_attack_by_lineage=entries,
+            attacked_this_turn=attacked,
+            ppp_count=ppp_count if self._complete else None,
+            complete=self._complete,
+        )
+
+
+def build_public_state(
+    observation: Any,
+    game_epoch: int = 0,
+    history_tracker: Optional[PublicHistoryTracker] = None,
+) -> PublicState:
     current = _current_from_observation(observation)
     if current is None:
         raise ValueError("observation.current is required for a decision")
+    epoch_value = as_int(game_epoch)
+    if epoch_value is None or epoch_value < 0:
+        raise ValueError("game_epoch must be a nonnegative exact int")
     select = _select_from_observation(observation)
     seat_value = as_int(read_field(current, "yourIndex"), 0)
     seat = 0 if seat_value is None else seat_value
@@ -602,9 +891,11 @@ def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
     context_ref = _card_ref(read_field(select, "contextCard"), seat, None)
     first_player = as_int(read_field(current, "firstPlayer"), -1)
     result = as_int(read_field(current, "result"), -1)
-    epoch_value = as_int(game_epoch)
-    if epoch_value is None or epoch_value < 0:
-        raise ValueError("game_epoch must be a nonnegative exact int")
+    history = (
+        PublicHistoryView(epoch_value, (), False, None, False)
+        if history_tracker is None
+        else history_tracker.update(observation, epoch_value)
+    )
     return PublicState(
         game_epoch=epoch_value,
         seat=seat,
@@ -632,6 +923,10 @@ def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
             read_field(select, "remainDamageCounter")
         ),
         remaining_energy_cost=as_int(read_field(select, "remainEnergyCost")),
+        last_attack_by_lineage=history.last_attack_by_lineage,
+        attacked_this_turn=history.attacked_this_turn,
+        ppp_count=history.ppp_count,
+        history_complete=history.complete,
     )
 
 
@@ -1066,6 +1361,14 @@ def public_state_fingerprint(state: PublicState) -> str:
         ),
         "effect_ref": None if state.effect_ref is None else state.effect_ref.sort_key(),
         "context_ref": None if state.context_ref is None else state.context_ref.sort_key(),
+        "history": {
+            "complete": state.history_complete,
+            "attacked_this_turn": state.attacked_this_turn,
+            "ppp_count": state.ppp_count,
+            "last_attack_by_lineage": tuple(
+                entry.canonical() for entry in state.last_attack_by_lineage
+            ),
+        },
     }
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -1095,13 +1398,17 @@ def is_stable_main_state(state: PublicState) -> bool:
 
 __all__ = [
     "ActionSpec",
+    "AttackHistoryEntry",
     "AreaType",
+    "LogType",
     "OptionType",
     "PhysicalRef",
     "PlayerView",
     "PokemonView",
     "PromptFingerprint",
     "PublicState",
+    "PublicHistoryTracker",
+    "PublicHistoryView",
     "SelectContext",
     "SelectType",
     "SemanticBindError",
