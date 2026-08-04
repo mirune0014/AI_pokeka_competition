@@ -21,6 +21,7 @@ from mega_lucario_rule_agent.resource_ledger import ReservationKind
 from mega_lucario_rule_agent.routes import enumerate_poke_pad_core_search_routes
 from mega_lucario_rule_agent.state_view import (
     AreaType,
+    LogType,
     OptionType,
     PhysicalRef,
     SelectContext,
@@ -41,6 +42,9 @@ from mega_lucario_rule_agent.tests.test_attack_outcomes import (
     pokemon,
     pokemon_catalog_row,
     registry_for,
+)
+from mega_lucario_rule_agent.tests.test_transaction_terminal_receipts import (
+    _event,
 )
 
 
@@ -423,7 +427,36 @@ def test_transaction_selects_lowest_serial_after_permutation_and_completes():
     assert repeated.status is ResumeStatus.DUPLICATE_REISSUE
     assert repeated.bound_action == (1,)
 
-    stable_after = replace(state, turn_action_count=state.turn_action_count + 2)
+    source_discard = replace(plan.source_ref, zone=int(AreaType.DISCARD))
+    selected_deck = PhysicalRef(
+        677,
+        40,
+        state.seat,
+        int(AreaType.DECK),
+        40,
+    )
+    selected_hand = replace(selected_deck, zone=int(AreaType.HAND))
+    stable_own = replace(
+        state.own,
+        hand_refs=tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if (ref_value.card_id, ref_value.serial) != (1152, 30)
+        )
+        + (selected_hand,),
+        hand_count=state.own.hand_count,
+        discard_refs=state.own.discard_refs + (source_discard,),
+        deck_count=state.own.deck_count - 1,
+    )
+    stable_after = replace(
+        state,
+        turn_action_count=state.turn_action_count + 2,
+        own=stable_own,
+        receipt_events=(
+            _event(LogType.PLAY, ref_value=plan.source_ref),
+            _event(LogType.MOVE_CARD, ref_value=selected_deck, from_area=int(AreaType.DECK), to_area=int(AreaType.HAND)),
+        ),
+    )
     completed = store.resume(stable_after, options)
     assert completed.status is ResumeStatus.COMPLETED
     assert not store.has_owner
@@ -573,6 +606,22 @@ def test_runtime_play_target_main_replans_without_fault():
     final_main["current"]["players"][0]["discard"] = [card(1152, 30)]
     final_main["current"]["players"][0]["deckCount"] -= 1
     final_main["select"]["option"] = [{"type": int(OptionType.END), "playerIndex": 0}]
+    final_main["logs"] = [
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1152,
+            "serial": 30,
+        },
+        {
+            "type": int(LogType.MOVE_CARD),
+            "playerIndex": 0,
+            "cardId": 677,
+            "serial": 40,
+            "fromArea": int(AreaType.DECK),
+            "toArea": int(AreaType.HAND),
+        },
+    ]
     assert runtime.act(final_main) == [0]
     assert not runtime.transactions.has_owner
     assert not runtime.runtime_fault_latched
