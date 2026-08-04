@@ -89,6 +89,7 @@ class ProofSchema(str, Enum):
     POKE_PAD_CORE_FORMATION_V1 = "poke_pad_core_formation_v1"
     FIRST_TURN_RIOLU_ATTACH_V1 = "first_turn_riolu_attach_v1"
     ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1 = "active_post_attach_attack_completion_v1"
+    DECK_RULE_V1 = "deck_rule_v1"
 
 
 ACTIVE_ATTACK_COMPLETION_RULE_ID = (
@@ -300,6 +301,7 @@ class CertificateProof:
             ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: {
                 CertificateKind.ATTACK_COMPLETION,
             },
+            ProofSchema.DECK_RULE_V1: set(CertificateKind),
         }
         if (
             CertificateKind(self.kind)
@@ -465,6 +467,90 @@ def safe_fallback_proof(
             "attack_id": action_key.attack_id,
             "legal_options_fingerprint": legal_options_fingerprint(legal_options),
         },
+        rejection_reasons=(),
+    )
+
+
+def deck_rule_proof(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+    features: DeckFeatures,
+    action_spec: ActionSpec,
+    *,
+    route_code: str,
+    kind: CertificateKind,
+    guaranteed_prizes: int = 0,
+    facts: Optional[Mapping[str, Any]] = None,
+) -> CertificateProof:
+    """Issue one narrow, state-bound proof for an integrated deck rule."""
+
+    if not isinstance(route_code, str) or not route_code.strip():
+        raise ValueError("deck route_code must be a non-empty string")
+    if route_code != route_code.strip():
+        raise ValueError("deck route_code must be trimmed")
+    if not is_stable_main_state(state):
+        raise ValueError("deck rules require stable MAIN")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("deck rules require a checked registry")
+    if not isinstance(features, DeckFeatures) or not features.matches(
+        state,
+        legal_options,
+        registry,
+    ):
+        raise ValueError("deck rules require current checked features")
+    if not isinstance(action_spec, ActionSpec) or len(action_spec.choices) != 1:
+        raise ValueError("deck rules require exactly one semantic action")
+    try:
+        rebound = action_spec.bind(
+            legal_options,
+            min_count=state.min_count,
+            max_count=state.max_count,
+        )
+    except SemanticBindError as error:
+        raise ValueError("deck rule action must bind uniquely") from error
+    if len(rebound) != 1:
+        raise ValueError("deck rule action must resolve to one option")
+    kind_value = CertificateKind(kind)
+    if (
+        isinstance(guaranteed_prizes, bool)
+        or not isinstance(guaranteed_prizes, int)
+        or guaranteed_prizes < 0
+    ):
+        raise ValueError("guaranteed_prizes must be a non-negative exact int")
+    if kind_value in (CertificateKind.WIN_NOW, CertificateKind.PRIZE_GAIN_NOW):
+        if guaranteed_prizes <= 0:
+            raise ValueError("winning and Prize deck rules require a Prize claim")
+    elif guaranteed_prizes != 0:
+        raise ValueError("non-Prize deck rules cannot claim guaranteed Prizes")
+
+    supplied = dict(facts or {})
+    reserved_names = {
+        "route_code",
+        "option_type",
+        "legal_options_fingerprint",
+        "registry_digest",
+        "features_digest",
+    }
+    if reserved_names.intersection(supplied):
+        raise ValueError("deck rule facts cannot replace bound common facts")
+    supplied.update(
+        {
+            "route_code": route_code,
+            "option_type": action_spec.choices[0].option_type,
+            "legal_options_fingerprint": legal_options_fingerprint(legal_options),
+            "registry_digest": registry.digest,
+            "features_digest": features.digest(),
+        }
+    )
+    return _make_proof(
+        kind=kind_value,
+        schema=ProofSchema.DECK_RULE_V1,
+        state=state,
+        action_spec=action_spec,
+        is_valid=True,
+        guaranteed_prizes=guaranteed_prizes,
+        facts=supplied,
         rejection_reasons=(),
     )
 
@@ -1402,6 +1488,7 @@ __all__ = [
     "poke_pad_core_formation_proof",
     "attack_outcome_proof",
     "basic_bench_proof",
+    "deck_rule_proof",
     "first_turn_riolu_attach_proof",
     "legal_options_fingerprint",
     "safe_fallback_proof",

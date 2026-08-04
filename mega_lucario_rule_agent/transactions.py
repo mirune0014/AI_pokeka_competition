@@ -22,6 +22,7 @@ try:  # Package import in tests.
         public_state_fingerprint,
         SemanticBindError,
         SemanticOption,
+        SemanticOptionKey,
         is_stable_main_state,
         make_prompt_fingerprint,
     )
@@ -44,6 +45,7 @@ except ImportError:  # Flat submission import from main.py.
         public_state_fingerprint,
         SemanticBindError,
         SemanticOption,
+        SemanticOptionKey,
         is_stable_main_state,
         make_prompt_fingerprint,
     )
@@ -149,10 +151,17 @@ def _validate_persisted_action_spec(action_spec: ActionSpec) -> None:
         if not _is_exact_int(key.option_type) or key.option_type < 0:
             raise ValueError("transaction option_type must be an exact integer")
         if key.source_index is not None:
-            raise ValueError("transaction action_spec cannot persist a raw source_index")
+            raise ValueError(
+                "transaction action_spec cannot persist a raw source_index"
+            )
         if key.relation is not None:
-            raise ValueError("transaction action_spec cannot persist a raw target relation")
-        if any(value is not None for value in (key.card_id, key.card_serial, key.source_zone)):
+            raise ValueError(
+                "transaction action_spec cannot persist a raw target relation"
+            )
+        if any(
+            value is not None
+            for value in (key.card_id, key.card_serial, key.source_zone)
+        ):
             if (
                 not _is_exact_int(key.card_id)
                 or key.card_id <= 0
@@ -172,13 +181,13 @@ def _validate_persisted_action_spec(action_spec: ActionSpec) -> None:
             or key.source_zone not in (int(AreaType.ACTIVE), int(AreaType.BENCH))
         ):
             raise ValueError(
-                'persisted source lineage requires an active or bench source zone'
+                "persisted source lineage requires an active or bench source zone"
             )
         if key.source_zone in (int(AreaType.ACTIVE), int(AreaType.BENCH)) and (
             not _is_exact_int(key.source_lineage_serial)
             or key.source_lineage_serial < 0
         ):
-            raise ValueError('in-play transaction sources require a lineage serial')
+            raise ValueError("in-play transaction sources require a lineage serial")
         if key.target_lineage_serial is not None and (
             not _is_exact_int(key.target_lineage_serial)
             or key.target_lineage_serial < 0
@@ -214,32 +223,27 @@ class DeferredCardClassChoice:
         if not classes or any(not card_ids for card_ids in classes):
             raise ValueError("deferred card classes must be non-empty")
         flattened = tuple(card_id for card_ids in classes for card_id in card_ids)
-        if any(
-            not _is_exact_int(card_id) or card_id <= 0
-            for card_id in flattened
-        ):
+        if any(not _is_exact_int(card_id) or card_id <= 0 for card_id in flattened):
             raise ValueError("deferred card IDs must be positive exact integers")
         if len(set(flattened)) != len(flattened):
             raise ValueError("deferred card IDs cannot repeat across classes")
         if not _is_exact_int(self.owner) or self.owner not in (0, 1):
             raise ValueError("deferred choice owner must be 0 or 1")
         zones = tuple(self.allowed_source_zones)
-        if not zones or any(
-            not _is_exact_int(zone) or zone <= 0
-            for zone in zones
-        ):
+        if not zones or any(not _is_exact_int(zone) or zone <= 0 for zone in zones):
             raise ValueError("deferred source zones must be positive exact integers")
         if len(set(zones)) != len(zones):
             raise ValueError("deferred source zones cannot repeat")
         if not _is_exact_int(self.option_type) or self.option_type < 0:
             raise ValueError("deferred option_type must be an exact integer")
         if self.selection_count != 1 or not _is_exact_int(self.selection_count):
-            raise ValueError("deferred card choice currently requires selection_count=1")
-        if (
-            self.availability_proof is not None
-            and not isinstance(self.availability_proof, DeckAvailabilityProof)
+            raise ValueError(
+                "deferred card choice currently requires selection_count=1"
+            )
+        if self.availability_proof is not None and not isinstance(
+            self.availability_proof, DeckAvailabilityProof
         ):
-            raise ValueError('deferred availability proof has an invalid type')
+            raise ValueError("deferred availability proof has an invalid type")
         if not isinstance(self.require_match, bool):
             raise ValueError("deferred require_match must be boolean")
         object.__setattr__(self, "ordered_card_id_classes", classes)
@@ -283,7 +287,10 @@ class TransactionStep:
             TransactionStage.FAULT_CONTAINMENT,
         ):
             raise ValueError("terminal stages cannot be declared as executable steps")
-        if not _is_exact_int(self.expected_select_type) or self.expected_select_type < 0:
+        if (
+            not _is_exact_int(self.expected_select_type)
+            or self.expected_select_type < 0
+        ):
             raise ValueError(
                 "expected_select_type must be a non-negative exact integer"
             )
@@ -321,10 +328,11 @@ class TransactionStep:
         if self.expected_context_ref is not None:
             _require_exact_ref(self.expected_context_ref)
         if self.effect_or_attack_id is not None and (
-            not _is_exact_int(self.effect_or_attack_id)
-            or self.effect_or_attack_id <= 0
+            not _is_exact_int(self.effect_or_attack_id) or self.effect_or_attack_id <= 0
         ):
-            raise ValueError("effect_or_attack_id must be None or a positive exact integer")
+            raise ValueError(
+                "effect_or_attack_id must be None or a positive exact integer"
+            )
         if not isinstance(self.stochastic_boundary, bool):
             raise ValueError("stochastic_boundary must be boolean")
 
@@ -396,10 +404,7 @@ class TransactionPlan:
             raise ValueError("transaction seat must be 0 or 1")
         if not _is_exact_int(self.turn) or self.turn < 0:
             raise ValueError("transaction turn must be a non-negative exact integer")
-        if (
-            not _is_exact_int(self.start_action_count)
-            or self.start_action_count < 0
-        ):
+        if not _is_exact_int(self.start_action_count) or self.start_action_count < 0:
             raise ValueError("start_action_count must be a non-negative exact integer")
         if self.source_ref is not None:
             _require_exact_ref(self.source_ref)
@@ -408,7 +413,9 @@ class TransactionPlan:
         target_refs = _normalize_refs(self.target_refs)
         reserved_refs = _normalize_refs(self.reserved_refs)
         if any(ref_value.owner != self.seat for ref_value in reserved_refs):
-            raise ValueError("reserved transaction resources must belong to the acting seat")
+            raise ValueError(
+                "reserved transaction resources must belong to the acting seat"
+            )
         if not isinstance(self.initiation, TransactionStep):
             raise ValueError("transaction plan requires an initiation step")
         if self.initiation.stage != TransactionStage.INITIATION:
@@ -417,14 +424,18 @@ class TransactionPlan:
             raise ValueError("transaction initiation cannot use a deferred choice")
         steps = tuple(self.steps)
         if any(not isinstance(step, TransactionStep) for step in steps):
-            raise ValueError("transaction continuation steps must be TransactionStep values")
+            raise ValueError(
+                "transaction continuation steps must be TransactionStep values"
+            )
         all_steps = (self.initiation,) + steps
         for step in all_steps:
             policy = step.deferred_card_choice
             if policy is None:
                 continue
             if policy.owner != self.seat:
-                raise ValueError('deferred choice owner must match the transaction seat')
+                raise ValueError(
+                    "deferred choice owner must match the transaction seat"
+                )
         stochastic_indices = tuple(
             index for index, step in enumerate(all_steps) if step.stochastic_boundary
         )
@@ -570,6 +581,307 @@ def build_poke_pad_core_search_plan(
     )
 
 
+def _card_spec_for_ref(ref_value: PhysicalRef) -> ActionSpec:
+    _require_exact_ref(ref_value)
+    return ActionSpec.single(
+        SemanticOptionKey(
+            option_type=int(OptionType.CARD),
+            player_index=ref_value.owner,
+            card_id=ref_value.card_id,
+            card_serial=ref_value.serial,
+            source_zone=ref_value.zone,
+            source_lineage_serial=(
+                ref_value.lineage_serial
+                if ref_value.zone in (int(AreaType.ACTIVE), int(AreaType.BENCH))
+                else None
+            ),
+        )
+    )
+
+
+def _require_proof_digest(proof_digest: str) -> None:
+    if (
+        not isinstance(proof_digest, str)
+        or len(proof_digest) != 64
+        or any(character not in "0123456789abcdef" for character in proof_digest)
+    ):
+        raise ValueError("transaction plan requires a lowercase proof SHA-256")
+
+
+def build_deck_search_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    ordered_card_id_classes: Sequence[Sequence[int]],
+    availability_proof: DeckAvailabilityProof,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Build a guaranteed Fighting Gong search using physical source identity."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("deck search plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    if (
+        source_ref.card_id != 1142
+        or source_ref.owner != state.seat
+        or source_ref.zone != int(AreaType.HAND)
+        or source_ref not in state.own.hand_refs
+    ):
+        raise ValueError("Fighting Gong source must be one exact own HAND card")
+    if not isinstance(action_spec, ActionSpec) or len(action_spec.choices) != 1:
+        raise ValueError("deck search plan requires one initiation action")
+    _validate_persisted_action_spec(action_spec)
+    key = action_spec.choices[0]
+    if (
+        key.option_type != int(OptionType.PLAY)
+        or key.player_index != state.seat
+        or key.card_id != source_ref.card_id
+        or key.card_serial != source_ref.serial
+        or key.source_zone != source_ref.zone
+    ):
+        raise ValueError("Fighting Gong initiation must bind its physical source")
+    if not isinstance(availability_proof, DeckAvailabilityProof):
+        raise ValueError("deck search plan requires an availability proof")
+    _require_proof_digest(proof_digest)
+    classes = tuple(tuple(card_ids) for card_ids in ordered_card_id_classes)
+    policy = DeferredCardClassChoice(
+        ordered_card_id_classes=classes,
+        owner=state.seat,
+        allowed_source_zones=(int(AreaType.DECK),),
+        option_type=int(OptionType.CARD),
+        selection_count=1,
+        require_match=True,
+        availability_proof=availability_proof,
+    )
+    payload = (
+        "FIGHTING_GONG_ROUTE_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        action_spec.canonical(),
+        classes,
+        availability_proof.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="FIGHTING_GONG_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.SEARCH_RESOLUTION,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(),
+        reserved_refs=(),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=1142,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_SEARCH_TARGET,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.TO_HAND),
+                expected_min_count=0,
+                expected_max_count=1,
+                action_spec=None,
+                irreversible_on_emit=False,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=1142,
+                deferred_card_choice=policy,
+            ),
+        ),
+    )
+
+
+def build_lunar_cycle_plan(
+    state: PublicState,
+    source_ref: PhysicalRef,
+    energy_ref: PhysicalRef,
+    action_spec: ActionSpec,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Build Lunar Cycle through the exact discard and stochastic boundary."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Lunar Cycle plan requires stable MAIN")
+    _require_exact_ref(source_ref)
+    _require_exact_ref(energy_ref)
+    _require_proof_digest(proof_digest)
+    own_board_refs = tuple(
+        pokemon.ref for pokemon in state.own.active + state.own.bench
+    )
+    if source_ref.card_id != 675 or source_ref not in own_board_refs:
+        raise ValueError("Lunar Cycle source must be an in-play Lunatone")
+    if (
+        energy_ref.card_id != 6
+        or energy_ref.owner != state.seat
+        or energy_ref.zone != int(AreaType.HAND)
+        or energy_ref not in state.own.hand_refs
+    ):
+        raise ValueError("Lunar Cycle cost must be an exact Fighting Energy in HAND")
+    _validate_persisted_action_spec(action_spec)
+    key = action_spec.choices[0]
+    if key.option_type not in (int(OptionType.ABILITY), int(OptionType.SKILL)):
+        raise ValueError("Lunar Cycle initiation must be ABILITY or SKILL")
+    payload = (
+        "LUNAR_CYCLE_SAFE_PREFIX_V1",
+        public_state_fingerprint(state),
+        source_ref.sort_key(),
+        energy_ref.sort_key(),
+        action_spec.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return TransactionPlan(
+        transaction_id="LUNAR_CYCLE_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.LUNAR_CYCLE_RESOLUTION,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=source_ref,
+        target_refs=(),
+        reserved_refs=(energy_ref,),
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=675,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_COST,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.DISCARD),
+                expected_min_count=1,
+                expected_max_count=1,
+                action_spec=_card_spec_for_ref(energy_ref),
+                irreversible_on_emit=True,
+                expected_effect_ref=source_ref,
+                effect_or_attack_id=675,
+                stochastic_boundary=True,
+            ),
+        ),
+    )
+
+
+def build_aura_jab_plan(
+    state: PublicState,
+    action_spec: ActionSpec,
+    energy_refs: Sequence[PhysicalRef],
+    target_ref: PhysicalRef,
+    proof_digest: str,
+) -> TransactionPlan:
+    """Attach exact discard Energy refs to one Bench target after Aura Jab."""
+
+    if not isinstance(state, PublicState) or not _stable_main(state):
+        raise ValueError("Aura Jab plan requires stable MAIN")
+    active = state.own_active
+    if active is None or active.ref.card_id != 678:
+        raise ValueError("Aura Jab source must be the Active Mega Lucario ex")
+    _require_exact_ref(target_ref)
+    _require_proof_digest(proof_digest)
+    bench_refs = tuple(pokemon.ref for pokemon in state.own.bench)
+    if target_ref not in bench_refs:
+        raise ValueError("Aura Jab target must be one exact own Bench Pokemon")
+    energies = _normalize_refs(energy_refs)
+    all_discard_energy = tuple(
+        ref_value for ref_value in state.own.discard_refs if ref_value.card_id == 6
+    )
+    if not 1 <= len(energies) <= min(3, len(all_discard_energy)):
+        raise ValueError("Aura Jab must attach one to three available Energy cards")
+    if any(
+        ref_value.card_id != 6
+        or ref_value.owner != state.seat
+        or ref_value.zone != int(AreaType.DISCARD)
+        or ref_value not in all_discard_energy
+        for ref_value in energies
+    ):
+        raise ValueError("Aura Jab Energy refs must be exact discard Fighting Energy")
+    _validate_persisted_action_spec(action_spec)
+    key = action_spec.choices[0]
+    if key.option_type != int(OptionType.ATTACK) or key.attack_id != 982:
+        raise ValueError("Aura Jab plan initiation must be attack 982")
+    payload = (
+        "AURA_JAB_CONCENTRATION_V1",
+        public_state_fingerprint(state),
+        active.ref.sort_key(),
+        tuple(ref_value.sort_key() for ref_value in energies),
+        target_ref.sort_key(),
+        action_spec.canonical(),
+        proof_digest,
+    )
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    target_step = TransactionStep(
+        stage=TransactionStage.SELECT_EFFECT_TARGET,
+        expected_select_type=int(SelectType.CARD),
+        expected_context=int(SelectContext.ATTACH_FROM),
+        expected_min_count=1,
+        expected_max_count=1,
+        action_spec=_card_spec_for_ref(target_ref),
+        irreversible_on_emit=True,
+        expected_effect_ref=active.ref,
+        effect_or_attack_id=982,
+    )
+    return TransactionPlan(
+        transaction_id="AURA_JAB_{0}".format(digest[:24]),
+        owner_kind=OwnerKind.AURA_JAB_ATTACH,
+        game_epoch=state.game_epoch,
+        seat=state.seat,
+        turn=state.turn,
+        start_action_count=state.turn_action_count,
+        source_ref=active.ref,
+        target_refs=(target_ref,),
+        reserved_refs=energies,
+        initiation=TransactionStep(
+            stage=TransactionStage.INITIATION,
+            expected_select_type=int(SelectType.MAIN),
+            expected_context=int(SelectContext.MAIN),
+            expected_min_count=1,
+            expected_max_count=1,
+            action_spec=action_spec,
+            irreversible_on_emit=True,
+            effect_or_attack_id=982,
+        ),
+        steps=(
+            TransactionStep(
+                stage=TransactionStage.SELECT_ENERGY,
+                expected_select_type=int(SelectType.CARD),
+                expected_context=int(SelectContext.ATTACH_TO),
+                expected_min_count=0,
+                expected_max_count=min(3, len(all_discard_energy)),
+                action_spec=ActionSpec(
+                    tuple(
+                        _card_spec_for_ref(ref_value).choices[0]
+                        for ref_value in energies
+                    )
+                ),
+                irreversible_on_emit=True,
+                expected_effect_ref=active.ref,
+                effect_or_attack_id=982,
+            ),
+        )
+        + tuple(target_step for _ in energies),
+    )
+
+
 _STATE_ISSUER_TOKEN = object()
 
 
@@ -605,7 +917,9 @@ class TransactionState:
 
     def __post_init__(self) -> None:
         if self._issuer_token is not _STATE_ISSUER_TOKEN:
-            raise ValueError("TransactionState values must be created by TransactionStore")
+            raise ValueError(
+                "TransactionState values must be created by TransactionStore"
+            )
 
 
 @dataclass(frozen=True)
@@ -674,15 +988,10 @@ def _legal_option_index_reasons(
     legal_options: Sequence[SemanticOption],
 ) -> Tuple[str, ...]:
     indices = tuple(option.index for option in legal_options)
-    exact_indices = tuple(
-        index
-        for index in indices
-        if _is_exact_int(index)
-    )
+    exact_indices = tuple(index for index in indices if _is_exact_int(index))
     reasons = []
     if len(exact_indices) != len(indices) or any(
-        index < 0 or index >= len(legal_options)
-        for index in exact_indices
+        index < 0 or index >= len(legal_options) for index in exact_indices
     ):
         reasons.append("LEGAL_OPTION_INDEX_INVALID")
     if len(set(exact_indices)) != len(exact_indices):
@@ -718,11 +1027,7 @@ def _materialize_step_action(
         card_order = {card_id: index for index, card_id in enumerate(card_class)}
         hits = tuple(
             sorted(
-                (
-                    option
-                    for option in eligible
-                    if option.key.card_id in card_order
-                ),
+                (option for option in eligible if option.key.card_id in card_order),
                 key=lambda option: (
                     card_order[option.key.card_id],
                     option.key.card_serial,
@@ -881,7 +1186,7 @@ class TransactionStore:
                     prior_step.irreversible_on_emit
                     for prior_step in transaction_steps[:step_index]
                 ):
-                    reasons.append('DECK_AVAILABILITY_PROOF_REQUIRED')
+                    reasons.append("DECK_AVAILABILITY_PROOF_REQUIRED")
                 continue
             card_ids = tuple(
                 sorted(
@@ -891,34 +1196,31 @@ class TransactionStore:
                 )
             )
             if not proof.is_guaranteed or proof.rejection_reasons:
-                reasons.append('DECK_AVAILABILITY_PROOF_NOT_GUARANTEED')
+                reasons.append("DECK_AVAILABILITY_PROOF_NOT_GUARANTEED")
             if proof.owner != policy.owner or proof.owner != plan.seat:
-                reasons.append('DECK_AVAILABILITY_OWNER_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_OWNER_MISMATCH")
             if proof.card_ids != card_ids:
-                reasons.append('DECK_AVAILABILITY_TARGET_CLASS_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_TARGET_CLASS_MISMATCH")
             if proof.required_count != policy.selection_count:
-                reasons.append('DECK_AVAILABILITY_REQUIRED_COUNT_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_REQUIRED_COUNT_MISMATCH")
             if (
                 proof.fixed_deck_size != FIXED_DECK_SIZE
                 or proof.deck_counter_hash != FIXED_DECK_COUNTER_HASH
             ):
-                reasons.append('DECK_AVAILABILITY_DECK_HASH_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_DECK_HASH_MISMATCH")
             if proof.own_deck_count != state.own.deck_count:
-                reasons.append('DECK_AVAILABILITY_DECK_COUNT_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_DECK_COUNT_MISMATCH")
             current_proof = prove_deck_availability_from_state(
                 state,
                 card_ids,
                 required_count=policy.selection_count,
             )
             if not current_proof.is_guaranteed:
-                reasons.append('DECK_AVAILABILITY_NOT_GUARANTEED')
-            if (
-                current_proof.deck_state_hash
-                != proof.deck_state_hash
-            ):
-                reasons.append('DECK_AVAILABILITY_STATE_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_NOT_GUARANTEED")
+            if current_proof.deck_state_hash != proof.deck_state_hash:
+                reasons.append("DECK_AVAILABILITY_STATE_MISMATCH")
             if current_proof != proof:
-                reasons.append('DECK_AVAILABILITY_PROOF_CONTENT_MISMATCH')
+                reasons.append("DECK_AVAILABILITY_PROOF_CONTENT_MISMATCH")
         if reasons:
             return StartResult(
                 StartStatus.PLAN_STATE_MISMATCH,
@@ -1003,7 +1305,9 @@ class TransactionStore:
         if transaction_id != self._owner.transaction_id:
             raise TransactionStoreError("transaction_id does not match active owner")
         if self._owner.committed:
-            raise TransactionStoreError("a committed transaction cannot be precommit-aborted")
+            raise TransactionStoreError(
+                "a committed transaction cannot be precommit-aborted"
+            )
         if not isinstance(reason, str) or not reason.strip():
             raise ValueError("abort reason must be non-empty")
         reasons = (reason.strip(),)
@@ -1148,10 +1452,7 @@ class TransactionStore:
             ),
             step_index=step_index,
             callback_budget_used=self._owner.callback_budget_used + 1,
-            committed=(
-                self._owner.committed
-                or step.irreversible_on_emit
-            ),
+            committed=(self._owner.committed or step.irreversible_on_emit),
         )
         return ResumeResult(
             status,
@@ -1215,12 +1516,9 @@ class TransactionStore:
             if self._owner.last_prompt_fingerprint is None
             else self._owner.last_prompt_fingerprint.turn_action_count
         )
-        if (
-            state.turn_action_count < self._owner.start_action_count
-            or (
-                last_action_count is not None
-                and state.turn_action_count < last_action_count
-            )
+        if state.turn_action_count < self._owner.start_action_count or (
+            last_action_count is not None
+            and state.turn_action_count < last_action_count
         ):
             return self._failure_result(("TURN_ACTION_COUNT_REGRESSED",))
 
@@ -1241,10 +1539,7 @@ class TransactionStore:
             stage=current_step.stage.value,
             effect_or_attack_id=current_step.effect_or_attack_id,
         )
-        if (
-            current_prompt.digest()
-            == self._owner.last_prompt_fingerprint.digest()
-        ):
+        if current_prompt.digest() == self._owner.last_prompt_fingerprint.digest():
             reasons, bound, rebound_action = _prompt_match_reasons(
                 state,
                 legal_options,
@@ -1271,9 +1566,7 @@ class TransactionStore:
                     None,
                     ("STOCHASTIC_BOUNDARY_REPLAN",),
                 )
-            return self._failure_result(
-                ("UNEXPECTED_PROMPT_AFTER_STOCHASTIC_STEP",)
-            )
+            return self._failure_result(("UNEXPECTED_PROMPT_AFTER_STOCHASTIC_STEP",))
 
         next_index = self._owner.step_index + 1
         if next_index >= len(self._plan.steps):
@@ -1311,4 +1604,7 @@ __all__ = [
     "TransactionStore",
     "TransactionStoreError",
     "build_poke_pad_core_search_plan",
+    "build_aura_jab_plan",
+    "build_deck_search_plan",
+    "build_lunar_cycle_plan",
 ]

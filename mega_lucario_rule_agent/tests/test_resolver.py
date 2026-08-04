@@ -265,9 +265,9 @@ def test_state_or_legal_option_change_invalidates_a_previously_issued_proof():
     assert (
         "PROOF_STATE_STALE"
         in rejection_for(
-        stale_state,
-        "STALE_CHECK",
-    ).reasons
+            stale_state,
+            "STALE_CHECK",
+        ).reasons
     )
 
     changed_legal = options_for(attack, end_spec())
@@ -280,9 +280,9 @@ def test_state_or_legal_option_change_invalidates_a_previously_issued_proof():
     assert (
         "PROOF_OPTIONS_STALE"
         in rejection_for(
-        stale_options,
-        "STALE_CHECK",
-    ).reasons
+            stale_options,
+            "STALE_CHECK",
+        ).reasons
     )
 
 
@@ -323,9 +323,9 @@ def test_malformed_live_option_indices_are_never_returned(invalid_index):
     assert (
         "LEGAL_OPTION_INDEX_INVALID"
         in rejection_for(
-        resolution,
-        "BAD_INDEX_CHECK",
-    ).reasons
+            resolution,
+            "BAD_INDEX_CHECK",
+        ).reasons
     )
     assert resolution.bound_action is None
 
@@ -432,35 +432,36 @@ def test_safe_profile_rejects_tier_kind_and_action_spec_escalation():
     assert (
         "PROFILE_TIER_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "WRONG_TIER",
-    ).reasons
+            resolution,
+            "WRONG_TIER",
+        ).reasons
     )
     assert (
         "CERTIFICATE_KIND_MISMATCH"
         in rejection_for(
-        resolution,
-        "WRONG_KIND",
-    ).reasons
+            resolution,
+            "WRONG_KIND",
+        ).reasons
     )
     assert (
         "PROFILE_KIND_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "WRONG_KIND",
-    ).reasons
+            resolution,
+            "WRONG_KIND",
+        ).reasons
     )
     assert (
         "PROOF_ACTION_MISMATCH"
         in rejection_for(
-        resolution,
-        "WRONG_ACTION",
-    ).reasons
+            resolution,
+            "WRONG_ACTION",
+        ).reasons
     )
     assert set(ProofSchema) == {
         ProofSchema.SAFE_FALLBACK_V1,
         ProofSchema.ATTACK_OUTCOME_V1,
         ProofSchema.BASIC_BENCH_V1,
+        ProofSchema.DECK_RULE_V1,
         ProofSchema.POKE_PAD_CORE_FORMATION_V1,
         ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1,
         ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1,
@@ -512,37 +513,37 @@ def test_safe_profile_rejects_cost_transaction_metric_and_tiebreak_claims():
     assert (
         "PROFILE_RESOURCE_COST_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "WITH_COST",
-    ).reasons
+            resolution,
+            "WITH_COST",
+        ).reasons
     )
     assert (
         "PROFILE_TRANSACTION_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "WITH_TRANSACTION",
-    ).reasons
+            resolution,
+            "WITH_TRANSACTION",
+        ).reasons
     )
     assert (
         "INVALID_TRANSACTION_PLAN"
         in rejection_for(
-        resolution,
-        "WITH_TRANSACTION",
-    ).reasons
+            resolution,
+            "WITH_TRANSACTION",
+        ).reasons
     )
     assert (
         "PROFILE_METRIC_CLAIM_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "WITH_METRIC",
-    ).reasons
+            resolution,
+            "WITH_METRIC",
+        ).reasons
     )
     assert (
         "NONCANONICAL_TIEBREAK"
         in rejection_for(
-        resolution,
-        "WRONG_TIEBREAK",
-    ).reasons
+            resolution,
+            "WRONG_TIEBREAK",
+        ).reasons
     )
 
 
@@ -660,16 +661,16 @@ def test_wrong_safe_tier_option_pair_and_duplicate_rule_ids_fail_closed():
     assert (
         "PROFILE_OPTION_TYPE_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "ATTACK_AS_PASS",
-    ).reasons
+            resolution,
+            "ATTACK_AS_PASS",
+        ).reasons
     )
     assert (
         "PROFILE_OPTION_TYPE_FORBIDDEN"
         in rejection_for(
-        resolution,
-        "END_AS_ATTACK",
-    ).reasons
+            resolution,
+            "END_AS_ATTACK",
+        ).reasons
     )
     duplicate_rejections = [
         value for value in resolution.rejections if value.rule_id == "DUPLICATE_RULE"

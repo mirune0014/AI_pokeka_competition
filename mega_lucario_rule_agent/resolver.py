@@ -28,6 +28,7 @@ try:  # Package import in tests.
         ProofSchema,
         active_post_attach_attack_completion_proof,
         basic_bench_proof,
+        deck_rule_proof,
         first_turn_riolu_attach_proof,
         legal_options_fingerprint,
         poke_pad_core_eligible_classes,
@@ -70,6 +71,7 @@ except ImportError:  # Flat submission import from main.py.
         ProofSchema,
         active_post_attach_attack_completion_proof,
         basic_bench_proof,
+        deck_rule_proof,
         first_turn_riolu_attach_proof,
         legal_options_fingerprint,
         poke_pad_core_eligible_classes,
@@ -328,6 +330,7 @@ _ALLOWED_KINDS_BY_SCHEMA = {
     ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: frozenset(
         (CertificateKind.ATTACK_COMPLETION,)
     ),
+    ProofSchema.DECK_RULE_V1: frozenset(CertificateKind),
 }
 _ALLOWED_TIERS_BY_SCHEMA = {
     ProofSchema.SAFE_FALLBACK_V1: frozenset(
@@ -352,6 +355,21 @@ _ALLOWED_TIERS_BY_SCHEMA = {
     ),
     ProofSchema.ACTIVE_POST_ATTACH_ATTACK_COMPLETION_V1: frozenset(
         (ResolverTier.ATTACK_COMPLETION,)
+    ),
+    ProofSchema.DECK_RULE_V1: frozenset(
+        (
+            ResolverTier.EXACT_WIN_NOW,
+            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+            ResolverTier.SURVIVAL_CRITICAL_WALLY,
+            ResolverTier.EXACT_CURRENT_TURN_PRIZE,
+            ResolverTier.SAME_ATTACK_PLUS_CONTINUITY,
+            ResolverTier.ATTACK_COMPLETION,
+            ResolverTier.CERTIFIED_EVOLUTION,
+            ResolverTier.ROUTE_CRITICAL_SEARCH,
+            ResolverTier.SAFE_DRAW_OR_DISRUPTION,
+            ResolverTier.CERTIFIED_SURVIVAL,
+            ResolverTier.MINIMAL_PPP,
+        )
     ),
 }
 _ALLOWED_COMBINATIONS = frozenset(
@@ -424,6 +442,101 @@ _ALLOWED_COMBINATIONS = frozenset(
         ),
     )
 )
+_DECK_RULE_COMBINATIONS = frozenset(
+    (
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.WIN_NOW,
+            ResolverTier.EXACT_WIN_NOW,
+            int(OptionType.ATTACK),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.EXACT_CURRENT_TURN_PRIZE,
+            int(OptionType.ATTACK),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.SAME_ATTACK_PLUS_CONTINUITY,
+            ResolverTier.SAME_ATTACK_PLUS_CONTINUITY,
+            int(OptionType.ATTACK),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.ATTACK_COMPLETION,
+            ResolverTier.CERTIFIED_EVOLUTION,
+            int(OptionType.EVOLVE),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.FIRST_ATTACK_ACCELERATION,
+            ResolverTier.CERTIFIED_EVOLUTION,
+            int(OptionType.EVOLVE),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.ROUTE_CRITICAL_SEARCH,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.SAFE_DRAW_OR_DISRUPTION,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.SAFE_DRAW_OR_DISRUPTION,
+            int(OptionType.ABILITY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.SAFE_DRAW_OR_DISRUPTION,
+            int(OptionType.SKILL),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.ATTACK_COMPLETION,
+            ResolverTier.MINIMAL_PPP,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.DENY_CERTAIN_LOSS,
+            ResolverTier.SURVIVAL_CRITICAL_WALLY,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.DENY_CERTAIN_LOSS,
+            ResolverTier.CERTIFIED_SURVIVAL,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.DENY_CERTAIN_LOSS,
+            ResolverTier.CERTIFIED_SURVIVAL,
+            int(OptionType.ATTACH),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.DECK_RULE_V1,
+            CertificateKind.PRIZE_GAIN_NOW,
+            ResolverTier.TERMINAL_OR_SUPERIOR_GUST,
+            int(OptionType.EVOLVE),
+        ),
+    )
+)
+_ALLOWED_COMBINATIONS = _ALLOWED_COMBINATIONS | _DECK_RULE_COMBINATIONS
 
 
 def action_spec_digest(action_spec: ActionSpec) -> str:
@@ -643,6 +756,21 @@ def canonical_proposal_tiebreak(
             -int(final_damage),
             int(future_lock_cost),
             int(attack_id),
+        )
+    if proof.schema == ProofSchema.DECK_RULE_V1:
+        route_priority = proof.fact("route_priority")
+        if (
+            isinstance(route_priority, bool)
+            or not isinstance(route_priority, int)
+            or route_priority < 0
+        ):
+            return ()
+        sentinel = 2**63 - 1
+        return (
+            int(key.option_type),
+            int(route_priority),
+            key.card_id if isinstance(key.card_id, int) else sentinel,
+            key.card_serial if isinstance(key.card_serial, int) else sentinel,
         )
     return ()
 
@@ -992,6 +1120,48 @@ def _validate_proposal(
             else:
                 if expected_proof.digest() != proposal.proof.digest():
                     reasons.append("ACTIVE_ATTACK_COMPLETION_PROOF_MISMATCH")
+    elif proposal.proof.schema == ProofSchema.DECK_RULE_V1:
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        else:
+            try:
+                current_features = build_deck_features(
+                    state,
+                    legal_options,
+                    registry,
+                )
+                common_names = {
+                    "route_code",
+                    "option_type",
+                    "legal_options_fingerprint",
+                    "registry_digest",
+                    "features_digest",
+                }
+                extra_facts = {
+                    name: value
+                    for name, value in proposal.proof.facts
+                    if name not in common_names
+                }
+                expected_proof = deck_rule_proof(
+                    state,
+                    legal_options,
+                    registry,
+                    current_features,
+                    proposal.action_spec,
+                    route_code=proposal.proof.fact("route_code"),
+                    kind=proposal.certificate_kind,
+                    guaranteed_prizes=proposal.proof.guaranteed_prizes,
+                    facts=extra_facts,
+                )
+            except (RuntimeError, ValueError):
+                reasons.append("DECK_RULE_RECOMPUTE_REJECTED")
+            else:
+                if proposal.proof.fact("registry_digest") != registry.digest:
+                    reasons.append("PROOF_REGISTRY_STALE")
+                if proposal.proof.fact("features_digest") != current_features.digest():
+                    reasons.append("DECK_RULE_FEATURES_STALE")
+                if expected_proof.digest() != proposal.proof.digest():
+                    reasons.append("DECK_RULE_PROOF_MISMATCH")
     if proposal.proof.state_fingerprint != public_state_fingerprint(state):
         reasons.append("PROOF_STATE_STALE")
     if proposal.proof.action_spec != proposal.action_spec:
@@ -1219,6 +1389,19 @@ def _validate_proposal(
                         "LEDGER_COST_REJECTED:{0}".format(reason)
                         for reason in cost_check.rejection_reasons
                     )
+    elif proposal.proof.schema == ProofSchema.DECK_RULE_V1:
+        cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
+        reasons.extend(
+            "LEDGER_COST_REJECTED:{0}".format(reason)
+            for reason in cost_check.rejection_reasons
+        )
+        if proposal.reservation_ids:
+            reasons.append("DECK_RULE_RESERVATION_FORBIDDEN")
+        if proposal.transaction_plan is not None and not isinstance(
+            proposal.transaction_plan,
+            TransactionPlan,
+        ):
+            reasons.append("INVALID_TRANSACTION_PLAN")
     else:
         cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
         reasons.extend(
@@ -1233,7 +1416,11 @@ def _validate_proposal(
         if proposal.reservation_ids:
             reasons.append("PROFILE_RESERVATION_FORBIDDEN")
     if (
-        proposal.proof.schema != ProofSchema.POKE_PAD_CORE_FORMATION_V1
+        proposal.proof.schema
+        not in (
+            ProofSchema.POKE_PAD_CORE_FORMATION_V1,
+            ProofSchema.DECK_RULE_V1,
+        )
         and proposal.transaction_plan is not None
     ):
         if not isinstance(proposal.transaction_plan, TransactionPlan):

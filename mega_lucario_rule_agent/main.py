@@ -47,6 +47,7 @@ try:  # Package imports used by tests.
         enumerate_basic_bench_routes,
         enumerate_first_turn_riolu_attach_routes,
         enumerate_poke_pad_core_search_routes,
+        enumerate_requirement_routes,
     )
     from .state_view import (
         AreaType,
@@ -92,6 +93,7 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
         enumerate_basic_bench_routes,
         enumerate_first_turn_riolu_attach_routes,
         enumerate_poke_pad_core_search_routes,
+        enumerate_requirement_routes,
     )
     from state_view import (
         AreaType,
@@ -527,6 +529,33 @@ class AgentRuntime:
                     ledger = reserved_ledger
                     proposals += active_completion_proposals
         if self._last_features is not None:
+            requirement_proposals = enumerate_requirement_routes(
+                state,
+                legal_options,
+                self._last_features,
+                attack_outcomes,
+                registry,
+            )
+            aura_callback_required = any(
+                proposal.transaction_plan is not None
+                and any(
+                    choice.option_type == int(OptionType.ATTACK)
+                    and choice.attack_id == 982
+                    for choice in proposal.action_spec.choices
+                )
+                for proposal in requirement_proposals
+            )
+            if aura_callback_required:
+                proposals = tuple(
+                    proposal
+                    for proposal in proposals
+                    if not any(
+                        choice.option_type == int(OptionType.ATTACK)
+                        and choice.attack_id == 982
+                        for choice in proposal.action_spec.choices
+                    )
+                )
+            proposals += requirement_proposals
             proposals += enumerate_poke_pad_core_search_routes(
                 state,
                 legal_options,
