@@ -36,7 +36,10 @@ try:  # Package imports used by tests.
     from .features import DeckFeatures, build_deck_features, build_resource_ledger
     from .public_effects import PublicEffectRegistry, build_public_effect_registry
     from .resolver import Proposal, Resolution, resolve_proposals
-    from .routes import enumerate_attack_routes
+    from .routes import (
+        enumerate_attack_routes,
+        enumerate_basic_bench_routes,
+    )
     from .state_view import (
         AreaType,
         OptionType,
@@ -70,7 +73,7 @@ except ImportError:  # Flat imports used by Kaggle and the local battle runner.
     from features import DeckFeatures, build_deck_features, build_resource_ledger
     from public_effects import PublicEffectRegistry, build_public_effect_registry
     from resolver import Proposal, Resolution, resolve_proposals
-    from routes import enumerate_attack_routes
+    from routes import enumerate_attack_routes, enumerate_basic_bench_routes
     from state_view import (
         AreaType,
         OptionType,
@@ -489,6 +492,13 @@ class AgentRuntime:
             attack_outcomes,
             registry,
         )
+        if self._last_features is not None:
+            proposals += enumerate_basic_bench_routes(
+                state,
+                legal_options,
+                self._last_features,
+                registry,
+            )
         resolution = resolve_proposals(
             state,
             legal_options,

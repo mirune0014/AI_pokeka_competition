@@ -725,15 +725,30 @@ def test_facedown_active_slot_count_is_preserved_without_identity():
         build_public_state(obs)
 
 
-def test_play_option_infers_hand_source_and_preserves_zero_result():
+@pytest.mark.parametrize("card_id", (673, 675, 676, 677))
+def test_play_option_infers_exact_hand_basic_key_and_preserves_zero_result(card_id):
     obs = observation([{"type": int(OptionType.PLAY), "index": 0}])
+    obs["current"]["players"][0]["hand"][0] = card(card_id, 31)
     obs["current"]["result"] = 0
     state = build_public_state(obs)
     option = build_semantic_options(obs)[0]
     assert state.result == 0
-    assert option.key.source_zone == int(AreaType.HAND)
-    assert option.key.card_id == 673
-    assert option.key.card_serial == 31
+    assert option.key.canonical() == (
+        int(OptionType.PLAY),
+        0,
+        card_id,
+        31,
+        int(AreaType.HAND),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
 
 
 def test_facedown_prize_slots_rebind_by_public_slot_not_option_position():

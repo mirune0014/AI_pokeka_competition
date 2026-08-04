@@ -19,8 +19,10 @@ try:  # Package import in tests.
         CertificateKind,
         CertificateProof,
         ProofSchema,
+        basic_bench_proof,
         legal_options_fingerprint,
     )
+    from .features import build_deck_features
     from .public_effects import PublicEffectRegistry
     from .resource_ledger import ResourceLedger
     from .state_view import (
@@ -38,8 +40,10 @@ except ImportError:  # Flat submission import from main.py.
         CertificateKind,
         CertificateProof,
         ProofSchema,
+        basic_bench_proof,
         legal_options_fingerprint,
     )
+    from features import build_deck_features
     from public_effects import PublicEffectRegistry
     from resource_ledger import ResourceLedger
     from state_view import (
@@ -264,6 +268,13 @@ _ALLOWED_KINDS_BY_SCHEMA = {
             CertificateKind.ATTACK_COMPLETION,
         )
     ),
+    ProofSchema.BASIC_BENCH_V1: frozenset(
+        (
+            CertificateKind.FIRST_ATTACK_ACCELERATION,
+            CertificateKind.ENGINE_COMPLETION,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+        )
+    ),
 }
 _ALLOWED_TIERS_BY_SCHEMA = {
     ProofSchema.SAFE_FALLBACK_V1: frozenset(
@@ -279,6 +290,7 @@ _ALLOWED_TIERS_BY_SCHEMA = {
             ResolverTier.BEST_CERTIFIED_ATTACK,
         )
     ),
+    ProofSchema.BASIC_BENCH_V1: frozenset((ResolverTier.SAFE_ENGINE_COMPLETION,)),
 }
 _ALLOWED_COMBINATIONS = frozenset(
     (
@@ -311,6 +323,24 @@ _ALLOWED_COMBINATIONS = frozenset(
             CertificateKind.ATTACK_COMPLETION,
             ResolverTier.BEST_CERTIFIED_ATTACK,
             int(OptionType.ATTACK),
+        ),
+        (
+            ProofSchema.BASIC_BENCH_V1,
+            CertificateKind.FIRST_ATTACK_ACCELERATION,
+            ResolverTier.SAFE_ENGINE_COMPLETION,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.BASIC_BENCH_V1,
+            CertificateKind.ENGINE_COMPLETION,
+            ResolverTier.SAFE_ENGINE_COMPLETION,
+            int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.BASIC_BENCH_V1,
+            CertificateKind.RESOURCE_IMPROVEMENT,
+            ResolverTier.SAFE_ENGINE_COMPLETION,
+            int(OptionType.PLAY),
         ),
     )
 )
@@ -441,6 +471,29 @@ def canonical_proposal_tiebreak(
         return int(OptionType.ATTACK), int(key.attack_id)
     if key.option_type == int(OptionType.END):
         return (int(OptionType.END),)
+    if (
+        key.option_type == int(OptionType.PLAY)
+        and proof.schema == ProofSchema.BASIC_BENCH_V1
+    ):
+        purpose_priority = proof.fact("purpose_priority")
+        if (
+            isinstance(purpose_priority, bool)
+            or not isinstance(purpose_priority, int)
+            or purpose_priority < 0
+            or isinstance(key.card_id, bool)
+            or not isinstance(key.card_id, int)
+            or key.card_id <= 0
+            or isinstance(key.card_serial, bool)
+            or not isinstance(key.card_serial, int)
+            or key.card_serial < 0
+        ):
+            return ()
+        return (
+            int(OptionType.PLAY),
+            int(purpose_priority),
+            int(key.card_id),
+            int(key.card_serial),
+        )
     return ()
 
 
@@ -585,6 +638,38 @@ def _validate_proposal(
                 reasons.append("ATTACK_PRIZE_CLAIM_MISMATCH")
         elif proposal.proof.guaranteed_prizes != 0:
             reasons.append("ATTACK_COMPLETION_PRIZE_CLAIM_FORBIDDEN")
+    elif proposal.proof.schema == ProofSchema.BASIC_BENCH_V1:
+        if proposal.proof.guaranteed_prizes != 0:
+            reasons.append("BASIC_BENCH_PRIZE_CLAIM_FORBIDDEN")
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        else:
+            try:
+                current_features = build_deck_features(
+                    state,
+                    legal_options,
+                    registry,
+                )
+            except (RuntimeError, ValueError):
+                reasons.append("BASIC_BENCH_FEATURE_RECOMPUTE_FAILED")
+            else:
+                if proposal.proof.fact("registry_digest") != registry.digest:
+                    reasons.append("PROOF_REGISTRY_STALE")
+                if proposal.proof.fact("features_digest") != current_features.digest():
+                    reasons.append("BASIC_BENCH_FEATURES_STALE")
+                try:
+                    expected_proof = basic_bench_proof(
+                        state,
+                        legal_options,
+                        registry,
+                        current_features,
+                        proposal.action_spec,
+                    )
+                except ValueError:
+                    reasons.append("BASIC_BENCH_RECOMPUTE_REJECTED")
+                else:
+                    if expected_proof.digest() != proposal.proof.digest():
+                        reasons.append("BASIC_BENCH_PROOF_MISMATCH")
     if proposal.proof.state_fingerprint != public_state_fingerprint(state):
         reasons.append("PROOF_STATE_STALE")
     if proposal.proof.action_spec != proposal.action_spec:
@@ -607,6 +692,24 @@ def _validate_proposal(
     known_refs = _own_known_refs(state)
     if any(ref_value not in known_refs for ref_value in ledger.visible_refs):
         reasons.append("LEDGER_REF_NOT_IN_STATE")
+    if proposal.proof.schema == ProofSchema.BASIC_BENCH_V1:
+        source_fact = proposal.proof.fact("source_ref")
+        source_matches = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == source_fact
+        )
+        if len(source_matches) != 1:
+            reasons.append("BASIC_BENCH_SOURCE_REF_INVALID")
+        elif source_matches[0] not in ledger.visible_refs:
+            reasons.append("BASIC_BENCH_SOURCE_NOT_IN_LEDGER")
+        else:
+            source_ref = source_matches[0]
+            reservation = ledger.reservation_for(source_ref)
+            if reservation is not None:
+                reasons.append(
+                    "BASIC_BENCH_SOURCE_RESERVED:{0}".format(reservation.reservation_id)
+                )
     cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
     reasons.extend(
         "LEDGER_COST_REJECTED:{0}".format(reason)

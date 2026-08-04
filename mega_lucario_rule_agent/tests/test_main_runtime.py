@@ -308,6 +308,26 @@ def test_stable_main_without_attack_uses_checked_pass():
     assert not runtime.runtime_fault_latched
 
 
+def test_stable_main_places_exact_role_improving_basic_from_raw_play_options():
+    runtime = AgentRuntime(registry=empty_registry())
+    runtime.act({"select": None})
+    hand = (
+        card(676, 42),
+        card(675, 43),
+        card(677, 44),
+    )
+    obs = observation(
+        [{"type": int(OptionType.PLAY), "index": index} for index in range(len(hand))]
+        + [{"type": int(OptionType.END)}],
+        own_active=pokemon(678, 10, hp=340, max_hp=340),
+        hand=hand,
+        turn=1,
+    )
+
+    assert runtime.act(obs) == [1]
+    assert runtime.last_features.missing_engine_card_ids == (675, 676)
+
+
 def test_runtime_uses_checked_registry_for_certified_aura_attack():
     runtime = AgentRuntime(registry=aura_registry())
     riolu = card(677, 9)
