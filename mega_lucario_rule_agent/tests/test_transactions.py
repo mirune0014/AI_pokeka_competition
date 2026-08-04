@@ -16,6 +16,7 @@ from mega_lucario_rule_agent.state_view import (
     SemanticOptionKey,
 )
 from mega_lucario_rule_agent.transactions import (
+    DeferredCardClassChoice,
     OwnerKind,
     ResumeStatus,
     StartStatus,
@@ -152,6 +153,47 @@ def options(*keys):
     return tuple(
         SemanticOption(index=index, key=key)
         for index, key in enumerate(keys)
+    )
+
+
+def deck_key(card_id, serial):
+    return SemanticOptionKey(
+        option_type=int(OptionType.CARD),
+        player_index=0,
+        card_id=card_id,
+        card_serial=serial,
+        source_zone=int(AreaType.DECK),
+    )
+
+
+def deferred_search_step(classes=((675,), (677, 673, 6))):
+    return TransactionStep(
+        stage=TransactionStage.SELECT_SEARCH_TARGET,
+        expected_select_type=int(SelectType.CARD),
+        expected_context=int(SelectContext.TO_HAND),
+        expected_min_count=0,
+        expected_max_count=1,
+        action_spec=None,
+        irreversible_on_emit=False,
+        expected_effect_ref=SOURCE,
+        expected_context_ref=None,
+        effect_or_attack_id=1121,
+        deferred_card_choice=DeferredCardClassChoice(
+            ordered_card_id_classes=classes,
+            owner=0,
+        ),
+    )
+
+
+def search_state(action_count=5):
+    return state(
+        context=SelectContext.TO_HAND,
+        select_type=SelectType.CARD,
+        action_count=action_count,
+        effect=True,
+        min_count=0,
+        max_count=1,
+        deck_open=True,
     )
 
 
@@ -381,6 +423,98 @@ def test_effect_and_context_receipts_are_verified_independently():
     )
     assert wrong_effect.status == ResumeStatus.IRREVERSIBLE_FAULT
     assert wrong_effect.reasons == ("UNEXPECTED_EFFECT_REF",)
+
+
+def test_deferred_search_materializes_lowest_serial_and_rebinds_exact_copy():
+    transaction_plan = plan(deferred_search_step())
+    store = TransactionStore()
+    store.start(transaction_plan, state(), options(ROOT_KEY))
+    first_legal = options(
+        deck_key(677, 90),
+        deck_key(675, 60),
+        deck_key(675, 55),
+    )
+    issued = store.resume(search_state(), first_legal)
+
+    assert issued.status == ResumeStatus.ADVANCED_ISSUE
+    assert issued.action_spec.choices[0].card_id == 675
+    assert issued.action_spec.choices[0].card_serial == 55
+    assert issued.bound_action == (2,)
+    assert issued.owner.last_action_spec == issued.action_spec
+    assert issued.owner.semantic_action_specs == (
+        transaction_plan.initiation.action_spec,
+        issued.action_spec,
+    )
+
+    permuted = options(
+        deck_key(675, 55),
+        deck_key(677, 90),
+        deck_key(675, 60),
+    )
+    duplicate = store.resume(search_state(), permuted)
+    assert duplicate.status == ResumeStatus.DUPLICATE_REISSUE
+    assert duplicate.action_spec == issued.action_spec
+    assert duplicate.bound_action == (0,)
+    assert duplicate.owner.semantic_action_specs == issued.owner.semantic_action_specs
+
+
+def test_deferred_search_uses_ordered_acceptable_union_not_raw_option_order():
+    store = TransactionStore()
+    store.start(plan(deferred_search_step()), state(), options(ROOT_KEY))
+    issued = store.resume(
+        search_state(),
+        options(
+            deck_key(673, 1),
+            deck_key(6, 2),
+            deck_key(677, 99),
+        ),
+    )
+    assert issued.status == ResumeStatus.ADVANCED_ISSUE
+    assert issued.action_spec.choices[0].card_id == 677
+    assert issued.action_spec.choices[0].card_serial == 99
+
+
+@pytest.mark.parametrize(
+    ("legal", "reason"),
+    (
+        ((deck_key(999, 1),), "DEFERRED_CARD_CLASS_NOT_FOUND"),
+        ((deck_key(675, 55), deck_key(675, 55)), "DEFERRED_DUPLICATE_SEMANTIC_CHOICE"),
+    ),
+)
+def test_committed_deferred_search_faults_when_target_receipt_is_invalid(legal, reason):
+    store = TransactionStore()
+    store.start(plan(deferred_search_step()), state(), options(ROOT_KEY))
+    failed = store.resume(search_state(), options(*legal))
+    assert failed.status == ResumeStatus.IRREVERSIBLE_FAULT
+    assert reason in failed.reasons
+
+
+def test_deferred_policy_is_hashed_and_cannot_be_used_for_initiation():
+    first = plan(deferred_search_step(((675,), (677,))))
+    second = plan(deferred_search_step(((677,), (675,))))
+    assert first.digest() != second.digest()
+
+    with pytest.raises(ValueError, match="initiation cannot use a deferred choice"):
+        TransactionPlan(
+            transaction_id="DEFERRED-ROOT",
+            owner_kind=OwnerKind.SEARCH_RESOLUTION,
+            game_epoch=9,
+            seat=0,
+            turn=5,
+            start_action_count=4,
+            source_ref=SOURCE,
+            target_refs=(),
+            reserved_refs=(),
+            initiation=replace(
+                deferred_search_step(),
+                stage=TransactionStage.INITIATION,
+                expected_select_type=int(SelectType.MAIN),
+                expected_context=int(SelectContext.MAIN),
+                expected_min_count=1,
+                expected_effect_ref=None,
+            ),
+            steps=(),
+        )
 
 
 def test_matching_select_type_still_reissues_after_option_permutation():

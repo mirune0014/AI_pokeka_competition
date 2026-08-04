@@ -6,6 +6,7 @@ from dataclasses import dataclass, field as dataclass_field, replace
 from enum import Enum
 import hashlib
 import json
+from collections import Counter
 from typing import Optional, Sequence, Tuple
 
 try:  # Package import in tests.
@@ -166,18 +167,72 @@ def _validate_persisted_action_spec(action_spec: ActionSpec) -> None:
 
 
 @dataclass(frozen=True)
+class DeferredCardClassChoice:
+    """A hidden-zone target policy materialized only after options are public."""
+
+    ordered_card_id_classes: Tuple[Tuple[int, ...], ...]
+    owner: int
+    allowed_source_zones: Tuple[int, ...] = (int(AreaType.DECK),)
+    option_type: int = int(OptionType.CARD)
+    selection_count: int = 1
+    require_match: bool = True
+
+    def __post_init__(self) -> None:
+        classes = tuple(tuple(card_ids) for card_ids in self.ordered_card_id_classes)
+        if not classes or any(not card_ids for card_ids in classes):
+            raise ValueError("deferred card classes must be non-empty")
+        flattened = tuple(card_id for card_ids in classes for card_id in card_ids)
+        if any(
+            not _is_exact_int(card_id) or card_id <= 0
+            for card_id in flattened
+        ):
+            raise ValueError("deferred card IDs must be positive exact integers")
+        if len(set(flattened)) != len(flattened):
+            raise ValueError("deferred card IDs cannot repeat across classes")
+        if not _is_exact_int(self.owner) or self.owner not in (0, 1):
+            raise ValueError("deferred choice owner must be 0 or 1")
+        zones = tuple(self.allowed_source_zones)
+        if not zones or any(
+            not _is_exact_int(zone) or zone <= 0
+            for zone in zones
+        ):
+            raise ValueError("deferred source zones must be positive exact integers")
+        if len(set(zones)) != len(zones):
+            raise ValueError("deferred source zones cannot repeat")
+        if not _is_exact_int(self.option_type) or self.option_type < 0:
+            raise ValueError("deferred option_type must be an exact integer")
+        if self.selection_count != 1 or not _is_exact_int(self.selection_count):
+            raise ValueError("deferred card choice currently requires selection_count=1")
+        if not isinstance(self.require_match, bool):
+            raise ValueError("deferred require_match must be boolean")
+        object.__setattr__(self, "ordered_card_id_classes", classes)
+        object.__setattr__(self, "allowed_source_zones", tuple(sorted(zones)))
+
+    def canonical(self) -> Tuple[object, ...]:
+        return (
+            self.ordered_card_id_classes,
+            self.owner,
+            self.allowed_source_zones,
+            self.option_type,
+            self.selection_count,
+            self.require_match,
+        )
+
+
+@dataclass(frozen=True)
 class TransactionStep:
     stage: TransactionStage
     expected_select_type: int
     expected_context: int
     expected_min_count: int
     expected_max_count: int
-    action_spec: ActionSpec
+    action_spec: Optional[ActionSpec]
     irreversible_on_emit: bool
     expected_effect_ref: Optional[PhysicalRef] = None
     expected_context_ref: Optional[PhysicalRef] = None
     effect_or_attack_id: Optional[int] = None
     stochastic_boundary: bool = False
+    deferred_card_choice: Optional[DeferredCardClassChoice] = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "stage", TransactionStage(self.stage))
@@ -199,16 +254,25 @@ class TransactionStep:
             or self.expected_max_count < self.expected_min_count
         ):
             raise ValueError("transaction step requires a valid min/max count")
-        if not isinstance(self.action_spec, ActionSpec):
-            raise ValueError("transaction step action_spec must be an ActionSpec")
-        _validate_persisted_action_spec(self.action_spec)
+        has_action = isinstance(self.action_spec, ActionSpec)
+        has_deferred = isinstance(
+            self.deferred_card_choice,
+            DeferredCardClassChoice,
+        )
+        if has_action == has_deferred:
+            raise ValueError(
+                "transaction step requires exactly one action_spec or deferred choice"
+            )
+        if self.action_spec is not None:
+            _validate_persisted_action_spec(self.action_spec)
         if not isinstance(self.irreversible_on_emit, bool):
             raise ValueError("irreversible_on_emit must be boolean")
-        if not (
-            self.expected_min_count
-            <= len(self.action_spec.choices)
-            <= self.expected_max_count
-        ):
+        action_count = (
+            len(self.action_spec.choices)
+            if self.action_spec is not None
+            else self.deferred_card_choice.selection_count
+        )
+        if not self.expected_min_count <= action_count <= self.expected_max_count:
             raise ValueError("transaction action count is outside the expected bounds")
         if self.expected_effect_ref is not None:
             _require_exact_ref(self.expected_effect_ref)
@@ -229,8 +293,16 @@ class TransactionStep:
             self.expected_context,
             self.expected_min_count,
             self.expected_max_count,
-            self.action_spec.canonical_choices(),
-            bool(self.action_spec.order_sensitive),
+            (
+                None
+                if self.action_spec is None
+                else self.action_spec.canonical_choices()
+            ),
+            (
+                None
+                if self.action_spec is None
+                else bool(self.action_spec.order_sensitive)
+            ),
             self.irreversible_on_emit,
             (
                 None
@@ -244,6 +316,11 @@ class TransactionStep:
             ),
             self.effect_or_attack_id,
             self.stochastic_boundary,
+            (
+                None
+                if self.deferred_card_choice is None
+                else self.deferred_card_choice.canonical()
+            ),
         )
 
 
@@ -294,6 +371,8 @@ class TransactionPlan:
             raise ValueError("transaction plan requires an initiation step")
         if self.initiation.stage != TransactionStage.INITIATION:
             raise ValueError("transaction initiation must use the INITIATION stage")
+        if self.initiation.action_spec is None:
+            raise ValueError("transaction initiation cannot use a deferred choice")
         steps = tuple(self.steps)
         if any(not isinstance(step, TransactionStep) for step in steps):
             raise ValueError("transaction continuation steps must be TransactionStep values")
@@ -310,8 +389,10 @@ class TransactionPlan:
 
     @property
     def semantic_action_specs(self) -> Tuple[ActionSpec, ...]:
-        return (self.initiation.action_spec,) + tuple(
-            step.action_spec for step in self.steps
+        return tuple(
+            step.action_spec
+            for step in (self.initiation,) + self.steps
+            if step.action_spec is not None
         )
 
     def digest(self) -> str:
@@ -457,11 +538,72 @@ def _legal_option_index_reasons(
     return tuple(reasons)
 
 
+def _materialize_step_action(
+    step: TransactionStep,
+    legal_options: Sequence[SemanticOption],
+) -> Tuple[Optional[ActionSpec], Tuple[str, ...]]:
+    if step.action_spec is not None:
+        return step.action_spec, ()
+    policy = step.deferred_card_choice
+    if policy is None:
+        return None, ("TRANSACTION_STEP_ACTION_MISSING",)
+    counts = Counter(option.key for option in legal_options)
+    eligible = tuple(
+        option
+        for option in legal_options
+        if option.key.option_type == policy.option_type
+        and option.key.player_index == policy.owner
+        and option.key.source_zone in policy.allowed_source_zones
+        and _is_exact_int(option.key.card_id)
+        and option.key.card_id > 0
+        and _is_exact_int(option.key.card_serial)
+        and option.key.card_serial >= 0
+        and option.key.source_index is None
+    )
+    for card_class in policy.ordered_card_id_classes:
+        card_order = {card_id: index for index, card_id in enumerate(card_class)}
+        hits = tuple(
+            sorted(
+                (
+                    option
+                    for option in eligible
+                    if option.key.card_id in card_order
+                ),
+                key=lambda option: (
+                    card_order[option.key.card_id],
+                    option.key.card_serial,
+                    option.key.sort_key(),
+                    option.index,
+                ),
+            )
+        )
+        if not hits:
+            continue
+        selected = hits[0]
+        if counts[selected.key] != 1:
+            return None, ("DEFERRED_DUPLICATE_SEMANTIC_CHOICE",)
+        materialized = ActionSpec.single(selected.key)
+        try:
+            _validate_persisted_action_spec(materialized)
+        except ValueError:
+            return None, ("DEFERRED_PHYSICAL_IDENTITY_INVALID",)
+        return materialized, ()
+    if policy.require_match:
+        return None, ("DEFERRED_CARD_CLASS_NOT_FOUND",)
+    return ActionSpec.empty(), ()
+
+
 def _prompt_match_reasons(
     state: PublicState,
     legal_options: Sequence[SemanticOption],
     step: TransactionStep,
-) -> Tuple[Tuple[str, ...], Optional[Tuple[int, ...]]]:
+    *,
+    action_spec_override: Optional[ActionSpec] = None,
+) -> Tuple[
+    Tuple[str, ...],
+    Optional[Tuple[int, ...]],
+    Optional[ActionSpec],
+]:
     reasons = list(_legal_option_index_reasons(legal_options))
     if state.select_type != step.expected_select_type:
         reasons.append("UNEXPECTED_SELECT_TYPE")
@@ -475,19 +617,33 @@ def _prompt_match_reasons(
         reasons.append("UNEXPECTED_EFFECT_REF")
     if not _source_identity_matches(step.expected_context_ref, state.context_ref):
         reasons.append("UNEXPECTED_CONTEXT_REF")
-    bound = None
-    try:
-        bound = tuple(
-            step.action_spec.bind(
-                legal_options,
-                min_count=step.expected_min_count,
-                max_count=step.expected_max_count,
-            )
+    if action_spec_override is not None:
+        action_spec = action_spec_override
+        materialization_reasons: Tuple[str, ...] = ()
+    else:
+        action_spec, materialization_reasons = _materialize_step_action(
+            step,
+            legal_options,
         )
-    except SemanticBindError:
-        reasons.append("SEMANTIC_BIND_FAILURE")
+    reasons.extend(materialization_reasons)
+    bound = None
+    if action_spec is not None:
+        try:
+            bound = tuple(
+                action_spec.bind(
+                    legal_options,
+                    min_count=step.expected_min_count,
+                    max_count=step.expected_max_count,
+                )
+            )
+        except SemanticBindError:
+            reasons.append("SEMANTIC_BIND_FAILURE")
     unique_reasons = tuple(sorted(set(reasons)))
-    return unique_reasons, None if unique_reasons else bound
+    return (
+        unique_reasons,
+        None if unique_reasons else bound,
+        None if unique_reasons else action_spec,
+    )
 
 
 class TransactionStore:
@@ -569,7 +725,7 @@ class TransactionStore:
                 tuple(sorted(set(reasons))),
             )
 
-        initiation_reasons, bound = _prompt_match_reasons(
+        initiation_reasons, bound, initiation_action = _prompt_match_reasons(
             state,
             legal_options,
             plan.initiation,
@@ -609,8 +765,8 @@ class TransactionStore:
             expected_min_count=plan.initiation.expected_min_count,
             expected_max_count=plan.initiation.expected_max_count,
             last_prompt_fingerprint=prompt,
-            last_action_spec=plan.initiation.action_spec,
-            semantic_action_specs=plan.semantic_action_specs,
+            last_action_spec=initiation_action,
+            semantic_action_specs=(initiation_action,),
             step_index=-1,
             callback_budget_used=1,
             committed=plan.initiation.irreversible_on_emit,
@@ -622,7 +778,7 @@ class TransactionStore:
         self._owner = owner
         return StartResult(
             StartStatus.STARTED,
-            plan.initiation.action_spec,
+            initiation_action,
             bound,
             owner,
             (),
@@ -758,7 +914,11 @@ class TransactionStore:
         if self._owner is None or self._plan is None:
             raise TransactionStoreError("cannot issue without an active owner")
         step = self._plan.steps[step_index]
-        reasons, bound = _prompt_match_reasons(state, legal_options, step)
+        reasons, bound, materialized_action = _prompt_match_reasons(
+            state,
+            legal_options,
+            step,
+        )
         if reasons:
             return self._failure_result(reasons)
         prompt = make_prompt_fingerprint(
@@ -779,7 +939,10 @@ class TransactionStore:
             expected_min_count=step.expected_min_count,
             expected_max_count=step.expected_max_count,
             last_prompt_fingerprint=prompt,
-            last_action_spec=step.action_spec,
+            last_action_spec=materialized_action,
+            semantic_action_specs=(
+                self._owner.semantic_action_specs + (materialized_action,)
+            ),
             step_index=step_index,
             callback_budget_used=self._owner.callback_budget_used + 1,
             committed=(
@@ -789,7 +952,7 @@ class TransactionStore:
         )
         return ResumeResult(
             status,
-            step.action_spec,
+            materialized_action,
             bound,
             self._owner,
             (),
@@ -879,16 +1042,17 @@ class TransactionStore:
             current_prompt.digest()
             == self._owner.last_prompt_fingerprint.digest()
         ):
-            reasons, bound = _prompt_match_reasons(
+            reasons, bound, rebound_action = _prompt_match_reasons(
                 state,
                 legal_options,
                 current_step,
+                action_spec_override=self._owner.last_action_spec,
             )
             if reasons:
                 return self._failure_result(reasons)
             return ResumeResult(
                 ResumeStatus.DUPLICATE_REISSUE,
-                current_step.action_spec,
+                rebound_action,
                 bound,
                 self._owner,
                 (),
@@ -930,6 +1094,7 @@ class TransactionStore:
 
 
 __all__ = [
+    "DeferredCardClassChoice",
     "FaultRecord",
     "OwnerKind",
     "ResumeResult",
