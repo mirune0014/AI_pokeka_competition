@@ -959,23 +959,26 @@ def test_turn_action_regression_aborts_or_faults_by_commit_boundary():
     assert committed.run_fault_latched
 
 
-def test_new_game_or_turn_releases_owner_without_erasing_fault_history():
-    store = TransactionStore()
-    store.start(two_step_plan(), state(), options(ROOT_KEY))
-    changed_turn = store.resume(
+def test_new_game_or_turn_without_receipt_latches_irreversible_fault():
+    turn_store = TransactionStore()
+    turn_store.start(two_step_plan(), state(), options(ROOT_KEY))
+    changed_turn = turn_store.resume(
         state(turn=6, action_count=0),
         options(END_KEY),
     )
-    assert changed_turn.status == ResumeStatus.TURN_RELEASE
-    assert not store.has_owner
+    assert changed_turn.status == ResumeStatus.IRREVERSIBLE_FAULT
+    assert turn_store.has_owner
+    assert turn_store.run_fault_latched
 
-    store.start(two_step_plan(), state(), options(ROOT_KEY))
-    changed_game = store.resume(
+    game_store = TransactionStore()
+    game_store.start(two_step_plan(), state(), options(ROOT_KEY))
+    changed_game = game_store.resume(
         state(game_epoch=10),
         options(END_KEY),
     )
-    assert changed_game.status == ResumeStatus.GAME_RELEASE
-    assert not store.has_owner
+    assert changed_game.status == ResumeStatus.IRREVERSIBLE_FAULT
+    assert game_store.has_owner
+    assert game_store.run_fault_latched
 
 
 @pytest.mark.parametrize(
@@ -1091,6 +1094,7 @@ def test_transaction_state_constructor_is_closed():
             step_index=0,
             callback_budget_used=0,
             committed=False,
+            receipt_events=(),
             fault_latched=False,
             fault_code=None,
             _issuer_token=object(),

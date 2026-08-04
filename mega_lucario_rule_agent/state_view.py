@@ -121,10 +121,15 @@ class SelectContext(IntEnum):
 class LogType(IntEnum):
     TURN_START = 2
     TURN_END = 3
+    DRAW = 4
+    MOVE_CARD = 6
+    SWITCH = 8
     CHANGE = 9
     PLAY = 10
+    ATTACH = 11
     EVOLVE = 12
     ATTACK = 15
+    HP_CHANGE = 16
 
 
 def read_field(value: Any, name: str, default: Any = None) -> Any:
@@ -180,6 +185,38 @@ class PhysicalRef:
             _optional_sort_int(self.card_id),
             _optional_sort_int(self.serial),
             _optional_sort_int(self.lineage_serial),
+        )
+
+
+@dataclass(frozen=True)
+class PublicReceiptEvent:
+    """One canonical engine receipt copied only from public observation logs."""
+
+    log_type: int
+    player_index: Optional[int]
+    card_id: Optional[int]
+    serial: Optional[int]
+    from_area: Optional[int]
+    to_area: Optional[int]
+    card_id_target: Optional[int]
+    serial_target: Optional[int]
+    serial_bench: Optional[int]
+    attack_id: Optional[int]
+    value: Optional[int]
+
+    def canonical(self) -> Tuple[Optional[int], ...]:
+        return (
+            self.log_type,
+            self.player_index,
+            self.card_id,
+            self.serial,
+            self.from_area,
+            self.to_area,
+            self.card_id_target,
+            self.serial_target,
+            self.serial_bench,
+            self.attack_id,
+            self.value,
         )
 
 
@@ -280,6 +317,7 @@ class PublicState:
     history_complete: bool = False
     source_combat_complete: bool = False
     source_options_fingerprint: Optional[str] = None
+    receipt_events: Tuple[PublicReceiptEvent, ...] = ()
     _builder_receipt: Optional[str] = dataclass_field(
         init=False,
         default=None,
@@ -1122,6 +1160,54 @@ def public_combat_input_complete(observation: Any) -> bool:
     return _is_public_sequence(raw_options)
 
 
+_RECEIPT_LOG_TYPES = frozenset(
+    int(value)
+    for value in (
+        LogType.DRAW,
+        LogType.MOVE_CARD,
+        LogType.SWITCH,
+        LogType.PLAY,
+        LogType.ATTACH,
+        LogType.EVOLVE,
+        LogType.ATTACK,
+        LogType.HP_CHANGE,
+    )
+)
+
+
+def _receipt_int(entry: Any, name: str) -> Optional[int]:
+    value = read_field(entry, name)
+    return value if _is_exact_public_int(value) else None
+
+
+def _public_receipt_events(observation: Any) -> Tuple[PublicReceiptEvent, ...]:
+    """Canonicalize current callback logs and dedupe by physical identities."""
+
+    raw_logs = read_field(observation, "logs", ())
+    if not _is_public_sequence(raw_logs):
+        return ()
+    by_identity: Dict[Tuple[Optional[int], ...], PublicReceiptEvent] = {}
+    for entry in raw_logs:
+        log_type = _receipt_int(entry, "type")
+        if log_type not in _RECEIPT_LOG_TYPES:
+            continue
+        event = PublicReceiptEvent(
+            log_type=log_type,
+            player_index=_receipt_int(entry, "playerIndex"),
+            card_id=_receipt_int(entry, "cardId"),
+            serial=_receipt_int(entry, "serial"),
+            from_area=_receipt_int(entry, "fromArea"),
+            to_area=_receipt_int(entry, "toArea"),
+            card_id_target=_receipt_int(entry, "cardIdTarget"),
+            serial_target=_receipt_int(entry, "serialTarget"),
+            serial_bench=_receipt_int(entry, "serialBench"),
+            attack_id=_receipt_int(entry, "attackId"),
+            value=_receipt_int(entry, "value"),
+        )
+        by_identity.setdefault(event.canonical(), event)
+    return tuple(by_identity.values())
+
+
 def build_public_state(
     observation: Any,
     game_epoch: int = 0,
@@ -1221,6 +1307,7 @@ def build_public_state(
         source_options_fingerprint=semantic_options_fingerprint(
             build_semantic_options(observation)
         ),
+        receipt_events=_public_receipt_events(observation),
     )
     object.__setattr__(
         state,
@@ -1727,6 +1814,9 @@ def public_state_fingerprint(state: PublicState) -> str:
                 entry.canonical() for entry in state.last_attack_by_lineage
             ),
         },
+        "receipt_events": tuple(
+            event.canonical() for event in state.receipt_events
+        ),
     }
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -1877,6 +1967,7 @@ __all__ = [
     "PlayerView",
     "PokemonView",
     "PromptFingerprint",
+    "PublicReceiptEvent",
     "PublicState",
     "PublicHistoryTracker",
     "PublicHistoryView",

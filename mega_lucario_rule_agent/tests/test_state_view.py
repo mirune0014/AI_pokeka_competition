@@ -157,6 +157,40 @@ def test_public_state_builder_receipt_is_bound_to_unchanged_normalized_state():
     assert not is_checked_public_state(changed)
 
 
+def test_public_receipt_events_are_log_only_and_deduped_by_serial_identity():
+    obs = observation([])
+    move = {
+        "type": int(LogType.MOVE_CARD),
+        "playerIndex": 0,
+        "cardId": 6,
+        "serial": 700,
+        "fromArea": int(AreaType.DECK),
+        "toArea": int(AreaType.HAND),
+    }
+    obs["logs"] = [
+        move,
+        dict(move),
+        {
+            "type": int(LogType.ATTACH),
+            "playerIndex": 0,
+            "cardId": 6,
+            "serial": 701,
+            "cardIdTarget": 677,
+            "serialTarget": 20,
+        },
+    ]
+
+    current = build_public_state(obs)
+
+    assert len(current.receipt_events) == 2
+    assert current.receipt_events[0].serial == 700
+    assert current.receipt_events[0].from_area == int(AreaType.DECK)
+    assert current.receipt_events[0].to_area == int(AreaType.HAND)
+    assert current.receipt_events[1].serial == 701
+    assert current.receipt_events[1].serial_target == 20
+    assert is_checked_public_state(current)
+
+
 def test_missing_combat_field_is_explicitly_incomplete_not_silently_trusted():
     obs = observation([])
     del obs["current"]["players"][1]["confused"]

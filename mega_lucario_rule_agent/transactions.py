@@ -13,9 +13,11 @@ try:  # Package import in tests.
     from .state_view import (
         ActionSpec,
         AreaType,
+        LogType,
         OptionType,
         PhysicalRef,
         PromptFingerprint,
+        PublicReceiptEvent,
         PublicState,
         SelectContext,
         SelectType,
@@ -36,9 +38,11 @@ except ImportError:  # Flat submission import from main.py.
     from state_view import (
         ActionSpec,
         AreaType,
+        LogType,
         OptionType,
         PhysicalRef,
         PromptFingerprint,
+        PublicReceiptEvent,
         PublicState,
         SelectContext,
         SelectType,
@@ -69,6 +73,24 @@ class OwnerKind(str, Enum):
     CAPE_ATTACH = "CAPE_ATTACH"
     FORCED_PROMOTION = "FORCED_PROMOTION"
     FAULT_CONTAINMENT = "FAULT_CONTAINMENT"
+
+
+class TerminalReceiptProfile(str, Enum):
+    POKE_PAD_SEARCH = "POKE_PAD_SEARCH"
+    FIGHTING_GONG_SEARCH = "FIGHTING_GONG_SEARCH"
+    LUNAR_CYCLE = "LUNAR_CYCLE"
+    AURA_JAB = "AURA_JAB"
+    ULTRA_BALL = "ULTRA_BALL"
+    BOSS_GUST = "BOSS_GUST"
+    HARIYAMA_GUST = "HARIYAMA_GUST"
+    WALLY_REBOOT = "WALLY_REBOOT"
+    SWITCH = "SWITCH"
+
+
+class TerminalReceiptStatus(str, Enum):
+    COMPLETE = "COMPLETE"
+    INCOMPLETE = "INCOMPLETE"
+    UNKNOWN = "UNKNOWN"
 
 
 class TransactionStage(str, Enum):
@@ -375,6 +397,88 @@ class TransactionStep:
 
 
 @dataclass(frozen=True)
+class TerminalReceiptSpec:
+    """Immutable, builder-selected terminal contract for one production route."""
+
+    profile: TerminalReceiptProfile
+    source_ref: PhysicalRef
+    target_refs: Tuple[PhysicalRef, ...]
+    reserved_refs: Tuple[PhysicalRef, ...]
+    expected_play_card_id: Optional[int] = None
+    expected_attack_id: Optional[int] = None
+    expected_evolve_card_id: Optional[int] = None
+    evolve_target_lineage_serial: Optional[int] = None
+    expected_draw_count: int = 0
+    start_deck_count: Optional[int] = None
+    start_target_hp: Optional[int] = None
+    start_target_max_hp: Optional[int] = None
+    original_energy_refs: Tuple[PhysicalRef, ...] = ()
+    allow_automatic_completion: bool = True
+    allow_same_turn_completion: bool = True
+    allow_turn_transition: bool = False
+    missing_callback_is_fault: bool = True
+    irreversible_fault_on_missing_receipt: bool = True
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "profile", TerminalReceiptProfile(self.profile))
+        _require_exact_ref(self.source_ref)
+        target_refs = _normalize_refs(self.target_refs)
+        reserved_refs = _normalize_refs(self.reserved_refs)
+        original_energy_refs = _normalize_refs(self.original_energy_refs)
+        for value in (
+            self.expected_play_card_id,
+            self.expected_attack_id,
+            self.expected_evolve_card_id,
+            self.evolve_target_lineage_serial,
+            self.start_deck_count,
+            self.start_target_hp,
+            self.start_target_max_hp,
+        ):
+            if value is not None and (not _is_exact_int(value) or value < 0):
+                raise ValueError("terminal receipt integer facts must be exact")
+        if not _is_exact_int(self.expected_draw_count) or self.expected_draw_count < 0:
+            raise ValueError("expected_draw_count must be a nonnegative exact int")
+        policy_values = (
+            self.allow_automatic_completion,
+            self.allow_same_turn_completion,
+            self.allow_turn_transition,
+            self.missing_callback_is_fault,
+            self.irreversible_fault_on_missing_receipt,
+        )
+        if any(not isinstance(value, bool) for value in policy_values):
+            raise ValueError("terminal receipt policies must be boolean")
+        if self.allow_turn_transition != (
+            self.profile == TerminalReceiptProfile.AURA_JAB
+        ):
+            raise ValueError("only Aura Jab may allow a turn transition")
+        object.__setattr__(self, "target_refs", target_refs)
+        object.__setattr__(self, "reserved_refs", reserved_refs)
+        object.__setattr__(self, "original_energy_refs", original_energy_refs)
+
+    def canonical(self) -> Tuple[object, ...]:
+        return (
+            self.profile.value,
+            self.source_ref.sort_key(),
+            tuple(ref_value.sort_key() for ref_value in self.target_refs),
+            tuple(ref_value.sort_key() for ref_value in self.reserved_refs),
+            self.expected_play_card_id,
+            self.expected_attack_id,
+            self.expected_evolve_card_id,
+            self.evolve_target_lineage_serial,
+            self.expected_draw_count,
+            self.start_deck_count,
+            self.start_target_hp,
+            self.start_target_max_hp,
+            tuple(ref_value.sort_key() for ref_value in self.original_energy_refs),
+            self.allow_automatic_completion,
+            self.allow_same_turn_completion,
+            self.allow_turn_transition,
+            self.missing_callback_is_fault,
+            self.irreversible_fault_on_missing_receipt,
+        )
+
+
+@dataclass(frozen=True)
 class TransactionPlan:
     transaction_id: str
     owner_kind: OwnerKind
@@ -387,6 +491,7 @@ class TransactionPlan:
     reserved_refs: Tuple[PhysicalRef, ...]
     initiation: TransactionStep
     steps: Tuple[TransactionStep, ...]
+    terminal_receipt: Optional[TerminalReceiptSpec] = None
 
     def __post_init__(self) -> None:
         if (
@@ -445,6 +550,10 @@ class TransactionPlan:
         object.__setattr__(self, "target_refs", target_refs)
         object.__setattr__(self, "reserved_refs", reserved_refs)
         object.__setattr__(self, "steps", steps)
+        if self.terminal_receipt is not None and not isinstance(
+            self.terminal_receipt, TerminalReceiptSpec
+        ):
+            raise ValueError("terminal_receipt must be a TerminalReceiptSpec")
 
     @property
     def semantic_action_specs(self) -> Tuple[ActionSpec, ...]:
@@ -469,6 +578,10 @@ class TransactionPlan:
             "reserved_refs": [ref_value.sort_key() for ref_value in self.reserved_refs],
             "initiation": self.initiation.canonical(),
             "steps": [step.canonical() for step in self.steps],
+            "terminal_receipt": (
+                None if self.terminal_receipt is None
+                else self.terminal_receipt.canonical()
+            ),
         }
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -551,6 +664,14 @@ def build_poke_pad_core_search_plan(
         source_ref=source_ref,
         target_refs=(),
         reserved_refs=(),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.POKE_PAD_SEARCH,
+            source_ref=source_ref,
+            target_refs=(),
+            reserved_refs=(),
+            expected_play_card_id=1152,
+            start_deck_count=state.own.deck_count,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -675,6 +796,14 @@ def build_deck_search_plan(
         source_ref=source_ref,
         target_refs=(),
         reserved_refs=(),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.FIGHTING_GONG_SEARCH,
+            source_ref=source_ref,
+            target_refs=(),
+            reserved_refs=(),
+            expected_play_card_id=1142,
+            start_deck_count=state.own.deck_count,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -753,6 +882,15 @@ def build_lunar_cycle_plan(
         source_ref=source_ref,
         target_refs=(),
         reserved_refs=(energy_ref,),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.LUNAR_CYCLE,
+            source_ref=source_ref,
+            target_refs=(),
+            reserved_refs=(energy_ref,),
+            expected_draw_count=3,
+            start_deck_count=state.own.deck_count,
+            original_energy_refs=(energy_ref,),
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -850,6 +988,14 @@ def build_aura_jab_plan(
         source_ref=active.ref,
         target_refs=(target_ref,),
         reserved_refs=energies,
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.AURA_JAB,
+            source_ref=active.ref,
+            target_refs=(target_ref,),
+            reserved_refs=energies,
+            expected_attack_id=982,
+            allow_turn_transition=True,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -958,6 +1104,14 @@ def build_ultra_ball_plan(
         source_ref=source_ref,
         target_refs=(),
         reserved_refs=discards,
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.ULTRA_BALL,
+            source_ref=source_ref,
+            target_refs=(),
+            reserved_refs=discards,
+            expected_play_card_id=1121,
+            start_deck_count=state.own.deck_count,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -1048,6 +1202,13 @@ def build_boss_gust_plan(
         source_ref=source_ref,
         target_refs=(target_ref,),
         reserved_refs=(),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.BOSS_GUST,
+            source_ref=source_ref,
+            target_refs=(target_ref,),
+            reserved_refs=(),
+            expected_play_card_id=1182,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -1125,6 +1286,14 @@ def build_hariyama_gust_plan(
         source_ref=source_ref,
         target_refs=(target_ref,),
         reserved_refs=(),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.HARIYAMA_GUST,
+            source_ref=source_ref,
+            target_refs=(target_ref,),
+            reserved_refs=(),
+            expected_evolve_card_id=674,
+            evolve_target_lineage_serial=key.target_lineage_serial,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -1238,6 +1407,16 @@ def build_wally_plan(
         source_ref=source_ref,
         target_refs=(target_ref,),
         reserved_refs=(reattach_ref,),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.WALLY_REBOOT,
+            source_ref=source_ref,
+            target_refs=(target_ref,),
+            reserved_refs=(reattach_ref,),
+            expected_play_card_id=1229,
+            start_target_hp=target.hp,
+            start_target_max_hp=target.max_hp,
+            original_energy_refs=target.energy_refs,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -1321,6 +1500,13 @@ def build_switch_plan(
         source_ref=source_ref,
         target_refs=(target_ref,),
         reserved_refs=(),
+        terminal_receipt=TerminalReceiptSpec(
+            profile=TerminalReceiptProfile.SWITCH,
+            source_ref=source_ref,
+            target_refs=(target_ref,),
+            reserved_refs=(),
+            expected_play_card_id=1123,
+        ),
         initiation=TransactionStep(
             stage=TransactionStage.INITIATION,
             expected_select_type=int(SelectType.MAIN),
@@ -1376,6 +1562,7 @@ class TransactionState:
     step_index: int
     callback_budget_used: int
     committed: bool
+    receipt_events: Tuple[PublicReceiptEvent, ...]
     fault_latched: bool
     fault_code: Optional[str]
     _issuer_token: object = dataclass_field(repr=False, compare=False)
@@ -1570,6 +1757,431 @@ def _prompt_match_reasons(
     )
 
 
+def _same_identity(left: PhysicalRef, right: PhysicalRef) -> bool:
+    return (
+        left.owner == right.owner
+        and left.card_id == right.card_id
+        and left.serial == right.serial
+    )
+
+
+def _ref_is_in(ref_value: PhysicalRef, refs: Sequence[PhysicalRef]) -> bool:
+    return any(_same_identity(ref_value, candidate) for candidate in refs)
+
+
+def _player_pokemon(state: PublicState, owner: int):
+    player = state.own if state.own.index == owner else state.opponent
+    return player.active + player.bench
+
+
+def _target_is_active(state: PublicState, ref_value: PhysicalRef) -> bool:
+    player = state.own if state.own.index == ref_value.owner else state.opponent
+    return any(_same_identity(ref_value, pokemon.ref) for pokemon in player.active)
+
+
+def _event_matches_card(
+    event: PublicReceiptEvent,
+    log_type: LogType,
+    owner: int,
+    ref_value: PhysicalRef,
+) -> bool:
+    return (
+        event.log_type == int(log_type)
+        and event.player_index == owner
+        and event.card_id == ref_value.card_id
+        and event.serial == ref_value.serial
+    )
+
+
+def _has_play(
+    events: Sequence[PublicReceiptEvent],
+    owner: int,
+    source_ref: PhysicalRef,
+    card_id: int,
+) -> bool:
+    return source_ref.card_id == card_id and any(
+        _event_matches_card(event, LogType.PLAY, owner, source_ref)
+        for event in events
+    )
+
+
+def _has_move(
+    events: Sequence[PublicReceiptEvent],
+    owner: int,
+    ref_value: PhysicalRef,
+    from_area: AreaType,
+    to_area: AreaType,
+) -> bool:
+    return any(
+        _event_matches_card(event, LogType.MOVE_CARD, owner, ref_value)
+        and event.from_area == int(from_area)
+        and event.to_area == int(to_area)
+        for event in events
+    )
+
+
+def _has_attach(
+    events: Sequence[PublicReceiptEvent],
+    owner: int,
+    energy_ref: PhysicalRef,
+    target_ref: PhysicalRef,
+) -> bool:
+    return any(
+        _event_matches_card(event, LogType.ATTACH, owner, energy_ref)
+        and event.serial_target == target_ref.serial
+        for event in events
+    )
+
+
+def _has_unknown_receipt_field(
+    events: Sequence[PublicReceiptEvent],
+    log_types: Sequence[LogType],
+    owner: int,
+) -> bool:
+    expected = frozenset(int(value) for value in log_types)
+    return any(
+        event.log_type in expected
+        and event.player_index in (None, owner)
+        and event.serial is None
+        for event in events
+    )
+
+
+def _selected_deck_target(
+    owner: TransactionState,
+) -> Optional[PhysicalRef]:
+    for action_spec in reversed(owner.semantic_action_specs):
+        for key in action_spec.choices:
+            if (
+                key.option_type == int(OptionType.CARD)
+                and key.source_zone == int(AreaType.DECK)
+                and _is_exact_int(key.player_index)
+                and _is_exact_int(key.card_id)
+                and _is_exact_int(key.card_serial)
+            ):
+                return PhysicalRef(
+                    key.card_id,
+                    key.card_serial,
+                    key.player_index,
+                    int(AreaType.DECK),
+                    key.card_serial,
+                )
+    return None
+
+
+def _receipt_failure(
+    events: Sequence[PublicReceiptEvent],
+    log_types: Sequence[LogType],
+    owner: int,
+    reason: str,
+) -> Tuple[TerminalReceiptStatus, Tuple[str, ...]]:
+    status = (
+        TerminalReceiptStatus.UNKNOWN
+        if _has_unknown_receipt_field(events, log_types, owner)
+        else TerminalReceiptStatus.INCOMPLETE
+    )
+    return status, (reason,)
+
+
+def _wally_return_receipt(
+    spec: TerminalReceiptSpec,
+    state: PublicState,
+    events: Sequence[PublicReceiptEvent],
+    *,
+    require_all_in_hand: bool = True,
+) -> Tuple[TerminalReceiptStatus, Tuple[str, ...]]:
+    target_ref = spec.target_refs[0]
+    target = next(
+        (
+            pokemon
+            for pokemon in _player_pokemon(state, target_ref.owner)
+            if _same_identity(target_ref, pokemon.ref)
+        ),
+        None,
+    )
+    damage = (
+        None
+        if spec.start_target_hp is None or spec.start_target_max_hp is None
+        else spec.start_target_max_hp - spec.start_target_hp
+    )
+    healed = damage is not None and damage > 0 and any(
+        event.log_type == int(LogType.HP_CHANGE)
+        and event.player_index == spec.source_ref.owner
+        and event.serial == target_ref.serial
+        and event.value == damage
+        for event in events
+    )
+    returned = all(
+        _has_move(
+            events,
+            spec.source_ref.owner,
+            ref_value,
+            AreaType.ENERGY,
+            AreaType.HAND,
+        )
+        and (
+            not require_all_in_hand
+            or _ref_is_in(ref_value, state.own.hand_refs)
+        )
+        for ref_value in spec.original_energy_refs
+    )
+    target_healed = (
+        target is not None
+        and spec.start_target_max_hp is not None
+        and target.hp == spec.start_target_max_hp
+        and target.max_hp == spec.start_target_max_hp
+    )
+    if healed and returned and target_healed:
+        return TerminalReceiptStatus.COMPLETE, ()
+    return _receipt_failure(
+        events,
+        (LogType.HP_CHANGE, LogType.MOVE_CARD),
+        spec.source_ref.owner,
+        "WALLY_RETURN_RECEIPT_MISSING",
+    )
+
+
+def _terminal_receipt_status(
+    plan: TransactionPlan,
+    owner: TransactionState,
+    state: PublicState,
+) -> Tuple[TerminalReceiptStatus, Tuple[str, ...]]:
+    spec = plan.terminal_receipt
+    if spec is None:
+        return TerminalReceiptStatus.INCOMPLETE, ("TERMINAL_RECEIPT_UNDECLARED",)
+    events = owner.receipt_events
+    seat = spec.source_ref.owner
+    source_discarded = _ref_is_in(spec.source_ref, state.own.discard_refs)
+
+    if spec.profile in (
+        TerminalReceiptProfile.POKE_PAD_SEARCH,
+        TerminalReceiptProfile.FIGHTING_GONG_SEARCH,
+        TerminalReceiptProfile.ULTRA_BALL,
+    ):
+        target_ref = _selected_deck_target(owner)
+        play_ok = _has_play(
+            events,
+            seat,
+            spec.source_ref,
+            int(spec.expected_play_card_id or 0),
+        )
+        target_ok = target_ref is not None and _has_move(
+            events,
+            seat,
+            target_ref,
+            AreaType.DECK,
+            AreaType.HAND,
+        )
+        target_in_hand = target_ref is not None and _ref_is_in(
+            target_ref, state.own.hand_refs
+        )
+        deck_ok = (
+            spec.start_deck_count is not None
+            and state.own.deck_count == spec.start_deck_count - 1
+        )
+        costs_ok = all(
+            _ref_is_in(ref_value, state.own.discard_refs)
+            for ref_value in spec.reserved_refs
+        )
+        if (
+            play_ok
+            and source_discarded
+            and target_ok
+            and target_in_hand
+            and deck_ok
+            and costs_ok
+        ):
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.PLAY, LogType.MOVE_CARD),
+            seat,
+            "SEARCH_TERMINAL_RECEIPT_MISSING",
+        )
+
+    if spec.profile == TerminalReceiptProfile.LUNAR_CYCLE:
+        energy_ref = spec.reserved_refs[0]
+        cost_ok = _has_move(
+            events, seat, energy_ref, AreaType.HAND, AreaType.DISCARD
+        ) and _ref_is_in(energy_ref, state.own.discard_refs)
+        draw_serials = {
+            event.serial
+            for event in events
+            if event.log_type == int(LogType.DRAW)
+            and event.player_index == seat
+            and event.card_id is not None
+            and event.serial is not None
+        }
+        deck_ok = (
+            spec.start_deck_count is not None
+            and state.own.deck_count == spec.start_deck_count - spec.expected_draw_count
+        )
+        lineage_ok = any(
+            pokemon.lineage_serial == spec.source_ref.lineage_serial
+            for pokemon in _player_pokemon(state, seat)
+        )
+        if (
+            cost_ok
+            and len(draw_serials) == spec.expected_draw_count
+            and deck_ok
+            and lineage_ok
+        ):
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.MOVE_CARD, LogType.DRAW),
+            seat,
+            "LUNAR_CYCLE_TERMINAL_RECEIPT_MISSING",
+        )
+
+    if spec.profile == TerminalReceiptProfile.AURA_JAB:
+        target_ref = spec.target_refs[0]
+        attack_ok = any(
+            _event_matches_card(event, LogType.ATTACK, seat, spec.source_ref)
+            and event.attack_id == spec.expected_attack_id
+            for event in events
+        )
+        attaches_ok = all(
+            _has_attach(events, seat, ref_value, target_ref)
+            for ref_value in spec.reserved_refs
+        )
+        target = next(
+            (
+                pokemon
+                for pokemon in _player_pokemon(state, target_ref.owner)
+                if _same_identity(target_ref, pokemon.ref)
+            ),
+            None,
+        )
+        board_ok = target is not None and all(
+            _ref_is_in(ref_value, target.energy_refs)
+            for ref_value in spec.reserved_refs
+        )
+        if attack_ok and attaches_ok and board_ok:
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.ATTACK, LogType.ATTACH),
+            seat,
+            "AURA_JAB_TERMINAL_RECEIPT_MISSING",
+        )
+
+    if spec.profile == TerminalReceiptProfile.BOSS_GUST:
+        target_ref = spec.target_refs[0]
+        switch_ok = any(
+            event.log_type == int(LogType.SWITCH)
+            and event.player_index == target_ref.owner
+            and event.serial_bench == target_ref.serial
+            for event in events
+        )
+        if (
+            _has_play(events, seat, spec.source_ref, 1182)
+            and source_discarded
+            and switch_ok
+            and _target_is_active(state, target_ref)
+        ):
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.PLAY, LogType.SWITCH),
+            seat,
+            "BOSS_GUST_TERMINAL_RECEIPT_MISSING",
+        )
+
+    if spec.profile == TerminalReceiptProfile.HARIYAMA_GUST:
+        target_ref = spec.target_refs[0]
+        evolve_ok = any(
+            _event_matches_card(event, LogType.EVOLVE, seat, spec.source_ref)
+            and event.serial_target == spec.evolve_target_lineage_serial
+            for event in events
+        )
+        lineage_ok = any(
+            pokemon.ref.card_id == 674
+            and pokemon.lineage_serial == spec.evolve_target_lineage_serial
+            for pokemon in _player_pokemon(state, seat)
+        )
+        switch_ok = any(
+            event.log_type == int(LogType.SWITCH)
+            and event.player_index == target_ref.owner
+            and event.serial_bench == target_ref.serial
+            for event in events
+        )
+        if evolve_ok and lineage_ok and switch_ok and _target_is_active(state, target_ref):
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.EVOLVE, LogType.SWITCH),
+            seat,
+            "HARIYAMA_GUST_TERMINAL_RECEIPT_MISSING",
+        )
+
+    if spec.profile == TerminalReceiptProfile.WALLY_REBOOT:
+        intermediate, _ = _wally_return_receipt(
+            spec,
+            state,
+            events,
+            require_all_in_hand=False,
+        )
+        target_ref = spec.target_refs[0]
+        chosen_ref = spec.reserved_refs[0]
+        target = next(
+            (
+                pokemon
+                for pokemon in _player_pokemon(state, target_ref.owner)
+                if _same_identity(target_ref, pokemon.ref)
+            ),
+            None,
+        )
+        attach_ok = _has_attach(events, seat, chosen_ref, target_ref)
+        chosen_attached = target is not None and _ref_is_in(
+            chosen_ref, target.energy_refs
+        )
+        others_in_hand = all(
+            _ref_is_in(ref_value, state.own.hand_refs)
+            for ref_value in spec.original_energy_refs
+            if not _same_identity(ref_value, chosen_ref)
+        )
+        if (
+            intermediate == TerminalReceiptStatus.COMPLETE
+            and _has_play(events, seat, spec.source_ref, 1229)
+            and source_discarded
+            and attach_ok
+            and chosen_attached
+            and others_in_hand
+        ):
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.PLAY, LogType.HP_CHANGE, LogType.MOVE_CARD, LogType.ATTACH),
+            seat,
+            "WALLY_TERMINAL_RECEIPT_MISSING",
+        )
+
+    if spec.profile == TerminalReceiptProfile.SWITCH:
+        target_ref = spec.target_refs[0]
+        switch_ok = any(
+            event.log_type == int(LogType.SWITCH)
+            and event.player_index == seat
+            and event.serial_bench == target_ref.serial
+            for event in events
+        )
+        if (
+            _has_play(events, seat, spec.source_ref, 1123)
+            and source_discarded
+            and switch_ok
+            and _target_is_active(state, target_ref)
+        ):
+            return TerminalReceiptStatus.COMPLETE, ()
+        return _receipt_failure(
+            events,
+            (LogType.PLAY, LogType.SWITCH),
+            seat,
+            "SWITCH_TERMINAL_RECEIPT_MISSING",
+        )
+
+    return TerminalReceiptStatus.UNKNOWN, ("TERMINAL_RECEIPT_PROFILE_UNKNOWN",)
+
+
 class TransactionStore:
     """Mutable runtime store containing zero or one immutable owner state."""
 
@@ -1740,6 +2352,7 @@ class TransactionStore:
             step_index=-1,
             callback_budget_used=1,
             committed=plan.initiation.irreversible_on_emit,
+            receipt_events=(),
             fault_latched=False,
             fault_code=None,
             _issuer_token=_STATE_ISSUER_TOKEN,
@@ -1935,29 +2548,6 @@ class TransactionStore:
         if self._owner is None or self._plan is None:
             return ResumeResult(ResumeStatus.NO_OWNER, None, None, None, ())
 
-        if state.game_epoch != self._owner.game_epoch:
-            self._release_owner()
-            return ResumeResult(
-                ResumeStatus.GAME_RELEASE,
-                None,
-                None,
-                None,
-                ("GAME_EPOCH_CHANGED",),
-            )
-        if (
-            state.seat != self._owner.seat
-            or state.turn != self._owner.turn
-            or state.result != -1
-        ):
-            self._release_owner()
-            return ResumeResult(
-                ResumeStatus.TURN_RELEASE,
-                None,
-                None,
-                None,
-                ("TURN_OR_RESULT_CHANGED",),
-            )
-
         if self._owner.fault_latched:
             if _stable_main(state):
                 self._release_owner()
@@ -1975,6 +2565,69 @@ class TransactionStore:
                 self._owner,
                 (self._owner.fault_code or "IRREVERSIBLE_FAULT",),
             )
+
+        spec = self._plan.terminal_receipt
+        if spec is None:
+            if state.game_epoch != self._owner.game_epoch:
+                return self._failure_result(
+                    ("UNRECEIPTED_TRANSACTION_GAME_EPOCH_CHANGED",)
+                )
+            if (
+                state.seat != self._owner.seat
+                or state.turn != self._owner.turn
+                or state.result != -1
+            ):
+                return self._failure_result(
+                    ("UNRECEIPTED_TRANSACTION_TURN_OR_RESULT_CHANGED",)
+                )
+        else:
+            if state.game_epoch != self._owner.game_epoch:
+                return self._failure_result(("TERMINAL_RECEIPT_GAME_EPOCH_CHANGED",))
+            if any(
+                not isinstance(event, PublicReceiptEvent)
+                for event in state.receipt_events
+            ):
+                return self._failure_result(("TERMINAL_RECEIPT_EVENT_INVALID",))
+            receipt_by_identity = {
+                event.canonical(): event for event in self._owner.receipt_events
+            }
+            for event in state.receipt_events:
+                receipt_by_identity.setdefault(event.canonical(), event)
+            self._owner = replace(
+                self._owner,
+                receipt_events=tuple(receipt_by_identity.values()),
+            )
+            receipt_status, receipt_reasons = _terminal_receipt_status(
+                self._plan,
+                self._owner,
+                state,
+            )
+            final_callback_issued = self._owner.step_index >= len(self._plan.steps) - 1
+            if state.seat != self._owner.seat or state.result != -1:
+                return self._failure_result(
+                    ("TERMINAL_RECEIPT_SEAT_OR_RESULT_CHANGED",) + receipt_reasons
+                )
+            if state.turn != self._owner.turn:
+                if (
+                    spec.allow_turn_transition
+                    and final_callback_issued
+                    and receipt_status == TerminalReceiptStatus.COMPLETE
+                ):
+                    self._release_owner()
+                    return ResumeResult(
+                        ResumeStatus.COMPLETED, None, None, None, ()
+                    )
+                return self._failure_result(
+                    ("TERMINAL_RECEIPT_TURN_CHANGED",) + receipt_reasons
+                )
+            if (
+                spec.allow_automatic_completion
+                and spec.allow_same_turn_completion
+                and final_callback_issued
+                and receipt_status == TerminalReceiptStatus.COMPLETE
+            ):
+                self._release_owner()
+                return ResumeResult(ResumeStatus.COMPLETED, None, None, None, ())
 
         last_action_count = (
             None
@@ -2022,7 +2675,7 @@ class TransactionStore:
             )
 
         if current_step.stochastic_boundary:
-            if _stable_main(state):
+            if spec is None and _stable_main(state):
                 self._release_owner()
                 return ResumeResult(
                     ResumeStatus.STOCHASTIC_RELEASE,
@@ -2031,11 +2684,15 @@ class TransactionStore:
                     None,
                     ("STOCHASTIC_BOUNDARY_REPLAN",),
                 )
+            if spec is not None and _stable_main(state):
+                return self._failure_result(
+                    ("STOCHASTIC_TERMINAL_RECEIPT_MISSING",) + receipt_reasons
+                )
             return self._failure_result(("UNEXPECTED_PROMPT_AFTER_STOCHASTIC_STEP",))
 
         next_index = self._owner.step_index + 1
         if next_index >= len(self._plan.steps):
-            if _stable_main(state):
+            if spec is None and _stable_main(state):
                 self._release_owner()
                 return ResumeResult(
                     ResumeStatus.COMPLETED,
@@ -2044,7 +2701,37 @@ class TransactionStore:
                     None,
                     (),
                 )
+            if spec is not None and _stable_main(state):
+                return self._failure_result(
+                    ("TERMINAL_RECEIPT_MISSING_AT_MAIN",) + receipt_reasons
+                )
             return self._failure_result(("UNEXPECTED_PROMPT_AFTER_FINAL_STEP",))
+
+        if spec is not None and spec.profile == TerminalReceiptProfile.WALLY_REBOOT:
+            if next_index == len(self._plan.steps) - 1:
+                return_status, return_reasons = _wally_return_receipt(
+                    spec,
+                    state,
+                    self._owner.receipt_events,
+                )
+                if return_status != TerminalReceiptStatus.COMPLETE:
+                    return self._failure_result(
+                        ("WALLY_REATTACH_BEFORE_RETURN_RECEIPT",) + return_reasons
+                    )
+
+        if (
+            spec is not None
+            and spec.profile == TerminalReceiptProfile.AURA_JAB
+            and next_index >= 2
+        ):
+            prior_energy = spec.reserved_refs[next_index - 2]
+            if not _has_attach(
+                self._owner.receipt_events,
+                spec.source_ref.owner,
+                prior_energy,
+                spec.target_refs[0],
+            ):
+                return self._failure_result(("AURA_PRECEDING_ATTACH_RECEIPT_MISSING",))
 
         return self._issue_step(
             state,
@@ -2062,6 +2749,9 @@ __all__ = [
     "ResumeStatus",
     "StartResult",
     "StartStatus",
+    "TerminalReceiptProfile",
+    "TerminalReceiptSpec",
+    "TerminalReceiptStatus",
     "TransactionPlan",
     "TransactionStage",
     "TransactionState",
