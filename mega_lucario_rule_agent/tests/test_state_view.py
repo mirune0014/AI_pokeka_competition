@@ -8,9 +8,11 @@ from mega_lucario_rule_agent.state_view import (
     AreaType,
     OptionType,
     SelectContext,
+    SelectType,
     SemanticBindError,
     build_public_state,
     build_semantic_options,
+    is_stable_main_state,
     make_prompt_fingerprint,
     public_state_fingerprint,
 )
@@ -345,3 +347,66 @@ def test_zero_selection_action_is_legal_only_with_matching_minimum():
     assert ActionSpec.empty().bind(options, 0, 1) == []
     with pytest.raises(SemanticBindError):
         ActionSpec.empty().bind(options, 1, 1)
+
+
+def test_selection_surface_flags_distinguish_closed_and_empty_open_zones():
+    obs = observation([hand_card_option(0)])
+    closed_state = build_public_state(obs)
+    closed_prompt = make_prompt_fingerprint(
+        closed_state,
+        build_semantic_options(obs),
+    )
+    assert closed_state.select_type == int(SelectType.MAIN)
+    assert not closed_state.looking_open
+    assert not closed_state.select_deck_open
+
+    opened = deepcopy(obs)
+    opened["current"]["looking"] = []
+    opened["select"]["deck"] = []
+    opened_state = build_public_state(opened)
+    opened_prompt = make_prompt_fingerprint(
+        opened_state,
+        build_semantic_options(opened),
+    )
+    assert opened_state.looking_refs == ()
+    assert opened_state.looking_open
+    assert opened_state.select_deck_open
+    assert public_state_fingerprint(opened_state) != public_state_fingerprint(
+        closed_state
+    )
+    assert opened_prompt.digest() != closed_prompt.digest()
+
+    card_select = deepcopy(obs)
+    card_select["select"]["type"] = int(SelectType.CARD)
+    card_state = build_public_state(card_select)
+    assert public_state_fingerprint(card_state) != public_state_fingerprint(
+        closed_state
+    )
+
+
+def test_stable_main_requires_a_fully_closed_main_selection_surface():
+    obs = observation([hand_card_option(0)])
+    stable = build_public_state(obs)
+    assert is_stable_main_state(stable)
+
+    variants = []
+    card_select = deepcopy(obs)
+    card_select["select"]["type"] = int(SelectType.CARD)
+    variants.append(card_select)
+    looking = deepcopy(obs)
+    looking["current"]["looking"] = []
+    variants.append(looking)
+    deck_select = deepcopy(obs)
+    deck_select["select"]["deck"] = []
+    variants.append(deck_select)
+    effect = deepcopy(obs)
+    effect["select"]["effect"] = card(1121, 99)
+    variants.append(effect)
+    wrong_counts = deepcopy(obs)
+    wrong_counts["select"]["minCount"] = 0
+    variants.append(wrong_counts)
+
+    assert all(
+        not is_stable_main_state(build_public_state(variant))
+        for variant in variants
+    )

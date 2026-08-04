@@ -16,7 +16,7 @@ try:  # Package import in tests.
         PublicState,
         SemanticBindError,
         SemanticOption,
-        SelectContext,
+        is_stable_main_state,
         public_state_fingerprint,
         semantic_option_multiset,
     )
@@ -28,7 +28,7 @@ except ImportError:  # Flat submission import from main.py.
         PublicState,
         SemanticBindError,
         SemanticOption,
-        SelectContext,
+        is_stable_main_state,
         public_state_fingerprint,
         semantic_option_multiset,
     )
@@ -197,7 +197,7 @@ def safe_fallback_proof(
 ) -> CertificateProof:
     if not isinstance(reason_code, str) or not reason_code.strip():
         raise ValueError("safe fallback reason_code must be non-empty")
-    if state.select_context != int(SelectContext.MAIN) or state.result != -1:
+    if not is_stable_main_state(state):
         raise ValueError("safe fallback requires an unfinished stable MAIN state")
     if len(action_spec.choices) != 1:
         raise ValueError("safe fallback requires exactly one semantic action")

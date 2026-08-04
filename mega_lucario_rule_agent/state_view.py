@@ -52,6 +52,20 @@ class OptionType(IntEnum):
     SPECIAL_CONDITION = 16
 
 
+class SelectType(IntEnum):
+    MAIN = 0
+    CARD = 1
+    ATTACHED_CARD = 2
+    CARD_OR_ATTACHED_CARD = 3
+    ENERGY = 4
+    SKILL = 5
+    ATTACK = 6
+    EVOLVE = 7
+    COUNT = 8
+    YES_NO = 9
+    SPECIAL_CONDITION = 10
+
+
 class SelectContext(IntEnum):
     MAIN = 0
     SETUP_ACTIVE_POKEMON = 1
@@ -221,6 +235,9 @@ class PublicState:
     max_count: int
     effect_ref: Optional[PhysicalRef]
     context_ref: Optional[PhysicalRef]
+    select_type: Optional[int] = None
+    looking_open: bool = False
+    select_deck_open: bool = False
 
     @property
     def own_active(self) -> Optional[PokemonView]:
@@ -344,6 +361,7 @@ class PromptFingerprint:
     seat: int
     turn: int
     turn_action_count: int
+    select_type: Optional[int]
     context: Optional[int]
     source_ref: Optional[PhysicalRef]
     effect_or_attack_id: Optional[int]
@@ -351,6 +369,8 @@ class PromptFingerprint:
     max_count: int
     semantic_option_multiset: Tuple[Tuple[SemanticOptionKey, int], ...]
     relevant_zone_fingerprint: str
+    looking_open: bool
+    select_deck_open: bool
 
     def digest(self) -> str:
         payload = {
@@ -360,6 +380,7 @@ class PromptFingerprint:
             "seat": self.seat,
             "turn": self.turn,
             "turn_action_count": self.turn_action_count,
+            "select_type": self.select_type,
             "context": self.context,
             "source_ref": None if self.source_ref is None else self.source_ref.sort_key(),
             "effect_or_attack_id": self.effect_or_attack_id,
@@ -369,6 +390,8 @@ class PromptFingerprint:
                 (key.canonical(), count) for key, count in self.semantic_option_multiset
             ],
             "relevant_zone_fingerprint": self.relevant_zone_fingerprint,
+            "looking_open": self.looking_open,
+            "select_deck_open": self.select_deck_open,
         }
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -546,7 +569,9 @@ def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
         )
         if ref_value is not None
     )
-    looking = as_tuple(read_field(current, "looking", ()))
+    raw_looking = read_field(current, "looking")
+    looking_open = raw_looking is not None
+    looking = as_tuple(raw_looking)
     looking_refs = tuple(
         ref_value
         for ref_value in (
@@ -578,6 +603,9 @@ def build_public_state(observation: Any, game_epoch: int = 0) -> PublicState:
         max_count=as_int(read_field(select, "maxCount"), 0) or 0,
         effect_ref=effect_ref,
         context_ref=context_ref,
+        select_type=as_int(read_field(select, "type")),
+        looking_open=looking_open,
+        select_deck_open=read_field(select, "deck") is not None,
     )
 
 
@@ -816,7 +844,12 @@ def relevant_zone_fingerprint(state: PublicState) -> str:
     """Fingerprint only zones relevant to the current selection context."""
 
     context = state.select_context
-    payload: Dict[str, Any] = {"context": context}
+    payload: Dict[str, Any] = {
+        "select_type": state.select_type,
+        "context": context,
+        "looking_open": state.looking_open,
+        "select_deck_open": state.select_deck_open,
+    }
     if context == int(SelectContext.MAIN):
         payload["board"] = _public_board_payload(state)
     elif context in (
@@ -867,6 +900,7 @@ def make_prompt_fingerprint(
         seat=state.seat,
         turn=state.turn,
         turn_action_count=state.turn_action_count,
+        select_type=state.select_type,
         context=state.select_context,
         source_ref=state.effect_ref or state.context_ref,
         effect_or_attack_id=effect_or_attack_id,
@@ -874,6 +908,8 @@ def make_prompt_fingerprint(
         max_count=state.max_count,
         semantic_option_multiset=semantic_option_multiset(options),
         relevant_zone_fingerprint=relevant_zone_fingerprint(state),
+        looking_open=state.looking_open,
+        select_deck_open=state.select_deck_open,
     )
 
 
@@ -884,13 +920,39 @@ def public_state_fingerprint(state: PublicState) -> str:
         "turn": state.turn,
         "turn_action_count": state.turn_action_count,
         "board": _public_board_payload(state),
-        "select": (state.select_context, state.min_count, state.max_count),
+        "select": (
+            state.select_type,
+            state.select_context,
+            state.min_count,
+            state.max_count,
+            state.looking_open,
+            state.select_deck_open,
+        ),
         "effect_ref": None if state.effect_ref is None else state.effect_ref.sort_key(),
         "context_ref": None if state.context_ref is None else state.context_ref.sort_key(),
     }
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
+
+
+def is_stable_main_state(state: PublicState) -> bool:
+    """Return true only for a closed, ordinary MAIN action surface."""
+
+    return (
+        state.select_type == int(SelectType.MAIN)
+        and state.select_context == int(SelectContext.MAIN)
+        and state.min_count == 1
+        and state.max_count == 1
+        and state.effect_ref is None
+        and state.context_ref is None
+        and not state.looking_refs
+        and not state.looking_open
+        and not state.select_deck_open
+        and state.turn > 0
+        and state.turn_action_count >= 0
+        and state.result == -1
+    )
 
 
 __all__ = [
@@ -903,6 +965,7 @@ __all__ = [
     "PromptFingerprint",
     "PublicState",
     "SelectContext",
+    "SelectType",
     "SemanticBindError",
     "SemanticOption",
     "SemanticOptionKey",
@@ -910,6 +973,7 @@ __all__ = [
     "as_tuple",
     "build_public_state",
     "build_semantic_options",
+    "is_stable_main_state",
     "make_prompt_fingerprint",
     "pokemon_lineage_serial",
     "public_state_fingerprint",

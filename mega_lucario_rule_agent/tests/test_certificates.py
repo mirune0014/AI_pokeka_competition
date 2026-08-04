@@ -16,6 +16,7 @@ from mega_lucario_rule_agent.state_view import (
     PokemonView,
     PublicState,
     SelectContext,
+    SelectType,
     SemanticOption,
     SemanticOptionKey,
 )
@@ -83,6 +84,7 @@ def state():
         max_count=1,
         effect_ref=None,
         context_ref=None,
+        select_type=int(SelectType.MAIN),
     )
 
 
@@ -282,7 +284,7 @@ def test_safe_fallback_must_bind_uniquely_to_the_live_prompt():
         )
 
     no_selection_allowed = replace(current, min_count=0, max_count=0)
-    with pytest.raises(ValueError, match="bind uniquely"):
+    with pytest.raises(ValueError, match="stable MAIN"):
         safe_fallback_proof(
             no_selection_allowed,
             options_for(spec),

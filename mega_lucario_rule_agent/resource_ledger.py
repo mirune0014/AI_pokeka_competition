@@ -12,14 +12,26 @@ try:  # Package import in tests.
         DECK_COUNTER,
         canonical_counter_hash,
     )
-    from .state_view import AreaType, PhysicalRef, PublicState, SelectContext
+    from .state_view import (
+        AreaType,
+        PhysicalRef,
+        PublicState,
+        SelectContext,
+        SelectType,
+    )
 except ImportError:  # Flat submission import from main.py.
     from card_meta import (
         ADOPTED_CANONICAL_COUNTER_HASH,
         DECK_COUNTER,
         canonical_counter_hash,
     )
-    from state_view import AreaType, PhysicalRef, PublicState, SelectContext
+    from state_view import (
+        AreaType,
+        PhysicalRef,
+        PublicState,
+        SelectContext,
+        SelectType,
+    )
 
 
 class ReservationKind(IntEnum):
@@ -653,9 +665,19 @@ def prove_deck_availability_from_state(
         required_count=required_count,
     )
     extra_reasons = []
-    if state.select_context != int(SelectContext.MAIN):
+    if (
+        state.select_type != int(SelectType.MAIN)
+        or state.select_context != int(SelectContext.MAIN)
+        or state.min_count != 1
+        or state.max_count != 1
+        or state.effect_ref is not None
+        or state.context_ref is not None
+        or state.select_deck_open
+        or state.turn <= 0
+        or state.result != -1
+    ):
         extra_reasons.append("UNSTABLE_SELECTION_CONTEXT")
-    if state.looking_refs:
+    if state.looking_refs or state.looking_open:
         extra_reasons.append("UNSTABLE_LOOKING_ZONE")
     if extra_reasons:
         return replace(

@@ -24,6 +24,7 @@ from mega_lucario_rule_agent.state_view import (
     PokemonView,
     PublicState,
     SelectContext,
+    SelectType,
     SemanticOption,
     SemanticOptionKey,
 )
@@ -98,6 +99,7 @@ def state():
         max_count=1,
         effect_ref=None,
         context_ref=None,
+        select_type=int(SelectType.MAIN),
     )
 
 

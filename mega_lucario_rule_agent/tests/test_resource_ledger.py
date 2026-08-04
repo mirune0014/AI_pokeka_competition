@@ -13,6 +13,7 @@ from mega_lucario_rule_agent.state_view import (
     PhysicalRef,
     PlayerView,
     PublicState,
+    SelectType,
 )
 
 
@@ -63,6 +64,7 @@ def public_state(own, opponent, looking_refs=()):
         max_count=1,
         effect_ref=None,
         context_ref=None,
+        select_type=int(SelectType.MAIN),
     )
 
 
