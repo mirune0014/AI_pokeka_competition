@@ -1,0 +1,253 @@
+{
+  "schema_version": "mega_lucario_final_audit_evidence_v1",
+  "date": "2026-08-05",
+  "verdict": "REJECT_REQUIREMENTS_NOT_MET",
+  "kaggle_submission_performed": false,
+  "branch": "codex/megalucario-audit-repair-20260805",
+  "identity": {
+    "audit_report_implementation_commit": "8c8f43b1478d0d64239ed5190f50a04409dd6f61",
+    "parent_commit": "4cfdffae54561c9b6b054f4a9d461536ef573385",
+    "parent_runtime_tree_sha256": "19f6dc9c9beb218228519ae20549966b72888aa5abe538676ea1e3f2ed6d9d35",
+    "parent_archive_sha256": "398f9331addfab1f9fb5cb12e6e523522cfdd3bcc466b28b56a9147e92822d1c",
+    "candidate_runtime_commit": "75b6c7c91e1178f9450739803e477d3df4eb71aa",
+    "candidate_runtime_tree_sha256": "bdef06a10dc5cc8199d4893d9a0193ee6164c672adcefa1186d4fee120525dc3",
+    "candidate_archive_sha256": "163a50567237ce7b3fe1a190e9f81b7f5f0bc456810312953e15212bfc94dfe2",
+    "evaluation_manifest_head": "d2f251119b3980b77598184de0412cec06353332"
+  },
+  "inputs": {
+    "requirements_sha256": "47cb7fe3d426a14281699e6882f37ea24ce5979a11f1c2a15cf5bc7edaf5e0d7",
+    "audit_report_sha256": "2a50ab0d0be3e5492cceeee084880e49f68ccda0aa8af1a3f371f3e2e8d2704f",
+    "repair_contract_sha256": "6793ae2a4427b7eb18de2926b397630d25ad7174fa96ed25efb8542bc0434f68"
+  },
+  "schedules": {
+    "original_manifest_sha256": "2ec6c7383aa1435568f8f53b7324e9340aaf857f74fc299dd85f50eb640b93c8",
+    "post_d3_catalog_fix_manifest_sha256": "1b1667e27031bd1447a33921b3bdce57b8a51d32d43add444af33290a8c36ea0",
+    "d2_semantic_16_key_sha256": "854799384647c3d261fb19aa4cc55b8919a67f9f08a170c3e097f826751f3e88",
+    "d3_semantic_key_sha256": "ffcf1eddb04528798839df3bdc866628932b2e02d8377f3a189a7b80c780ec41",
+    "d4_semantic_key_sha256": "af9f99a358e3c342cf485a85b9306bd7dbbbc349617b40c74607edad5015b1ad"
+  },
+  "tests": {
+    "python_version": "3.11.6",
+    "pytest_version": "8.4.2",
+    "test_file_count": 26,
+    "passed": 530,
+    "failed": 0,
+    "skipped": 0,
+    "test_tree_sha256": "1288fc4a9d3bce04e1fe94856c485d73445f777624acaa73825bfb3a7498d006",
+    "test_schedule_sha256": "2a1c26c799065a5bad7447d651d1f146ec3a22746cf0de2dd95a78a3fa8e54eb"
+  },
+  "d2": {
+    "invalid_first_invocation": {
+      "path": "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d2_catalogfix_v1",
+      "cause": "agent directories were passed as deck paths",
+      "process_exit_failures": 8,
+      "summary_rows": 0
+    },
+    "valid_retry": {
+      "path": "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d2_catalogfix_v1_retry1",
+      "games_per_repeat": 8,
+      "repeats": 2,
+      "total_games": 16,
+      "key_sets_equal": true,
+      "action_trace_hash_matches": 8,
+      "validation_trace_hash_matches": 8,
+      "result_step_matches": 8,
+      "action_errors": 0,
+      "max_step_hits": 0,
+      "runtime_faults": 0,
+      "transaction_faults": 0,
+      "exception_containment": 0,
+      "unsupported_stable_main": 0,
+      "unfinished_owner": 0,
+      "owner_at_new_game": 0
+    }
+  },
+  "d3": {
+    "paths": [
+      "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d3_fixed160_catalogfix_v1/historical",
+      "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d3_fixed160_catalogfix_v1/adjacent"
+    ],
+    "rows": 160,
+    "engine_battles_with_duplicate_controls": 480,
+    "parent_wins": 16,
+    "candidate_wins": 11,
+    "paired_gains": 0,
+    "paired_regressions": 5,
+    "paired_ties": 155,
+    "net": -5,
+    "action_errors": 0,
+    "max_step_hits": 0,
+    "runtime_faults": 0,
+    "transaction_faults": 0,
+    "selected_invalid_proofs": 0,
+    "selected_routes": {
+      "active_attack_completion": 3,
+      "wally": 0,
+      "cape": 1,
+      "boss_gust": 1,
+      "hariyama_gust": 1
+    },
+    "selected_certificate_kinds": {
+      "ATTACK_COMPLETION": 220,
+      "ENGINE_COMPLETION": 114,
+      "FIRST_ATTACK_ACCELERATION": 207,
+      "PRIZE_GAIN_NOW": 33,
+      "RESOURCE_IMPROVEMENT": 262,
+      "SAFE_FALLBACK": 770,
+      "WIN_NOW": 3
+    }
+  },
+  "d4": {
+    "paths": [
+      "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d4_fixed760/historical",
+      "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d4_fixed760/adjacent",
+      "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d4_fixed760_continuation_after_fault/adjacent_remaining",
+      "_local_generated/analysis_outputs/mega_lucario_audit_20260805/d4_fixed760_continuation_after_fault2/cynthia"
+    ],
+    "rows": 760,
+    "unique_schedule_keys": 760,
+    "engine_battles_with_duplicate_controls": 2280,
+    "processes": 48,
+    "candidate_process_exit_failures": 2,
+    "parent_wins": 58,
+    "candidate_wins": 46,
+    "paired_gains": 0,
+    "paired_regressions": 12,
+    "paired_ties": 748,
+    "net": -12,
+    "absolute_effect_percentage_points": -1.5789473684210527,
+    "relative_win_rate_change": -0.20689655172413793,
+    "exact_mcnemar_two_sided_p": 0.00048828125,
+    "conditional_exact_95ci_percentage_points": [-1.5789473684210527, -0.7426658175853946],
+    "paired_seed_cluster_bootstrap_95ci_percentage_points": [-2.632, -0.658],
+    "by_panel": {
+      "historical": {"games": 200, "parent_wins": 2, "candidate_wins": 2, "gains": 0, "regressions": 0, "ties": 200},
+      "adjacent": {"games": 560, "parent_wins": 56, "candidate_wins": 44, "gains": 0, "regressions": 12, "ties": 548}
+    },
+    "by_seat": {
+      "0": {"games": 380, "parent_wins": 34, "candidate_wins": 26},
+      "1": {"games": 380, "parent_wins": 24, "candidate_wins": 20}
+    },
+    "by_opponent": {
+      "historical_silver": {"games": 200, "parent_wins": 2, "candidate_wins": 2},
+      "arch_peak": {"games": 80, "parent_wins": 5, "candidate_wins": 5},
+      "arch_shumpei": {"games": 80, "parent_wins": 10, "candidate_wins": 8},
+      "alakazam_capbloo_gold": {"games": 80, "parent_wins": 9, "candidate_wins": 7},
+      "marnie_kazuki_live": {"games": 80, "parent_wins": 11, "candidate_wins": 8},
+      "mega_lucario_public": {"games": 80, "parent_wins": 10, "candidate_wins": 6},
+      "kang_crustle": {"games": 80, "parent_wins": 6, "candidate_wins": 6},
+      "cynthia_v23": {"games": 80, "parent_wins": 5, "candidate_wins": 4}
+    },
+    "selected_routes": {
+      "active_attack_completion": 48,
+      "wally": 0,
+      "cape": 0,
+      "cape_valid_not_selected": 2,
+      "boss_gust": 19,
+      "hariyama_gust": 0
+    },
+    "selected_certificate_kinds": {
+      "ATTACK_COMPLETION": 1352,
+      "ENGINE_COMPLETION": 512,
+      "FIRST_ATTACK_ACCELERATION": 969,
+      "PRIZE_GAIN_NOW": 173,
+      "RESOURCE_IMPROVEMENT": 1154,
+      "SAFE_FALLBACK": 3673,
+      "SAME_ATTACK_PLUS_CONTINUITY": 2,
+      "WIN_NOW": 21
+    },
+    "active_attack_completion_invariant": {
+      "selected": 48,
+      "attach_to_certified_active": 48,
+      "same_turn_certified_attack": 48,
+      "wins": 1,
+      "losses": 47,
+      "firing_game_faults": 0,
+      "paired_gains": 0
+    },
+    "faults": {
+      "runtime_fault_latches": 3,
+      "transaction_fault_latches": 3,
+      "action_errors": 0,
+      "max_step_hits": 0,
+      "exception_containment": 0,
+      "unsupported_stable_main": 0,
+      "unfinished_owner": 0,
+      "owner_at_new_game": 0,
+      "games": [
+        {"opponent": "mega_lucario_public", "seat": 1, "seed": 1618164122},
+        {"opponent": "kang_crustle", "seat": 1, "seed": 1618164119},
+        {"opponent": "kang_crustle", "seat": 1, "seed": 1618164145}
+      ],
+      "codes_per_game": [
+        "TRANSACTION_RUN_FAULT",
+        "UNEXPECTED_CONTEXT_REF",
+        "IRREVERSIBLE_FAULT:UNEXPECTED_CONTEXT_REF",
+        "FAULT_BOUNDARY_REACHED"
+      ],
+      "cause": "Aura Jab transaction expected context_ref=None while the engine supplied the selected Energy as contextCard"
+    },
+    "regression_first_difference_buckets": {
+      "resource_or_board_sequencing": 6,
+      "supporter_or_gust_before_attack": 3,
+      "immediate_attack_before_setup_or_attach": 3,
+      "active_attack_completion_as_earliest_difference": 0
+    },
+    "regression_first_differences": [
+      {"opponent": "arch_shumpei", "seat": 0, "seed": 1618164125, "rule": "R_SUPPORTER_LILLIE_ROLE_REBUILD_V1"},
+      {"opponent": "arch_shumpei", "seat": 0, "seed": 1618164149, "rule": "BASIC_BENCH_ENGINE_COMPLETION"},
+      {"opponent": "alakazam_capbloo_gold", "seat": 0, "seed": 1618164123, "rule": "R_SEARCH_ULTRA_BALL_SAFE_GUARANTEED_V1"},
+      {"opponent": "alakazam_capbloo_gold", "seat": 1, "seed": 1618164121, "rule": "BASIC_BENCH_ENGINE_COMPLETION"},
+      {"opponent": "marnie_kazuki_live", "seat": 0, "seed": 1618164126, "rule": "BASIC_BENCH_BOARD_OUT_BACKUP"},
+      {"opponent": "marnie_kazuki_live", "seat": 1, "seed": 1618164123, "rule": "R_ATTACH_002_CONTINUITY_V1"},
+      {"opponent": "marnie_kazuki_live", "seat": 1, "seed": 1618164148, "rule": "FALLBACK_LEGAL_ATTACK_976"},
+      {"opponent": "mega_lucario_public", "seat": 0, "seed": 1618164121, "rule": "R_PPP_EXACT_MINIMUM_BREAKPOINT_V1"},
+      {"opponent": "mega_lucario_public", "seat": 0, "seed": 1618164127, "rule": "R_GUST_BOSS_EXACT_DOMINANCE_A3"},
+      {"opponent": "mega_lucario_public", "seat": 0, "seed": 1618164132, "rule": "DIRECT_ATTACK_COMPLETION_982"},
+      {"opponent": "mega_lucario_public", "seat": 1, "seed": 1618164124, "rule": "R_GUST_BOSS_EXACT_DOMINANCE_A3"},
+      {"opponent": "cynthia_v23", "seat": 0, "seed": 1618164149, "rule": "FALLBACK_LEGAL_ATTACK_982"}
+    ],
+    "runner_discrepancy": {
+      "failed_candidate_processes": 2,
+      "affected_rows": 80,
+      "paired_csv_candidate_fields_blank": true,
+      "paired_csv_default_candidate_win_zero": true,
+      "summary_vs_csv_win_disagreements": 1,
+      "disagreement": {"opponent": "mega_lucario_public", "seat": 1, "seed": 1618164153, "summary_result": 1, "summary_steps": 70, "candidate_win": 1},
+      "recovery_source": "the two exact failed-process summary JSONL files",
+      "recovered_trace_missing_or_hash_mismatches": 0
+    }
+  },
+  "package": {
+    "path": "_local_generated/packages/mega_lucario_audit_repair_20260805/package_clean_d2f2511",
+    "source_commit": "d2f251119b3980b77598184de0412cec06353332",
+    "source_worktree_clean": true,
+    "verification_passed": true,
+    "official_cg_archive_sha256": "6fc2e64adac2a308b19b3b3791a307106b3c84621bd3b4f4dfb099838abbd907",
+    "official_cg_tree_sha256": "4a8df9388d9bc6b6d3d29833d20f4361ebea9c364a3bf0da20e60897bfec1b54",
+    "packaged_runtime_tree_sha256": "41dc89180d35400c00aa4615c30339d61eacbc782014278d8b60b57f8589fefc",
+    "inner_archive_sha256": "e89daf23edcae148b423f37d9a483e3eed600686b5b10fe582f90b5cb3dd8eea",
+    "manifest_sha256": "ebbb7df341a8d2c911578f21342a39c8c0d4b205a2b87e43a62695f6e97bb4fb",
+    "verification_sha256": "63eb72836d2e69572d79650e9e1043cdf4e3f6aeab63d3ae8ed71c3627c97b6b",
+    "outer_zip_sha256": "cf49e0015e69b7eb0b4e237192d14be0f3e640fbdec2395949f29178906e2f9f",
+    "selected_cg_binary_sha256": "9ea2b0a751029689bff3ddccb5f29a98edd46961dad264490ed121ef704fb500",
+    "engine_semantic_version": null,
+    "engine_semantic_version_reason": "NOT_EXPOSED_BY_OFFICIAL_CG"
+  },
+  "acceptance_gates": {
+    "fixed760_net_at_least_plus_5": false,
+    "irreversible_fault_zero": false,
+    "action_error_zero": true,
+    "max_step_zero": true,
+    "major_matchup_drop_at_most_5_percentage_points": true,
+    "self_contained_package": true
+  },
+  "unresolved_unknown": [
+    "Aura Jab transaction context_ref contract",
+    "Iron Defender persistence for Metal targets",
+    "opponent-derived attack-lock history",
+    "official cg semantic version",
+    "natural selected-route evidence for Wally and Hariyama Gust",
+    "natural selected-route evidence for Cape"
+  ]
+}
