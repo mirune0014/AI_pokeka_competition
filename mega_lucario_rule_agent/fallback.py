@@ -206,6 +206,7 @@ class FallbackDecision:
 @dataclass(frozen=True)
 class FallbackOutcome:
     decision: Optional[FallbackDecision]
+    proposals: Tuple[Proposal, ...]
     resolution: Resolution
     reasons: Tuple[str, ...]
 
@@ -574,6 +575,7 @@ def safe_fallback(
         construction_reasons.append("NO_SAFE_FALLBACK_ACTION")
     return FallbackOutcome(
         decision=decision,
+        proposals=tuple(proposals),
         resolution=resolution,
         reasons=tuple(sorted(set(construction_reasons))),
     )

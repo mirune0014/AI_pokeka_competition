@@ -375,6 +375,7 @@ def test_safe_main_fallback_chooses_exact_ko_then_attack_before_pass():
     legal = options(ATTACK_982, ATTACK_983, END)
     damage = build_bound_damage_table(current, (982, 983))
     outcome = safe_fallback(current, legal, damage, empty_ledger())
+    assert outcome.proposals == (outcome.resolution.selected,)
     assert outcome.resolution.stats.proposed == 1
     assert outcome.decision.reason_code == "FALLBACK_EXACT_KO_ATTACK_983"
     assert outcome.decision.bind_now(current, legal) == (1,)
