@@ -46,13 +46,14 @@ def build_command(
     max_steps: int,
     summary_path: Path,
     trace_dir: Path,
+    trace_options: bool = False,
     python_executable: str | Path = sys.executable,
 ) -> list[str]:
     if policy_seat == 0:
         agent_a, agent_b = policy_dir, opponent_dir
     else:
         agent_a, agent_b = opponent_dir, policy_dir
-    return [
+    command = [
         str(python_executable), str(RUN_LOCAL_BATTLE),
         "--engine-dir", str(engine_dir),
         "--agent-a", str(agent_a), "--deck-a", str(agent_a / "deck.csv"),
@@ -61,6 +62,9 @@ def build_command(
         "--seed-base", str(seed_base), "--engine-seed",
         "--summary", str(summary_path), "--trace-dir", str(trace_dir),
     ]
+    if trace_options:
+        command.append("--trace-options")
+    return command
 
 
 def read_summary(path: Path) -> list[dict[str, Any]]:
@@ -80,13 +84,29 @@ def game_tuple(record: dict[str, Any]) -> tuple[Any, ...]:
     return tuple(record.get(field) for field in GAME_FIELDS)
 
 
-def duplicate_mismatches(left: Iterable[dict[str, Any]], right: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+def duplicate_mismatches(
+    left: Iterable[dict[str, Any]],
+    right: Iterable[dict[str, Any]],
+    *,
+    compare_trace_hash: bool = False,
+) -> list[dict[str, Any]]:
     left_rows, right_rows = list(left), list(right)
     mismatches: list[dict[str, Any]] = []
     for game_index in range(max(len(left_rows), len(right_rows))):
         first = left_rows[game_index] if game_index < len(left_rows) else None
         second = right_rows[game_index] if game_index < len(right_rows) else None
-        if first is None or second is None or game_tuple(first) != game_tuple(second):
+        trace_mismatch = False
+        if compare_trace_hash and first is not None and second is not None:
+            first_hash = first.get("trace_sha256")
+            second_hash = second.get("trace_sha256")
+            trace_mismatch = (
+                not isinstance(first_hash, str)
+                or len(first_hash) != 64
+                or not isinstance(second_hash, str)
+                or len(second_hash) != 64
+                or first_hash != second_hash
+            )
+        if first is None or second is None or game_tuple(first) != game_tuple(second) or trace_mismatch:
             mismatches.append({"game": game_index, "control_a": first, "control_b": second})
     return mismatches
 
@@ -135,6 +155,8 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
     manifest: list[dict[str, Any]] = []
     invalid_reasons: list[str] = []
     sequence = 0
+    keep_traces = bool(getattr(args, "keep_traces", False))
+    trace_options = bool(getattr(args, "trace_options", False))
 
     for seed_base in args.seed_base:
         for opponent_name, opponent_path in args.opponent:
@@ -143,10 +165,12 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
                 for role, policy_dir in (("baseline_a", args.baseline), ("baseline_b", args.baseline), ("candidate", args.candidate)):
                     stem = f"{sequence:04d}_{seed_base}_{opponent_name}_p{seat}_{role}"
                     summary_path = output_dir / "summaries" / f"{stem}.jsonl"
-                    trace_dir = output_dir / "throwaway_traces" / stem
+                    trace_root = "traces" if keep_traces else "throwaway_traces"
+                    trace_dir = output_dir / trace_root / stem
                     command = build_command(engine_dir=args.engine_dir, policy_dir=policy_dir, opponent_dir=opponent_path,
                                             policy_seat=seat, seed_base=seed_base, games_per_seat=args.games_per_seat,
-                                            max_steps=args.max_steps, summary_path=summary_path, trace_dir=trace_dir)
+                                            max_steps=args.max_steps, summary_path=summary_path, trace_dir=trace_dir,
+                                            trace_options=trace_options)
                     started = time.monotonic()
                     try:
                         completed = run_process(command, cwd=str(REPO_ROOT), check=False, capture_output=True, text=True)
@@ -155,10 +179,13 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
                         completed, exit_code = None, -1
                         invalid_reasons.append(f"subprocess could not start for {stem}: {exc}")
                     runtime = time.monotonic() - started
-                    manifest.append({"sequence": sequence, "role": role, "seed_base": seed_base, "opponent": opponent_name,
-                                     "seat": seat, "command": command, "exit_code": exit_code, "runtime_seconds": runtime})
-                    shutil.rmtree(trace_dir, ignore_errors=True)
+                    manifest_row = {"sequence": sequence, "role": role, "seed_base": seed_base, "opponent": opponent_name,
+                                    "seat": seat, "command": command, "exit_code": exit_code, "runtime_seconds": runtime,
+                                    "trace_dir": str(trace_dir), "trace_artifacts": []}
+                    manifest.append(manifest_row)
                     if exit_code != 0:
+                        if not keep_traces:
+                            shutil.rmtree(trace_dir, ignore_errors=True)
                         invalid_reasons.append(f"subprocess failed for {stem} (exit {exit_code})")
                         runs[role] = []
                         break
@@ -166,8 +193,23 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
                         runs[role] = read_summary(summary_path)
                     except ValueError as exc:
                         invalid_reasons.append(str(exc))
+                        if not keep_traces:
+                            shutil.rmtree(trace_dir, ignore_errors=True)
                         runs[role] = []
                         break
+                    manifest_row["trace_artifacts"] = [
+                        {
+                            "game": row.get("game"),
+                            "action_trace_path": row.get("trace", ""),
+                            "action_trace_sha256": row.get("trace_sha256", ""),
+                            "validation_trace_path": row.get("validation_trace", ""),
+                            "validation_trace_sha256": row.get("validation_trace_sha256", ""),
+                            "validation_trace_record_count": row.get("validation_trace_record_count", 0),
+                        }
+                        for row in runs[role]
+                    ]
+                    if not keep_traces:
+                        shutil.rmtree(trace_dir, ignore_errors=True)
                     if len(runs[role]) != args.games_per_seat:
                         invalid_reasons.append(f"expected {args.games_per_seat} records in {summary_path}, got {len(runs[role])}")
                         break
@@ -175,7 +217,11 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
                         invalid_reasons.append(f"action error or max-step hit in {stem}")
                         break
                     if role == "baseline_b":
-                        control_mismatches = duplicate_mismatches(runs["baseline_a"], runs["baseline_b"])
+                        control_mismatches = duplicate_mismatches(
+                            runs["baseline_a"],
+                            runs["baseline_b"],
+                            compare_trace_hash=keep_traces,
+                        )
                         if control_mismatches:
                             invalid_reasons.append(
                                 f"duplicate baseline mismatch in seed={seed_base}, opponent={opponent_name}, seat={seat}"
@@ -183,11 +229,16 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
                             break
                     sequence += 1
                 baseline_a, baseline_b, candidate = (runs.get(name, []) for name in ("baseline_a", "baseline_b", "candidate"))
-                mismatches = duplicate_mismatches(baseline_a, baseline_b)
+                mismatches = duplicate_mismatches(
+                    baseline_a,
+                    baseline_b,
+                    compare_trace_hash=keep_traces,
+                )
                 if mismatches and not any("duplicate baseline mismatch" in reason for reason in invalid_reasons):
                     invalid_reasons.append(f"duplicate baseline mismatch in seed={seed_base}, opponent={opponent_name}, seat={seat}")
                 cells.append({"seed_base": seed_base, "opponent": opponent_name, "seat": seat,
-                              "baseline": baseline_a, "candidate": candidate, "duplicate_mismatches": mismatches})
+                              "baseline": baseline_a, "baseline_b": baseline_b,
+                              "candidate": candidate, "duplicate_mismatches": mismatches})
                 if invalid_reasons:
                     break
             if invalid_reasons:
@@ -202,17 +253,35 @@ def run_suite(args: argparse.Namespace, run_process: Callable[..., Any] = subpro
     for cell in cells:
         for index in range(max(len(cell["baseline"]), len(cell["candidate"]))):
             baseline = cell["baseline"][index] if index < len(cell["baseline"]) else {}
+            baseline_b = cell["baseline_b"][index] if index < len(cell["baseline_b"]) else {}
             candidate = cell["candidate"][index] if index < len(cell["candidate"]) else {}
-            paired_rows.append({"seed_base": cell["seed_base"], "opponent": cell["opponent"], "seat": cell["seat"], "game": index,
-                                "seed": baseline.get("seed", candidate.get("seed", "")), "baseline_result": baseline.get("result", ""),
-                                "candidate_result": candidate.get("result", ""), "baseline_win": int(policy_won(baseline, cell["seat"])),
-                                "candidate_win": int(policy_won(candidate, cell["seat"])), "baseline_steps": baseline.get("steps", ""),
-                                "candidate_steps": candidate.get("steps", "")})
+            row = {"seed_base": cell["seed_base"], "opponent": cell["opponent"], "seat": cell["seat"], "game": index,
+                   "seed": baseline.get("seed", candidate.get("seed", "")), "baseline_result": baseline.get("result", ""),
+                   "candidate_result": candidate.get("result", ""), "baseline_win": int(policy_won(baseline, cell["seat"])),
+                   "candidate_win": int(policy_won(candidate, cell["seat"])), "baseline_steps": baseline.get("steps", ""),
+                   "candidate_steps": candidate.get("steps", "")}
+            for role, record in (
+                ("baseline_a", baseline),
+                ("baseline_b", baseline_b),
+                ("candidate", candidate),
+            ):
+                row.update(
+                    {
+                        f"{role}_action_trace_path": record.get("trace", ""),
+                        f"{role}_action_trace_sha256": record.get("trace_sha256", ""),
+                        f"{role}_validation_trace_path": record.get("validation_trace", ""),
+                        f"{role}_validation_trace_sha256": record.get("validation_trace_sha256", ""),
+                        f"{role}_validation_trace_record_count": record.get("validation_trace_record_count", 0),
+                    }
+                )
+            paired_rows.append(row)
     write_csv(output_dir / "paired_results.csv", paired_rows, list(paired_rows[0]) if paired_rows else ["seed_base", "opponent", "seat", "game", "seed", "baseline_result", "candidate_result", "baseline_win", "candidate_win", "baseline_steps", "candidate_steps"])
     summary = summarize_cells(cells)
     cell_rows = summary["panels"]
     write_csv(output_dir / "cell_summary.csv", cell_rows, ["seed_base", "opponent", "seat", "games", "baseline_wins", "candidate_wins", "delta_wins"])
-    report = {"valid": not invalid_reasons, "invalid_reasons": invalid_reasons, "duplicate_mismatch_count": sum(len(cell["duplicate_mismatches"]) for cell in cells), **summary}
+    report = {"valid": not invalid_reasons, "invalid_reasons": invalid_reasons,
+              "keep_traces": keep_traces, "trace_options": trace_options,
+              "duplicate_mismatch_count": sum(len(cell["duplicate_mismatches"]) for cell in cells), **summary}
     (output_dir / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     return report
 
@@ -227,6 +296,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed-base", type=int, action="append", required=True)
     parser.add_argument("--max-steps", type=int, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--keep-traces", action="store_true")
+    parser.add_argument("--trace-options", action="store_true")
     args = parser.parse_args()
     if args.games_per_seat <= 0 or args.max_steps <= 0:
         parser.error("--games-per-seat and --max-steps must be positive")

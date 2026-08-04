@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 from collections import Counter
@@ -35,7 +36,9 @@ class AgentValidationMonitor:
         self._hooked = [False for _ in agents]
         self._failure_codes: list[str] = []
         self._record_count = 0
+        self._records: list[dict[str, Any]] = []
         self._last_status: dict[str, Any] = {}
+        self._next_drain_sequence = 0
         for index, agent in enumerate(agents):
             module = getattr(agent, "module", None)
             status_hook = getattr(module, "validation_status", None)
@@ -91,7 +94,22 @@ class AgentValidationMonitor:
         if not isinstance(records, (tuple, list)):
             self._fail("AGENT_{0}_TELEMETRY_RECORDS_INVALID".format(index))
             return
+        drain_sequence = self._next_drain_sequence
+        self._next_drain_sequence += 1
         self._record_count += len(records)
+        for drain_record_index, record in enumerate(records):
+            if not isinstance(record, Mapping):
+                self._fail(
+                    "AGENT_{0}_TELEMETRY_RECORD_INVALID".format(index)
+                )
+                continue
+            preserved = dict(record)
+            preserved.update(
+                agent_index=index,
+                drain_sequence=drain_sequence,
+                drain_record_index=drain_record_index,
+            )
+            self._records.append(preserved)
         lifetime = telemetry.get("lifetime_health")
         if isinstance(lifetime, Mapping) and lifetime.get("healthy") is not True:
             self._fail("AGENT_{0}_TELEMETRY_LIFETIME_FAILED".format(index))
@@ -134,6 +152,10 @@ class AgentValidationMonitor:
                 )
             self._sample(index, drain=True)
 
+    @property
+    def records(self) -> tuple[dict[str, Any], ...]:
+        return tuple(dict(record) for record in self._records)
+
     def summary(self) -> dict[str, Any]:
         if not any(self._hooked):
             return {}
@@ -146,6 +168,42 @@ class AgentValidationMonitor:
             "validation_last_status": self._last_status,
         }
 
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def canonical_json_line(record: Mapping[str, Any]) -> str:
+    return json.dumps(
+        dict(record),
+        ensure_ascii=False,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ) + "\n"
+
+
+def write_validation_trace(
+    trace_dir: Path,
+    game_index: int,
+    records: tuple[dict[str, Any], ...],
+) -> dict[str, Any]:
+    path = trace_dir / f"game_{game_index:04d}.validation.jsonl"
+    payload = "".join(canonical_json_line(record) for record in records).encode(
+        "utf-8"
+    )
+    path.write_bytes(payload)
+    return {
+        "validation_trace": str(path),
+        "validation_trace_sha256": hashlib.sha256(payload).hexdigest(),
+        "validation_trace_record_count": len(records),
+    }
+
+
 def compact_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     compact = []
     for entry in logs:
@@ -153,6 +211,11 @@ def compact_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
         for key in (
             "cardId",
             "attackId",
+            "serial",
+            "serialTarget",
+            "serialBench",
+            "serialBefore",
+            "serialAfter",
             "area",
             "index",
             "result",
@@ -438,6 +501,24 @@ def run_game(args: argparse.Namespace, game_index: int) -> dict[str, Any]:
             trace_file.close()
         battle_finish()
 
+    if trace_path is not None:
+        trace_metadata = {
+            "trace": str(trace_path),
+            "trace_sha256": sha256_file(trace_path),
+            **write_validation_trace(
+                args.trace_dir,
+                game_index,
+                validation.records,
+            ),
+        }
+    else:
+        trace_metadata = {
+            "trace": "",
+            "trace_sha256": "",
+            "validation_trace": "",
+            "validation_trace_sha256": "",
+            "validation_trace_record_count": 0,
+        }
     final_current = (final_obs or {}).get("current") or {}
     return {
         "game": game_index,
@@ -448,7 +529,7 @@ def run_game(args: argparse.Namespace, game_index: int) -> dict[str, Any]:
         "result": final_current.get("result"),
         "turn": final_current.get("turn"),
         "action_errors": action_errors,
-        "trace": str(trace_path) if trace_path else "",
+        **trace_metadata,
         "context_counts": dict(sorted(context_counts.items())),
         **validation.summary(),
         **player_snapshot(final_obs or {}),
