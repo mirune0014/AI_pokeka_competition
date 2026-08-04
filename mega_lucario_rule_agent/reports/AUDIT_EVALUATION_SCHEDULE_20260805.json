@@ -1,0 +1,140 @@
+{
+  "schema_version": "mega_lucario_audit_evaluation_schedule_v1",
+  "frozen_before_natural_battle_execution": true,
+  "policy": {
+    "parent_commit": "4cfdffae54561c9b6b054f4a9d461536ef573385",
+    "parent_snapshot": "_local_generated/analysis_outputs/mega_lucario_audit_20260805/snapshots/parent_4cfdffae/mega_lucario_rule_agent",
+    "parent_archive_sha256": "398f9331addfab1f9fb5cb12e6e523522cfdd3bcc466b28b56a9147e92822d1c",
+    "parent_runtime_tree_sha256": "19f6dc9c9beb218228519ae20549966b72888aa5abe538676ea1e3f2ed6d9d35",
+    "candidate_commit": "27bf2db9de8d3b86dca1b9fe8ae980c82845be83",
+    "candidate_snapshot": "_local_generated/analysis_outputs/mega_lucario_audit_20260805/snapshots/candidate_27bf2db9/mega_lucario_rule_agent",
+    "candidate_archive_sha256": "83245e5a90568b791eac11c4225f90affa1c36715342638406d13418c29eeb06",
+    "candidate_runtime_tree_sha256": "2bfe1b2ba49d1a75db49a2f6ba1de851ef8ccf20aca4e52abf838194194850b6",
+    "runtime_tree_hash_definition": "SHA256(compact sorted JSON rows of package-relative path, sha256, bytes for 15 runtime .py files plus deck.csv)",
+    "deck_sha256": "5ddb7ca2790518e3c1eac6e2ff8b7fdb6ff0a817bf888536349a090ec7582a9f"
+  },
+  "execution": {
+    "python_3_11_path": ".venv-ptcg/Scripts/python.exe",
+    "python_3_11_version": "3.11.6",
+    "python_3_11_executable_sha256": "4bddd834fb6fc274cc20fa7cbfaa6e9b5ade6309429eb96a635538dba5d4a3ae",
+    "engine_path": "_local_generated/analysis_outputs/cynthia_v9_vs_v11_poffin_role_selection_20260713/seeded_engine",
+    "engine_file_count": 11,
+    "engine_tree_sha256": "ba6cc3a489080aa9a08722a7d8a5913f12ce9ef405b70734976a14d927487113",
+    "engine_tree_hash_definition": "SHA256(compact sorted JSON rows of engine-relative path, sha256, bytes)",
+    "local_runner_sha256": "7d4cac037750bb04b59793b0a620bee76bb925d3f94fd0050029c419b3f36cb2",
+    "paired_runner_sha256": "1333d6b4a79b96b4707babb17716fdb94ec61ed1b6215629ea2860828e20719b",
+    "common_runner_sha256": "03495065cc3fd27ab8d70ed4d5bdbd0fb1a0dd459fcae7d7bae31f72ae9b6caf",
+    "max_steps": 1000,
+    "trace_options": true,
+    "keep_traces": true
+  },
+  "opponents": {
+    "historical_silver": {
+      "path": "archaludon/baseline/historical_silver_archaludon_54495224",
+      "tree_sha256": "5803245b7ed452b87835907605250ed822879d9153ee4d547c950f476685caf4"
+    },
+    "arch_peak": {
+      "path": "archive/submissions/submission_archaludon_gtmidguard_lucariobev_crustledeckguard_archattach_ruleinline_20260710",
+      "tree_sha256": "dbac3f6e1e3aeb388f6153adcdf672b49e00bdba0bebe3352dcda252d45b659f"
+    },
+    "arch_shumpei": {
+      "path": "opponents/meta_agents/archaludon_shumpei_current_v3",
+      "tree_sha256": "2ebc4b7f12790977d3787d38d1852b7cc98701a09dc68ad9d193ffa241a16cbc"
+    },
+    "alakazam_capbloo_gold": {
+      "path": "opponents/meta_agents/alakazam_capbloo_gold_85357128_simple",
+      "tree_sha256": "277a870c0bf4d5bb81eba1035ede1815fb20eefba361ce941e1be902850cc1e9"
+    },
+    "marnie_kazuki_live": {
+      "path": "opponents/meta_agents/marnie_kazuki_live_85083586_simple",
+      "tree_sha256": "7aa16da692ef48b28d00f330037b6fe04c2a43131e93b83ec42bd65124e05f54"
+    },
+    "mega_lucario_public": {
+      "path": "opponents/meta_agents/mega_lucario_public_simple",
+      "tree_sha256": "91af895e23c7652faf851efec969cb5e35fa3f2f09be6d810d29ffc869b76bd0"
+    },
+    "kang_crustle": {
+      "path": "opponents/meta_agents/kangaskhan_crustle_mpgaming_v23_heal_role_missing160_guard",
+      "tree_sha256": "69c248e6f879b46f96043b0e0cea71dd8cb92bb711a3c51ca37e660e108c6680"
+    },
+    "cynthia_v23": {
+      "path": "opponents/meta_agents/cynthia_garchomp_nasuo445_v23_allcall_before_evolve",
+      "tree_sha256": "59ebefdd6990956f03b1256b5d46bd03002dc9bdaa80466a06e3ed8452b6f0a8"
+    }
+  },
+  "d1": {
+    "python_path": "C:/Users/amuam/AppData/Local/Programs/Python/Python39/python.exe",
+    "python_version": "3.9.13",
+    "python_executable_sha256": "07c96337729e3c4c986e8f5660a97cb475c4c04842606be2654b37892af57de9",
+    "command": "python -m pytest -q mega_lucario_rule_agent/tests --disable-warnings",
+    "test_file_count": 25,
+    "test_tree_sha256": "13d2b26e87ab8acffca623470e1d740cfc1c01c382d9475feed0317be76d7e1c",
+    "passed": 529,
+    "failed": 0,
+    "skipped": 0
+  },
+  "d2": {
+    "opponents": ["historical_silver", "marnie_kazuki_live"],
+    "seed_base": 314159265,
+    "games_per_process": 2,
+    "seeds": [314159265, 314159266],
+    "seats": [0, 1],
+    "repeats": [1, 2],
+    "games_per_repeat": 8,
+    "total_games": 16,
+    "semantic_8_key_sha256": "50029e99529eab82cb70066fa4f764902e2170fbae278f6c344f5399de66debe",
+    "semantic_16_key_sha256": "854799384647c3d261fb19aa4cc55b8919a67f9f08a170c3e097f826751f3e88"
+  },
+  "d3": {
+    "purpose": "discovery",
+    "historical_source_spec": "archaludon/evaluation_specs/archaludon_historical_silver_single_resolver_salvage_v1_rule1/fixed160_spec.json",
+    "historical_source_spec_sha256": "e2b8986663a43a7f6f52888e487f39b8d059cdcdf441a3e87d8c093df15274c",
+    "panels": [
+      {
+        "name": "historical_silver",
+        "opponents": ["historical_silver"],
+        "seed_base": 271828182,
+        "games_per_seat": 20,
+        "rows": 40
+      },
+      {
+        "name": "adjacent_population",
+        "opponents": ["arch_peak", "alakazam_capbloo_gold", "marnie_kazuki_live"],
+        "seed_base": 271958313,
+        "games_per_seat": 20,
+        "rows": 120
+      }
+    ],
+    "total_rows": 160,
+    "engine_battles_with_duplicate_controls": 480,
+    "semantic_key_sha256": "ffcf1eddb04528798839df3bdc866628932b2e02d8377f3a189a7b80c780ec41"
+  },
+  "d4": {
+    "purpose": "confirmatory_holdout",
+    "frozen_before_d3_execution": true,
+    "disjoint_from_d3": true,
+    "legacy_fixed760_spec": "archaludon/evaluation_specs/archaludon_historical_silver_single_resolver_salvage_v1/fixed760_spec.json",
+    "legacy_fixed760_spec_sha256": "49b89ddaedf6745a7add203602da457bdde912b2b7f4f18faa3c2955780bc75d",
+    "legacy_spec_not_executed_reason": "It contains all 160 D3 keys and therefore is not an unused holdout.",
+    "panels": [
+      {
+        "name": "historical_silver",
+        "opponents": ["historical_silver"],
+        "seed_base": 1618033988,
+        "games_per_seat": 100,
+        "rows": 200
+      },
+      {
+        "name": "adjacent_population",
+        "opponents": ["arch_peak", "arch_shumpei", "alakazam_capbloo_gold", "marnie_kazuki_live", "mega_lucario_public", "kang_crustle", "cynthia_v23"],
+        "seed_base": 1618164119,
+        "games_per_seat": 40,
+        "rows": 560
+      }
+    ],
+    "total_rows": 760,
+    "engine_battles_with_duplicate_controls": 2280,
+    "semantic_key_sha256": "af9f99a358e3c342cf485a85b9306bd7dbbbc349617b40c74607edad5015b1ad"
+  },
+  "output_root": "_local_generated/analysis_outputs/mega_lucario_audit_20260805"
+}
