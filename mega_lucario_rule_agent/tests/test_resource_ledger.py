@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import pytest
 
 from mega_lucario_rule_agent.resource_ledger import (
@@ -313,8 +315,11 @@ def test_deck_availability_uses_unknown_prizes_as_conservative_target_copies():
         required_count=1,
     )
     assert guaranteed.total_copies == 4
+    assert guaranteed.owner == 0
     assert guaranteed.fixed_deck_size == 60
     assert len(guaranteed.deck_counter_hash) == 64
+    assert len(guaranteed.deck_state_hash) == 64
+    assert guaranteed.canonical()[0] == (678,)
     assert guaranteed.known_outside_deck == 1
     assert guaranteed.lower_bound_in_deck == 1
     assert guaranteed.is_guaranteed
@@ -362,6 +367,13 @@ def test_state_availability_collects_known_own_zones_and_rejects_looking_state()
     assert proof.unknown_prize_count == 2
     assert proof.lower_bound_in_deck == 1
     assert proof.is_guaranteed
+
+    changed_count = public_state(
+        replace(state.own, deck_count=29),
+        state.opponent,
+    )
+    changed_proof = prove_deck_availability_from_state(changed_count, (678,))
+    assert changed_proof.deck_state_hash != proof.deck_state_hash
 
     unstable = public_state(
         state.own,

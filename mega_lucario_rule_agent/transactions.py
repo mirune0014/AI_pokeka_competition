@@ -22,6 +22,12 @@ try:  # Package import in tests.
         is_stable_main_state,
         make_prompt_fingerprint,
     )
+    from .resource_ledger import (
+        DeckAvailabilityProof,
+        FIXED_DECK_COUNTER_HASH,
+        FIXED_DECK_SIZE,
+        prove_deck_availability_from_state,
+    )
 except ImportError:  # Flat submission import from main.py.
     from state_view import (
         ActionSpec,
@@ -34,6 +40,12 @@ except ImportError:  # Flat submission import from main.py.
         SemanticOption,
         is_stable_main_state,
         make_prompt_fingerprint,
+    )
+    from resource_ledger import (
+        DeckAvailabilityProof,
+        FIXED_DECK_COUNTER_HASH,
+        FIXED_DECK_SIZE,
+        prove_deck_availability_from_state,
     )
 
 
@@ -189,6 +201,7 @@ class DeferredCardClassChoice:
     option_type: int = int(OptionType.CARD)
     selection_count: int = 1
     require_match: bool = True
+    availability_proof: Optional[DeckAvailabilityProof] = None
 
     def __post_init__(self) -> None:
         classes = tuple(tuple(card_ids) for card_ids in self.ordered_card_id_classes)
@@ -216,6 +229,11 @@ class DeferredCardClassChoice:
             raise ValueError("deferred option_type must be an exact integer")
         if self.selection_count != 1 or not _is_exact_int(self.selection_count):
             raise ValueError("deferred card choice currently requires selection_count=1")
+        if (
+            self.availability_proof is not None
+            and not isinstance(self.availability_proof, DeckAvailabilityProof)
+        ):
+            raise ValueError('deferred availability proof has an invalid type')
         if not isinstance(self.require_match, bool):
             raise ValueError("deferred require_match must be boolean")
         object.__setattr__(self, "ordered_card_id_classes", classes)
@@ -229,6 +247,11 @@ class DeferredCardClassChoice:
             self.option_type,
             self.selection_count,
             self.require_match,
+            (
+                None
+                if self.availability_proof is None
+                else self.availability_proof.canonical()
+            ),
         )
 
 
@@ -390,6 +413,12 @@ class TransactionPlan:
         if any(not isinstance(step, TransactionStep) for step in steps):
             raise ValueError("transaction continuation steps must be TransactionStep values")
         all_steps = (self.initiation,) + steps
+        for step in all_steps:
+            policy = step.deferred_card_choice
+            if policy is None:
+                continue
+            if policy.owner != self.seat:
+                raise ValueError('deferred choice owner must match the transaction seat')
         stochastic_indices = tuple(
             index for index, step in enumerate(all_steps) if step.stochastic_boundary
         )
@@ -729,6 +758,55 @@ class TransactionStore:
         )
         if any(ref_value not in known_refs for ref_value in declared_refs):
             reasons.append("PLAN_REF_NOT_IN_STATE")
+        transaction_steps = (plan.initiation,) + plan.steps
+        for step_index, step in enumerate(transaction_steps):
+            policy = step.deferred_card_choice
+            if policy is None:
+                continue
+            proof = policy.availability_proof
+            if proof is None:
+                if any(
+                    prior_step.irreversible_on_emit
+                    for prior_step in transaction_steps[:step_index]
+                ):
+                    reasons.append('DECK_AVAILABILITY_PROOF_REQUIRED')
+                continue
+            card_ids = tuple(
+                sorted(
+                    card_id
+                    for card_class in policy.ordered_card_id_classes
+                    for card_id in card_class
+                )
+            )
+            if not proof.is_guaranteed or proof.rejection_reasons:
+                reasons.append('DECK_AVAILABILITY_PROOF_NOT_GUARANTEED')
+            if proof.owner != policy.owner or proof.owner != plan.seat:
+                reasons.append('DECK_AVAILABILITY_OWNER_MISMATCH')
+            if proof.card_ids != card_ids:
+                reasons.append('DECK_AVAILABILITY_TARGET_CLASS_MISMATCH')
+            if proof.required_count != policy.selection_count:
+                reasons.append('DECK_AVAILABILITY_REQUIRED_COUNT_MISMATCH')
+            if (
+                proof.fixed_deck_size != FIXED_DECK_SIZE
+                or proof.deck_counter_hash != FIXED_DECK_COUNTER_HASH
+            ):
+                reasons.append('DECK_AVAILABILITY_DECK_HASH_MISMATCH')
+            if proof.own_deck_count != state.own.deck_count:
+                reasons.append('DECK_AVAILABILITY_DECK_COUNT_MISMATCH')
+            current_proof = prove_deck_availability_from_state(
+                state,
+                card_ids,
+                required_count=policy.selection_count,
+            )
+            if not current_proof.is_guaranteed:
+                reasons.append('DECK_AVAILABILITY_NOT_GUARANTEED')
+            if (
+                current_proof.deck_state_hash
+                != proof.deck_state_hash
+            ):
+                reasons.append('DECK_AVAILABILITY_STATE_MISMATCH')
+            if current_proof != proof:
+                reasons.append('DECK_AVAILABILITY_PROOF_CONTENT_MISMATCH')
         if reasons:
             return StartResult(
                 StartStatus.PLAN_STATE_MISMATCH,

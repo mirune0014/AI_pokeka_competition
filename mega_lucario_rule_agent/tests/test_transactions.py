@@ -2,6 +2,9 @@ from dataclasses import replace
 
 import pytest
 
+from mega_lucario_rule_agent.resource_ledger import (
+    prove_deck_availability_from_state,
+)
 from mega_lucario_rule_agent.state_view import (
     ActionSpec,
     AreaType,
@@ -166,7 +169,28 @@ def deck_key(card_id, serial):
     )
 
 
-def deferred_search_step(classes=((675,), (677, 673, 6))):
+def deferred_search_step(
+    classes=((675,), (677, 673, 6)),
+    *,
+    proof_state=None,
+    include_proof=True,
+    owner=0,
+):
+    availability_state = state() if proof_state is None else proof_state
+    card_ids = tuple(
+        card_id
+        for card_class in classes
+        for card_id in card_class
+    )
+    proof = (
+        prove_deck_availability_from_state(
+            availability_state,
+            card_ids,
+            required_count=1,
+        )
+        if include_proof
+        else None
+    )
     return TransactionStep(
         stage=TransactionStage.SELECT_SEARCH_TARGET,
         expected_select_type=int(SelectType.CARD),
@@ -180,7 +204,8 @@ def deferred_search_step(classes=((675,), (677, 673, 6))):
         effect_or_attack_id=1121,
         deferred_card_choice=DeferredCardClassChoice(
             ordered_card_id_classes=classes,
-            owner=0,
+            owner=owner,
+            availability_proof=proof,
         ),
     )
 
@@ -489,9 +514,124 @@ def test_committed_deferred_search_faults_when_target_receipt_is_invalid(legal, 
     assert reason in failed.reasons
 
 
+def test_irreversible_deferred_search_requires_guaranteed_proof():
+    missing_store = TransactionStore()
+    missing = missing_store.start(
+        plan(deferred_search_step(include_proof=False)),
+        state(),
+        options(ROOT_KEY),
+    )
+    assert missing.status == StartStatus.PLAN_STATE_MISMATCH
+    assert missing.reasons == ('DECK_AVAILABILITY_PROOF_REQUIRED',)
+    assert not missing_store.has_owner
+
+    unguaranteed_store = TransactionStore()
+    unguaranteed = unguaranteed_store.start(
+        plan(deferred_search_step(((1159,),))),
+        state(),
+        options(ROOT_KEY),
+    )
+    assert unguaranteed.status == StartStatus.PLAN_STATE_MISMATCH
+    assert 'DECK_AVAILABILITY_PROOF_NOT_GUARANTEED' in unguaranteed.reasons
+    assert not unguaranteed_store.has_owner
+
+
+def test_reversible_deferred_search_may_abort_without_proof():
+    transaction_plan = plan(
+        deferred_search_step(include_proof=False),
+        root_irreversible=False,
+    )
+    store = TransactionStore()
+    started = store.start(transaction_plan, state(), options(ROOT_KEY))
+    assert started.status == StartStatus.STARTED
+    assert not started.owner.committed
+
+    failed = store.resume(search_state(), options(deck_key(999, 1)))
+    assert failed.status == ResumeStatus.PRECOMMIT_ABORTED
+    assert not store.has_owner
+
+
+def test_irreversible_prefix_before_deferred_search_requires_proof():
+    transaction_plan = plan(
+        step(
+            TransactionStage.SELECT_EFFECT_TARGET,
+            SelectContext.ACTIVATE,
+            YES_KEY,
+            irreversible=True,
+        ),
+        deferred_search_step(include_proof=False),
+        root_irreversible=False,
+    )
+    store = TransactionStore()
+    result = store.start(transaction_plan, state(), options(ROOT_KEY))
+
+    assert result.status == StartStatus.PLAN_STATE_MISMATCH
+    assert result.reasons == ('DECK_AVAILABILITY_PROOF_REQUIRED',)
+    assert result.bound_action is None
+    assert not store.has_owner
+
+
+def test_deferred_choice_owner_must_match_transaction_seat():
+    with pytest.raises(ValueError, match='owner must match'):
+        plan(
+            deferred_search_step(owner=1, include_proof=False),
+            root_irreversible=False,
+        )
+
+
+def test_stale_deck_availability_proof_blocks_start_before_commit():
+    transaction_plan = plan(deferred_search_step())
+    original = state()
+    stale_state = replace(
+        original,
+        own=replace(original.own, deck_count=original.own.deck_count - 1),
+    )
+    store = TransactionStore()
+    result = store.start(transaction_plan, stale_state, options(ROOT_KEY))
+
+    assert result.status == StartStatus.PLAN_STATE_MISMATCH
+    assert 'DECK_AVAILABILITY_DECK_COUNT_MISMATCH' in result.reasons
+    assert 'DECK_AVAILABILITY_STATE_MISMATCH' in result.reasons
+    assert 'DECK_AVAILABILITY_PROOF_CONTENT_MISMATCH' in result.reasons
+    assert result.bound_action is None
+    assert not store.has_owner
+
+
+@pytest.mark.parametrize(
+    ('proof_changes', 'reason'),
+    (
+        ({'owner': 1}, 'DECK_AVAILABILITY_OWNER_MISMATCH'),
+        ({'card_ids': (6,)}, 'DECK_AVAILABILITY_TARGET_CLASS_MISMATCH'),
+        ({'required_count': 2}, 'DECK_AVAILABILITY_REQUIRED_COUNT_MISMATCH'),
+        ({'deck_counter_hash': '0' * 64}, 'DECK_AVAILABILITY_DECK_HASH_MISMATCH'),
+    ),
+)
+def test_deferred_proof_binding_fields_are_structurally_checked(
+    proof_changes,
+    reason,
+):
+    base_step = deferred_search_step()
+    policy = base_step.deferred_card_choice
+    bad_proof = replace(policy.availability_proof, **proof_changes)
+    bad_step = replace(
+        base_step,
+        deferred_card_choice=replace(
+            policy,
+            availability_proof=bad_proof,
+        ),
+    )
+
+    store = TransactionStore()
+    result = store.start(plan(bad_step), state(), options(ROOT_KEY))
+    assert result.status == StartStatus.PLAN_STATE_MISMATCH
+    assert reason in result.reasons
+    assert result.bound_action is None
+    assert not store.has_owner
+
+
 def test_deferred_policy_is_hashed_and_cannot_be_used_for_initiation():
-    first = plan(deferred_search_step(((675,), (677,))))
-    second = plan(deferred_search_step(((677,), (675,))))
+    first = plan(deferred_search_step(((675,), (6,))))
+    second = plan(deferred_search_step(((6,), (675,))))
     assert first.digest() != second.digest()
 
     with pytest.raises(ValueError, match="initiation cannot use a deferred choice"):

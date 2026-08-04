@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from enum import IntEnum
+import hashlib
+import json
 from typing import Iterable, Optional, Sequence, Tuple
 
 try:  # Package import in tests.
@@ -513,6 +515,7 @@ class ResourceLedger:
 @dataclass(frozen=True)
 class DeckAvailabilityProof:
     card_ids: Tuple[int, ...]
+    owner: int
     total_copies: int
     own_deck_count: int
     known_outside_deck: int
@@ -522,8 +525,27 @@ class DeckAvailabilityProof:
     required_count: int
     fixed_deck_size: int
     deck_counter_hash: str
+    deck_state_hash: str
     is_guaranteed: bool
     rejection_reasons: Tuple[str, ...]
+
+    def canonical(self) -> Tuple[object, ...]:
+        return (
+            self.card_ids,
+            self.owner,
+            self.total_copies,
+            self.own_deck_count,
+            self.known_outside_deck,
+            self.known_prized,
+            self.unknown_prize_count,
+            self.lower_bound_in_deck,
+            self.required_count,
+            self.fixed_deck_size,
+            self.deck_counter_hash,
+            self.deck_state_hash,
+            self.is_guaranteed,
+            self.rejection_reasons,
+        )
 
 
 def _is_exact_int(value: object) -> bool:
@@ -607,11 +629,31 @@ def prove_deck_availability(
     known_prized = sum(int(ref_value.card_id) in target_ids for ref_value in prized_refs)
     if known_outside + known_prized > total_copies:
         reasons.append("VISIBLE_TARGET_COUNT_EXCEEDS_FIXED_DECK")
+    owner_value = owner if _is_exact_int(owner) else -1
     deck_count_value = own_deck_count if _is_exact_int(own_deck_count) else 0
     unknown_prize_value = (
         unknown_prize_count if _is_exact_int(unknown_prize_count) else 6
     )
     required_value = required_count if _is_exact_int(required_count) else 1
+    deck_state_payload = {
+        'fixed_deck_counter_hash': FIXED_DECK_COUNTER_HASH,
+        'owner': owner_value,
+        'own_deck_count': max(0, deck_count_value),
+        'known_outside_deck_refs': tuple(
+            ref_value.sort_key() for ref_value in outside_refs
+        ),
+        'known_prized_refs': tuple(
+            ref_value.sort_key() for ref_value in prized_refs
+        ),
+        'unknown_prize_count': max(0, unknown_prize_value),
+    }
+    deck_state_hash = hashlib.sha256(
+        json.dumps(
+            deck_state_payload,
+            sort_keys=True,
+            separators=(',', ':'),
+        ).encode('utf-8')
+    ).hexdigest()
     lower_bound = max(
         0,
         min(
@@ -624,6 +666,7 @@ def prove_deck_availability(
     rejection_reasons = tuple(sorted(set(reasons)))
     return DeckAvailabilityProof(
         card_ids=target_ids,
+        owner=owner_value,
         total_copies=total_copies,
         own_deck_count=max(0, deck_count_value),
         known_outside_deck=known_outside,
@@ -633,6 +676,7 @@ def prove_deck_availability(
         required_count=max(1, required_value),
         fixed_deck_size=FIXED_DECK_SIZE,
         deck_counter_hash=FIXED_DECK_COUNTER_HASH,
+        deck_state_hash=deck_state_hash,
         is_guaranteed=not rejection_reasons,
         rejection_reasons=rejection_reasons,
     )
