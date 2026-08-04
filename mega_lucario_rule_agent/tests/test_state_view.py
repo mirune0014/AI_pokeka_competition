@@ -294,6 +294,64 @@ def test_attack_and_evolution_target_use_stable_semantics():
     assert wanted.bind(build_semantic_options(evolve_obs), 1, 1) == [0]
 
 
+def test_skill_source_is_recovered_from_public_board_and_rebinds_by_serial():
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.SKILL),
+                "cardId": 675,
+                "serial": 21,
+                "playerIndex": 0,
+            },
+            {
+                "type": int(OptionType.SKILL),
+                "cardId": 676,
+                "serial": 10,
+                "playerIndex": 0,
+            },
+        ],
+        context=SelectContext.SKILL_ORDER,
+        min_count=1,
+        max_count=1,
+    )
+    obs["select"]["type"] = int(SelectType.SKILL)
+    obs["current"]["players"][0]["bench"] = [pokemon(675, 21, hp=110)]
+
+    first = build_semantic_options(obs)
+    wanted = ActionSpec.single(first[0].key)
+    assert first[0].key.card_id == 675
+    assert first[0].key.card_serial == 21
+    assert first[0].key.source_zone == int(AreaType.BENCH)
+    assert first[0].key.target_lineage_serial is None
+
+    permuted = deepcopy(obs)
+    permuted["select"]["option"].reverse()
+    rebound = build_semantic_options(permuted)
+    assert wanted.bind(rebound, 1, 1) == [1]
+
+
+@pytest.mark.parametrize("mode", ("missing", "ambiguous"))
+def test_skill_source_absence_or_zone_ambiguity_fails_closed(mode):
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.SKILL),
+                "cardId": 675,
+                "serial": 21,
+                "playerIndex": 0,
+            }
+        ],
+        context=SelectContext.SKILL_ORDER,
+    )
+    obs["select"]["type"] = int(SelectType.SKILL)
+    if mode == "ambiguous":
+        obs["current"]["players"][0]["active"] = [pokemon(675, 21, hp=110)]
+        obs["current"]["players"][0]["bench"] = [pokemon(675, 21, hp=110)]
+
+    with pytest.raises(ValueError, match="exactly one public in-play card"):
+        build_semantic_options(obs)
+
+
 def test_prompt_fingerprint_ignores_option_order_but_preserves_multiplicity():
     obs = observation([hand_card_option(0), hand_card_option(1)])
     state = build_public_state(obs, game_epoch=7)

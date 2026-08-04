@@ -701,13 +701,37 @@ def _option_source_ref(observation: Any, option: Any, seat: int) -> Optional[Phy
         index = -1
 
     if option_type == int(OptionType.SKILL):
-        return PhysicalRef(
-            as_int(read_field(option, "cardId")),
-            as_int(read_field(option, "serial")),
-            player_index,
-            area,
-            as_int(read_field(option, "serial")),
-        )
+        expected_card_id = as_int(read_field(option, "cardId"))
+        expected_serial = as_int(read_field(option, "serial"))
+        if expected_serial is None or player_index not in (0, 1):
+            return None
+        player = _raw_player(observation, player_index)
+        if player is None:
+            return None
+        matches = []
+        for zone, pokemon_values in (
+            (AreaType.ACTIVE, as_tuple(read_field(player, "active", ()))),
+            (AreaType.BENCH, as_tuple(read_field(player, "bench", ()))),
+        ):
+            for pokemon in pokemon_values:
+                if pokemon is None:
+                    continue
+                card_id = as_int(read_field(pokemon, "id"))
+                serial = as_int(read_field(pokemon, "serial"))
+                if serial != expected_serial:
+                    continue
+                if expected_card_id is not None and card_id != expected_card_id:
+                    continue
+                matches.append(
+                    PhysicalRef(
+                        card_id,
+                        serial,
+                        player_index,
+                        int(zone),
+                        pokemon_lineage_serial(pokemon),
+                    )
+                )
+        return matches[0] if len(matches) == 1 else None
     if option_type in (int(OptionType.ENERGY_CARD), int(OptionType.ENERGY), int(OptionType.TOOL_CARD)):
         pokemon = _pokemon_at(observation, player_index, area, index)
         if pokemon is None:
@@ -766,6 +790,10 @@ def semantic_key_for_option(observation: Any, option: Any) -> SemanticOptionKey:
     raw_source_zone = as_int(read_field(option, "area"))
     if option_type == int(OptionType.PLAY) and raw_source_zone is None:
         raw_source_zone = int(AreaType.HAND)
+    if option_type == int(OptionType.SKILL) and source_ref is None:
+        raise ValueError(
+            "SKILL source must resolve to exactly one public in-play card"
+        )
     source_zone = (
         source_ref.zone
         if source_ref is not None

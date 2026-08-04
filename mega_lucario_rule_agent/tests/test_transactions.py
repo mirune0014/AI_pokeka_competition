@@ -687,6 +687,28 @@ def test_transaction_steps_never_persist_raw_indices_or_inexact_attack(bad_key, 
         )
 
 
+def test_transaction_step_accepts_a_physically_resolved_skill_source():
+    skill_key = SemanticOptionKey(
+        option_type=int(OptionType.SKILL),
+        player_index=0,
+        card_id=675,
+        card_serial=21,
+        source_zone=int(AreaType.BENCH),
+    )
+    skill_step = TransactionStep(
+        stage=TransactionStage.SELECT_EFFECT_TARGET,
+        expected_select_type=int(SelectType.SKILL),
+        expected_context=int(SelectContext.SKILL_ORDER),
+        expected_min_count=1,
+        expected_max_count=1,
+        action_spec=ActionSpec.single(skill_key),
+        irreversible_on_emit=False,
+        expected_source_ref=ref(675, 21, 0, AreaType.BENCH),
+    )
+
+    assert skill_step.action_spec.choices == (skill_key,)
+
+
 def test_transaction_state_constructor_is_closed():
     with pytest.raises(ValueError, match="TransactionStore"):
         TransactionState(
