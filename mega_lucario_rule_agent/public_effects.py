@@ -100,6 +100,187 @@ class EffectBinding:
         )
 
 
+_COMBAT_CARD_PROFILE_ISSUER_TOKEN = object()
+
+
+@dataclass(frozen=True, init=False)
+class CombatCardProfile:
+    card_id: int = dataclass_field(init=False)
+    card_name: str = dataclass_field(init=False)
+    hp: int = dataclass_field(init=False)
+    energy_type: int = dataclass_field(init=False)
+    weakness: Optional[int] = dataclass_field(init=False)
+    resistance: Optional[int] = dataclass_field(init=False)
+    basic: bool = dataclass_field(init=False)
+    stage1: bool = dataclass_field(init=False)
+    stage2: bool = dataclass_field(init=False)
+    ex: bool = dataclass_field(init=False)
+    mega_ex: bool = dataclass_field(init=False)
+    tera: bool = dataclass_field(init=False)
+    attack_ids: Tuple[int, ...] = dataclass_field(init=False)
+    skill_signatures: Tuple[Tuple[str, str], ...] = dataclass_field(init=False)
+    registered_skill_effect_ids: Tuple[str, ...] = dataclass_field(init=False)
+    unregistered_skill_signatures: Tuple[Tuple[str, str], ...] = dataclass_field(
+        init=False
+    )
+
+    def __init__(
+        self,
+        *,
+        card_id: int,
+        card_name: str,
+        hp: int,
+        energy_type: int,
+        weakness: Optional[int],
+        resistance: Optional[int],
+        basic: bool,
+        stage1: bool,
+        stage2: bool,
+        ex: bool,
+        mega_ex: bool,
+        tera: bool,
+        attack_ids: Tuple[int, ...],
+        skill_signatures: Tuple[Tuple[str, str], ...],
+        registered_skill_effect_ids: Tuple[str, ...],
+        unregistered_skill_signatures: Tuple[Tuple[str, str], ...],
+        issuer_token: object,
+    ) -> None:
+        if issuer_token is not _COMBAT_CARD_PROFILE_ISSUER_TOKEN:
+            raise ValueError("combat profile requires the checked registry builder")
+        if not _is_exact_int(card_id) or card_id <= 0:
+            raise ValueError("combat profile requires a positive card ID")
+        if (
+            not isinstance(card_name, str)
+            or not card_name
+            or normalize_catalog_text(card_name) != card_name
+        ):
+            raise ValueError("combat profile requires a normalized name")
+        if not _is_exact_int(hp) or hp <= 0:
+            raise ValueError("combat profile requires positive HP")
+        if not _is_exact_int(energy_type) or energy_type < 0:
+            raise ValueError("combat profile requires an exact Energy type")
+        if any(
+            value is not None and (not _is_exact_int(value) or value <= 0)
+            for value in (weakness, resistance)
+        ):
+            raise ValueError("weakness and resistance must be exact Energy types")
+        if any(
+            not isinstance(value, bool)
+            for value in (
+                basic,
+                stage1,
+                stage2,
+                ex,
+                mega_ex,
+                tera,
+            )
+        ):
+            raise ValueError("combat profile flags must be exact bools")
+        if sum((basic, stage1, stage2)) != 1:
+            raise ValueError("combat profile requires exactly one evolution stage")
+        if not isinstance(attack_ids, tuple) or any(
+            not _is_exact_int(value) or value <= 0 for value in attack_ids
+        ):
+            raise ValueError("combat profile attack IDs must be positive exact ints")
+        if len(set(attack_ids)) != len(attack_ids):
+            raise ValueError("combat profile cannot repeat an attack ID")
+        signature_groups = (skill_signatures, unregistered_skill_signatures)
+        if any(not isinstance(group, tuple) for group in signature_groups):
+            raise ValueError("combat profile skill signatures must be tuples")
+        for group in signature_groups:
+            if any(
+                not isinstance(signature, tuple)
+                or len(signature) != 2
+                or not isinstance(signature[0], str)
+                or not signature[0]
+                or normalize_catalog_text(signature[0]) != signature[0]
+                or not isinstance(signature[1], str)
+                or re.fullmatch(r"[0-9a-f]{64}", signature[1]) is None
+                for signature in group
+            ):
+                raise ValueError("combat profile skill signatures are malformed")
+            if len(set(group)) != len(group) or tuple(sorted(group)) != group:
+                raise ValueError(
+                    "combat profile skill signatures must be unique and sorted"
+                )
+        if not isinstance(registered_skill_effect_ids, tuple) or any(
+            not isinstance(effect_id, str) or not effect_id
+            for effect_id in registered_skill_effect_ids
+        ):
+            raise ValueError("registered skill effects must be exact strings")
+        if (
+            len(set(registered_skill_effect_ids)) != len(registered_skill_effect_ids)
+            or tuple(sorted(registered_skill_effect_ids)) != registered_skill_effect_ids
+        ):
+            raise ValueError("registered skill effects must be unique and sorted")
+        if not set(unregistered_skill_signatures).issubset(skill_signatures):
+            raise ValueError("unregistered skills must belong to the source card")
+        if len(registered_skill_effect_ids) + len(unregistered_skill_signatures) != len(
+            skill_signatures
+        ):
+            raise ValueError("every source skill must have exactly one classification")
+        values = {
+            "card_id": card_id,
+            "card_name": card_name,
+            "hp": hp,
+            "energy_type": energy_type,
+            "weakness": weakness,
+            "resistance": resistance,
+            "basic": basic,
+            "stage1": stage1,
+            "stage2": stage2,
+            "ex": ex,
+            "mega_ex": mega_ex,
+            "tera": tera,
+            "attack_ids": attack_ids,
+            "skill_signatures": skill_signatures,
+            "registered_skill_effect_ids": registered_skill_effect_ids,
+            "unregistered_skill_signatures": unregistered_skill_signatures,
+        }
+        for name, value in values.items():
+            object.__setattr__(self, name, value)
+
+    @property
+    def rule_box(self) -> bool:
+        return self.ex or self.mega_ex
+
+    @property
+    def prize_value(self) -> int:
+        if self.mega_ex:
+            return 3
+        if self.ex:
+            return 2
+        return 1
+
+    @property
+    def has_ability(self) -> bool:
+        return bool(self.skill_signatures)
+
+    @property
+    def all_skills_registered(self) -> bool:
+        return not self.unregistered_skill_signatures
+
+    def canonical(self) -> Tuple[object, ...]:
+        return (
+            self.card_id,
+            self.card_name,
+            self.hp,
+            self.energy_type,
+            self.weakness,
+            self.resistance,
+            self.basic,
+            self.stage1,
+            self.stage2,
+            self.ex,
+            self.mega_ex,
+            self.tera,
+            self.attack_ids,
+            self.skill_signatures,
+            self.registered_skill_effect_ids,
+            self.unregistered_skill_signatures,
+        )
+
+
 def _binding(
     effect_id: str,
     phase: EffectPhase,
@@ -720,6 +901,222 @@ class CatalogAdmission:
         return effect_id in self.admitted_effect_ids
 
 
+def _combat_profile_from_card(
+    card: object,
+    admission: CatalogAdmission,
+) -> Optional[CombatCardProfile]:
+    card_id = _read_field(card, "cardId", "card_id")
+    card_type = _read_field(card, "cardType", "card_type")
+    card_name = _read_field(card, "name")
+    hp = _read_field(card, "hp")
+    energy_type = _read_field(card, "energyType", "energy_type")
+    weakness = _read_field(card, "weakness")
+    resistance = _read_field(card, "resistance")
+    attacks = _read_field(card, "attacks", "attack_ids")
+    skills = _read_field(card, "skills")
+    flags = tuple(
+        _read_field(card, *names)
+        for names in (
+            ("basic",),
+            ("stage1",),
+            ("stage2",),
+            ("ex",),
+            ("megaEx", "mega_ex"),
+            ("tera",),
+        )
+    )
+    if (
+        not _is_exact_int(card_type)
+        or card_type != 0
+        or not _is_exact_int(card_id)
+        or not isinstance(card_name, str)
+        or not _is_exact_int(hp)
+        or not _is_exact_int(energy_type)
+        or weakness is not None
+        and not _is_exact_int(weakness)
+        or resistance is not None
+        and not _is_exact_int(resistance)
+        or not isinstance(attacks, (tuple, list))
+        or not isinstance(skills, (tuple, list))
+        or any(not isinstance(value, bool) for value in flags)
+    ):
+        return None
+    signatures = []
+    for skill in skills:
+        name = _read_field(skill, "name")
+        text = _read_field(skill, "text", "description")
+        if not isinstance(name, str) or not isinstance(text, str):
+            return None
+        signatures.append((normalize_catalog_text(name), normalized_text_hash(text)))
+    admitted_keys = set(admission.admitted_bindings)
+    registered = []
+    unregistered = []
+    for signature in signatures:
+        matches = tuple(
+            binding
+            for binding in EFFECT_BINDINGS
+            if binding.entry_kind is EntryKind.SKILL
+            and binding.card_id == card_id
+            and binding.entry_name == signature[0]
+            and binding.text_hash == signature[1]
+            and _binding_key(binding) in admitted_keys
+        )
+        if len(matches) == 1:
+            registered.append(matches[0].effect_id)
+        else:
+            unregistered.append(signature)
+    try:
+        return CombatCardProfile(
+            card_id=card_id,
+            card_name=normalize_catalog_text(card_name),
+            hp=hp,
+            energy_type=energy_type,
+            weakness=weakness,
+            resistance=resistance,
+            basic=flags[0],
+            stage1=flags[1],
+            stage2=flags[2],
+            ex=flags[3],
+            mega_ex=flags[4],
+            tera=flags[5],
+            attack_ids=tuple(attacks),
+            skill_signatures=tuple(sorted(signatures)),
+            registered_skill_effect_ids=tuple(sorted(registered)),
+            unregistered_skill_signatures=tuple(sorted(unregistered)),
+            issuer_token=_COMBAT_CARD_PROFILE_ISSUER_TOKEN,
+        )
+    except ValueError:
+        return None
+
+
+def _materialize_catalog(values: object) -> Tuple[object, ...]:
+    if isinstance(values, Mapping):
+        return tuple(values.values())
+    if isinstance(values, Iterable) and not isinstance(values, (str, bytes)):
+        return tuple(values)
+    return ()
+
+
+_PUBLIC_EFFECT_REGISTRY_ISSUER_TOKEN = object()
+
+
+@dataclass(frozen=True, init=False)
+class PublicEffectRegistry:
+    admission: CatalogAdmission = dataclass_field(init=False)
+    profiles: Tuple[CombatCardProfile, ...] = dataclass_field(init=False)
+    malformed_pokemon_card_ids: Tuple[int, ...] = dataclass_field(init=False)
+    catalog_sha256: str = dataclass_field(init=False)
+    digest: str = dataclass_field(init=False)
+
+    def __init__(
+        self,
+        card_catalog: object,
+        attack_catalog: object,
+        issuer_token: object,
+    ) -> None:
+        if issuer_token is not _PUBLIC_EFFECT_REGISTRY_ISSUER_TOKEN:
+            raise ValueError("public effect registry requires the checked builder")
+        card_rows = _materialize_catalog(card_catalog)
+        attack_rows = _materialize_catalog(attack_catalog)
+        admission = CatalogAdmission(
+            card_rows,
+            attack_rows,
+            _CATALOG_ADMISSION_ISSUER_TOKEN,
+        )
+        card_index = _catalog_index(card_rows, ("cardId", "card_id"))
+        profiles = []
+        malformed = []
+        for card_id in sorted(card_index):
+            card = card_index[card_id]
+            if card is None or _read_field(card, "cardType", "card_type") != 0:
+                continue
+            profile = _combat_profile_from_card(card, admission)
+            if profile is None:
+                malformed.append(card_id)
+            else:
+                profiles.append(profile)
+        profile_tuple = tuple(profiles)
+        malformed_tuple = tuple(malformed)
+        catalog_payload = {
+            "profiles": tuple(profile.canonical() for profile in profile_tuple),
+            "malformed_pokemon_card_ids": malformed_tuple,
+        }
+        catalog_sha256 = hashlib.sha256(
+            json.dumps(
+                catalog_payload,
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        digest_payload = {
+            "effect_manifest_sha256": EFFECT_MANIFEST_SHA256,
+            "catalog_sha256": catalog_sha256,
+            "admitted_bindings": admission.admitted_bindings,
+            "rejected_bindings": admission.rejected_bindings,
+        }
+        digest = hashlib.sha256(
+            json.dumps(
+                digest_payload,
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        object.__setattr__(self, "admission", admission)
+        object.__setattr__(self, "profiles", profile_tuple)
+        object.__setattr__(self, "malformed_pokemon_card_ids", malformed_tuple)
+        object.__setattr__(self, "catalog_sha256", catalog_sha256)
+        object.__setattr__(self, "digest", digest)
+
+    @property
+    def all_bindings_admitted(self) -> bool:
+        return self.admission.all_admitted
+
+    def profile(self, card_id: int) -> Optional[CombatCardProfile]:
+        return next(
+            (profile for profile in self.profiles if profile.card_id == card_id),
+            None,
+        )
+
+    def binding_admitted(
+        self,
+        effect_id: str,
+        card_id: Optional[int] = None,
+        entry_id: Optional[int] = None,
+    ) -> bool:
+        rows = tuple(
+            binding
+            for binding in EFFECT_BINDINGS
+            if binding.effect_id == effect_id
+            and (card_id is None or binding.card_id == card_id)
+            and (entry_id is None or binding.entry_id == entry_id)
+        )
+        admitted = set(self.admission.admitted_bindings)
+        return bool(rows) and all(_binding_key(row) in admitted for row in rows)
+
+    def effect_ids_for_card(self, card_id: int) -> Tuple[str, ...]:
+        admitted = set(self.admission.admitted_bindings)
+        return tuple(
+            sorted(
+                binding.effect_id
+                for binding in EFFECT_BINDINGS
+                if binding.card_id == card_id and _binding_key(binding) in admitted
+            )
+        )
+
+
+def build_public_effect_registry(
+    card_catalog: object,
+    attack_catalog: object,
+) -> PublicEffectRegistry:
+    return PublicEffectRegistry(
+        card_catalog,
+        attack_catalog,
+        _PUBLIC_EFFECT_REGISTRY_ISSUER_TOKEN,
+    )
+
+
 def verify_catalog(card_catalog: object, attack_catalog: object) -> CatalogAdmission:
     return CatalogAdmission(
         card_catalog,
@@ -735,6 +1132,9 @@ def effect_bindings(effect_id: str) -> Tuple[EffectBinding, ...]:
 
 
 __all__ = [
+    "CombatCardProfile",
+    "PublicEffectRegistry",
+    "build_public_effect_registry",
     "CatalogAdmission",
     "EFFECT_BINDINGS",
     "EFFECT_MANIFEST_SHA256",

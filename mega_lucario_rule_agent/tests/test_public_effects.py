@@ -5,6 +5,7 @@ import pytest
 
 from mega_lucario_rule_agent.public_effects import (
     CatalogAdmission,
+    CombatCardProfile,
     EFFECT_BINDINGS,
     EFFECT_MANIFEST_SHA256,
     EXPECTED_EFFECT_MANIFEST_SHA256,
@@ -12,7 +13,9 @@ from mega_lucario_rule_agent.public_effects import (
     EffectBinding,
     EffectPhase,
     EntryKind,
+    PublicEffectRegistry,
     binding_is_admitted,
+    build_public_effect_registry,
     effect_bindings,
     normalize_catalog_text,
     normalized_text_hash,
@@ -55,6 +58,42 @@ def exact_attack_catalog(text="Do the checked thing."):
         }
     ]
     return cards, attacks
+
+
+def pokemon_catalog_row(
+    card_id,
+    name,
+    *,
+    hp=100,
+    energy_type=6,
+    weakness=None,
+    resistance=None,
+    basic=True,
+    stage1=False,
+    stage2=False,
+    ex=False,
+    mega_ex=False,
+    tera=False,
+    attacks=None,
+    skills=None,
+):
+    return {
+        "cardId": card_id,
+        "cardType": 0,
+        "name": name,
+        "hp": hp,
+        "energyType": energy_type,
+        "weakness": weakness,
+        "resistance": resistance,
+        "basic": basic,
+        "stage1": stage1,
+        "stage2": stage2,
+        "ex": ex,
+        "megaEx": mega_ex,
+        "tera": tera,
+        "attacks": [] if attacks is None else attacks,
+        "skills": [] if skills is None else skills,
+    }
 
 
 def test_catalog_normalization_is_unicode_and_whitespace_stable():
@@ -228,3 +267,130 @@ def test_skill_binding_cannot_smuggle_attack_metadata():
             text_hash=normalized_text_hash(""),
             printed_damage=0,
         )
+
+
+def test_registry_builds_rule_box_and_weakness_profiles_deterministically():
+    cards = [
+        pokemon_catalog_row(
+            678,
+            "Mega Lucario ex",
+            hp=340,
+            weakness=5,
+            basic=False,
+            stage1=True,
+            mega_ex=True,
+            attacks=[982, 983],
+        ),
+        pokemon_catalog_row(
+            96,
+            "Teal Mask Ogerpon ex",
+            hp=210,
+            energy_type=1,
+            weakness=2,
+            ex=True,
+            tera=True,
+        ),
+        pokemon_catalog_row(
+            999,
+            "Unknown Wall",
+            skills=[{"name": "Unknown Aura", "text": "Change combat somehow."}],
+        ),
+    ]
+    first = build_public_effect_registry(cards, [])
+    second = build_public_effect_registry(list(reversed(cards)), [])
+    assert first.digest == second.digest
+    assert first.catalog_sha256 == second.catalog_sha256
+    assert len(first.digest) == len(first.catalog_sha256) == 64
+
+    lucario = first.profile(678)
+    assert lucario.rule_box
+    assert lucario.prize_value == 3
+    assert not lucario.has_ability
+    assert lucario.all_skills_registered
+
+    ogerpon = first.profile(96)
+    assert ogerpon.rule_box
+    assert ogerpon.prize_value == 2
+    assert ogerpon.weakness == 2
+    assert ogerpon.weakness != 6
+
+    unknown = first.profile(999)
+    assert unknown.has_ability
+    assert not unknown.all_skills_registered
+    assert unknown.registered_skill_effect_ids == ()
+    assert len(unknown.unregistered_skill_signatures) == 1
+
+
+def test_registered_ability_requires_exact_card_name_skill_name_and_text():
+    rules_text = (
+        "Prevent all damage done to this Pokémon by attacks from your "
+        "opponent’s Pokémon {ex}."
+    )
+    crustle = pokemon_catalog_row(
+        345,
+        "Crustle",
+        hp=150,
+        energy_type=6,
+        weakness=2,
+        basic=False,
+        stage1=True,
+        skills=[{"name": " Mysterious Rock Inn", "text": rules_text}],
+    )
+    registry = build_public_effect_registry([crustle], [])
+    profile = registry.profile(345)
+    assert registry.binding_admitted("MYSTERIOUS_ROCK_INN", card_id=345)
+    assert registry.effect_ids_for_card(345) == ("MYSTERIOUS_ROCK_INN",)
+    assert profile.registered_skill_effect_ids == ("MYSTERIOUS_ROCK_INN",)
+    assert profile.all_skills_registered
+
+    changed = deepcopy(crustle)
+    changed["skills"][0]["text"] += " Changed."
+    rejected = build_public_effect_registry([changed], [])
+    changed_profile = rejected.profile(345)
+    assert not rejected.binding_admitted("MYSTERIOUS_ROCK_INN", card_id=345)
+    assert changed_profile.registered_skill_effect_ids == ()
+    assert not changed_profile.all_skills_registered
+
+
+def test_registry_marks_malformed_and_duplicate_profiles_unusable():
+    malformed = pokemon_catalog_row(700, "Malformed", basic=1)
+    registry = build_public_effect_registry([malformed], [])
+    assert registry.profile(700) is None
+    assert registry.malformed_pokemon_card_ids == (700,)
+
+    duplicate = pokemon_catalog_row(701, "Duplicate")
+    duplicated = build_public_effect_registry([duplicate, deepcopy(duplicate)], [])
+    assert duplicated.profile(701) is None
+
+
+def test_public_effect_registry_cannot_be_forged_or_reclassified():
+    with pytest.raises(ValueError, match="checked builder"):
+        PublicEffectRegistry([], [], object())
+
+    registry = build_public_effect_registry([], [])
+    with pytest.raises(ValueError, match="init=False"):
+        replace(registry, profiles=())
+
+
+def test_combat_profile_is_only_issued_by_checked_registry_builder():
+    colorless = pokemon_catalog_row(702, "Colorless Test", energy_type=0)
+    profile = build_public_effect_registry([colorless], []).profile(702)
+    assert profile.energy_type == 0
+    assert profile.prize_value == 1
+
+    values = dict(profile.__dict__)
+    with pytest.raises(TypeError, match="issuer_token"):
+        CombatCardProfile(**values)
+    with pytest.raises(ValueError, match="checked registry builder"):
+        CombatCardProfile(**values, issuer_token=object())
+    with pytest.raises(ValueError, match="init=False"):
+        replace(profile, hp=999)
+
+
+def test_registry_rejects_inexact_stage_and_boolean_fields():
+    wrong_bool = pokemon_catalog_row(703, "Wrong Bool", ex=1)
+    two_stages = pokemon_catalog_row(704, "Two Stages", stage1=True)
+    registry = build_public_effect_registry([wrong_bool, two_stages], [])
+    assert registry.profile(703) is None
+    assert registry.profile(704) is None
+    assert registry.malformed_pokemon_card_ids == (703, 704)
