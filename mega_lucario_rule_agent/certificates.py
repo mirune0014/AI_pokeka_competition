@@ -17,6 +17,9 @@ try:  # Package import in tests.
         PublicMatchupFlag,
     )
     from .public_effects import PublicEffectRegistry
+    from .resource_ledger import (
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+    )
     from .state_view import (
         ActionSpec,
         AreaType,
@@ -35,6 +38,9 @@ except ImportError:  # Flat submission import from main.py.
     from card_meta import CARD_META_BY_ID
     from features import DeckFeatures, PublicMatchupFlag
     from public_effects import PublicEffectRegistry
+    from resource_ledger import (
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+    )
     from state_view import (
         ActionSpec,
         AreaType,
@@ -66,7 +72,20 @@ class ProofSchema(str, Enum):
     SAFE_FALLBACK_V1 = "safe_fallback_v1"
     ATTACK_OUTCOME_V1 = "attack_outcome_v1"
     BASIC_BENCH_V1 = "basic_bench_v1"
+    FIRST_TURN_RIOLU_ATTACH_V1 = "first_turn_riolu_attach_v1"
 
+
+FIRST_TURN_RIOLU_ATTACH_COVERAGE = (
+    "R_ATTACH_001_DEFAULT_CLAUSE_ONLY_V1"
+)
+FIRST_TURN_RIOLU_ATTACH_SCOPE = "RESOURCE_STAGING_ONLY"
+FIRST_TURN_RIOLU_ATTACH_UNRESOLVED = (
+    "ALTERNATIVE_NEXT_TURN_PRIZE",
+    "NEXT_OPPONENT_TURN_MAX_DAMAGE",
+)
+_FIGHTING_ENERGY_CARD_ID = 6
+_RIOLU_CARD_ID = 677
+_ACCELERATING_STAB_ATTACK_ID = 981
 
 _BASIC_BENCH_CARD_IDS = frozenset((673, 675, 676, 677))
 _BASIC_BENCH_ROLE_BY_CARD_ID = {
@@ -226,6 +245,9 @@ class CertificateProof:
                 CertificateKind.FIRST_ATTACK_ACCELERATION,
                 CertificateKind.ENGINE_COMPLETION,
                 CertificateKind.RESOURCE_IMPROVEMENT,
+            },
+            ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: {
+                CertificateKind.FIRST_ATTACK_ACCELERATION,
             },
         }
         if CertificateKind(self.kind) not in schema_kind_compatibility[ProofSchema(self.schema)]:
@@ -395,6 +417,213 @@ def safe_fallback_proof(
 
 def _is_exact_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _manual_attach_refs(
+    state: PublicState,
+    key: SemanticOptionKey,
+) -> Optional[Tuple[PhysicalRef, Any]]:
+    if (
+        not isinstance(key, SemanticOptionKey)
+        or not _is_exact_int(key.card_serial)
+        or key.card_serial < 0
+        or not _is_exact_int(key.target_zone)
+        or key.target_zone not in (int(AreaType.ACTIVE), int(AreaType.BENCH))
+        or not _is_exact_int(key.target_lineage_serial)
+        or key.target_lineage_serial < 0
+    ):
+        return None
+    expected = SemanticOptionKey(
+        option_type=int(OptionType.ATTACH),
+        player_index=state.seat,
+        card_id=_FIGHTING_ENERGY_CARD_ID,
+        card_serial=int(key.card_serial),
+        source_zone=int(AreaType.HAND),
+        target_zone=int(key.target_zone),
+        target_lineage_serial=int(key.target_lineage_serial),
+    )
+    if key != expected:
+        return None
+    sources = tuple(
+        ref_value
+        for ref_value in state.own.hand_refs
+        if (
+            ref_value.card_id == _FIGHTING_ENERGY_CARD_ID
+            and ref_value.serial == key.card_serial
+            and ref_value.owner == state.seat
+            and ref_value.zone == int(AreaType.HAND)
+        )
+    )
+    board = (
+        state.own.active
+        if key.target_zone == int(AreaType.ACTIVE)
+        else state.own.bench
+    )
+    targets = tuple(
+        pokemon
+        for pokemon in board
+        if (
+            pokemon.ref.card_id == _RIOLU_CARD_ID
+            and pokemon.ref.owner == state.seat
+            and pokemon.ref.zone == key.target_zone
+            and pokemon.lineage_serial == key.target_lineage_serial
+            and _is_exact_int(pokemon.ref.serial)
+            and not pokemon.energy_types
+            and not pokemon.energy_refs
+        )
+    )
+    if len(sources) != 1 or len(targets) != 1:
+        return None
+    return sources[0], targets[0]
+
+
+def _riolu_attach_rows(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+) -> Tuple[Tuple[Any, ...], ...]:
+    rows = []
+    for option in legal_options:
+        refs = _manual_attach_refs(state, option.key)
+        if refs is None:
+            continue
+        source_ref, target = refs
+        deficits = tuple(
+            value
+            for value in features.attack_energy_deficit_by_target
+            if (
+                value.target_ref == target.ref
+                and value.current_card_id == _RIOLU_CARD_ID
+                and value.minimum_attack_cost == 1
+                and value.attached_energy_count == 0
+                and value.deficit_now == 1
+                and value.deficit_after_one_attach == 0
+            )
+        )
+        if len(deficits) != 1:
+            continue
+        zone_priority = (
+            0 if target.ref.zone == int(AreaType.ACTIVE) else 1
+        )
+        rank = (
+            zone_priority,
+            -int(target.remaining_hp),
+            int(target.lineage_serial),
+            int(source_ref.serial),
+            option.key.sort_key(),
+        )
+        rows.append(
+            (
+                rank,
+                option.key,
+                source_ref,
+                target.ref,
+                int(target.remaining_hp),
+                zone_priority,
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: row[0]))
+
+
+def first_turn_riolu_attach_proof(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    registry: PublicEffectRegistry,
+    features: DeckFeatures,
+    action_spec: ActionSpec,
+) -> CertificateProof:
+    """Certify only the default first-turn Riolu Energy-staging clause."""
+
+    if not is_stable_main_state(state):
+        raise ValueError("first-turn Riolu attach requires stable MAIN")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("first-turn Riolu attach requires a checked registry")
+    if not isinstance(features, DeckFeatures) or not features.matches(
+        state,
+        legal_options,
+        registry,
+    ):
+        raise ValueError("first-turn Riolu attach requires current checked features")
+    if (
+        state.first_player not in (0, 1)
+        or state.seat != state.first_player
+        or state.turn != 1
+        or features.own_turn_number != 1
+        or state.energy_attached
+        or features.manual_attach_used
+        or state.attacked_this_turn
+        or features.attacked_this_turn
+    ):
+        raise ValueError("first-turn Riolu attach timing is not exact")
+    if features.legal_attack_ids or any(
+        option.key.option_type == int(OptionType.ATTACK)
+        for option in legal_options
+    ):
+        raise ValueError("first-turn Riolu attach cannot coexist with a legal attack")
+    energy_profile = registry.effect_profile(_FIGHTING_ENERGY_CARD_ID)
+    if (
+        not registry.is_effectless_basic_energy(_FIGHTING_ENERGY_CARD_ID)
+        or energy_profile is None
+        or energy_profile.energy_type != 6
+        or not registry.binding_admitted(
+            "ACCELERATING_STAB",
+            card_id=_RIOLU_CARD_ID,
+            entry_id=_ACCELERATING_STAB_ATTACK_ID,
+        )
+    ):
+        raise ValueError("first-turn Riolu attach metadata is not fully admitted")
+    if len(action_spec.choices) != 1:
+        raise ValueError("first-turn Riolu attach requires exactly one action")
+    rows = _riolu_attach_rows(state, legal_options, features)
+    if not rows or action_spec.choices[0] != rows[0][1]:
+        raise ValueError("first-turn Riolu attach action is not canonical")
+    try:
+        rebound = action_spec.bind(
+            legal_options,
+            min_count=state.min_count,
+            max_count=state.max_count,
+        )
+    except SemanticBindError as error:
+        raise ValueError(
+            "first-turn Riolu attach must bind uniquely"
+        ) from error
+    if len(rebound) != 1:
+        raise ValueError("first-turn Riolu attach must resolve to one option")
+
+    rank, _, source_ref, target_ref, remaining_hp, zone_priority = rows[0]
+    return _make_proof(
+        kind=CertificateKind.FIRST_ATTACK_ACCELERATION,
+        schema=ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1,
+        state=state,
+        action_spec=action_spec,
+        is_valid=True,
+        guaranteed_prizes=0,
+        facts={
+            "legal_options_fingerprint": legal_options_fingerprint(legal_options),
+            "state_digest": public_state_fingerprint(state),
+            "registry_digest": registry.digest,
+            "features_digest": features.digest(),
+            "option_type": int(OptionType.ATTACH),
+            "source_ref": source_ref,
+            "target_ref": target_ref,
+            "reservation_id": MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+            "attack_id": _ACCELERATING_STAB_ATTACK_ID,
+            "energy_count_before": 0,
+            "energy_count_after": 1,
+            "deficit_before": 1,
+            "deficit_after": 0,
+            "coverage": FIRST_TURN_RIOLU_ATTACH_COVERAGE,
+            "proof_scope": FIRST_TURN_RIOLU_ATTACH_SCOPE,
+            "full_requirement_compliance": False,
+            "unresolved_exception_codes": FIRST_TURN_RIOLU_ATTACH_UNRESOLVED,
+            "target_zone_priority": zone_priority,
+            "target_remaining_hp": remaining_hp,
+            "target_lineage_serial": int(target_ref.lineage_serial),
+            "energy_serial": int(source_ref.serial),
+            "canonical_rank": rank[:-1],
+        },
+        rejection_reasons=(),
+    )
 
 
 def _basic_play_source_ref(
@@ -731,9 +960,13 @@ def attack_outcome_proof(
 __all__ = [
     "CertificateKind",
     "CertificateProof",
+    "FIRST_TURN_RIOLU_ATTACH_COVERAGE",
+    "FIRST_TURN_RIOLU_ATTACH_SCOPE",
+    "FIRST_TURN_RIOLU_ATTACH_UNRESOLVED",
     "ProofSchema",
     "attack_outcome_proof",
     "basic_bench_proof",
+    "first_turn_riolu_attach_proof",
     "legal_options_fingerprint",
     "safe_fallback_proof",
 ]

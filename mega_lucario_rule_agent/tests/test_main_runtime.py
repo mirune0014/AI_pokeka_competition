@@ -11,6 +11,7 @@ from mega_lucario_rule_agent.state_view import (
     OptionType,
     SelectContext,
 )
+from mega_lucario_rule_agent.tests.test_attack_outcomes import registry_for
 from mega_lucario_rule_agent.transactions import ResumeResult, ResumeStatus
 
 
@@ -326,6 +327,48 @@ def test_stable_main_places_exact_role_improving_basic_from_raw_play_options():
 
     assert runtime.act(obs) == [1]
     assert runtime.last_features.missing_engine_card_ids == (675, 676)
+
+
+def test_runtime_replans_after_first_turn_riolu_attach_without_a_transaction():
+    runtime = AgentRuntime(registry=registry_for((981,)))
+    energy = card(6, 50)
+    active = pokemon(677, 10, hp=80, max_hp=80)
+    attach = {
+        "type": int(OptionType.ATTACH),
+        "area": int(AreaType.HAND),
+        "index": 0,
+        "inPlayArea": int(AreaType.ACTIVE),
+        "inPlayIndex": 0,
+    }
+    before = observation(
+        [attach, {"type": int(OptionType.END)}],
+        own_active=active,
+        hand=(energy,),
+        turn=1,
+    )
+
+    assert runtime.act(before) == [0]
+    assert not runtime.transactions.has_owner
+    assert not runtime.runtime_fault_latched
+
+    after_active = pokemon(
+        677,
+        10,
+        hp=80,
+        max_hp=80,
+        energy_cards=((6, 50),),
+    )
+    after = observation(
+        [attach, {"type": int(OptionType.END)}],
+        own_active=after_active,
+        hand=(),
+        turn=1,
+    )
+    after["current"]["energyAttached"] = True
+
+    assert runtime.act(after) == [1]
+    assert not runtime.transactions.has_owner
+    assert not runtime.runtime_fault_latched
 
 
 def test_runtime_uses_checked_registry_for_certified_aura_attack():

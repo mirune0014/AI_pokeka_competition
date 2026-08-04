@@ -20,11 +20,17 @@ try:  # Package import in tests.
         CertificateProof,
         ProofSchema,
         basic_bench_proof,
+        first_turn_riolu_attach_proof,
         legal_options_fingerprint,
     )
     from .features import build_deck_features
     from .public_effects import PublicEffectRegistry
-    from .resource_ledger import ResourceLedger
+    from .resource_ledger import (
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ReservationKind,
+        ResourceLedger,
+        ResourceLedgerError,
+    )
     from .state_view import (
         ActionSpec,
         OptionType,
@@ -41,11 +47,17 @@ except ImportError:  # Flat submission import from main.py.
         CertificateProof,
         ProofSchema,
         basic_bench_proof,
+        first_turn_riolu_attach_proof,
         legal_options_fingerprint,
     )
     from features import build_deck_features
     from public_effects import PublicEffectRegistry
-    from resource_ledger import ResourceLedger
+    from resource_ledger import (
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+        ReservationKind,
+        ResourceLedger,
+        ResourceLedgerError,
+    )
     from state_view import (
         ActionSpec,
         OptionType,
@@ -275,6 +287,9 @@ _ALLOWED_KINDS_BY_SCHEMA = {
             CertificateKind.RESOURCE_IMPROVEMENT,
         )
     ),
+    ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: frozenset(
+        (CertificateKind.FIRST_ATTACK_ACCELERATION,)
+    ),
 }
 _ALLOWED_TIERS_BY_SCHEMA = {
     ProofSchema.SAFE_FALLBACK_V1: frozenset(
@@ -291,6 +306,9 @@ _ALLOWED_TIERS_BY_SCHEMA = {
         )
     ),
     ProofSchema.BASIC_BENCH_V1: frozenset((ResolverTier.SAFE_ENGINE_COMPLETION,)),
+    ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1: frozenset(
+        (ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,)
+    ),
 }
 _ALLOWED_COMBINATIONS = frozenset(
     (
@@ -341,6 +359,12 @@ _ALLOWED_COMBINATIONS = frozenset(
             CertificateKind.RESOURCE_IMPROVEMENT,
             ResolverTier.SAFE_ENGINE_COMPLETION,
             int(OptionType.PLAY),
+        ),
+        (
+            ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1,
+            CertificateKind.FIRST_ATTACK_ACCELERATION,
+            ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
+            int(OptionType.ATTACH),
         ),
     )
 )
@@ -493,6 +517,31 @@ def canonical_proposal_tiebreak(
             int(purpose_priority),
             int(key.card_id),
             int(key.card_serial),
+        )
+    if (
+        key.option_type == int(OptionType.ATTACH)
+        and proof.schema == ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1
+    ):
+        zone_priority = proof.fact("target_zone_priority")
+        remaining_hp = proof.fact("target_remaining_hp")
+        lineage_serial = proof.fact("target_lineage_serial")
+        energy_serial = proof.fact("energy_serial")
+        if any(
+            isinstance(value, bool) or not isinstance(value, int) or value < 0
+            for value in (
+                zone_priority,
+                remaining_hp,
+                lineage_serial,
+                energy_serial,
+            )
+        ):
+            return ()
+        return (
+            int(OptionType.ATTACH),
+            int(zone_priority),
+            -int(remaining_hp),
+            int(lineage_serial),
+            int(energy_serial),
         )
     return ()
 
@@ -670,6 +719,38 @@ def _validate_proposal(
                 else:
                     if expected_proof.digest() != proposal.proof.digest():
                         reasons.append("BASIC_BENCH_PROOF_MISMATCH")
+    elif proposal.proof.schema == ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1:
+        if proposal.proof.guaranteed_prizes != 0:
+            reasons.append("RIOLU_ATTACH_PRIZE_CLAIM_FORBIDDEN")
+        if not isinstance(registry, PublicEffectRegistry):
+            reasons.append("CURRENT_REGISTRY_REQUIRED")
+        else:
+            try:
+                current_features = build_deck_features(
+                    state,
+                    legal_options,
+                    registry,
+                )
+            except (RuntimeError, ValueError):
+                reasons.append("RIOLU_ATTACH_FEATURE_RECOMPUTE_FAILED")
+            else:
+                if proposal.proof.fact("registry_digest") != registry.digest:
+                    reasons.append("PROOF_REGISTRY_STALE")
+                if proposal.proof.fact("features_digest") != current_features.digest():
+                    reasons.append("RIOLU_ATTACH_FEATURES_STALE")
+                try:
+                    expected_proof = first_turn_riolu_attach_proof(
+                        state,
+                        legal_options,
+                        registry,
+                        current_features,
+                        proposal.action_spec,
+                    )
+                except ValueError:
+                    reasons.append("RIOLU_ATTACH_RECOMPUTE_REJECTED")
+                else:
+                    if expected_proof.digest() != proposal.proof.digest():
+                        reasons.append("RIOLU_ATTACH_PROOF_MISMATCH")
     if proposal.proof.state_fingerprint != public_state_fingerprint(state):
         reasons.append("PROOF_STATE_STALE")
     if proposal.proof.action_spec != proposal.action_spec:
@@ -710,20 +791,92 @@ def _validate_proposal(
                 reasons.append(
                     "BASIC_BENCH_SOURCE_RESERVED:{0}".format(reservation.reservation_id)
                 )
-    cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
-    reasons.extend(
-        "LEDGER_COST_REJECTED:{0}".format(reason)
-        for reason in cost_check.rejection_reasons
-    )
-    if proposal.resource_cost.irreversible_refs:
-        reasons.append("PROFILE_RESOURCE_COST_FORBIDDEN")
-    for reservation_id in proposal.reservation_ids:
-        if ledger.get_reservation(reservation_id) is None:
-            reasons.append(
-                "UNKNOWN_RESERVATION_ID:{0}".format(reservation_id)
+    if proposal.proof.schema == ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1:
+        source_fact = proposal.proof.fact("source_ref")
+        target_fact = proposal.proof.fact("target_ref")
+        source_matches = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == source_fact
+        )
+        target_matches = tuple(
+            pokemon.ref
+            for pokemon in state.own.active + state.own.bench
+            if pokemon.ref.sort_key() == target_fact
+        )
+        source_ref = source_matches[0] if len(source_matches) == 1 else None
+        target_ref = target_matches[0] if len(target_matches) == 1 else None
+        if source_ref is None:
+            reasons.append("RIOLU_ATTACH_SOURCE_REF_INVALID")
+        elif source_ref not in ledger.visible_refs:
+            reasons.append("RIOLU_ATTACH_SOURCE_NOT_IN_LEDGER")
+        if target_ref is None:
+            reasons.append("RIOLU_ATTACH_TARGET_REF_INVALID")
+        elif target_ref not in ledger.visible_refs:
+            reasons.append("RIOLU_ATTACH_TARGET_NOT_IN_LEDGER")
+        if (
+            source_ref is None
+            or proposal.resource_cost.irreversible_refs != (source_ref,)
+        ):
+            reasons.append("RIOLU_ATTACH_COST_MISMATCH")
+        expected_reservation_ids = (MANUAL_ATTACH_ENERGY_RESERVATION_ID,)
+        if proposal.reservation_ids != expected_reservation_ids:
+            reasons.append("RIOLU_ATTACH_RESERVATION_ID_MISMATCH")
+        if (
+            proposal.proof.fact("reservation_id")
+            != MANUAL_ATTACH_ENERGY_RESERVATION_ID
+        ):
+            reasons.append("RIOLU_ATTACH_PROOF_RESERVATION_MISMATCH")
+        reservation = ledger.get_reservation(
+            MANUAL_ATTACH_ENERGY_RESERVATION_ID
+        )
+        if reservation is None:
+            reasons.append("RIOLU_ATTACH_RESERVATION_MISSING")
+        else:
+            bound_reservations = tuple(
+                value
+                for value in ledger.bound_reservations
+                if value.reservation_id
+                == MANUAL_ATTACH_ENERGY_RESERVATION_ID
             )
-    if proposal.reservation_ids:
-        reasons.append("PROFILE_RESERVATION_FORBIDDEN")
+            if reservation.kind != ReservationKind.HARD_RESERVED:
+                reasons.append("RIOLU_ATTACH_RESERVATION_NOT_HARD")
+            if (
+                source_ref is None
+                or reservation.is_role_constraint
+                or reservation.refs != (source_ref,)
+                or len(bound_reservations) != 1
+                or bound_reservations[0].refs != (source_ref,)
+            ):
+                reasons.append("RIOLU_ATTACH_RESERVATION_REF_MISMATCH")
+            try:
+                ephemeral = ledger.release(
+                    MANUAL_ATTACH_ENERGY_RESERVATION_ID
+                )
+            except ResourceLedgerError:
+                reasons.append("RIOLU_ATTACH_RESERVATION_RELEASE_FAILED")
+            else:
+                if source_ref is not None:
+                    cost_check = ephemeral.check_cost((source_ref,))
+                    reasons.extend(
+                        "LEDGER_COST_REJECTED:{0}".format(reason)
+                        for reason in cost_check.rejection_reasons
+                    )
+    else:
+        cost_check = ledger.check_cost(proposal.resource_cost.irreversible_refs)
+        reasons.extend(
+            "LEDGER_COST_REJECTED:{0}".format(reason)
+            for reason in cost_check.rejection_reasons
+        )
+        if proposal.resource_cost.irreversible_refs:
+            reasons.append("PROFILE_RESOURCE_COST_FORBIDDEN")
+        for reservation_id in proposal.reservation_ids:
+            if ledger.get_reservation(reservation_id) is None:
+                reasons.append(
+                    "UNKNOWN_RESERVATION_ID:{0}".format(reservation_id)
+                )
+        if proposal.reservation_ids:
+            reasons.append("PROFILE_RESERVATION_FORBIDDEN")
     if proposal.transaction_plan is not None:
         if not isinstance(proposal.transaction_plan, TransactionPlan):
             reasons.append("INVALID_TRANSACTION_PLAN")

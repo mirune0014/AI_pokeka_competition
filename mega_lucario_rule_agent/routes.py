@@ -12,11 +12,16 @@ try:  # Package import in tests.
         CertificateKind,
         attack_outcome_proof,
         basic_bench_proof,
+        first_turn_riolu_attach_proof,
     )
     from .features import DeckFeatures
     from .public_effects import PublicEffectRegistry
+    from .resource_ledger import (
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+    )
     from .resolver import (
         Proposal,
+        ResourceCost,
         ResolverTier,
         canonical_proposal_tiebreak,
     )
@@ -27,11 +32,16 @@ except ImportError:  # Flat submission import from main.py.
         CertificateKind,
         attack_outcome_proof,
         basic_bench_proof,
+        first_turn_riolu_attach_proof,
     )
     from features import DeckFeatures
     from public_effects import PublicEffectRegistry
+    from resource_ledger import (
+        MANUAL_ATTACH_ENERGY_RESERVATION_ID,
+    )
     from resolver import Proposal, ResolverTier, canonical_proposal_tiebreak
     from state_view import ActionSpec, OptionType, PublicState, SemanticOption
+    from resolver import ResourceCost
 
 
 _ATTACK_TIERS = {
@@ -174,4 +184,65 @@ def enumerate_basic_bench_routes(
     )
 
 
-__all__ = ["enumerate_attack_routes", "enumerate_basic_bench_routes"]
+def enumerate_first_turn_riolu_attach_routes(
+    state: PublicState,
+    legal_options: Sequence[SemanticOption],
+    features: DeckFeatures,
+    registry: PublicEffectRegistry,
+) -> Tuple[Proposal, ...]:
+    """Emit at most one exact default-clause R-ATTACH-001 proposal."""
+
+    if not isinstance(state, PublicState):
+        raise ValueError("first-turn Riolu attach routes require a PublicState")
+    if not isinstance(features, DeckFeatures):
+        raise ValueError("first-turn Riolu attach routes require DeckFeatures")
+    if not isinstance(registry, PublicEffectRegistry):
+        raise ValueError("first-turn Riolu attach routes require a checked registry")
+    if not features.matches(state, legal_options, registry):
+        return ()
+
+    for option in legal_options:
+        if option.key.option_type != int(OptionType.ATTACH):
+            continue
+        action_spec = ActionSpec.single(option.key)
+        try:
+            proof = first_turn_riolu_attach_proof(
+                state,
+                legal_options,
+                registry,
+                features,
+                action_spec,
+            )
+        except ValueError:
+            continue
+        source_refs = tuple(
+            ref_value
+            for ref_value in state.own.hand_refs
+            if ref_value.sort_key() == proof.fact("source_ref")
+        )
+        if len(source_refs) != 1:
+            continue
+        proposal = Proposal(
+            rule_id="R_ATTACH_001_{0}".format(
+                _semantic_key_suffix(action_spec),
+            ),
+            tier=ResolverTier.ROUTE_CRITICAL_MANUAL_ATTACH,
+            action_spec=action_spec,
+            certificate_kind=CertificateKind.FIRST_ATTACK_ACCELERATION,
+            proof=proof,
+            resource_cost=ResourceCost(source_refs),
+            reservation_ids=(MANUAL_ATTACH_ENERGY_RESERVATION_ID,),
+            deterministic_tiebreak=canonical_proposal_tiebreak(
+                action_spec,
+                proof,
+            ),
+        )
+        return (proposal,)
+    return ()
+
+
+__all__ = [
+    "enumerate_attack_routes",
+    "enumerate_basic_bench_routes",
+    "enumerate_first_turn_riolu_attach_routes",
+]

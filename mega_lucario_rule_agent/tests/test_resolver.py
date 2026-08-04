@@ -445,6 +445,7 @@ def test_safe_profile_rejects_tier_kind_and_action_spec_escalation():
         ProofSchema.SAFE_FALLBACK_V1,
         ProofSchema.ATTACK_OUTCOME_V1,
         ProofSchema.BASIC_BENCH_V1,
+        ProofSchema.FIRST_TURN_RIOLU_ATTACH_V1,
     }
 
 
