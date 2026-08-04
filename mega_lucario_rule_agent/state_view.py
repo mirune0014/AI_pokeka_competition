@@ -749,9 +749,14 @@ def semantic_key_for_option(observation: Any, option: Any) -> SemanticOptionKey:
     source_ref = _option_source_ref(observation, option, seat)
     target_ref = _option_target_ref(observation, option, seat)
     player_index = as_int(read_field(option, "playerIndex"), seat)
-    source_zone = as_int(read_field(option, "area"))
-    if option_type == int(OptionType.PLAY) and source_zone is None:
-        source_zone = int(AreaType.HAND)
+    raw_source_zone = as_int(read_field(option, "area"))
+    if option_type == int(OptionType.PLAY) and raw_source_zone is None:
+        raw_source_zone = int(AreaType.HAND)
+    source_zone = (
+        source_ref.zone
+        if source_ref is not None
+        else raw_source_zone
+    )
     raw_source_index = as_int(read_field(option, "index"))
     source_index = raw_source_index if source_ref is None and source_zone is not None else None
     target_zone = as_int(read_field(option, "inPlayArea"))

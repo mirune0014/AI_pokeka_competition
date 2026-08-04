@@ -7,13 +7,15 @@ Conditions, costs, recoil, Energy discard, and other post-attack effects.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dataclass_field
 from typing import Dict, Iterable, Mapping, Optional, Tuple
 
 try:  # Package import in tests.
     from .card_meta import ATTACK_META_BY_ID
+    from .state_view import PhysicalRef, PublicState, public_state_fingerprint
 except ImportError:  # Flat submission import from main.py.
     from card_meta import ATTACK_META_BY_ID
+    from state_view import PhysicalRef, PublicState, public_state_fingerprint
 
 
 FIGHTING_ENERGY_TYPE = 6
@@ -51,6 +53,57 @@ class DamageResult:
         if self.final_damage is None or self.target_remaining_hp is None:
             return None
         return self.final_damage - self.target_remaining_hp
+
+
+_BOUND_DAMAGE_ISSUER_TOKEN = object()
+
+
+@dataclass(frozen=True)
+class BoundDamageTable:
+    """Damage rows bound to one exact agent-visible state and Active target."""
+
+    state_fingerprint: str
+    target_ref: Optional[PhysicalRef]
+    results: Tuple[Tuple[int, DamageResult], ...]
+    _issuer_token: object = dataclass_field(repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        if self._issuer_token is not _BOUND_DAMAGE_ISSUER_TOKEN:
+            raise ValueError("BoundDamageTable values require the checked builder")
+        if (
+            not isinstance(self.state_fingerprint, str)
+            or len(self.state_fingerprint) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in self.state_fingerprint
+            )
+        ):
+            raise ValueError("bound damage table requires a lowercase SHA-256")
+        if self.target_ref is not None and not isinstance(self.target_ref, PhysicalRef):
+            raise ValueError("bound damage target must be a PhysicalRef")
+        normalized = tuple(sorted(self.results, key=lambda item: item[0]))
+        attack_ids = tuple(attack_id for attack_id, _ in normalized)
+        if len(set(attack_ids)) != len(attack_ids):
+            raise ValueError("bound damage table cannot repeat an attack ID")
+        for attack_id, result in normalized:
+            if (
+                isinstance(attack_id, bool)
+                or not isinstance(attack_id, int)
+                or attack_id <= 0
+                or not isinstance(result, DamageResult)
+                or result.attack_id != attack_id
+            ):
+                raise ValueError("bound damage rows must match positive attack IDs")
+        object.__setattr__(self, "results", normalized)
+
+    def as_dict(self) -> Dict[int, DamageResult]:
+        return dict(self.results)
+
+    def get(self, attack_id: int) -> Optional[DamageResult]:
+        return next(
+            (result for key, result in self.results if key == attack_id),
+            None,
+        )
 
 
 def _unknown_result(
@@ -218,11 +271,37 @@ def build_damage_table(
     }
 
 
+def build_bound_damage_table(
+    state: PublicState,
+    attack_ids: Iterable[int],
+    **kwargs: object,
+) -> BoundDamageTable:
+    """Evaluate current opposing Active damage and bind it to this state."""
+
+    if not isinstance(state, PublicState):
+        raise ValueError("bound damage evaluation requires a PublicState")
+    target = state.opponent_active
+    target_remaining_hp = None if target is None else target.remaining_hp
+    results = build_damage_table(
+        attack_ids,
+        target_remaining_hp=target_remaining_hp,
+        **kwargs,
+    )
+    return BoundDamageTable(
+        state_fingerprint=public_state_fingerprint(state),
+        target_ref=None if target is None else target.ref,
+        results=tuple(results.items()),
+        _issuer_token=_BOUND_DAMAGE_ISSUER_TOKEN,
+    )
+
+
 __all__ = [
+    "BoundDamageTable",
     "DamageResult",
     "FIGHTING_ENERGY_TYPE",
     "PPP_DAMAGE_BONUS",
     "RESISTANCE_REDUCTION",
     "build_damage_table",
+    "build_bound_damage_table",
     "evaluate_attack_damage",
 ]

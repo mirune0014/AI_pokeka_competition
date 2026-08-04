@@ -1,4 +1,15 @@
-from mega_lucario_rule_agent.damage import build_damage_table, evaluate_attack_damage
+from dataclasses import replace
+
+import pytest
+
+from mega_lucario_rule_agent.damage import (
+    BoundDamageTable,
+    build_bound_damage_table,
+    build_damage_table,
+    evaluate_attack_damage,
+)
+from mega_lucario_rule_agent.tests.test_fallback import state
+from mega_lucario_rule_agent.state_view import public_state_fingerprint
 
 
 def test_base_damage_and_ppp_zero_to_four():
@@ -77,3 +88,34 @@ def test_damage_table_is_stably_ordered_and_unknown_attack_fails_closed():
     assert not unknown.exact
     assert unknown.knockout is None
     assert unknown.unknown_reasons == ("UNKNOWN_ATTACK",)
+
+
+def test_bound_damage_table_is_checked_sorted_and_bound_to_active_target():
+    current = state(opponent_hp=200)
+    table = build_bound_damage_table(current, (983, 982, 983))
+
+    assert table.state_fingerprint == public_state_fingerprint(current)
+    assert table.target_ref == current.opponent_active.ref
+    assert tuple(attack_id for attack_id, _ in table.results) == (982, 983)
+    assert table.get(982).target_remaining_hp == 200
+    assert table.get(982).knockout is False
+    assert table.get(983).knockout is True
+
+
+def test_bound_damage_table_cannot_be_forged_without_checked_builder():
+    current = state()
+    result = evaluate_attack_damage(982, target_remaining_hp=100)
+    with pytest.raises(ValueError, match="checked builder"):
+        BoundDamageTable(
+            state_fingerprint=public_state_fingerprint(current),
+            target_ref=current.opponent_active.ref,
+            results=((982, result),),
+            _issuer_token=object(),
+        )
+
+
+def test_bound_damage_fingerprint_changes_with_public_state():
+    current = state(opponent_hp=200)
+    table = build_bound_damage_table(current, (983,))
+    changed = replace(current, turn_action_count=current.turn_action_count + 1)
+    assert table.state_fingerprint != public_state_fingerprint(changed)

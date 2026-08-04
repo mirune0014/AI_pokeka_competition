@@ -3,6 +3,11 @@ from types import SimpleNamespace
 
 import pytest
 
+from mega_lucario_rule_agent.fallback import resolve_forced_or_setup
+from mega_lucario_rule_agent.resource_ledger import (
+    ReservationKind,
+    ResourceLedger,
+)
 from mega_lucario_rule_agent.state_view import (
     ActionSpec,
     AreaType,
@@ -182,6 +187,72 @@ def test_energy_unit_count_is_part_of_semantic_identity():
     assert options[0].key.energy_count == 1
     assert options[1].key.energy_count == 2
     assert options[0].key != options[1].key
+
+
+def test_attached_resource_uses_physical_zone_and_hard_reservation_in_fallback():
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.ENERGY_CARD),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "energyIndex": 0,
+                "playerIndex": 0,
+            },
+            {
+                "type": int(OptionType.ENERGY_CARD),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "energyIndex": 1,
+                "playerIndex": 0,
+            },
+        ],
+        context=SelectContext.DISCARD_ENERGY_CARD,
+    )
+    obs["select"]["type"] = int(SelectType.ATTACHED_CARD)
+    obs["current"]["players"][0]["active"][0] = pokemon(
+        676,
+        10,
+        hp=110,
+        energies=[71, 72],
+    )
+    state = build_public_state(obs)
+    options = build_semantic_options(obs)
+    first_energy, second_energy = state.own.active[0].energy_refs
+    ledger = ResourceLedger((first_energy, second_energy)).reserve_exact(
+        "CURRENT_ATTACK_ENERGY",
+        ReservationKind.HARD_RESERVED,
+        "preserve current attack",
+        (first_energy,),
+    )
+
+    assert tuple(option.key.source_zone for option in options) == (
+        int(AreaType.ENERGY),
+        int(AreaType.ENERGY),
+    )
+    decision = resolve_forced_or_setup(state, options, ledger)
+    assert decision.choices[0].card_serial == 72
+    assert decision.bind_now(state, options) == (1,)
+
+    tool_obs = observation(
+        [
+            {
+                "type": int(OptionType.TOOL_CARD),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "toolIndex": 0,
+                "playerIndex": 0,
+            }
+        ],
+        context=SelectContext.DISCARD_TOOL_CARD,
+    )
+    tool_obs["select"]["type"] = int(SelectType.ATTACHED_CARD)
+    tool_obs["current"]["players"][0]["active"][0]["tools"] = [
+        card(1159, 81)
+    ]
+    tool_option = build_semantic_options(tool_obs)[0]
+    assert tool_option.key.card_serial == 81
+    assert tool_option.key.source_zone == int(AreaType.TOOL)
 
 
 def test_attack_and_evolution_target_use_stable_semantics():
