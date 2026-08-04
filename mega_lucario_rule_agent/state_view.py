@@ -290,6 +290,7 @@ class SemanticOptionKey:
     card_serial: Optional[int] = None
     source_zone: Optional[int] = None
     source_index: Optional[int] = None
+    source_lineage_serial: Optional[int] = None
     target_zone: Optional[int] = None
     target_lineage_serial: Optional[int] = None
     attack_id: Optional[int] = None
@@ -306,6 +307,7 @@ class SemanticOptionKey:
             _optional_sort_int(self.card_serial),
             _optional_sort_int(self.source_zone),
             _optional_sort_int(self.source_index),
+            _optional_sort_int(self.source_lineage_serial),
             _optional_sort_int(self.target_zone),
             _optional_sort_int(self.target_lineage_serial),
             _optional_sort_int(self.attack_id),
@@ -323,6 +325,7 @@ class SemanticOptionKey:
             self.card_serial,
             self.source_zone,
             self.source_index,
+            self.source_lineage_serial,
             self.target_zone,
             self.target_lineage_serial,
             self.attack_id,
@@ -1098,6 +1101,12 @@ def semantic_key_for_option(observation: Any, option: Any) -> SemanticOptionKey:
     )
     raw_source_index = as_int(read_field(option, "index"))
     source_index = raw_source_index if source_ref is None and source_zone is not None else None
+    source_lineage_serial = (
+        source_ref.lineage_serial
+        if source_ref is not None
+        and source_zone in (int(AreaType.ACTIVE), int(AreaType.BENCH))
+        else None
+    )
     target_zone = as_int(read_field(option, "inPlayArea"))
     raw_relation = as_int(read_field(option, "inPlayIndex"))
     relation = raw_relation if target_ref is None else None
@@ -1108,6 +1117,7 @@ def semantic_key_for_option(observation: Any, option: Any) -> SemanticOptionKey:
         card_serial=None if source_ref is None else source_ref.serial,
         source_zone=source_zone,
         source_index=source_index,
+        source_lineage_serial=source_lineage_serial,
         target_zone=target_zone,
         target_lineage_serial=None if target_ref is None else target_ref.lineage_serial,
         attack_id=as_int(read_field(option, "attackId")),

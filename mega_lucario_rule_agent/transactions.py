@@ -148,6 +148,19 @@ def _validate_persisted_action_spec(action_spec: ActionSpec) -> None:
                 raise ValueError(
                     "persisted card actions require card ID, serial, owner, and zone"
                 )
+        if key.source_lineage_serial is not None and (
+            not _is_exact_int(key.source_lineage_serial)
+            or key.source_lineage_serial < 0
+            or key.source_zone not in (int(AreaType.ACTIVE), int(AreaType.BENCH))
+        ):
+            raise ValueError(
+                'persisted source lineage requires an active or bench source zone'
+            )
+        if key.source_zone in (int(AreaType.ACTIVE), int(AreaType.BENCH)) and (
+            not _is_exact_int(key.source_lineage_serial)
+            or key.source_lineage_serial < 0
+        ):
+            raise ValueError('in-play transaction sources require a lineage serial')
         if key.target_lineage_serial is not None and (
             not _is_exact_int(key.target_lineage_serial)
             or key.target_lineage_serial < 0

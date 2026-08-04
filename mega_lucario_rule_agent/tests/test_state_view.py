@@ -324,6 +324,7 @@ def test_skill_source_is_recovered_from_public_board_and_rebinds_by_serial():
     assert first[0].key.card_id == 675
     assert first[0].key.card_serial == 21
     assert first[0].key.source_zone == int(AreaType.BENCH)
+    assert first[0].key.source_lineage_serial == 21
     assert first[0].key.target_lineage_serial is None
 
     permuted = deepcopy(obs)
