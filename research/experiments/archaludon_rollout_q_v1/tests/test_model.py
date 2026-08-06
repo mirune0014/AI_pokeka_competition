@@ -26,5 +26,7 @@ def test_forward_backward_save_reload(tmp_path: Path):
     save_checkpoint(path, model, config, seed=1, metrics={'loss': after}, source_rounds=[0])
     reloaded, loaded_config, _ = load_checkpoint(path)
     assert loaded_config == config
-    model.eval()
-    assert torch.allclose(model(state, candidate, baseline), reloaded(state, candidate, baseline))
+    for name, expected in model.state_dict().items():
+        assert name in reloaded.state_dict()
+        assert torch.equal(reloaded.state_dict()[name], expected)
+    assert set(reloaded.state_dict()) == set(model.state_dict())

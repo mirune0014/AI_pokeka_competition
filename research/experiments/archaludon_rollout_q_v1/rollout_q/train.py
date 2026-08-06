@@ -121,6 +121,10 @@ def _train_seed(
     # A direct save/reload check is intentionally ordinary and local; the
     # deployment checkpoint itself contains no optimizer state.
     reloaded, _, _ = load_checkpoint(checkpoint)
+    for name, expected in model.state_dict().items():
+        actual = reloaded.state_dict().get(name)
+        if actual is None or not torch.equal(actual, expected):
+            raise RuntimeError(f'checkpoint reload tensor mismatch: {name}')
     if set(reloaded.state_dict()) != set(model.state_dict()):
         raise RuntimeError('checkpoint reload parameter set differs')
     return {'seed': int(seed), 'checkpoint': str(checkpoint), **metrics}

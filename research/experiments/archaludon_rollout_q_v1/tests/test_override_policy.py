@@ -77,3 +77,12 @@ def test_ensemble_disagreement_falls_back(monkeypatch):
         support={(0, '3'): 100},
     )
     assert policy.choose_action({'select': {'context': 0}}) == [0]
+
+
+def test_support_counts_training_rows_only():
+    rows = [
+        {'split': 'validation', 'context': 0, 'family': '3'},
+        {'split': 'training', 'context': 0, 'family': '3'},
+        {'split': 'training', 'context': 0, 'family': '3'},
+    ]
+    assert override_policy.support_from_rows(rows) == {(0, '3'): 2}

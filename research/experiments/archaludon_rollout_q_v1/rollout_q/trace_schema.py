@@ -76,6 +76,7 @@ class BranchPoint:
     baseline_action: tuple[int, ...]
     baseline_candidate_index: int
     candidates: tuple[dict[str, Any], ...]
+    state_vector: tuple[float, ...] = ()
     option_vectors: tuple[tuple[float, ...], ...] = ()
     owner_before: Any = None
     owner_after: Any = None
@@ -86,6 +87,7 @@ class BranchPoint:
         result['candidates'] = [dict(candidate) for candidate in self.candidates]
         for candidate in result['candidates']:
             candidate['action'] = list(candidate['action'])
+        result['state_vector'] = list(self.state_vector)
         result['option_vectors'] = [list(vector) for vector in self.option_vectors]
         return result
 
@@ -104,6 +106,7 @@ class BranchPoint:
             baseline_action=_tuple_action(value['baseline_action']),
             baseline_candidate_index=int(value['baseline_candidate_index']),
             candidates=tuple(candidates),
+            state_vector=tuple(float(item) for item in value.get('state_vector', ())),
             option_vectors=tuple(
                 tuple(float(item) for item in vector)
                 for vector in value.get('option_vectors', ())

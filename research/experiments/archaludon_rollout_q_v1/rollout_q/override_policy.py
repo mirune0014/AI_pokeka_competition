@@ -9,16 +9,15 @@ from typing import Any, Mapping, Sequence
 
 import torch
 
-from research.experiments.archaludon_latest_v1_rl_pcgrad_candidate_20260801.archaludon_rl.complete_action import (
+from .complete_action import (
     observation_complete_actions,
     observation_option_rows,
 )
 from research.experiments.archaludon_latest_v1_rl_pcgrad_candidate_20260801.archaludon_rl.public_state import (
     enum_int,
     get_field,
-    project_public_state,
 )
-from research.rl_ptcg.encoding import encode_observation, encode_state
+from research.rl_ptcg.encoding import encode_observation
 
 from .agent_loader import LoadedPolicy, owner_is_empty
 from .config import RolloutQConfig, MAIN_CONTEXT
@@ -38,6 +37,8 @@ def _candidate_family(candidate: Any) -> str:
 def support_from_rows(rows: Sequence[Mapping[str, Any]]) -> dict[tuple[int, str], int]:
     support: dict[tuple[int, str], int] = {}
     for row in rows:
+        if row.get('split') != 'training':
+            continue
         key = (int(row.get('context', 0)), str(row.get('family', 'empty')))
         support[key] = support.get(key, 0) + 1
     return support

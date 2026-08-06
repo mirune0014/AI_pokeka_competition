@@ -5,12 +5,17 @@ from __future__ import annotations
 from dataclasses import asdict
 import hashlib
 import importlib
+import importlib.util
+import inspect
 import json
 from pathlib import Path
 import random
+import re
+import sys
+from types import ModuleType
 from typing import Any, Iterable, Mapping
 
-from research.experiments.archaludon_latest_v1_rl_pcgrad_candidate_20260801.archaludon_rl.complete_action import (
+from .complete_action import (
     observation_complete_actions,
     observation_option_rows,
 )
@@ -91,39 +96,93 @@ def trace_observation_hash(observation: Any) -> str:
 def _load_engine() -> tuple[Any, Any, Any, Path]:
     '''Load the repository's checked local engine without copying it.'''
 
-    # The checked seeded-engine directory is optional on a fresh Windows
-    # checkout.  The formal baseline's bundled cg package is the compatible
-    # fallback; battle_start is called with seed when that API supports it.
-    candidates = (
+    engine_dir = (
         REPO_ROOT
         / '_local_generated'
         / 'analysis_outputs'
         / 'cynthia_v9_vs_v11_poffin_role_selection_20260713'
-        / 'seeded_engine',
-        REPO_ROOT
-        / 'archaludon'
-        / 'final'
-        / 'archaludon_historical_silver_single_resolver_salvage_v1',
+        / 'seeded_engine'
     )
-    for engine_dir in candidates:
-        if (engine_dir / 'cg' / 'game.py').is_file():
-            import sys
+    game_path = engine_dir / 'cg' / 'game.py'
+    if not game_path.is_file():
+        raise RuntimeError('BLOCKED: seeded engine unavailable')
 
-            if str(engine_dir) not in sys.path:
-                sys.path.insert(0, str(engine_dir))
-            game = importlib.import_module('cg.game')
-            return game.battle_start, game.battle_select, game.battle_finish, engine_dir
-    raise FileNotFoundError('no compatible cg engine was found')
+    # A previous import of the formal bundled ``cg`` package must not shadow
+    # the checked seeded runtime.  The engine is loaded once per process, so
+    # removing only an incompatible pre-import is safe before a battle starts.
+    incompatible_cg = False
+    for name, loaded in tuple(sys.modules.items()):
+        if name != 'cg' and not name.startswith('cg.'):
+            continue
+        loaded_file = getattr(loaded, '__file__', None)
+        try:
+            if loaded_file is not None and Path(loaded_file).resolve().is_relative_to(engine_dir.resolve()):
+                continue
+        except (OSError, ValueError):
+            pass
+        if name != 'cg':
+            incompatible_cg = True
+            break
+    if incompatible_cg:
+        for name in tuple(sys.modules):
+            if name == 'cg' or name.startswith('cg.'):
+                sys.modules.pop(name, None)
+    existing_api = sys.modules.get('cg.api')
+    if existing_api is not None and not hasattr(existing_api, 'AreaType'):
+        sys.modules.pop('cg.api', None)
+    if str(engine_dir) not in sys.path:
+        sys.path.insert(0, str(engine_dir))
+    importlib.invalidate_caches()
+    def import_checked(name: str, path: Path) -> Any:
+        try:
+            return importlib.import_module(name)
+        except TypeError as exc:
+            if 'unsupported operand type(s) for |' not in str(exc) or sys.version_info >= (3, 10):
+                raise
+            sys.modules.pop(name, None)
+            spec = importlib.util.spec_from_file_location(name, path)
+            if spec is None:
+                raise RuntimeError('BLOCKED: seeded engine unavailable') from exc
+            module = ModuleType(name)
+            module.__file__ = str(path)
+            module.__package__ = 'cg'
+            module.__spec__ = spec
+            sys.modules[name] = module
+            source = path.read_text(encoding='utf-8-sig')
+            if path.name == 'api.py':
+                source = source.replace('list[Pokemon | None]', 'list[Optional[Pokemon]]')
+                source = source.replace('list[Card | None]', 'list[Optional[Card]]')
+                source = source.replace('list[Card] | None', 'Optional[list[Card]]')
+                source = source.replace('list[Optional[Card]] | None', 'Optional[list[Optional[Card]]]')
+                for token in (
+                    'int', 'bool', 'str', 'Pokemon', 'Card', 'SelectData', 'State',
+                    'SearchState', 'EnergyType', 'SpecialConditionType', 'AreaType',
+                ):
+                    source = re.sub(
+                        rf'\b{re.escape(token)}\s*\|\s*None\b',
+                        f'Optional[{token}]',
+                        source,
+                    )
+                source = 'from typing import Optional\n' + source
+            elif path.name == 'game.py':
+                source = 'from typing import Optional\n' + source.replace('int | None', 'Optional[int]')
+            code = compile(source, str(path), 'exec', dont_inherit=True)
+            exec(code, module.__dict__)
+            return module
 
+    import_checked('cg.api', engine_dir / 'cg' / 'api.py')
+    game = import_checked('cg.game', game_path)
+    try:
+        parameters = inspect.signature(game.battle_start).parameters
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError('BLOCKED: seeded engine unavailable') from exc
+    if 'seed' not in parameters:
+        raise RuntimeError('BLOCKED: seeded engine unavailable')
+    return game.battle_start, game.battle_select, game.battle_finish, engine_dir
 
 def _battle_start(battle_start: Any, decks: tuple[list[int], list[int]], seed: int) -> tuple[Any, Any]:
     random.seed(int(seed))
-    try:
-        return battle_start(*decks, seed=int(seed))
-    except TypeError as exc:
-        if 'seed' not in str(exc):
-            raise
-        return battle_start(*decks)
+    return battle_start(*decks, seed=int(seed))
 
 
 def _opponent_rows() -> list[dict[str, Any]]:
@@ -166,6 +225,32 @@ def _seed_for(round_index: int, cell_index: int, game_index: int) -> int:
 def _cell_counts(total_games: int, cells: int = 16) -> list[int]:
     base, remainder = divmod(int(total_games), int(cells))
     return [base + (1 if index < remainder else 0) for index in range(cells)]
+
+
+def build_source_policy(config: RolloutQConfig, round_index: int, baseline: Any) -> Any:
+    """Build the fixed source policy for one expert-iteration round.
+
+    Round 0 uses the formal baseline directly.  Later rounds use the prior
+    round's frozen three-model override ensemble around that same baseline
+    object.  The returned object is kept for the complete replay lifetime.
+    """
+
+    if int(round_index) == 0:
+        return baseline
+    if int(round_index) < 0 or int(round_index) >= config.rounds:
+        raise ValueError('round index is outside the fixed specification')
+    previous_dataset = load_dataset(config, int(round_index) - 1)
+    checkpoint_dir = round_dir(config, int(round_index) - 1) / 'checkpoints'
+    checkpoint_paths = [checkpoint_dir / f'rollout_q_seed{seed}.pt' for seed in config.training_seeds]
+    if any(not path.is_file() for path in checkpoint_paths):
+        raise FileNotFoundError('previous-round Rollout-Q checkpoints are required for source policy')
+    support = support_from_rows(previous_dataset.get('rows', []))
+    return RolloutQOverridePolicy.from_checkpoints(
+        baseline=baseline,
+        checkpoint_paths=checkpoint_paths,
+        config=config,
+        support=support,
+    )
 
 
 def _candidate_record(candidate: Any) -> dict[str, Any]:
@@ -234,8 +319,6 @@ def _collect_one(
                 action_errors += 1
                 raise
             owner_after = owner_view(baseline) if source == 'BASELINE' else None
-            recorded_baseline = getattr(source_policy, 'last_baseline_action', None)
-            baseline_reference = action if recorded_baseline is None else recorded_baseline
             step = TraceStep(
                 step_index=step_index,
                 current_player=current_player,
@@ -254,11 +337,10 @@ def _collect_one(
                     if (
                         config.minimum_candidate_count <= len(candidates.candidates) <= config.maximum_candidate_count
                         and baseline_index is not None
-                        and tuple(action) == tuple(baseline_reference)
                         and owner_before is None
                         and owner_after is None
                     ):
-                        vectors = encode_observation(observation).option_vectors
+                        encoded = encode_observation(observation)
                         eligible_points.append(
                             BranchPoint(
                                 branch_group_id='',
@@ -268,7 +350,11 @@ def _collect_one(
                                 baseline_action=tuple(action),
                                 baseline_candidate_index=int(baseline_index),
                                 candidates=tuple(_candidate_record(candidate) for candidate in candidates.candidates),
-                                option_vectors=tuple(tuple(float(item) for item in vector) for vector in vectors),
+                                state_vector=tuple(float(item) for item in encoded.state_vector),
+                                option_vectors=tuple(
+                                    tuple(float(item) for item in vector)
+                                    for vector in encoded.option_vectors
+                                ),
                                 owner_before=owner_before,
                                 owner_after=owner_after,
                             )
@@ -299,8 +385,6 @@ def _collect_one(
             except Exception as exc:
                 clean_terminal = False
                 error = error or f'{type(exc).__name__}: {exc}'
-    if getattr(getattr(source_policy, 'telemetry', None), 'override_count', 0) > 0:
-        eligible_points = []
     if len(eligible_points) > config.maximum_branch_points_per_source_game:
         keyed = []
         for point in eligible_points:
@@ -318,6 +402,7 @@ def _collect_one(
             baseline_action=point.baseline_action,
             baseline_candidate_index=point.baseline_candidate_index,
             candidates=point.candidates,
+            state_vector=point.state_vector,
             option_vectors=point.option_vectors,
             owner_before=point.owner_before,
             owner_after=point.owner_after,
@@ -362,20 +447,7 @@ def collect_source_round(
     if requested <= 0 or requested > config.source_games_per_round:
         raise ValueError('games must be in 1..source_games_per_round')
     counts = _cell_counts(config.source_games_per_round)
-    source_policy_factory = None
-    if int(round_index) > 0:
-        previous_dataset = load_dataset(config, int(round_index) - 1)
-        checkpoint_dir = round_dir(config, int(round_index) - 1) / 'checkpoints'
-        checkpoint_paths = [checkpoint_dir / f'rollout_q_seed{seed}.pt' for seed in config.training_seeds]
-        if any(not path.is_file() for path in checkpoint_paths):
-            raise FileNotFoundError('previous-round Rollout-Q checkpoints are required for source policy')
-        support = support_from_rows(previous_dataset.get('rows', []))
-        source_policy_factory = lambda baseline: RolloutQOverridePolicy.from_checkpoints(
-            baseline=baseline,
-            checkpoint_paths=checkpoint_paths,
-            config=config,
-            support=support,
-        )
+    source_policy_factory = lambda baseline: build_source_policy(config, int(round_index), baseline)
     traces: list[SourceTrace] = []
     emitted = 0
     for cell_index, row in enumerate(rows):
@@ -420,4 +492,9 @@ def collect_source_round(
     return summary
 
 
-__all__ = ['collect_source_round', 'resolve_opponent_dir', 'trace_observation_hash']
+__all__ = [
+    'build_source_policy',
+    'collect_source_round',
+    'resolve_opponent_dir',
+    'trace_observation_hash',
+]

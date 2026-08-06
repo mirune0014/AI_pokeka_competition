@@ -18,6 +18,21 @@ from .source_collector import collect_source_round
 from .train import train_through_round
 
 
+def _require_round_inputs(config: Any, round_index: int, shard_count: int) -> None:
+    round_root = config.output_dir / f'round_{int(round_index):02d}'
+    source_dir = round_root / 'source_traces'
+    if not source_dir.is_dir() or not any(source_dir.glob('*.json')):
+        raise FileNotFoundError(f'source traces are required before run-round: {source_dir}')
+    tasks_path = round_root / 'tasks' / 'all_tasks.jsonl'
+    if not tasks_path.is_file():
+        raise FileNotFoundError(f'all_tasks.jsonl is required before run-round: {tasks_path}')
+    result_dir = round_root / 'branch_results'
+    for shard_index in range(int(shard_count)):
+        path = result_dir / f'shard_{shard_index:03d}_of_{int(shard_count):03d}.jsonl'
+        if not path.is_file():
+            raise FileNotFoundError(f'branch shard result is required before run-round: {path}')
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='archaludon-rollout-q-v1')
     parser.add_argument('--spec', type=Path, default=DEFAULT_SPEC_PATH)
@@ -86,9 +101,8 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
     if args.command == 'report':
         return report_round(config, args.round)
     if args.command == 'run-round':
+        _require_round_inputs(config, args.round, args.shard_count)
         summary: dict[str, Any] = {}
-        summary['source'] = collect_source_round(config, args.round)
-        summary['tasks'] = build_tasks_round(config, args.round)
         summary['merge'] = merge_results_round(config, args.round, shard_count=args.shard_count)
         summary['dataset'] = build_dataset(config, args.round)
         summary['training'] = train_through_round(config, args.round)

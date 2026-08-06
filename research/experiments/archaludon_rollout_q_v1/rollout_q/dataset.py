@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
-from research.rl_ptcg.encoding import OPTION_FEATURE_NAMES, encode_state
+from research.rl_ptcg.encoding import OPTION_FEATURE_NAMES
 
 from .branch_task_builder import read_tasks
 from .config import RolloutQConfig, round_dir, write_json
@@ -103,7 +103,7 @@ def _rows_for_round(config: RolloutQConfig, round_index: int) -> list[dict[str, 
                     'seat': next(task.seat for task in tasks.values() if task.branch_group_id == group_id),
                     'context': int(select.get('context', 0) or 0),
                     'family': _family(candidate),
-                    'state': [float(value) for value in encode_state(point.public_state, perspective_seat=0)],
+                    'state': [float(value) for value in point.state_vector],
                     'candidate_action': [float(value) for value in candidate_feature],
                     'baseline_action': [float(value) for value in base_feature],
                     'label': label,
