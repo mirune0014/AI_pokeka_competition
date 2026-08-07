@@ -51,6 +51,7 @@ def _parser() -> argparse.ArgumentParser:
     branches.add_argument('--shard-count', type=int, required=True)
     branches.add_argument('--shard-index', type=int, required=True)
     branches.add_argument('--max-steps', type=int)
+    branches.add_argument('--maximum-groups', type=int)
 
     merge = commands.add_parser('merge-results')
     merge.add_argument('--round', type=int, required=True)
@@ -89,6 +90,7 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
             shard_count=args.shard_count,
             shard_index=args.shard_index,
             max_steps=args.max_steps,
+            maximum_groups=args.maximum_groups,
         )
     if args.command == 'merge-results':
         return merge_results_round(config, args.round, shard_count=args.shard_count)

@@ -10,6 +10,7 @@ from research.experiments.archaludon_rollout_q_v1.rollout_q.source_collector imp
     _opponent_rows,
     resolve_opponent_dir,
     trace_observation_hash,
+    _cell_counts,
 )
 
 
@@ -46,6 +47,7 @@ def test_same_public_observation_hash_ignores_engine_search_scratch():
 
 def test_seeded_engine_replays_one_real_prefix_twice():
     config = load_spec()
+    assert _cell_counts(32) == [2] * 16
     engine = _load_engine()
     row = _opponent_rows()[0]
     trace = _collect_one(

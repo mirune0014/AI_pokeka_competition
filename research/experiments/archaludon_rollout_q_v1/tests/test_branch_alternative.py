@@ -3,9 +3,12 @@ from __future__ import annotations
 from dataclasses import replace
 from pathlib import Path
 
+import torch
+
 from research.experiments.archaludon_rollout_q_v1.rollout_q.branch_runner import _EpisodeReplay, _result_from_replay, run_branch_group
 from research.experiments.archaludon_rollout_q_v1.rollout_q.branch_task_builder import tasks_for_trace
 from research.experiments.archaludon_rollout_q_v1.rollout_q.config import load_spec, round_dir
+from research.experiments.archaludon_rollout_q_v1.rollout_q.override_policy import RoundPolicyResources
 from research.experiments.archaludon_rollout_q_v1.rollout_q.source_collector import (
     _collect_one,
     _load_engine,
@@ -73,3 +76,43 @@ def test_real_alternative_candidate_reaches_clean_terminal(tmp_path: Path):
     assert by_index[baseline.candidate_index].status == 'OK'
     assert by_index[alternative.candidate_index].status == 'OK'
     assert by_index[alternative.candidate_index].clean_terminal
+
+
+def test_round1_forced_override_is_used_by_source_and_branch(tmp_path: Path):
+    base_config = load_spec()
+    config = replace(base_config, output_root=str(tmp_path), override_minimum_support=0)
+
+    class ConstantPositiveModel(torch.nn.Module):
+        def forward(self, state, candidate, baseline):
+            return torch.full((candidate.shape[0],), 10.0, dtype=candidate.dtype)
+
+    models = (ConstantPositiveModel(), ConstantPositiveModel(), ConstantPositiveModel())
+    resources = RoundPolicyResources(checkpoint_round=0, models=models, support={})
+    row = _opponent_rows()[0]
+    trace = _collect_one(
+        config=config,
+        round_index=1,
+        opponent_id=str(row['id']),
+        opponent_dir=resolve_opponent_dir(row, config),
+        seat=0,
+        seed=910000987,
+        engine=_load_engine(),
+        max_steps=config.worker_max_steps,
+        source_policy_factory=lambda baseline: resources.bind(baseline, config),
+    )
+    assert trace.clean_terminal and trace.branch_points
+    assert trace.source_override_count > 0
+    trace_path = round_dir(config, 1) / 'source_traces' / f'{trace.episode_id}.json'
+    write_record(trace_path, trace.to_dict())
+    all_tasks = tasks_for_trace(trace)
+    group = [task for task in all_tasks if task.branch_group_id == trace.branch_points[0].branch_group_id]
+    baseline = next(task for task in group if task.candidate_index == task.baseline_candidate_index)
+    alternative = next(task for task in group if task.candidate_index != task.baseline_candidate_index)
+    results = run_branch_group(config, [baseline, alternative], resources=resources)
+    by_index = {result.candidate_index: result for result in results}
+    assert by_index[baseline.candidate_index].status == 'OK'
+    assert by_index[baseline.candidate_index].is_baseline_candidate
+    assert by_index[alternative.candidate_index].status == 'OK'
+    assert by_index[alternative.candidate_index].clean_terminal
+    assert by_index[alternative.candidate_index].action_errors == 0
+    assert not by_index[alternative.candidate_index].max_step_hit

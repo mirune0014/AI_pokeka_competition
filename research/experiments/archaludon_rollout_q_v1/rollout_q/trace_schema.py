@@ -130,6 +130,9 @@ class SourceTrace:
     engine_steps: int = 0
     action_errors: int = 0
     max_step_hit: bool = False
+    source_override_count: int = 0
+    source_fallback_count: int = 0
+    source_model_failure_count: int = 0
     error: str | None = None
     schema_version: str = SOURCE_TRACE_SCHEMA
 
@@ -146,6 +149,9 @@ class SourceTrace:
             'engine_steps': self.engine_steps,
             'action_errors': self.action_errors,
             'max_step_hit': self.max_step_hit,
+            'source_override_count': self.source_override_count,
+            'source_fallback_count': self.source_fallback_count,
+            'source_model_failure_count': self.source_model_failure_count,
             'error': self.error,
             'steps': [step.to_dict() for step in self.steps],
             'branch_points': [point.to_dict() for point in self.branch_points],
@@ -168,6 +174,9 @@ class SourceTrace:
             engine_steps=int(value.get('engine_steps', 0)),
             action_errors=int(value.get('action_errors', 0)),
             max_step_hit=bool(value.get('max_step_hit', False)),
+            source_override_count=int(value.get('source_override_count', 0)),
+            source_fallback_count=int(value.get('source_fallback_count', 0)),
+            source_model_failure_count=int(value.get('source_model_failure_count', 0)),
             error=None if value.get('error') is None else str(value['error']),
         )
 

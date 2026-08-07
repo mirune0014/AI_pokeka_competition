@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import json
+from pathlib import Path
 
-from research.experiments.archaludon_rollout_q_v1.rollout_q.branch_runner import _assigned
-from research.experiments.archaludon_rollout_q_v1.rollout_q.trace_schema import BranchTask
+from research.experiments.archaludon_rollout_q_v1.rollout_q.branch_runner import _assigned, _load_and_repair_existing_results
+from research.experiments.archaludon_rollout_q_v1.rollout_q.trace_schema import BRANCH_RESULT_SCHEMA, BranchResult, BranchTask
 
 
 def _task(seed: int, candidate_index: int = 0) -> BranchTask:
@@ -43,3 +45,43 @@ def test_all_candidates_in_one_group_map_to_one_shard():
     assert [_assigned(baseline, 11, index) for index in range(11)] == [
         _assigned(alternative, 11, index) for index in range(11)
     ]
+
+
+def test_partial_group_and_truncated_final_line_are_repaired(tmp_path: Path):
+    complete = [_task(100, 0), _task(100, 1)]
+    partial = [_task(101, 0), _task(101, 1)]
+
+    def result(task: BranchTask) -> BranchResult:
+        return BranchResult(
+            task_id=task.task_id,
+            branch_group_id=task.branch_group_id,
+            candidate_index=task.candidate_index,
+            candidate_identity=task.candidate_identity,
+            is_baseline_candidate=task.candidate_index == task.baseline_candidate_index,
+            status='OK',
+            terminal_result=0,
+            reward=1.0,
+            engine_steps=1,
+            clean_terminal=True,
+            action_errors=0,
+            max_step_hit=False,
+        )
+
+    path = tmp_path / 'shard.jsonl'
+    with path.open('w', encoding='utf-8', newline='\n') as handle:
+        handle.write(json.dumps({'schema_version': BRANCH_RESULT_SCHEMA, **result(complete[0]).to_dict()}))
+        handle.write('\n')
+        handle.write(json.dumps({'schema_version': BRANCH_RESULT_SCHEMA, **result(complete[1]).to_dict()}))
+        handle.write('\n')
+        handle.write(json.dumps({'schema_version': BRANCH_RESULT_SCHEMA, **result(partial[0]).to_dict()}))
+        handle.write('\n')
+        handle.write('{"schema_version":"truncated"')
+    kept, completed, repaired, truncated = _load_and_repair_existing_results(
+        path,
+        {complete[0].branch_group_id: complete, partial[0].branch_group_id: partial},
+    )
+    assert {row.task_id for row in kept} == {task.task_id for task in complete}
+    assert completed == {complete[0].branch_group_id}
+    assert repaired == 1
+    assert truncated == 1
+    assert len(path.read_text(encoding='utf-8').splitlines()) == 2

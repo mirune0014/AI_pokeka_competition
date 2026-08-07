@@ -64,6 +64,28 @@ def _load_round_data(config: RolloutQConfig, round_index: int) -> tuple[dict[str
 
 def _rows_for_round(config: RolloutQConfig, round_index: int) -> list[dict[str, Any]]:
     tasks, traces, results = _load_round_data(config, round_index)
+    group_meta: dict[str, BranchTask] = {}
+    for task in tasks.values():
+        existing = group_meta.get(task.branch_group_id)
+        if existing is None:
+            group_meta[task.branch_group_id] = task
+            continue
+        expected = (
+            existing.source_episode_id,
+            existing.opponent_id,
+            int(existing.seat),
+            int(existing.seed),
+            int(existing.branch_step_index),
+        )
+        actual = (
+            task.source_episode_id,
+            task.opponent_id,
+            int(task.seat),
+            int(task.seed),
+            int(task.branch_step_index),
+        )
+        if actual != expected:
+            raise ValueError(f'branch group metadata mismatch: {task.branch_group_id}')
     points: dict[str, BranchPoint] = {}
     for trace in traces.values():
         for point in trace.branch_points:
@@ -80,37 +102,46 @@ def _rows_for_round(config: RolloutQConfig, round_index: int) -> list[dict[str, 
         point = points.get(group_id)
         if point is None:
             continue
+        meta = group_meta.get(group_id)
+        if meta is None:
+            raise ValueError(f'branch result group has no task metadata: {group_id}')
         base_candidate = _candidate_by_index(point, baseline.candidate_index)
         base_feature = complete_action_feature(point.option_vectors, base_candidate['action'])
         for candidate_result in group_results:
             if candidate_result.is_baseline_candidate or candidate_result.status != 'OK' or candidate_result.reward is None:
                 continue
-            if float(candidate_result.reward) == float(baseline.reward):
-                continue
             candidate = _candidate_by_index(point, candidate_result.candidate_index)
             candidate_feature = complete_action_feature(point.option_vectors, candidate['action'])
-            label = 1.0 if float(candidate_result.reward) > float(baseline.reward) else 0.0
-            weight = 2.0 if (float(baseline.reward), float(candidate_result.reward)) in ((-1.0, 1.0), (1.0, -1.0)) else 1.0
+            reward_delta = float(candidate_result.reward) - float(baseline.reward)
+            if reward_delta > 0.0:
+                label = 1.0
+                outcome_class = 'IMPROVED'
+            elif reward_delta < 0.0:
+                label = 0.0
+                outcome_class = 'WORSE'
+            else:
+                label = 0.0
+                outcome_class = 'EQUAL'
             select = point.public_state.get('select') or {}
             rows.append(
                 {
                     'source_round': int(round_index),
-                    'source_episode_id': next(
-                        task.source_episode_id for task in tasks.values() if task.branch_group_id == group_id
-                    ),
+                    'source_episode_id': meta.source_episode_id,
                     'branch_group_id': group_id,
-                    'opponent_id': next(task.opponent_id for task in tasks.values() if task.branch_group_id == group_id),
-                    'seat': next(task.seat for task in tasks.values() if task.branch_group_id == group_id),
+                    'opponent_id': meta.opponent_id,
+                    'seat': int(meta.seat),
                     'context': int(select.get('context', 0) or 0),
                     'family': _family(candidate),
-                    'state': [float(value) for value in point.state_vector],
+                    'state': list(point.state_vector),
                     'candidate_action': [float(value) for value in candidate_feature],
                     'baseline_action': [float(value) for value in base_feature],
                     'label': label,
-                    'weight': weight,
+                    'weight': 1.0,
                     'candidate_reward': float(candidate_result.reward),
                     'baseline_reward': float(baseline.reward),
-                    'split': episode_split(next(task.source_episode_id for task in tasks.values() if task.branch_group_id == group_id)),
+                    'reward_delta': reward_delta,
+                    'outcome_class': outcome_class,
+                    'split': episode_split(meta.source_episode_id),
                 }
             )
     return rows
@@ -135,6 +166,9 @@ def build_dataset(config: RolloutQConfig, through_round: int) -> dict[str, Any]:
         'action_feature_dim': action_dim,
     }
     write_json(output, payload)
+    improved_rows = sum(int(row.get('outcome_class') == 'IMPROVED') for row in rows)
+    equal_rows = sum(int(row.get('outcome_class') == 'EQUAL') for row in rows)
+    worse_rows = sum(int(row.get('outcome_class') == 'WORSE') for row in rows)
     summary = {
         'schema_version': 'archaludon-dataset-summary-v1',
         'through_round': int(through_round),
@@ -143,6 +177,10 @@ def build_dataset(config: RolloutQConfig, through_round: int) -> dict[str, Any]:
         'validation_rows': sum(int(row['split'] == 'validation') for row in rows),
         'positive_rows': sum(int(row['label'] == 1.0) for row in rows),
         'negative_rows': sum(int(row['label'] == 0.0) for row in rows),
+        'improved_rows': improved_rows,
+        'equal_rows': equal_rows,
+        'worse_rows': worse_rows,
+        'strict_improvement_rate': (improved_rows / len(rows)) if rows else None,
         'state_dim': state_dim,
         'action_feature_dim': action_dim,
         'dataset_path': str(output),

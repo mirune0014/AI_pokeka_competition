@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 import json
+import os
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -20,6 +21,7 @@ from .source_collector import (
     resolve_opponent_dir,
     trace_observation_hash,
 )
+from .override_policy import RoundPolicyResources
 from .trace_schema import (
     BRANCH_RESULT_SCHEMA,
     BranchResult,
@@ -97,6 +99,7 @@ def _run_replay(
     task: BranchTask,
     trace: SourceTrace,
     max_steps: int,
+    resources: RoundPolicyResources | None = None,
 ) -> _EpisodeReplay:
     """Replay one branch with one fixed round source-policy object.
 
@@ -108,7 +111,12 @@ def _run_replay(
     opponent_dir = _resolve_task_opponent(config, task)
     battle_start, battle_select, battle_finish, _ = _load_engine()
     baseline = load_baseline(config.baseline_dir, config.baseline_dir.name)
-    source_policy = build_source_policy(config, _round_from_task(task), baseline)
+    source_policy = build_source_policy(
+        config,
+        _round_from_task(task),
+        baseline,
+        resources=resources,
+    )
     opponent = load_opponent(opponent_dir, task.opponent_id)
     baseline.seed(task.seed)
     opponent.seed(task.seed)
@@ -256,6 +264,7 @@ def run_branch_group(
     tasks: Sequence[BranchTask],
     *,
     max_steps: int | None = None,
+    resources: RoundPolicyResources | None = None,
 ) -> list[BranchResult]:
     """Run one branch group with one baseline identity replay.
 
@@ -276,7 +285,13 @@ def run_branch_group(
     trace = SourceTrace.from_dict(read_json(_trace_path(config, baseline_task)))
     limit = max_steps or config.worker_max_steps
     try:
-        identity = _run_replay(config=config, task=baseline_task, trace=trace, max_steps=limit)
+        identity = _run_replay(
+            config=config,
+            task=baseline_task,
+            trace=trace,
+            max_steps=limit,
+            resources=resources,
+        )
         if not _identity_matches(trace, identity):
             raise ContinuationUnsafe('baseline identity gate mismatch')
     except Exception as exc:
@@ -287,7 +302,13 @@ def run_branch_group(
         if task.task_id == baseline_task.task_id:
             continue
         try:
-            alternative = _run_replay(config=config, task=task, trace=trace, max_steps=limit)
+            alternative = _run_replay(
+                config=config,
+                task=task,
+                trace=trace,
+                max_steps=limit,
+                resources=resources,
+            )
             results.append(_result_from_replay(task, alternative))
         except (ContinuationUnsafe, PrefixReplayMismatch) as exc:
             results.append(_error_result(task, 'CONTINUATION_UNSAFE', exc))
@@ -307,6 +328,80 @@ def _assigned(task: BranchTask, shard_count: int, shard_index: int) -> bool:
     return int(task.branch_group_id[:16], 16) % int(shard_count) == int(shard_index)
 
 
+def _load_and_repair_existing_results(
+    result_path: Path,
+    expected_groups: Mapping[str, Sequence[BranchTask]],
+) -> tuple[list[BranchResult], set[str], int, int]:
+    """Load a shard result file and repair only interrupted final groups.
+
+    A group is retained only when all of its expected task ids are present.
+    A partial group is removed as a unit so the caller can replay it from the
+    baseline identity gate.  Only an unterminated malformed final line is
+    treated as a truncated write; malformed lines earlier in the file stop the
+    worker because they cannot be safely attributed to an interrupted write.
+    """
+
+    if not result_path.is_file():
+        return [], set(), 0, 0
+    raw_lines = result_path.read_text(encoding='utf-8').splitlines(keepends=True)
+    rows: list[BranchResult] = []
+    seen_task_ids: set[str] = set()
+    discarded_truncated_lines = 0
+    expected_task_to_group = {
+        task.task_id: group_id
+        for group_id, group in expected_groups.items()
+        for task in group
+    }
+    for line_index, raw_line in enumerate(raw_lines):
+        if not raw_line.strip():
+            continue
+        has_line_ending = raw_line.endswith(('\n', '\r'))
+        try:
+            value = read_json_line(raw_line)
+        except Exception:
+            if line_index == len(raw_lines) - 1 and not has_line_ending:
+                discarded_truncated_lines += 1
+                break
+            raise ValueError(f'malformed branch result line {line_index + 1}')
+        result = BranchResult.from_dict(value)
+        if result.task_id in seen_task_ids:
+            raise ValueError(f'duplicate branch result task_id: {result.task_id}')
+        expected_group = expected_task_to_group.get(result.task_id)
+        if expected_group is None:
+            raise ValueError(f'branch result task is not assigned to this shard: {result.task_id}')
+        if result.branch_group_id != expected_group:
+            raise ValueError(f'branch result group mismatch: {result.task_id}')
+        seen_task_ids.add(result.task_id)
+        rows.append(result)
+
+    rows_by_group: dict[str, list[BranchResult]] = defaultdict(list)
+    for result in rows:
+        rows_by_group[result.branch_group_id].append(result)
+    completed_group_ids: set[str] = set()
+    partial_group_ids: set[str] = set()
+    for group_id, group in expected_groups.items():
+        expected_ids = {task.task_id for task in group}
+        actual_ids = {result.task_id for result in rows_by_group.get(group_id, ())}
+        if not actual_ids:
+            continue
+        if actual_ids == expected_ids:
+            completed_group_ids.add(group_id)
+        elif actual_ids < expected_ids:
+            partial_group_ids.add(group_id)
+        else:
+            raise ValueError(f'branch result task set exceeds expected group: {group_id}')
+
+    kept_rows = [result for result in rows if result.branch_group_id not in partial_group_ids]
+    repair_path = result_path.with_name(result_path.name + '.repair_tmp')
+    with repair_path.open('w', encoding='utf-8', newline='\n') as handle:
+        for result in kept_rows:
+            handle.write(json_line({'schema_version': BRANCH_RESULT_SCHEMA, **result.to_dict()}))
+            handle.write('\n')
+        handle.flush()
+    os.replace(repair_path, result_path)
+    return kept_rows, completed_group_ids, len(partial_group_ids), discarded_truncated_lines
+
+
 def run_branches_shard(
     config: RolloutQConfig,
     round_index: int,
@@ -314,6 +409,7 @@ def run_branches_shard(
     shard_count: int,
     shard_index: int,
     max_steps: int | None = None,
+    maximum_groups: int | None = None,
 ) -> dict[str, Any]:
     if shard_count <= 0 or not 0 <= shard_index < shard_count:
         raise ValueError('invalid shard specification')
@@ -324,30 +420,31 @@ def run_branches_shard(
         groups[task.branch_group_id].append(task)
     result_path = round_dir(config, round_index) / 'branch_results' / f'shard_{shard_index:03d}_of_{shard_count:03d}.jsonl'
     result_path.parent.mkdir(parents=True, exist_ok=True)
-    completed: set[str] = set()
-    if result_path.is_file():
-        for line in result_path.read_text(encoding='utf-8').splitlines():
-            if line.strip():
-                completed.add(str(read_json_line(line)['task_id']))
+    if maximum_groups is not None and int(maximum_groups) < 0:
+        raise ValueError('maximum_groups must be non-negative')
+    repaired_rows, completed_groups, repaired_partial_groups, discarded_truncated_lines = _load_and_repair_existing_results(
+        result_path,
+        groups,
+    )
+    completed = {result.task_id for result in repaired_rows}
     pending_groups: list[list[BranchTask]] = []
-    skipped_groups = 0
     for group_id in sorted(groups):
         group = sorted(groups[group_id], key=lambda task: (task.candidate_index, task.task_id))
         task_ids = {task.task_id for task in group}
         overlap = task_ids & completed
-        if overlap and overlap != task_ids:
-            raise ValueError(f'partial completed branch group: {group_id}')
-        if overlap == task_ids:
-            skipped_groups += 1
-        else:
+        if overlap != task_ids:
             pending_groups.append(group)
+    if maximum_groups is not None:
+        pending_groups = pending_groups[: int(maximum_groups)]
+    resources = None if int(round_index) == 0 else RoundPolicyResources.load(config, int(round_index) - 1)
     written = 0
     with result_path.open('a', encoding='utf-8', newline='\n') as handle:
         for group in pending_groups:
-            for result in run_branch_group(config, group, max_steps=max_steps):
+            for result in run_branch_group(config, group, max_steps=max_steps, resources=resources):
                 handle.write(json_line({'schema_version': BRANCH_RESULT_SCHEMA, **result.to_dict()}))
                 handle.write('\n')
                 written += 1
+        handle.flush()
     summary = {
         'schema_version': 'archaludon-branch-shard-summary-v1',
         'round': int(round_index),
@@ -355,8 +452,13 @@ def run_branches_shard(
         'shard_index': int(shard_index),
         'assigned_tasks': len(tasks),
         'assigned_groups': len(groups),
-        'skipped_groups': skipped_groups,
+        'completed_groups_before_run': len(completed_groups),
+        'repaired_partial_groups': repaired_partial_groups,
+        'discarded_truncated_lines': discarded_truncated_lines,
+        'pending_groups': len(pending_groups),
+        'written_groups': len(pending_groups),
         'written_tasks': written,
+        'skipped_groups': len(completed_groups),
         'result_path': str(result_path),
     }
     write_json(round_dir(config, round_index) / 'branch_results' / f'shard_{shard_index:03d}_summary.json', summary)
@@ -378,6 +480,7 @@ __all__ = [
     'ContinuationUnsafe',
     'PrefixReplayMismatch',
     '_assigned',
+    '_load_and_repair_existing_results',
     'run_branch_group',
     'run_branch_task',
     'run_branches_shard',

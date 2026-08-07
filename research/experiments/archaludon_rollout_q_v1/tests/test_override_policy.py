@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import torch
 
 from research.experiments.archaludon_rollout_q_v1.rollout_q import override_policy
@@ -35,9 +36,7 @@ class _Model(torch.nn.Module):
         self.value = value
 
     def forward(self, state, candidate, baseline):
-        values = torch.zeros(candidate.shape[0])
-        values[1] = self.value
-        return values
+        return torch.full((candidate.shape[0],), self.value, dtype=candidate.dtype)
 
 
 def _patch_surface(monkeypatch):
@@ -86,3 +85,39 @@ def test_support_counts_training_rows_only():
         {'split': 'training', 'context': 0, 'family': '3'},
     ]
     assert override_policy.support_from_rows(rows) == {(0, '3'): 2}
+
+
+def test_shared_round_resources_bind_models_but_isolate_telemetry():
+    models = (_Model(1.0), _Model(1.0), _Model(1.0))
+    resources = override_policy.RoundPolicyResources(
+        checkpoint_round=0,
+        models=models,
+        support={(0, '3'): 100},
+    )
+    first = resources.bind(_Baseline(), load_spec())
+    second = resources.bind(_Baseline(), load_spec())
+    assert tuple(id(model) for model in first.models) == tuple(id(model) for model in resources.models)
+    assert tuple(id(model) for model in second.models) == tuple(id(model) for model in resources.models)
+    assert first.telemetry is not second.telemetry
+    first.telemetry.override_count += 1
+    assert second.telemetry.override_count == 0
+
+
+def test_no_alternative_falls_back_without_model_scoring(monkeypatch):
+    class OnlyBaseline(_Candidates):
+        def __init__(self):
+            self.candidates = (_Candidate(0, (0,), 'baseline'),)
+
+        def candidate_index_for(self, options, action):
+            return 0 if tuple(action) == (0,) else None
+
+    _patch_surface(monkeypatch)
+    monkeypatch.setattr(override_policy, 'observation_complete_actions', lambda observation: OnlyBaseline())
+    policy = override_policy.RolloutQOverridePolicy(
+        baseline=_Baseline(),
+        models=[_Model(10.0), _Model(10.0), _Model(10.0)],
+        config=replace(load_spec(), minimum_candidate_count=1),
+        support={(0, '3'): 100},
+    )
+    assert policy.choose_action({'select': {'context': 0}}) == [0]
+    assert policy.telemetry.reasons['no_alternative'] == 1

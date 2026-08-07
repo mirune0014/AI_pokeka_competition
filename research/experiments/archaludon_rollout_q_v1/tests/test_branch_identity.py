@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import gc
 from pathlib import Path
+import sys
 
 from research.experiments.archaludon_rollout_q_v1.rollout_q.branch_runner import (
     ContinuationUnsafe,
@@ -28,11 +30,16 @@ def test_identity_failure_types_are_distinct():
 def test_formal_policy_parent_modules_are_independent():
     config = load_spec()
     _load_engine()
-    first = load_baseline(config.baseline_dir, 'parent_identity_first')
-    second = load_baseline(config.baseline_dir, 'parent_identity_second')
-    assert first.parent_module is not None
-    assert second.parent_module is not None
-    assert first.parent_module is not second.parent_module
+    before = {name for name in sys.modules if name.startswith('_rollout_q_')}
+    policies = [load_baseline(config.baseline_dir, f'parent_identity_{index}') for index in range(100)]
+    parent_ids = [id(policy.parent_module) for policy in policies]
+    assert all(policy.parent_module is not None for policy in policies)
+    assert len(set(parent_ids)) == 100
+    after = {name for name in sys.modules if name.startswith('_rollout_q_')}
+    assert after == before
+    del policies
+    gc.collect()
+    assert {name for name in sys.modules if name.startswith('_rollout_q_')} == before
 
 
 def test_real_branch_group_baseline_matches_source_trace(tmp_path: Path):

@@ -115,9 +115,22 @@ def load_policy(agent_dir: Path, policy_id: str | None = None) -> LoadedPolicy:
         sys.modules.pop('_historical_silver_parent', None)
     else:
         sys.modules['_historical_silver_parent'] = previous_parent
-    if not callable(getattr(module, 'agent', None)):
-        raise AttributeError(f'{main_path} has no callable agent')
-    return LoadedPolicy(str(policy_id or agent_dir.name), agent_dir, module, parent_module)
+    try:
+        if not callable(getattr(module, 'agent', None)):
+            raise AttributeError(f'{main_path} has no callable agent')
+        loaded = LoadedPolicy(str(policy_id or agent_dir.name), agent_dir, module, parent_module)
+    except Exception:
+        # The LoadedPolicy retains the module objects themselves.  The UUID
+        # names are only import-time identities and must not accumulate in the
+        # process module registry across repeated worker/game loads.
+        sys.modules.pop(module_name, None)
+        if parent_module is not None:
+            sys.modules.pop(parent_name, None)
+        raise
+    sys.modules.pop(module_name, None)
+    if parent_module is not None:
+        sys.modules.pop(parent_name, None)
+    return loaded
 
 
 def load_baseline(baseline_dir: Path, policy_id: str = 'BASELINE_POLICY') -> LoadedPolicy:

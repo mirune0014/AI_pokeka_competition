@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 from .agent_loader import load_baseline, load_opponent
 from .branch_runner import _terminal, _player
 from .config import RolloutQConfig, round_dir, write_json
-from .dataset import load_dataset
-from .model import load_checkpoint
-from .override_policy import RolloutQOverridePolicy, support_from_rows
+from .override_policy import RolloutQOverridePolicy, RoundPolicyResources
 from .source_collector import _battle_start, _load_engine, _opponent_rows, resolve_opponent_dir
 
 
@@ -23,8 +21,7 @@ def _run_game(
     seat: int,
     seed: int,
     candidate: bool,
-    checkpoint_paths: Sequence[Path] = (),
-    support: Mapping[tuple[int, str], int] | None = None,
+    resources: RoundPolicyResources | None = None,
 ) -> dict[str, Any]:
     battle_start, battle_select, battle_finish, _ = _load_engine()
     baseline = load_baseline(config.baseline_dir, config.baseline_dir.name)
@@ -33,12 +30,9 @@ def _run_game(
     opponent.seed(seed)
     policy: Any = baseline
     if candidate:
-        policy = RolloutQOverridePolicy.from_checkpoints(
-            baseline=baseline,
-            checkpoint_paths=checkpoint_paths,
-            config=config,
-            support=support or {},
-        )
+        if resources is None:
+            raise ValueError('candidate evaluation requires shared round policy resources')
+        policy = resources.bind(baseline, config)
     baseline_deck = baseline.deck
     opponent_deck = opponent.deck
     decks = (baseline_deck, opponent_deck) if seat == 0 else (opponent_deck, baseline_deck)
@@ -103,12 +97,7 @@ def _run_game(
 def evaluate_round(config: RolloutQConfig, round_index: int) -> dict[str, Any]:
     if config.evaluation_games != 640:
         raise ValueError('v1 evaluation_games must remain 640')
-    checkpoint_dir = round_dir(config, round_index) / 'checkpoints'
-    checkpoint_paths = [checkpoint_dir / f'rollout_q_seed{seed}.pt' for seed in config.training_seeds]
-    if any(not path.is_file() for path in checkpoint_paths):
-        raise FileNotFoundError('three deployment checkpoints are required before evaluation')
-    dataset = load_dataset(config, round_index)
-    support = support_from_rows(dataset.get('rows', []))
+    resources = RoundPolicyResources.load(config, int(round_index))
     evaluation_dir = round_dir(config, round_index) / 'evaluation'
     output = evaluation_dir / 'paired_results.jsonl'
     if output.exists():
@@ -131,6 +120,7 @@ def evaluate_round(config: RolloutQConfig, round_index: int) -> dict[str, Any]:
                     seat=seat,
                     seed=seed,
                     candidate=False,
+                    resources=resources,
                 )
                 candidate_result = _run_game(
                     config=config,
@@ -139,8 +129,7 @@ def evaluate_round(config: RolloutQConfig, round_index: int) -> dict[str, Any]:
                     seat=seat,
                     seed=seed,
                     candidate=True,
-                    checkpoint_paths=checkpoint_paths,
-                    support=support,
+                    resources=resources,
                 )
                 rows.append(
                     {

@@ -13,27 +13,54 @@ from .dataset import load_dataset
 from .model import ModelConfig, build_model, compute_pair_metrics, load_checkpoint, save_checkpoint
 
 
-def _tensors(rows: list[Mapping[str, Any]]) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+def _tensors(rows: list[Mapping[str, Any]]) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     states = torch.tensor([row['state'] for row in rows], dtype=torch.float32)
     candidates = torch.tensor([row['candidate_action'] for row in rows], dtype=torch.float32)
     baselines = torch.tensor([row['baseline_action'] for row in rows], dtype=torch.float32)
     labels = torch.tensor([row['label'] for row in rows], dtype=torch.float32)
-    weights = torch.tensor([row['weight'] for row in rows], dtype=torch.float32)
-    return states, candidates, baselines, labels, weights
+    return states, candidates, baselines, labels
 
 
 def _evaluate(model: Any, rows: list[Mapping[str, Any]], batch_size: int) -> tuple[torch.Tensor, torch.Tensor, float]:
     model.eval()
     if not rows:
         return torch.empty(0), torch.empty(0), float('nan')
-    states, candidates, baselines, labels, weights = _tensors(rows)
+    states, candidates, baselines, labels = _tensors(rows)
     logits_parts: list[torch.Tensor] = []
     with torch.no_grad():
         for start in range(0, len(rows), batch_size):
             logits_parts.append(model(states[start:start + batch_size], candidates[start:start + batch_size], baselines[start:start + batch_size]))
     logits = torch.cat(logits_parts)
-    loss = F.binary_cross_entropy_with_logits(logits, labels, weight=weights)
+    loss = F.binary_cross_entropy_with_logits(logits, labels)
     return logits, labels, float(loss.item())
+
+
+def _outcome_counts(rows: list[Mapping[str, Any]]) -> dict[str, int]:
+    return {
+        'improved': sum(int(row.get('outcome_class') == 'IMPROVED') for row in rows),
+        'equal': sum(int(row.get('outcome_class') == 'EQUAL') for row in rows),
+        'worse': sum(int(row.get('outcome_class') == 'WORSE') for row in rows),
+    }
+
+
+def _threshold_metrics(logits: torch.Tensor, labels: torch.Tensor, threshold: float = 0.80) -> dict[str, Any]:
+    probabilities = torch.sigmoid(logits.detach().cpu().float())
+    labels = labels.detach().cpu().float()
+    predicted = probabilities >= float(threshold)
+    actual = labels >= 0.5
+    predicted_count = int(predicted.sum().item())
+    true_positive = int((predicted & actual).sum().item())
+    actual_positive = int(actual.sum().item())
+    return {
+        'validation_positive_rate': (actual_positive / int(labels.numel())) if labels.numel() else None,
+        'validation_precision_at_0_80': (true_positive / predicted_count) if predicted_count else None,
+        'validation_recall_at_0_80': (
+            (true_positive / actual_positive)
+            if predicted_count and actual_positive
+            else None
+        ),
+        'validation_predicted_positive_count_at_0_80': predicted_count,
+    }
 
 
 def _seed_everything(seed: int) -> None:
@@ -55,8 +82,6 @@ def _train_seed(
     validation_rows = [row for row in rows if row.get('split') == 'validation']
     if not train_rows or not validation_rows:
         raise ValueError('dataset does not contain both train and validation episodes')
-    if not {int(row['label']) for row in validation_rows} >= {0, 1}:
-        raise ValueError('validation has no positive or negative pair; data is insufficient')
     _seed_everything(seed)
     model = build_model(model_config)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
@@ -73,10 +98,10 @@ def _train_seed(
         for start in range(0, len(order), config.batch_size):
             indices = order[start:start + config.batch_size]
             batch = [train_rows[index] for index in indices]
-            states, candidates, baselines, labels, weights = _tensors(batch)
+            states, candidates, baselines, labels = _tensors(batch)
             optimizer.zero_grad(set_to_none=True)
             logits = model(states, candidates, baselines)
-            loss = F.binary_cross_entropy_with_logits(logits, labels, weight=weights)
+            loss = F.binary_cross_entropy_with_logits(logits, labels)
             if not torch.isfinite(loss):
                 raise FloatingPointError('non-finite Rollout-Q training loss')
             loss.backward()
@@ -99,6 +124,8 @@ def _train_seed(
     model.load_state_dict(best_state)
     val_logits, val_labels, val_loss = _evaluate(model, validation_rows, config.batch_size)
     metrics = compute_pair_metrics(val_logits, val_labels, val_loss)
+    train_counts = _outcome_counts(train_rows)
+    validation_counts = _outcome_counts(validation_rows)
     metrics.update(
         {
             'training_rows': len(train_rows),
@@ -107,6 +134,13 @@ def _train_seed(
             'history': history,
             'loss_to_win_pair_count': sum(int(row['baseline_reward'] == -1.0 and row['candidate_reward'] == 1.0) for row in validation_rows),
             'win_to_loss_pair_count': sum(int(row['baseline_reward'] == 1.0 and row['candidate_reward'] == -1.0) for row in validation_rows),
+            'improved_training_rows': train_counts['improved'],
+            'equal_training_rows': train_counts['equal'],
+            'worse_training_rows': train_counts['worse'],
+            'improved_validation_rows': validation_counts['improved'],
+            'equal_validation_rows': validation_counts['equal'],
+            'worse_validation_rows': validation_counts['worse'],
+            **_threshold_metrics(val_logits, val_labels, 0.80),
         }
     )
     checkpoint = round_dir(config, through_round) / 'checkpoints' / f'rollout_q_seed{int(seed)}.pt'
@@ -122,8 +156,8 @@ def _train_seed(
     # deployment checkpoint itself contains no optimizer state.
     reloaded, _, _ = load_checkpoint(checkpoint)
     for name, expected in model.state_dict().items():
-        actual = reloaded.state_dict().get(name)
-        if actual is None or not torch.equal(actual, expected):
+        actual = reloaded.state_dict()[name]
+        if not torch.equal(actual, expected):
             raise RuntimeError(f'checkpoint reload tensor mismatch: {name}')
     if set(reloaded.state_dict()) != set(model.state_dict()):
         raise RuntimeError('checkpoint reload parameter set differs')
@@ -136,7 +170,7 @@ def train_through_round(config: RolloutQConfig, through_round: int) -> dict[str,
     if not isinstance(rows, list):
         raise ValueError('dataset rows are missing')
     if not rows:
-        raise ValueError('dataset has no unequal-reward pairs')
+        raise ValueError('dataset has no candidate rows')
     state_dim = int(dataset.get('state_dim') or len(rows[0]['state']))
     action_dim = int(dataset.get('action_feature_dim') or len(rows[0]['candidate_action']))
     model_config = ModelConfig(state_dim=state_dim, action_feature_dim=action_dim)

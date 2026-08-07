@@ -36,9 +36,7 @@ from .config import (
     terminal_reward,
     write_json,
 )
-from .dataset import load_dataset
-from .model import load_checkpoint
-from .override_policy import RolloutQOverridePolicy, support_from_rows
+from .override_policy import RolloutQOverridePolicy, RoundPolicyResources
 from .trace_schema import BranchPoint, SourceTrace, TraceStep, write_record
 
 
@@ -227,7 +225,12 @@ def _cell_counts(total_games: int, cells: int = 16) -> list[int]:
     return [base + (1 if index < remainder else 0) for index in range(cells)]
 
 
-def build_source_policy(config: RolloutQConfig, round_index: int, baseline: Any) -> Any:
+def build_source_policy(
+    config: RolloutQConfig,
+    round_index: int,
+    baseline: Any,
+    resources: RoundPolicyResources | None = None,
+) -> Any:
     """Build the fixed source policy for one expert-iteration round.
 
     Round 0 uses the formal baseline directly.  Later rounds use the prior
@@ -239,18 +242,11 @@ def build_source_policy(config: RolloutQConfig, round_index: int, baseline: Any)
         return baseline
     if int(round_index) < 0 or int(round_index) >= config.rounds:
         raise ValueError('round index is outside the fixed specification')
-    previous_dataset = load_dataset(config, int(round_index) - 1)
-    checkpoint_dir = round_dir(config, int(round_index) - 1) / 'checkpoints'
-    checkpoint_paths = [checkpoint_dir / f'rollout_q_seed{seed}.pt' for seed in config.training_seeds]
-    if any(not path.is_file() for path in checkpoint_paths):
-        raise FileNotFoundError('previous-round Rollout-Q checkpoints are required for source policy')
-    support = support_from_rows(previous_dataset.get('rows', []))
-    return RolloutQOverridePolicy.from_checkpoints(
-        baseline=baseline,
-        checkpoint_paths=checkpoint_paths,
-        config=config,
-        support=support,
-    )
+    if resources is None:
+        resources = RoundPolicyResources.load(config, int(round_index) - 1)
+    if resources.checkpoint_round != int(round_index) - 1:
+        raise ValueError('source policy resources do not match the requested prior round')
+    return resources.bind(baseline, config)
 
 
 def _candidate_record(candidate: Any) -> dict[str, Any]:
@@ -410,6 +406,13 @@ def _collect_one(
         for point in sorted(eligible_points, key=lambda item: item.step_index)
     )
     reward = terminal_reward(terminal_result, seat) if terminal_result in (0, 1, 2) else 0.0
+    source_override_count = 0
+    source_fallback_count = 0
+    source_model_failure_count = 0
+    if isinstance(source_policy, RolloutQOverridePolicy):
+        source_override_count = int(source_policy.telemetry.override_count)
+        source_fallback_count = int(source_policy.telemetry.fallback_count)
+        source_model_failure_count = int(source_policy.telemetry.model_failure_count)
     return SourceTrace(
         episode_id=episode_id,
         opponent_id=opponent_id,
@@ -423,6 +426,9 @@ def _collect_one(
         engine_steps=len(steps),
         action_errors=action_errors,
         max_step_hit=max_step_hit,
+        source_override_count=source_override_count,
+        source_fallback_count=source_fallback_count,
+        source_model_failure_count=source_model_failure_count,
         error=error,
     )
 
@@ -446,8 +452,11 @@ def collect_source_round(
     requested = config.source_games_per_round if games is None else int(games)
     if requested <= 0 or requested > config.source_games_per_round:
         raise ValueError('games must be in 1..source_games_per_round')
-    counts = _cell_counts(config.source_games_per_round)
-    source_policy_factory = lambda baseline: build_source_policy(config, int(round_index), baseline)
+    counts = _cell_counts(requested)
+    resources = None if int(round_index) == 0 else RoundPolicyResources.load(config, int(round_index) - 1)
+    source_policy_factory = lambda baseline: (
+        baseline if resources is None else resources.bind(baseline, config)
+    )
     traces: list[SourceTrace] = []
     emitted = 0
     for cell_index, row in enumerate(rows):
@@ -482,10 +491,18 @@ def collect_source_round(
         'round': int(round_index),
         'requested_games': requested,
         'emitted_games': len(traces),
+        'cell_counts': {
+            f"{str(row['id'])}|seat{seat}": counts[cell_index * 2 + seat]
+            for cell_index, row in enumerate(rows)
+            for seat in (0, 1)
+        },
         'clean_terminal_games': sum(int(item.clean_terminal) for item in traces),
         'eligible_branch_points': sum(len(item.branch_points) for item in traces),
         'action_errors': sum(item.action_errors for item in traces),
         'max_step_hits': sum(int(item.max_step_hit) for item in traces),
+        'source_override_count': sum(item.source_override_count for item in traces),
+        'source_fallback_count': sum(item.source_fallback_count for item in traces),
+        'source_model_failure_count': sum(item.source_model_failure_count for item in traces),
         'engine_dir': str(engine[3]),
     }
     write_json(round_dir(config, round_index) / 'source_summary.json', summary)
