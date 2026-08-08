@@ -56,7 +56,7 @@ def _threshold_metrics(logits: torch.Tensor, labels: torch.Tensor, threshold: fl
         'validation_precision_at_0_80': (true_positive / predicted_count) if predicted_count else None,
         'validation_recall_at_0_80': (
             (true_positive / actual_positive)
-            if predicted_count and actual_positive
+            if actual_positive
             else None
         ),
         'validation_predicted_positive_count_at_0_80': predicted_count,
@@ -82,6 +82,15 @@ def _train_seed(
     validation_rows = [row for row in rows if row.get('split') == 'validation']
     if not train_rows or not validation_rows:
         raise ValueError('dataset does not contain both train and validation episodes')
+    validation_labels = {
+        float(row["label"])
+        for row in validation_rows
+    }
+    if validation_labels != {0.0, 1.0}:
+        raise ValueError(
+            "validation must contain both strict-improvement "
+            "and non-improvement rows"
+        )
     _seed_everything(seed)
     model = build_model(model_config)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
