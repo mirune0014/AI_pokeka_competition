@@ -9,7 +9,16 @@ import os as _os
 import sys as _sys
 
 
-_CANDIDATE_DIR = _os.path.dirname(_os.path.abspath(__file__))
+try:
+    _SOURCE_FILE = __file__
+except NameError:
+    _SOURCE_FILE = None
+
+_CANDIDATE_DIR = (
+    _os.path.dirname(_os.path.abspath(_SOURCE_FILE))
+    if _SOURCE_FILE
+    else "/kaggle_simulations/agent"
+)
 if _CANDIDATE_DIR not in _sys.path:
     _sys.path.insert(0, _CANDIDATE_DIR)
 
