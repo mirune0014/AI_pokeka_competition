@@ -88,6 +88,10 @@ infrastructure/data/episodes_index*/
 infrastructure/external/ptcg_engine/
 infrastructure/external/ptcg_engine.zip
 
+# Raw replay JSON from submission-specific analysis. Keep compact Markdown/CSV
+# summaries and telemetry under the analysis directory trackable.
+/autonomous_gold_20260715/analysis/archaludon_submission_55248159_20260809/*.json
+
 # Autonomous-loop raw state. Keep source, Markdown, CSV, and text evidence.
 archaludon/**/*.json
 # These JSON files are authored reproducibility contracts/compact strategy
