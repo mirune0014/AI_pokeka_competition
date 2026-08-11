@@ -17,7 +17,7 @@ from typing import Any
 CALLBACKS = 700
 PARENT_NAME = "alakazam_newdeck_v3_exact_evolution_ko_fix2"
 CANDIDATE_NAME = (
-    "alakazam_newdeck_v4_next_attacker_distance_shadow_fix4b"
+    "alakazam_newdeck_v6_boss_tempo_stall_fix1"
 )
 RULE = "V4_NEXT_ATTACKER_DISTANCE_SHADOW_FIX4B"
 

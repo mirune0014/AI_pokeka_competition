@@ -1,5 +1,6 @@
 param(
-    [switch]$NoClean
+    [switch]$NoClean,
+    [string]$Destination = ".venv-ptcg"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -7,8 +8,34 @@ $ErrorActionPreference = 'Stop'
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
 Set-Location $repoRoot
-$ptcgVenv = Join-Path $repoRoot '.venv-ptcg'
 $reqFile = Join-Path $repoRoot 'infrastructure\ptcg-venv-requirements.txt'
+$resolvedDestinationInput = if ([IO.Path]::IsPathRooted($Destination)) { $Destination } else { Join-Path $repoRoot $Destination }
+$ptcgVenv = [IO.Path]::GetFullPath($resolvedDestinationInput)
+$repoRootAbs = [IO.Path]::GetFullPath($repoRoot)
+$ptcgVenvAbs = [IO.Path]::GetFullPath($ptcgVenv)
+$repoLower = $repoRootAbs.ToLowerInvariant().TrimEnd('\')
+$targetLower = $ptcgVenvAbs.ToLowerInvariant().TrimEnd('\')
+$forbidden = @(
+    ".git",
+    "infrastructure",
+    "archaludon",
+    "alakazam",
+    "research"
+)
+
+if ($targetLower -eq $repoLower) {
+    throw "Destination must not be repository root: $ptcgVenvAbs"
+}
+if (-not ($targetLower -eq $repoLower -or $targetLower.StartsWith($repoLower + "\"))) {
+    throw "Destination must be under repository root: $ptcgVenvAbs"
+}
+foreach ($root in $forbidden) {
+    $forbiddenRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot $root))
+    $forbiddenLower = $forbiddenRoot.ToLowerInvariant().TrimEnd('\')
+    if ($targetLower -eq $forbiddenLower -or $targetLower.StartsWith($forbiddenLower + "\")) {
+        throw "Destination is not allowed under prohibited root: $ptcgVenvAbs"
+    }
+}
 $ptcgPython = Join-Path $ptcgVenv 'Scripts\python.exe'
 $venvBuilder = $null
 

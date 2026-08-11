@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = "Stop"
 $ProjectDir = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$Python = Join-Path $RepoRoot ".venv-rl\Scripts\python.exe"
+$Python = Join-Path $RepoRoot ".venv-ptcg\Scripts\python.exe"
 $InitialCheckpoint = Join-Path $RepoRoot "_local_generated\analysis_outputs\archaludon_latest_v1_rl_phase1_iteration_004_temperature065_checkpoint_deterministic_20260731\initial_zero_temperature065.pt"
 $Population = Join-Path $ProjectDir "specs\phase1_iteration_002_population.json"
 $ExperimentSpec = Join-Path $ProjectDir "specs\complete_action_bc_dagger1_v1_20260802.json"

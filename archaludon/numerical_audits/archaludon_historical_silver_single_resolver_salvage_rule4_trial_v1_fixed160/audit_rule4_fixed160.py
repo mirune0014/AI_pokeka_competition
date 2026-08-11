@@ -2,7 +2,7 @@
 
 Run on Windows from the repository root with:
 
-    .venv-rl\Scripts\python.exe archaludon\numerical_audits\archaludon_historical_silver_single_resolver_salvage_rule4_trial_v1_fixed160\audit_rule4_fixed160.py
+    .venv-ptcg\Scripts\python.exe archaludon\numerical_audits\archaludon_historical_silver_single_resolver_salvage_rule4_trial_v1_fixed160\audit_rule4_fixed160.py
 
 The calculator reads frozen inputs and raw runner artifacts, prints canonical
 JSON, and never runs a battle or writes to the raw result tree.

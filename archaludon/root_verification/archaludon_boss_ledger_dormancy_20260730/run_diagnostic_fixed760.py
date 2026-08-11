@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
-PYTHON = ROOT / ".venv-rl" / "Scripts" / "python.exe"
+PYTHON = ROOT / ".venv-ptcg" / "Scripts" / "python.exe"
 RUNNER = ROOT / "infrastructure" / "tools" / "run_local_battle.py"
 ENGINE = (
     ROOT
