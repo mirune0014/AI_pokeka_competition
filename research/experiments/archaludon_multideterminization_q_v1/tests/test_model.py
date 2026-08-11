@@ -11,6 +11,8 @@ from research.experiments.archaludon_multideterminization_q_v1.multidet_q.model 
 )
 from research.experiments.archaludon_multideterminization_q_v1.multidet_q.search_runtime import _load_api
 from research.experiments.archaludon_multideterminization_q_v1.multidet_q.semantic_encoder import SemanticVocab, build_vocab
+from research.experiments.archaludon_multideterminization_q_v1.multidet_q.evaluate import LivePolicy
+from research.experiments.archaludon_multideterminization_q_v1.multidet_q.single_override import SingleOverrideLivePolicy
 
 
 def _row():
@@ -84,3 +86,33 @@ def test_existing_dataset_one_batch_train_smoke():
     assert bool(torch.isfinite(gradient_norm).all())
     optimizer.step()
     assert all(bool(torch.isfinite(parameter).all()) for parameter in model.parameters())
+
+
+def test_single_override_budget_is_fresh_and_exhausts_after_one(monkeypatch):
+    def fake_unlimited_call(policy, observation):
+        policy.override_count += 1
+        return [9]
+
+    monkeypatch.setattr(LivePolicy, "__call__", fake_unlimited_call)
+    baseline = lambda observation: [0]
+    models = [object(), object(), object()]
+    first = SingleOverrideLivePolicy(baseline, models, 0.10)
+    second = SingleOverrideLivePolicy(baseline, models, 0.10)
+
+    assert first.override_budget_initial == 1
+    assert first.overrides_used == 0
+    assert first({}) == [9]
+    assert first.overrides_used == 1
+    assert first.override_count == 1
+    assert first({}) == [0]
+    assert first.last_error == "override_budget_exhausted"
+    assert first.override_count == 1
+    assert first({}) == [0]
+    assert first.override_count == 1
+    assert first.override_budget_exhausted_count == 2
+
+    assert second.override_budget_initial == 1
+    assert second.overrides_used == 0
+    assert second.override_count == 0
+    assert second({}) == [9]
+    assert second.overrides_used == 1

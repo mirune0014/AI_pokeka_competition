@@ -13,6 +13,7 @@ from .evaluate import evaluate
 from .merge import merge_full
 from .evaluate import report
 from .search_runtime import check_api_surface
+from .single_override import evaluate_single_override, report_single_override
 from .train import train
 from .worker import pilot_gate, run_full_shard, run_pilot
 
@@ -26,7 +27,7 @@ def _parser() -> argparse.ArgumentParser:
     full.add_argument("--shard-index", type=int, required=True)
     merge = sub.add_parser("merge-full")
     merge.add_argument("--shard-count", type=int, required=True)
-    for name in ("build-dataset", "train", "calibrate", "evaluate", "report"):
+    for name in ("build-dataset", "train", "calibrate", "evaluate", "report", "single-override-evaluate", "single-override-report"):
         sub.add_parser(name)
     return parser
 
@@ -60,6 +61,10 @@ def main(argv: list[str] | None = None) -> int:
         result = evaluate(config)
     elif args.command == "report":
         result = report(config)
+    elif args.command == "single-override-evaluate":
+        result = evaluate_single_override(config)
+    elif args.command == "single-override-report":
+        result = report_single_override(config)
     else:  # pragma: no cover
         raise AssertionError(args.command)
     print(json.dumps(result, sort_keys=True))
