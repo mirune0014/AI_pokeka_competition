@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -38,3 +39,19 @@ def test_projection_uses_split_specific_determinizations() -> None:
     assert projected["calibration"]["projected_rollouts"] == pytest.approx(818000.0)
     assert projected["offline_test"]["projected_rollouts"] == pytest.approx(762000.0)
     assert sum(row["projected_rollouts"] for row in projected.values()) == pytest.approx(4902125.0)
+
+
+def test_launcher_logs_are_outside_full_output_root() -> None:
+    script = (
+        Path(__file__).resolve().parents[1]
+        / "scripts"
+        / "start_supervisor.ps1"
+    ).read_text(encoding="utf-8")
+
+    assert "archaludon_search_q_state_coverage_v1_launcher_logs" in script
+    assert "$stdoutPath = Join-Path $launcherLogRoot" in script
+    assert "$stderrPath = Join-Path $launcherLogRoot" in script
+    assert "-RedirectStandardOutput $stdoutPath" in script
+    assert "-RedirectStandardError $stderrPath" in script
+    assert "supervisor.stdout.log" not in script
+    assert "supervisor.stderr.log" not in script
