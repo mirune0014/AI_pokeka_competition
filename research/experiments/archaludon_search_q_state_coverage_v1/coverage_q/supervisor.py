@@ -10,13 +10,14 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from .calibrate import calibrate
-from .config import CoverageConfig, PILOT_OUTPUT_ROOT, ensure_output, output_path, write_json
+from .config import CoverageConfig, PILOT_OUTPUT_ROOT, ensure_output, output_path, read_json, write_json
 from .dataset import build_datasets
 from .merge import merge_all
 from .offline_test import offline_test
 from .search_plan import STAGES, build_plan, load_plan
 from .search_worker import run_stage
-from .source import collect_source
+from .schedule import SPLITS, all_plans, plans_by_episode
+from .source import collect_source, load_source_traces
 from .train_milestones import pilot_optimizer_steps, train
 
 
@@ -71,6 +72,82 @@ def _stage_search(config: CoverageConfig, stage: str) -> dict[str, Any]:
     return {"stage": stage, "shards": summaries}
 
 
+def _pilot_source_split_stats(config: CoverageConfig, source: Mapping[str, Any]) -> dict[str, dict[str, int]]:
+    """Count every Pilot source branch group and candidate, before caps."""
+
+    plans = plans_by_episode(all_plans(config, pilot=True))
+    stats = {
+        split: {"source_games": 0, "source_branch_groups": 0, "source_candidates": 0}
+        for split in SPLITS
+    }
+    for trace in load_source_traces(config, plans.values()):
+        plan = plans.get(trace.episode_id)
+        if plan is None:
+            raise ValueError(f"Pilot source trace is outside the fixed schedule: {trace.episode_id}")
+        row = stats[plan.split]
+        row["source_games"] += 1
+        if trace.clean_terminal:
+            row["source_branch_groups"] += len(trace.branch_points)
+            row["source_candidates"] += sum(len(point.candidates) for point in trace.branch_points)
+    expected_games = {
+        split: int(source.get("split", {}).get(split, {}).get("emitted", 0))
+        for split in SPLITS
+    }
+    for split in SPLITS:
+        if stats[split]["source_games"] != expected_games[split]:
+            raise ValueError(
+                f"Pilot source game mismatch for {split}: "
+                f"traces={stats[split]['source_games']} summary={expected_games[split]}"
+            )
+    return stats
+
+
+def project_split_stats(config: CoverageConfig, source_stats: Mapping[str, Mapping[str, int]]) -> dict[str, dict[str, float]]:
+    """Project all source groups with split-specific Search-Q determinization."""
+
+    projected: dict[str, dict[str, float]] = {}
+    for split in SPLITS:
+        row = source_stats[split]
+        source_games = int(row["source_games"])
+        source_groups = int(row["source_branch_groups"])
+        source_candidates = int(row["source_candidates"])
+        if source_games <= 0 or source_groups <= 0 or source_candidates <= 0:
+            raise ValueError(f"Pilot source stats are empty for {split}: {row}")
+        full_games = int(config.source_games[split])
+        groups_per_game = source_groups / source_games
+        candidates_per_group = source_candidates / source_groups
+        projected_groups = groups_per_game * full_games
+        projected_candidates = projected_groups * candidates_per_group
+        determinizations = int(config.determinizations[split])
+        projected_rollouts = projected_candidates * determinizations
+        projected[split] = {
+            "pilot_source_games": float(source_games),
+            "pilot_source_branch_groups": float(source_groups),
+            "pilot_source_candidates": float(source_candidates),
+            "groups_per_game": groups_per_game,
+            "candidates_per_group": candidates_per_group,
+            "projected_source_games": float(full_games),
+            "projected_groups": projected_groups,
+            "projected_candidates": projected_candidates,
+            "determinizations": float(determinizations),
+            "projected_rollouts": projected_rollouts,
+        }
+    return projected
+
+
+def _search_projection_input(config: CoverageConfig, search: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    """Attach measured shard elapsed time when reusing completed Pilot output."""
+
+    result: dict[str, dict[str, Any]] = {}
+    for stage, summary in search.items():
+        elapsed = 0.0
+        stage_dir = output_path(config, "search", stage)
+        for path in stage_dir.glob("shard_*_summary.json"):
+            elapsed += float(read_json(path).get("elapsed_seconds", 0.0))
+        result[stage] = {**summary, "elapsed_seconds": elapsed}
+    return result
+
+
 def _pilot_projection(config: CoverageConfig, source: Mapping[str, Any], search: Mapping[str, Any], model: Mapping[str, Any]) -> dict[str, Any]:
     groups = sum(int(item.get("groups", 0)) for item in search.values())
     candidates = sum(int(item.get("candidates", 0)) for item in search.values())
@@ -82,21 +159,24 @@ def _pilot_projection(config: CoverageConfig, source: Mapping[str, Any], search:
         for stage in search.values()
     )
     rollouts_per_second = rollouts / elapsed if elapsed > 0 else 0.0
-    source_games = int(source.get("emitted", 0))
-    groups_per_game = groups / source_games if source_games else 0.0
-    candidates_per_group = candidates / groups if groups else 0.0
-    full_groups = groups_per_game * sum(config.source_games.values())
-    full_candidates = full_groups * candidates_per_group
-    full_rollouts = full_candidates * 16.0
+    source_stats = _pilot_source_split_stats(config, source)
+    split_projection = project_split_stats(config, source_stats)
+    source_games = sum(int(row["source_games"]) for row in source_stats.values())
+    full_groups = sum(float(row["projected_groups"]) for row in split_projection.values())
+    full_candidates = sum(float(row["projected_candidates"]) for row in split_projection.values())
+    full_rollouts = sum(float(row["projected_rollouts"]) for row in split_projection.values())
     projected_hours = full_rollouts / (rollouts_per_second * config.worker_count * 3600.0) if rollouts_per_second > 0 else float("inf")
     pilot_root = config.output_dir
-    output_bytes = sum(path.stat().st_size for path in pilot_root.rglob("*") if path.is_file())
+    search_root = output_path(config, "search")
+    output_bytes = sum(path.stat().st_size for path in search_root.rglob("*") if path.is_file())
     disk = shutil.disk_usage(pilot_root.anchor or str(pilot_root))
     free_bytes = int(disk.free)
     source_errors = list(source.get("errors", ()))
     search_error_count = sum(int(item.get("error_count", 0)) for stage in search.values() for item in stage.get("shards", ()))
     gate = {
         "source_games": source_games,
+        "pilot_source_branch_groups": sum(int(row["source_branch_groups"]) for row in source_stats.values()),
+        "pilot_source_candidates": sum(int(row["source_candidates"]) for row in source_stats.values()),
         "training_groups": int(search.get("train_m05", {}).get("groups", 0)),
         "calibration_groups": int(search.get("calibration", {}).get("groups", 0)),
         "offline_test_groups": int(search.get("offline_test", {}).get("groups", 0)),
@@ -113,8 +193,14 @@ def _pilot_projection(config: CoverageConfig, source: Mapping[str, Any], search:
         "projected_full_source_groups": full_groups,
         "projected_full_candidate_count": full_candidates,
         "projected_full_search_rollouts": full_rollouts,
+        "projected_training_rollouts": float(split_projection["training"]["projected_rollouts"]),
+        "projected_calibration_rollouts": float(split_projection["calibration"]["projected_rollouts"]),
+        "projected_offline_test_rollouts": float(split_projection["offline_test"]["projected_rollouts"]),
+        "split_projection": split_projection,
+        "pilot_search_output_bytes": int(output_bytes),
+        "bytes_per_rollout": output_bytes / rollouts if rollouts else 0.0,
         "projected_search_hours_6_workers": projected_hours,
-        "projected_output_bytes": int(output_bytes * (full_rollouts / max(1, rollouts))),
+        "projected_output_bytes": int((output_bytes / rollouts) * full_rollouts) if rollouts else 0,
         "free_disk_bytes": free_bytes,
     }
     gate["technical_gate_passed"] = bool(
@@ -127,10 +213,29 @@ def _pilot_projection(config: CoverageConfig, source: Mapping[str, Any], search:
         and gate["source_max_step"] == 0
         and search_error_count == 0
         and gate["model_success"]
+        and output_bytes > 0
         and projected_hours <= config.maximum_projected_search_hours
         and free_bytes >= gate["projected_output_bytes"] * 1.5 + 10 * 1024 ** 3
         and not source_errors
     )
+    return gate
+
+
+def recalculate_pilot_projection(config: CoverageConfig) -> dict[str, Any]:
+    """Recompute only the projection from completed Pilot artifacts."""
+
+    pilot_config = config.with_output_root(PILOT_OUTPUT_ROOT)
+    summary_path = output_path(pilot_config, "pilot_summary.json")
+    summary = read_json(summary_path)
+    projection_input = _search_projection_input(pilot_config, summary["search"])
+    gate = _pilot_projection(
+        pilot_config,
+        read_json(output_path(pilot_config, "source", "source_summary.json")),
+        projection_input,
+        summary["model"],
+    )
+    summary["projection"] = gate
+    write_json(summary_path, summary)
     return gate
 
 
@@ -174,4 +279,4 @@ def run_full(config: CoverageConfig) -> dict[str, Any]:
     return {"status": "complete", "note": "final evaluation is a separately gated stage"}
 
 
-__all__ = ["FULL_STAGES", "Supervisor", "run_full", "run_pilot"]
+__all__ = ["FULL_STAGES", "Supervisor", "project_split_stats", "recalculate_pilot_projection", "run_full", "run_pilot"]

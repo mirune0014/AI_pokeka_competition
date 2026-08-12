@@ -15,7 +15,7 @@ from .offline_test import offline_test
 from .search_plan import build_plan
 from .search_worker import run_stage
 from .source import collect_source
-from .supervisor import run_full, run_pilot
+from .supervisor import recalculate_pilot_projection, run_full, run_pilot
 from .train_milestones import train
 
 
@@ -23,6 +23,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="coverage_q")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("pilot")
+    sub.add_parser("reproject")
     sub.add_parser("supervise")
     for name in ("source", "build-plan", "build-dataset", "train", "calibrate", "offline-test", "final-evaluate"):
         command = sub.add_parser(name)
@@ -44,6 +45,8 @@ def main(argv: list[str] | None = None) -> int:
     config = load_config()
     if args.command == "pilot":
         result = run_pilot(config)
+    elif args.command == "reproject":
+        result = recalculate_pilot_projection(config)
     elif args.command == "supervise":
         if config.output_dir.exists() and any(config.output_dir.iterdir()):
             raise FileExistsError(f"full output exists and is non-empty: {config.output_dir}")
