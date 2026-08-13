@@ -7,7 +7,7 @@ import json
 import sys
 
 from .calibrate import calibrate
-from .config import ensure_output, load_config
+from .config import load_config
 from .dataset import build_datasets
 from .final_evaluate import final_evaluate
 from .merge import merge_all, merge_stage
@@ -15,7 +15,7 @@ from .offline_test import offline_test
 from .search_plan import build_plan
 from .search_worker import run_stage
 from .source import collect_source
-from .supervisor import recalculate_pilot_projection, run_full, run_pilot
+from .supervisor import recalculate_pilot_projection, run_pilot, run_supervisor
 from .train_milestones import train
 
 
@@ -24,7 +24,8 @@ def _parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("pilot")
     sub.add_parser("reproject")
-    sub.add_parser("supervise")
+    supervise = sub.add_parser("supervise")
+    supervise.add_argument("--resume", action="store_true", help="resume the next validated incomplete Full stage")
     for name in ("source", "build-plan", "build-dataset", "train", "calibrate", "offline-test", "final-evaluate"):
         command = sub.add_parser(name)
         if name == "source":
@@ -48,10 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "reproject":
         result = recalculate_pilot_projection(config)
     elif args.command == "supervise":
-        if config.output_dir.exists() and any(config.output_dir.iterdir()):
-            raise FileExistsError(f"full output exists and is non-empty: {config.output_dir}")
-        ensure_output(config)
-        result = run_full(config)
+        result = run_supervisor(config, resume=bool(args.resume))
     elif args.command == "source":
         config.output_dir.mkdir(parents=True, exist_ok=True)
         result = collect_source(config, pilot=bool(args.pilot))

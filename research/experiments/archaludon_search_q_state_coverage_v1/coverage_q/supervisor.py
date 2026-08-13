@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
 import shutil
@@ -21,7 +22,30 @@ from .source import collect_source, load_source_traces
 from .train_milestones import pilot_optimizer_steps, train
 
 
-FULL_STAGES = ("source", "build_plan", "calibration_search", "offline_test_search", "train_m05_search", "train_m05", "train_m10_search", "train_m10", "train_m20_search", "train_m20", "calibrate", "offline_test", "final_evaluate", "report", "complete", "blocked")
+# This is the single marker order used by both fresh and resumed Full runs.
+# The final offline-test marker is distinct from the earlier Search-Q stage,
+# which avoids the historical duplicate ``offline_test`` marker.
+FULL_STAGES = (
+    "source",
+    "build_plan",
+    "calibration",
+    "offline_test",
+    "train_m05",
+    "train_m10_increment",
+    "train_m20_increment",
+    "merge",
+    "datasets",
+    "train",
+    "calibrate",
+    "offline_test_final",
+)
+
+
+@dataclass(frozen=True)
+class ResumeState:
+    status: Mapping[str, Any]
+    completed_stages: tuple[str, ...]
+    next_stage: str
 
 
 def _now() -> str:
@@ -63,6 +87,89 @@ class Supervisor:
         except Exception as exc:
             self.status(stage="blocked", error=f"{type(exc).__name__}: {exc}")
             raise
+
+
+def _stage_marker_path(config: CoverageConfig, stage: str) -> Path:
+    return output_path(config, "stage_markers", f"{stage}.complete.json")
+
+
+def _iter_payload_mappings(value: Any):
+    if isinstance(value, Mapping):
+        yield value
+        for child in value.values():
+            yield from _iter_payload_mappings(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from _iter_payload_mappings(child)
+
+
+def _validate_marker_payload(stage: str, payload: Any) -> None:
+    bad_fields = ("error_count", "missing", "duplicate", "action_error", "max_step")
+    for mapping in _iter_payload_mappings(payload):
+        for field in bad_fields:
+            if field not in mapping:
+                continue
+            try:
+                value = int(mapping[field])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"invalid {stage} marker field {field}: {mapping[field]!r}") from exc
+            if value > 0:
+                raise ValueError(f"unsafe {stage} completion marker: {field}={value}")
+
+
+def _validate_resume_root(config: CoverageConfig) -> ResumeState:
+    root = config.output_dir
+    if not root.is_dir():
+        raise FileNotFoundError(f"resume output root is missing: {root}")
+    status_path = output_path(config, "supervisor_status.json")
+    marker_dir = output_path(config, "stage_markers")
+    if not status_path.is_file():
+        raise FileNotFoundError(f"resume status file is missing: {status_path}")
+    if not marker_dir.is_dir():
+        raise FileNotFoundError(f"resume stage marker directory is missing: {marker_dir}")
+    try:
+        status = read_json(status_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"resume status is not valid JSON: {status_path}") from exc
+    if not isinstance(status, Mapping):
+        raise ValueError("resume status must be a JSON object")
+    if status.get("error") is not None:
+        raise ValueError(f"cannot resume status with error: {status.get('error')}")
+    current_stage = status.get("current_stage")
+    if current_stage not in FULL_STAGES:
+        raise ValueError(f"unknown resume current_stage: {current_stage!r}")
+
+    completed: list[str] = []
+    saw_gap = False
+    for stage in FULL_STAGES:
+        marker = _stage_marker_path(config, stage)
+        if marker.is_file():
+            if saw_gap:
+                raise ValueError(f"non-contiguous stage markers: {stage}")
+            try:
+                marker_value = read_json(marker)
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ValueError(f"invalid stage marker: {marker}") from exc
+            if not isinstance(marker_value, Mapping) or marker_value.get("stage") != stage:
+                raise ValueError(f"stage marker identity mismatch: {marker}")
+            _validate_marker_payload(stage, marker_value.get("payload"))
+            completed.append(stage)
+        else:
+            saw_gap = True
+    if len(completed) == len(FULL_STAGES):
+        raise ValueError("run is already complete")
+    next_stage = FULL_STAGES[len(completed)]
+    if current_stage != next_stage:
+        raise ValueError(
+            f"resume current_stage mismatch: status={current_stage!r} next={next_stage!r}"
+        )
+    last_successful = status.get("last_successful_stage")
+    expected_last = completed[-1] if completed else None
+    if last_successful is not None and last_successful != expected_last:
+        raise ValueError(
+            f"resume last_successful_stage mismatch: status={last_successful!r} expected={expected_last!r}"
+        )
+    return ResumeState(status=status, completed_stages=tuple(completed), next_stage=next_stage)
 
 
 def _stage_search(config: CoverageConfig, stage: str) -> dict[str, Any]:
@@ -265,18 +372,63 @@ def run_pilot(config: CoverageConfig) -> dict[str, Any]:
     return gate
 
 
-def run_full(config: CoverageConfig) -> dict[str, Any]:
-    supervisor = Supervisor(config)
-    supervisor.run_stage("source", lambda: collect_source(config))
-    supervisor.run_stage("build_plan", lambda: build_plan(config))
-    for stage in ("calibration", "offline_test", "train_m05", "train_m10_increment", "train_m20_increment"):
-        supervisor.run_stage(stage, lambda stage=stage: _stage_search(config, stage))
-    supervisor.run_stage("merge", lambda: merge_all(config, shard_count=config.worker_count))
-    supervisor.run_stage("datasets", lambda: build_datasets(config))
-    supervisor.run_stage("train", lambda: train(config))
-    supervisor.run_stage("calibrate", lambda: calibrate(config))
-    supervisor.run_stage("offline_test", lambda: offline_test(config))
+def _run_full_stages(config: CoverageConfig, supervisor: Supervisor, start_stage: str) -> dict[str, Any]:
+    actions: dict[str, Callable[[], Any]] = {
+        "source": lambda: collect_source(config),
+        "build_plan": lambda: build_plan(config),
+        "calibration": lambda: _stage_search(config, "calibration"),
+        "offline_test": lambda: _stage_search(config, "offline_test"),
+        "train_m05": lambda: _stage_search(config, "train_m05"),
+        "train_m10_increment": lambda: _stage_search(config, "train_m10_increment"),
+        "train_m20_increment": lambda: _stage_search(config, "train_m20_increment"),
+        "merge": lambda: merge_all(config, shard_count=config.worker_count),
+        "datasets": lambda: build_datasets(config),
+        "train": lambda: train(config),
+        "calibrate": lambda: calibrate(config),
+        "offline_test_final": lambda: offline_test(config),
+    }
+    start_index = FULL_STAGES.index(start_stage)
+    for stage in FULL_STAGES[start_index:]:
+        supervisor.run_stage(stage, actions[stage])
     return {"status": "complete", "note": "final evaluation is a separately gated stage"}
 
 
-__all__ = ["FULL_STAGES", "Supervisor", "project_split_stats", "recalculate_pilot_projection", "run_full", "run_pilot"]
+def _resume_supervisor(config: CoverageConfig, state: ResumeState) -> dict[str, Any]:
+    supervisor = Supervisor(config)
+    supervisor.status(
+        stage=state.next_stage,
+        error=None,
+        last_successful_stage=state.completed_stages[-1] if state.completed_stages else None,
+        worker_pids=[],
+        worker_exit_codes={},
+        completed_shards=[],
+        total_shards=config.worker_count,
+    )
+    return _run_full_stages(config, supervisor, state.next_stage)
+
+
+def run_supervisor(config: CoverageConfig, *, resume: bool = False) -> dict[str, Any]:
+    if resume:
+        return _resume_supervisor(config, _validate_resume_root(config))
+    ensure_output(config)
+    supervisor = Supervisor(config)
+    return _run_full_stages(config, supervisor, FULL_STAGES[0])
+
+
+def run_full(config: CoverageConfig) -> dict[str, Any]:
+    """Backward-compatible fresh Full-run entry point."""
+
+    return run_supervisor(config, resume=False)
+
+
+__all__ = [
+    "FULL_STAGES",
+    "ResumeState",
+    "Supervisor",
+    "_validate_resume_root",
+    "project_split_stats",
+    "recalculate_pilot_projection",
+    "run_full",
+    "run_pilot",
+    "run_supervisor",
+]
