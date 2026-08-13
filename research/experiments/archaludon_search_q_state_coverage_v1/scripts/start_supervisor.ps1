@@ -1,3 +1,7 @@
+param(
+    [switch]$Resume
+)
+
 $ErrorActionPreference = 'Stop'
 
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -27,6 +31,9 @@ $arguments = @(
     'research.experiments.archaludon_search_q_state_coverage_v1.coverage_q.cli',
     'supervise'
 )
+if ($Resume) {
+    $arguments += "--resume"
+}
 
 $process = Start-Process -FilePath $python -ArgumentList $arguments -WorkingDirectory $repoRoot -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru
 
