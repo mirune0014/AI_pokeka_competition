@@ -130,6 +130,17 @@ class ResumeStatus(str, Enum):
     GAME_RELEASE = "GAME_RELEASE"
 
 
+# B_ML_AURA_CONTEXT_REF_BINDING_REPAIR_V2.  These are deliberately emitted as
+# transaction reason codes rather than a new telemetry framework so existing
+# transaction records retain the full before/after owner state.
+AURA_CTXREF_CAPTURE_RULE = "R_ML_AURA_CTXREF_CAPTURE_AFTER_ENERGY_V2"
+AURA_CTXREF_BIND_RULE = "R_ML_AURA_CTXREF_BIND_TARGET_STEP_V2"
+AURA_CTXREF_OWNER_RULE = "R_ML_AURA_CTXREF_VALIDATE_OWNER_V2"
+AURA_CTXREF_COMPLETE_RULE = "R_ML_AURA_CTXREF_COMPLETE_TARGET_V2"
+AURA_CTXREF_AMBIGUOUS_RULE = "R_ML_AURA_CTXREF_REJECT_AMBIGUOUS_V2"
+AURA_CTXREF_RELEASE_RULE = "R_ML_AURA_CTXREF_RELEASE_OWNER_V2"
+
+
 class TransactionStoreError(ValueError):
     """Raised when a caller violates an owner or commit boundary."""
 
@@ -2489,23 +2500,127 @@ class TransactionStore:
             reason_values,
         )
 
+    def _aura_target_step_override(
+        self,
+        state: PublicState,
+        legal_options: Sequence[SemanticOption],
+        step_index: int,
+    ) -> Tuple[Optional[TransactionStep], Tuple[str, ...]]:
+        """Bind an Aura target callback to the exact Energy context ref.
+
+        The immutable plan intentionally contains no callback-time context ref:
+        the engine supplies that ref only after the preceding Energy action has
+        been accepted.  The binding lives on the owner for this emission and is
+        never written back into the plan digest.
+        """
+
+        if self._owner is None or self._plan is None:
+            raise TransactionStoreError("cannot bind Aura target without an owner")
+        spec = self._plan.terminal_receipt
+        if (
+            spec is None
+            or spec.profile != TerminalReceiptProfile.AURA_JAB
+            or step_index < 1
+        ):
+            return None, ()
+        if step_index >= len(self._plan.steps) or step_index > len(spec.reserved_refs):
+            return None, (
+                "AURA_CTXREF_TRANSACTION_MISMATCH",
+                AURA_CTXREF_BIND_RULE,
+            )
+
+        actual_ref = state.context_ref
+        if not isinstance(actual_ref, PhysicalRef):
+            return None, (
+                "AURA_CTXREF_NEXT_REF_MISSING",
+                AURA_CTXREF_CAPTURE_RULE,
+            )
+        if actual_ref.owner != self._owner.seat:
+            return None, (
+                "AURA_CTXREF_OWNER_MISMATCH",
+                AURA_CTXREF_OWNER_RULE,
+            )
+
+        identity_matches = tuple(
+            ref_value
+            for ref_value in spec.reserved_refs
+            if _source_identity_matches(ref_value, actual_ref)
+        )
+        if len(identity_matches) != 1:
+            return None, (
+                "AURA_CTXREF_CONTEXT_MISMATCH"
+                if not identity_matches
+                else "AURA_CTXREF_AMBIGUOUS_NEXT_PROMPT",
+                (
+                    AURA_CTXREF_BIND_RULE
+                    if not identity_matches
+                    else AURA_CTXREF_AMBIGUOUS_RULE
+                ),
+            )
+
+        expected_energy = spec.reserved_refs[step_index - 1]
+        if not _source_identity_matches(expected_energy, actual_ref):
+            return None, ("AURA_CTXREF_CONTEXT_MISMATCH", AURA_CTXREF_BIND_RULE)
+
+        step = self._plan.steps[step_index]
+        if step.stage != TransactionStage.SELECT_EFFECT_TARGET:
+            return None, ("AURA_CTXREF_TRANSACTION_MISMATCH", AURA_CTXREF_BIND_RULE)
+
+        # A target action must resolve to exactly one legal semantic option.  A
+        # duplicate option is not a reason to guess which target the engine
+        # intended; preserve the existing fail-closed transaction path.
+        target_key = None
+        if step.action_spec is not None and len(step.action_spec.choices) == 1:
+            target_key = step.action_spec.choices[0]
+        if target_key is None:
+            return None, ("AURA_CTXREF_TRANSACTION_MISMATCH", AURA_CTXREF_BIND_RULE)
+        target_hits = sum(option.key == target_key for option in legal_options)
+        if target_hits > 1:
+            return None, (
+                "AURA_CTXREF_AMBIGUOUS_NEXT_PROMPT",
+                AURA_CTXREF_AMBIGUOUS_RULE,
+            )
+        if target_hits == 0:
+            return None, ("AURA_CTXREF_CONTEXT_MISMATCH", AURA_CTXREF_BIND_RULE)
+
+        # The engine's callback ref is authoritative for card/serial/owner,
+        # but some live prompts intentionally omit its transient zone.  The
+        # persisted TransactionStep still requires a concrete zone, while
+        # `_source_identity_matches` deliberately treats zone as non-binding.
+        # Normalize only this AURA binding to the reserved Energy's validated
+        # discard zone; do not relax the general exact-ref contract.
+        bound_ref = PhysicalRef(
+            actual_ref.card_id,
+            actual_ref.serial,
+            actual_ref.owner,
+            expected_energy.zone,
+            actual_ref.lineage_serial or expected_energy.lineage_serial,
+        )
+        return replace(step, expected_context_ref=bound_ref), ()
+
     def _issue_step(
         self,
         state: PublicState,
         legal_options: Sequence[SemanticOption],
         step_index: int,
         status: ResumeStatus,
+        *,
+        step_override: Optional[TransactionStep] = None,
+        reason_codes: Sequence[str] = (),
     ) -> ResumeResult:
         if self._owner is None or self._plan is None:
             raise TransactionStoreError("cannot issue without an active owner")
-        step = self._plan.steps[step_index]
+        step = self._plan.steps[step_index] if step_override is None else step_override
         reasons, bound, materialized_action = _prompt_match_reasons(
             state,
             legal_options,
             step,
         )
         if reasons:
-            return self._failure_result(reasons)
+            return self._failure_result(
+                tuple(reasons)
+                + ((AURA_CTXREF_BIND_RULE,) if step_override is not None else ())
+            )
         prompt = make_prompt_fingerprint(
             state,
             legal_options,
@@ -2537,7 +2652,7 @@ class TransactionStore:
             materialized_action,
             bound,
             self._owner,
-            (),
+            tuple(reason_codes),
         )
 
     def resume(
@@ -2613,9 +2728,21 @@ class TransactionStore:
                     and final_callback_issued
                     and receipt_status == TerminalReceiptStatus.COMPLETE
                 ):
+                    was_aura = (
+                        spec.profile == TerminalReceiptProfile.AURA_JAB
+                        and self._owner.expected_context_ref is not None
+                    )
                     self._release_owner()
                     return ResumeResult(
-                        ResumeStatus.COMPLETED, None, None, None, ()
+                        ResumeStatus.COMPLETED,
+                        None,
+                        None,
+                        None,
+                        (
+                            (AURA_CTXREF_COMPLETE_RULE, AURA_CTXREF_RELEASE_RULE)
+                            if was_aura
+                            else ()
+                        ),
                     )
                 return self._failure_result(
                     ("TERMINAL_RECEIPT_TURN_CHANGED",) + receipt_reasons
@@ -2626,8 +2753,22 @@ class TransactionStore:
                 and final_callback_issued
                 and receipt_status == TerminalReceiptStatus.COMPLETE
             ):
+                was_aura = (
+                    spec.profile == TerminalReceiptProfile.AURA_JAB
+                    and self._owner.expected_context_ref is not None
+                )
                 self._release_owner()
-                return ResumeResult(ResumeStatus.COMPLETED, None, None, None, ())
+                return ResumeResult(
+                    ResumeStatus.COMPLETED,
+                    None,
+                    None,
+                    None,
+                    (
+                        (AURA_CTXREF_COMPLETE_RULE, AURA_CTXREF_RELEASE_RULE)
+                        if was_aura
+                        else ()
+                    ),
+                )
 
         last_action_count = (
             None
@@ -2645,6 +2786,17 @@ class TransactionStore:
             if self._owner.step_index == -1
             else self._plan.steps[self._owner.step_index]
         )
+        if (
+            spec is not None
+            and spec.profile == TerminalReceiptProfile.AURA_JAB
+            and self._owner.step_index >= 1
+            and current_step.stage == TransactionStage.SELECT_EFFECT_TARGET
+            and self._owner.expected_context_ref is not None
+        ):
+            current_step = replace(
+                current_step,
+                expected_context_ref=self._owner.expected_context_ref,
+            )
         if self._owner.last_prompt_fingerprint is None:
             raise TransactionStoreError(
                 "active owner is missing its atomic emission record"
@@ -2733,11 +2885,26 @@ class TransactionStore:
             ):
                 return self._failure_result(("AURA_PRECEDING_ATTACH_RECEIPT_MISSING",))
 
+        step_override, aura_binding_reasons = self._aura_target_step_override(
+            state,
+            legal_options,
+            next_index,
+        )
+        if aura_binding_reasons:
+            return self._failure_result(aura_binding_reasons)
+        repair_reason_codes = (
+            AURA_CTXREF_CAPTURE_RULE,
+            AURA_CTXREF_OWNER_RULE,
+            AURA_CTXREF_BIND_RULE,
+        ) if step_override is not None else ()
+
         return self._issue_step(
             state,
             legal_options,
             next_index,
             ResumeStatus.ADVANCED_ISSUE,
+            step_override=step_override,
+            reason_codes=repair_reason_codes,
         )
 
 

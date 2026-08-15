@@ -1136,6 +1136,190 @@ class TelemetryRecorder:
         except Exception:
             self._mark_record_error()
 
+    def record_aura_context_ref(
+        self,
+        state: PublicState,
+        legal_options: Sequence[SemanticOption],
+        result: Union[StartResult, ResumeResult],
+        *,
+        owner_before: Optional[TransactionState],
+    ) -> None:
+        """Record the bounded AURA context-ref repair events.
+
+        This is intentionally a typed companion to ``record_transaction``;
+        it does not introduce a generic event bus or influence action choice.
+        The fixed fields make capture, binding, rejection, completion, and
+        owner release auditable in the existing telemetry stream.
+        """
+
+        if not self.enabled:
+            return
+        try:
+            owner_after = result.owner
+            owners = tuple(
+                owner
+                for owner in (owner_before, owner_after)
+                if owner is not None
+            )
+            aura_owner = next(
+                (
+                    owner
+                    for owner in owners
+                    if owner.origin_owner_kind.value == "AURA_JAB_ATTACH"
+                ),
+                None,
+            )
+            if aura_owner is None:
+                return
+
+            status = getattr(result.status, "value", str(result.status))
+            actual_ref = state.context_ref
+            active_owner = owner_after or owner_before
+            target_step = next(
+                (
+                    owner
+                    for owner in owners
+                    if owner.stage.value == "SELECT_EFFECT_TARGET"
+                ),
+                None,
+            )
+            selected_target = None
+            action_spec = result.action_spec
+            if action_spec is not None and action_spec.choices:
+                choice = action_spec.choices[0]
+                selected_target = (
+                    choice.player_index,
+                    choice.card_id,
+                    choice.card_serial,
+                )
+
+            repair_reasons = tuple(
+                reason
+                for reason in result.reasons
+                if isinstance(reason, str)
+                and (
+                    reason.startswith("AURA_CTXREF_")
+                    or reason.startswith("R_ML_AURA_CTXREF_")
+                )
+            )
+            event_names = []
+            if (
+                owner_before is not None
+                and owner_before.stage.value == "SELECT_ENERGY"
+                and isinstance(actual_ref, PhysicalRef)
+                and target_step is not None
+                and target_step.expected_context_ref is not None
+                and status == "ADVANCED_ISSUE"
+            ):
+                event_names.extend(
+                    (
+                        "ML_AURA_CTXREF_ENERGY_RECEIPT",
+                        "ML_AURA_CTXREF_NEXT_PROMPT_FOUND",
+                        "ML_AURA_CTXREF_TARGET_STEP_BOUND",
+                        "ML_AURA_CTXREF_TARGET_SELECTED",
+                    )
+                )
+            if status == "COMPLETED":
+                event_names.extend(
+                    (
+                        "ML_AURA_CTXREF_TRANSACTION_COMPLETED",
+                        "ML_AURA_CTXREF_OWNER_RELEASED",
+                    )
+                )
+            if status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT") or (
+                repair_reasons
+                and status not in ("ADVANCED_ISSUE", "DUPLICATE_REISSUE")
+            ):
+                event_names.append("ML_AURA_CTXREF_REJECTED")
+            if not event_names:
+                return
+
+            pending_step_count = int(owner_after is not None)
+            owner_release_count = int(
+                status in ("COMPLETED", "FAULT_RELEASED")
+            )
+            payload = {
+                "batch_id": "B_ML_AURA_CONTEXT_REF_BINDING_REPAIR_V2",
+                "rule_id": (
+                    repair_reasons[0]
+                    if repair_reasons
+                    else "R_ML_AURA_CTXREF_COMPLETE_TARGET_V2"
+                ),
+                "game_id": state.game_epoch,
+                "turn": state.turn,
+                "step": state.turn_action_count,
+                "transaction_id": aura_owner.transaction_id,
+                "transaction_owner": aura_owner.seat,
+                "energy_instance_id": (
+                    None if not isinstance(actual_ref, PhysicalRef) else actual_ref
+                ),
+                "energy_receipt_status": (
+                    "SUCCESS"
+                    if isinstance(actual_ref, PhysicalRef)
+                    and owner_before is not None
+                    and owner_before.stage.value == "SELECT_ENERGY"
+                    else None
+                ),
+                "next_context": state.select_context,
+                "next_context_ref": actual_ref,
+                "next_prompt_owner": (
+                    None if not isinstance(actual_ref, PhysicalRef) else actual_ref.owner
+                ),
+                "next_prompt_count": int(isinstance(actual_ref, PhysicalRef)),
+                "pending_target_step_id": (
+                    None if target_step is None else target_step.step_index
+                ),
+                "bound_context": (
+                    None if active_owner is None else active_owner.expected_context
+                ),
+                "bound_context_ref": (
+                    None
+                    if active_owner is None
+                    else active_owner.expected_context_ref
+                ),
+                "bound_owner": None if active_owner is None else active_owner.seat,
+                "selected_target_instance_id": selected_target,
+                "selected_target_role": (
+                    "BENCH" if target_step is not None else None
+                ),
+                "target_receipt_status": (
+                    "COMPLETE"
+                    if status == "COMPLETED"
+                    else "REJECTED"
+                    if "ML_AURA_CTXREF_REJECTED" in event_names
+                    else "BOUND"
+                ),
+                "callback_count": (
+                    0 if active_owner is None else active_owner.callback_budget_used
+                ),
+                "pending_step_count": pending_step_count,
+                "owner_release_count": owner_release_count,
+                "transaction_status": status,
+                "reject_reason": repair_reasons[0] if repair_reasons else None,
+                "runtime_fault": status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"),
+                "validation_failure": status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"),
+            }
+            for event_name in event_names:
+                self._append(
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "record_type": RecordType.TRANSACTION.value,
+                        "projection": self._projection.value,
+                        "run": _run_payload(None, state.seat),
+                        "observed": {
+                            "turn": state.turn,
+                            "turn_action_count": state.turn_action_count,
+                            "actor_seat": state.seat,
+                        },
+                        "aura_context_ref": {
+                            "event": event_name,
+                            **payload,
+                        },
+                    }
+                )
+        except Exception:
+            self._mark_record_error()
+
     def record_fault(
         self,
         state: PublicState,

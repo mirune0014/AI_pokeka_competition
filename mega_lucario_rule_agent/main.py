@@ -363,6 +363,12 @@ class AgentRuntime:
             result,
             owner_before=owner_before,
         )
+        self._telemetry.record_aura_context_ref(
+            state,
+            legal_options,
+            result,
+            owner_before=owner_before,
+        )
         self._validation.note_transaction(self._transactions, result)
         if self._validation.transaction_run_fault_latched:
             self._runtime_fault_latched = True
