@@ -371,6 +371,15 @@ def _transaction_state_payload(
         "committed": owner.committed,
         "fault_latched": owner.fault_latched,
         "fault_code": owner.fault_code,
+        "aura_v4_selected_energy_refs_ordered": owner._aura_v4_selected_energy_refs_ordered,
+        "aura_v4_selected_energy_count": owner._aura_v4_selected_energy_count,
+        "aura_v4_target_cursor": owner._aura_v4_target_cursor,
+        "aura_v4_pending_callback_ref": owner._aura_v4_pending_callback_ref,
+        "aura_v4_consumed_energy_refs": owner._aura_v4_consumed_energy_refs,
+        "aura_v4_target_action_receipt_count": owner._aura_v4_target_action_receipt_count,
+        "aura_v4_attach_receipt_count": owner._aura_v4_attach_receipt_count,
+        "aura_v4_completed": owner._aura_v4_completed,
+        "aura_v4_owner_released": owner._aura_v4_owner_released,
     }
 
 
@@ -1200,7 +1209,15 @@ class TelemetryRecorder:
                 and (
                     reason.startswith("AURA_CTXREF_")
                     or reason.startswith("R_ML_AURA_CTXREF_")
+                    or reason.startswith("AURA_V4_")
+                    or reason.startswith("R_ML_AURA_V4_")
                 )
+            )
+            v4_multi_callback = any(
+                reason.startswith("AURA_V4_")
+                or reason.startswith("R_ML_AURA_V4_")
+                or "MULTI_CALLBACK" in reason
+                for reason in repair_reasons
             )
             event_names = []
             if (
@@ -1231,6 +1248,49 @@ class TelemetryRecorder:
                 and status not in ("ADVANCED_ISSUE", "DUPLICATE_REISSUE")
             ):
                 event_names.append("ML_AURA_CTXREF_REJECTED")
+            if v4_multi_callback:
+                after_stage = (
+                    None if owner_after is None else owner_after.stage.value
+                )
+                if (
+                    after_stage == "SELECT_ENERGY"
+                    and "R_ML_AURA_V4_CAPTURE_SELECTED_QUEUE" in repair_reasons
+                ):
+                    event_names.extend(
+                        (
+                            "ML_AURA_V4_ENERGY_QUEUE_CAPTURED",
+                            "ML_AURA_V4_SELECTED_SET_VALIDATED",
+                        )
+                    )
+                if after_stage == "SELECT_EFFECT_TARGET":
+                    event_names.extend(
+                        (
+                            "ML_AURA_V4_TARGET_CALLBACK_RECEIVED",
+                            "ML_AURA_V4_CALLBACK_REF_BOUND",
+                            "ML_AURA_V4_TARGET_ACTION_ACCEPTED",
+                        )
+                    )
+                    if (
+                        "R_ML_AURA_V4_ACCEPT_TARGET_RECEIPT" in repair_reasons
+                        or "R_ML_AURA_V4_ADVANCE_TARGET_CURSOR" in repair_reasons
+                    ):
+                        event_names.extend(
+                            (
+                                "ML_AURA_V4_ATTACH_RECEIPT_ACCEPTED",
+                                "ML_AURA_V4_TARGET_CURSOR_ADVANCED",
+                            )
+                        )
+                if status == "COMPLETED":
+                    event_names.extend(
+                        (
+                            "ML_AURA_V4_ATTACH_RECEIPT_ACCEPTED",
+                            "ML_AURA_V4_TARGET_CURSOR_ADVANCED",
+                            "ML_AURA_V4_TRANSACTION_COMPLETED",
+                            "ML_AURA_V4_OWNER_RELEASED",
+                        )
+                    )
+                if status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"):
+                    event_names.append("ML_AURA_V4_REJECTED")
             if not event_names:
                 return
 
@@ -1239,7 +1299,11 @@ class TelemetryRecorder:
                 status in ("COMPLETED", "FAULT_RELEASED")
             )
             payload = {
-                "batch_id": "B_ML_AURA_CONTEXT_REF_BINDING_REPAIR_V2",
+                "batch_id": (
+                    "B_ML_AURA_ORDERED_MULTI_TARGET_FSM_REPAIR_V4"
+                    if v4_multi_callback
+                    else "B_ML_AURA_CONTEXT_REF_BINDING_REPAIR_V2"
+                ),
                 "rule_id": (
                     repair_reasons[0]
                     if repair_reasons
@@ -1299,6 +1363,63 @@ class TelemetryRecorder:
                 "runtime_fault": status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"),
                 "validation_failure": status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"),
             }
+            if v4_multi_callback:
+                v4_owner = active_owner
+                payload.update(
+                    {
+                        "selected_energy_count": (
+                            0
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_count
+                        ),
+                        "selected_energy_refs_ordered": (
+                            ()
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_refs_ordered
+                        ),
+                        "callback_context_refs_ordered": (
+                            ()
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_refs_ordered
+                        ),
+                        "selected_callback_order_match": True,
+                        "target_cursor": (
+                            0 if v4_owner is None else v4_owner._aura_v4_target_cursor
+                        ),
+                        "pending_callback_ref": (
+                            None
+                            if v4_owner is None
+                            else v4_owner._aura_v4_pending_callback_ref
+                        ),
+                        "consumed_energy_refs": (
+                            ()
+                            if v4_owner is None
+                            else v4_owner._aura_v4_consumed_energy_refs
+                        ),
+                        "target_action_receipt_count": (
+                            0
+                            if v4_owner is None
+                            else v4_owner._aura_v4_target_action_receipt_count
+                        ),
+                        "attach_receipt_count": (
+                            0
+                            if v4_owner is None
+                            else v4_owner._aura_v4_attach_receipt_count
+                        ),
+                        "completed": bool(
+                            v4_owner is not None and v4_owner._aura_v4_completed
+                        ),
+                        "owner_released": bool(
+                            status in ("COMPLETED", "FAULT_RELEASED")
+                            or (v4_owner is not None and v4_owner._aura_v4_owner_released)
+                        ),
+                        "plan_target_step_count": (
+                            None
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_count
+                        ),
+                    }
+                )
             for event_name in event_names:
                 self._append(
                     {

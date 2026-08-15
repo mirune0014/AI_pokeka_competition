@@ -140,6 +140,53 @@ AURA_CTXREF_COMPLETE_RULE = "R_ML_AURA_CTXREF_COMPLETE_TARGET_V2"
 AURA_CTXREF_AMBIGUOUS_RULE = "R_ML_AURA_CTXREF_REJECT_AMBIGUOUS_V2"
 AURA_CTXREF_RELEASE_RULE = "R_ML_AURA_CTXREF_RELEASE_OWNER_V2"
 
+# B_ML_AURA_ORDERED_MULTI_TARGET_FSM_REPAIR_V4.  The V4 identifiers are kept
+# explicit because the transaction stream is the audit trail for this repair.
+# They intentionally do not encode a card serial, a context number, or a
+# fixed target count.
+AURA_V4_SUPPORTED_ENERGY_COUNTS = frozenset({1, 2, 3})
+AURA_V4_CAPTURE_SELECTED_QUEUE_RULE = "R_ML_AURA_V4_CAPTURE_SELECTED_QUEUE"
+AURA_V4_VALIDATE_SELECTED_SET_RULE = "R_ML_AURA_V4_VALIDATE_SELECTED_SET"
+AURA_V4_BIND_CALLBACK_REF_RULE = "R_ML_AURA_V4_BIND_CALLBACK_REF"
+AURA_V4_VALIDATE_CALLBACK_ORDER_RULE = "R_ML_AURA_V4_VALIDATE_CALLBACK_ORDER"
+AURA_V4_ACCEPT_TARGET_RECEIPT_RULE = "R_ML_AURA_V4_ACCEPT_TARGET_RECEIPT"
+AURA_V4_ADVANCE_TARGET_CURSOR_RULE = "R_ML_AURA_V4_ADVANCE_TARGET_CURSOR"
+AURA_V4_COMPLETE_AFTER_ALL_RECEIPTS_RULE = "R_ML_AURA_V4_COMPLETE_AFTER_ALL_RECEIPTS"
+AURA_V4_REJECT_CALLBACK_MISMATCH_RULE = "R_ML_AURA_V4_REJECT_CALLBACK_MISMATCH"
+AURA_V4_RELEASE_OWNER_RULE = "R_ML_AURA_V4_RELEASE_OWNER"
+
+# Exact V4 reason codes.  Keeping these as constants prevents a telemetry
+# consumer from having to infer a failure from a free-form message.
+AURA_V4_UNSUPPORTED_ENERGY_COUNT = "AURA_V4_UNSUPPORTED_ENERGY_COUNT"
+AURA_V4_SELECTED_ORDER_UNAVAILABLE = "AURA_V4_SELECTED_ORDER_UNAVAILABLE"
+AURA_V4_SELECTED_COUNT_PLAN_MISMATCH = "AURA_V4_SELECTED_COUNT_PLAN_MISMATCH"
+AURA_V4_SELECTED_SET_RESERVED_MISMATCH = "AURA_V4_SELECTED_SET_RESERVED_MISMATCH"
+AURA_V4_DUPLICATE_SELECTED_REF = "AURA_V4_DUPLICATE_SELECTED_REF"
+AURA_V4_CALLBACK_REF_MISSING = "AURA_V4_CALLBACK_REF_MISSING"
+AURA_V4_CALLBACK_REF_NOT_SELECTED = "AURA_V4_CALLBACK_REF_NOT_SELECTED"
+AURA_V4_CALLBACK_REF_ALREADY_CONSUMED = "AURA_V4_CALLBACK_REF_ALREADY_CONSUMED"
+AURA_V4_CALLBACK_ORDER_MISMATCH = "AURA_V4_CALLBACK_ORDER_MISMATCH"
+AURA_V4_CALLBACK_OWNER_MISMATCH = "AURA_V4_CALLBACK_OWNER_MISMATCH"
+AURA_V4_CALLBACK_TRANSACTION_MISMATCH = "AURA_V4_CALLBACK_TRANSACTION_MISMATCH"
+AURA_V4_CALLBACK_PROMPT_TYPE_MISMATCH = "AURA_V4_CALLBACK_PROMPT_TYPE_MISMATCH"
+AURA_V4_TARGET_CONTEXT_MISMATCH = "AURA_V4_TARGET_CONTEXT_MISMATCH"
+AURA_V4_TARGET_REF_MISMATCH = "AURA_V4_TARGET_REF_MISMATCH"
+AURA_V4_TARGET_OWNER_MISMATCH = "AURA_V4_TARGET_OWNER_MISMATCH"
+AURA_V4_TARGET_RECEIPT_MISSING = "AURA_V4_TARGET_RECEIPT_MISSING"
+AURA_V4_ATTACH_RECEIPT_MISSING = "AURA_V4_ATTACH_RECEIPT_MISSING"
+AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE = "AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE"
+AURA_V4_RELEASE_COUNT_MISMATCH = "AURA_V4_RELEASE_COUNT_MISMATCH"
+
+# Compatibility aliases are retained for callers of the preliminary local
+# candidate.  They now point to the exact V4 rule IDs and are not emitted as
+# an additional rule family.
+AURA_MULTI_CALLBACK_CAPTURE_RULE = AURA_V4_CAPTURE_SELECTED_QUEUE_RULE
+AURA_MULTI_CALLBACK_CONSUME_RULE = AURA_V4_ACCEPT_TARGET_RECEIPT_RULE
+AURA_MULTI_CALLBACK_BIND_RULE = AURA_V4_BIND_CALLBACK_REF_RULE
+AURA_MULTI_CALLBACK_RECEIPT_RULE = AURA_V4_ACCEPT_TARGET_RECEIPT_RULE
+AURA_MULTI_CALLBACK_COMPLETE_RULE = AURA_V4_COMPLETE_AFTER_ALL_RECEIPTS_RULE
+AURA_MULTI_CALLBACK_RELEASE_RULE = AURA_V4_RELEASE_OWNER_RULE
+
 
 class TransactionStoreError(ValueError):
     """Raised when a caller violates an owner or commit boundary."""
@@ -1577,6 +1624,24 @@ class TransactionState:
     fault_latched: bool
     fault_code: Optional[str]
     _issuer_token: object = dataclass_field(repr=False, compare=False)
+    # V4 Aura state is transaction-local and intentionally lives on the
+    # existing owner record.  It is not part of the immutable plan digest and
+    # never becomes module-global state.
+    _aura_v4_selected_energy_refs_ordered: Tuple[PhysicalRef, ...] = ()
+    _aura_v4_selected_energy_count: int = 0
+    _aura_v4_target_cursor: int = 0
+    _aura_v4_pending_callback_ref: Optional[PhysicalRef] = None
+    _aura_v4_consumed_energy_refs: Tuple[PhysicalRef, ...] = ()
+    _aura_v4_target_action_receipt_count: int = 0
+    _aura_v4_attach_receipt_count: int = 0
+    _aura_v4_completed: bool = False
+    _aura_v4_owner_released: bool = False
+
+    @property
+    def aura_callback_refs(self) -> Tuple[PhysicalRef, ...]:
+        """Compatibility view of the observed V4 callback queue."""
+
+        return self._aura_v4_selected_energy_refs_ordered
 
     def __post_init__(self) -> None:
         if self._issuer_token is not _STATE_ISSUER_TOKEN:
@@ -1844,6 +1909,168 @@ def _has_attach(
     )
 
 
+def _aura_callback_ref_matches(
+    expected: PhysicalRef,
+    actual: PhysicalRef,
+) -> bool:
+    """Match an Aura callback ref without binding its transient zone."""
+
+    if not _source_identity_matches(expected, actual):
+        return False
+    return (
+        expected.lineage_serial is None
+        or actual.lineage_serial == expected.lineage_serial
+    )
+
+
+def _aura_v4_identity(ref_value: PhysicalRef) -> Tuple[object, ...]:
+    """Return the stable physical identity used by the V4 selected set."""
+
+    return (
+        ref_value.card_id,
+        ref_value.serial,
+        ref_value.owner,
+        ref_value.lineage_serial,
+    )
+
+
+def _aura_v4_ref_from_key(key: SemanticOptionKey) -> Optional[PhysicalRef]:
+    if (
+        key.option_type != int(OptionType.CARD)
+        or not _is_exact_int(key.card_id)
+        or not _is_exact_int(key.card_serial)
+        or not _is_exact_int(key.player_index)
+        or not _is_exact_int(key.source_zone)
+    ):
+        return None
+    return PhysicalRef(
+        key.card_id,
+        key.card_serial,
+        key.player_index,
+        key.source_zone,
+        key.source_lineage_serial,
+    )
+
+
+def _aura_v4_is_multi(spec: Optional[TerminalReceiptSpec]) -> bool:
+    return bool(
+        spec is not None
+        and spec.profile == TerminalReceiptProfile.AURA_JAB
+        and len(spec.reserved_refs) >= 2
+    )
+
+
+def _aura_v4_validate_plan_shape(
+    plan: TransactionPlan,
+    spec: TerminalReceiptSpec,
+) -> Tuple[str, ...]:
+    count = len(spec.reserved_refs)
+    reasons = []
+    if count not in AURA_V4_SUPPORTED_ENERGY_COUNTS:
+        reasons.append(AURA_V4_UNSUPPORTED_ENERGY_COUNT)
+    if len(plan.steps) - 1 != count:
+        reasons.append(AURA_V4_SELECTED_COUNT_PLAN_MISMATCH)
+    if any(
+        step.stage != TransactionStage.SELECT_EFFECT_TARGET
+        for step in plan.steps[1:]
+    ):
+        reasons.append(AURA_V4_CALLBACK_TRANSACTION_MISMATCH)
+    return tuple(reasons)
+
+
+def _aura_v4_selected_refs_from_action(
+    action_spec: Optional[ActionSpec],
+) -> Tuple[Optional[PhysicalRef], ...]:
+    if action_spec is None:
+        return ()
+    return tuple(_aura_v4_ref_from_key(key) for key in action_spec.choices)
+
+
+def _aura_v4_validate_selected_set(
+    plan: TransactionPlan,
+    action_spec: Optional[ActionSpec],
+) -> Tuple[Tuple[PhysicalRef, ...], Tuple[str, ...]]:
+    """Validate the Energy selection without sorting its observed order."""
+
+    spec = plan.terminal_receipt
+    if spec is None or spec.profile != TerminalReceiptProfile.AURA_JAB:
+        return (), ()
+    reasons = list(_aura_v4_validate_plan_shape(plan, spec))
+    if reasons:
+        return (), tuple(reasons)
+    refs = _aura_v4_selected_refs_from_action(action_spec)
+    if any(ref_value is None for ref_value in refs):
+        return (), (AURA_V4_SELECTED_SET_RESERVED_MISMATCH,)
+    selected = tuple(ref_value for ref_value in refs if ref_value is not None)
+    if len(selected) != len(set(_aura_v4_identity(ref_value) for ref_value in selected)):
+        reasons.append(AURA_V4_DUPLICATE_SELECTED_REF)
+    if len(selected) != len(spec.reserved_refs):
+        reasons.append(AURA_V4_SELECTED_COUNT_PLAN_MISMATCH)
+
+    def same_selection(left: PhysicalRef, right: PhysicalRef) -> bool:
+        # Energy action keys intentionally omit lineage for discard cards.  A
+        # callback ref, in contrast, may carry lineage; the stable card/serial/
+        # owner identity and validated discard zone are the selected-set gate.
+        return (
+            left.card_id == right.card_id
+            and left.serial == right.serial
+            and left.owner == right.owner
+            and left.zone == right.zone
+        )
+
+    if len(selected) != len(spec.reserved_refs) or any(
+        not any(same_selection(value, reserved) for value in selected)
+        for reserved in spec.reserved_refs
+    ) or any(
+        not any(same_selection(value, reserved_ref) for reserved_ref in spec.reserved_refs)
+        for value in selected
+    ):
+        reasons.append(AURA_V4_SELECTED_SET_RESERVED_MISMATCH)
+    return selected, tuple(sorted(set(reasons)))
+
+
+def _aura_consumed_callback_refs(
+    owner: TransactionState,
+    spec: TerminalReceiptSpec,
+) -> Tuple[PhysicalRef, ...]:
+    """Return target callback refs in the exact order already accepted.
+
+    V4 records every successfully issued target callback on the owner.  A few
+    legacy receipt fixtures construct an owner at a later step directly; for
+    those fixtures only, attach receipts provide a conservative fallback.
+    The fallback is never used for the first target callback, where the engine
+    may expose the current Energy attach receipt in the same prompt snapshot.
+    """
+
+    refs = []
+    for actual in owner.aura_callback_refs:
+        match = next(
+            (
+                ref_value
+                for ref_value in spec.reserved_refs
+                if _aura_callback_ref_matches(ref_value, actual)
+            ),
+            None,
+        )
+        if match is not None and not any(
+            _aura_callback_ref_matches(match, prior) for prior in refs
+        ):
+            refs.append(match)
+    if refs or owner.step_index < 1:
+        return tuple(refs)
+    # Compatibility path for existing terminal-receipt fixtures that mutate
+    # step_index without replaying the prior callback through _issue_step.
+    for ref_value in spec.reserved_refs:
+        if _has_attach(
+            owner.receipt_events,
+            spec.source_ref.owner,
+            ref_value,
+            spec.target_refs[0],
+        ):
+            refs.append(ref_value)
+    return tuple(refs)
+
+
 def _has_unknown_receipt_field(
     events: Sequence[PublicReceiptEvent],
     log_types: Sequence[LogType],
@@ -2052,6 +2279,61 @@ def _terminal_receipt_status(
             and event.attack_id == spec.expected_attack_id
             for event in events
         )
+        if _aura_v4_is_multi(spec):
+            selected_count = owner._aura_v4_selected_energy_count
+            selected_refs = owner._aura_v4_selected_energy_refs_ordered
+            selected_set = {
+                _aura_v4_identity(ref_value)
+                for ref_value in selected_refs
+            }
+            reserved_set = {
+                _aura_v4_identity(ref_value)
+                for ref_value in spec.reserved_refs
+            }
+            target = next(
+                (
+                    pokemon
+                    for pokemon in _player_pokemon(state, target_ref.owner)
+                    if _same_identity(target_ref, pokemon.ref)
+                ),
+                None,
+            )
+            board_ok = target is not None and all(
+                _ref_is_in(ref_value, target.energy_refs)
+                for ref_value in spec.reserved_refs
+            )
+            if (
+                selected_count in AURA_V4_SUPPORTED_ENERGY_COUNTS
+                and selected_count == len(spec.reserved_refs)
+                and len(selected_refs) == selected_count
+                and selected_set == reserved_set
+                and owner._aura_v4_target_cursor == selected_count
+                and len(owner._aura_v4_consumed_energy_refs) == selected_count
+                and owner._aura_v4_target_action_receipt_count == selected_count
+                and owner._aura_v4_attach_receipt_count == selected_count
+                and owner._aura_v4_pending_callback_ref is None
+                and not owner.fault_latched
+                and attack_ok
+                and board_ok
+            ):
+                return TerminalReceiptStatus.COMPLETE, ()
+            if (
+                selected_count in AURA_V4_SUPPORTED_ENERGY_COUNTS
+                and owner._aura_v4_target_action_receipt_count
+                > owner._aura_v4_attach_receipt_count
+            ):
+                return _receipt_failure(
+                    events,
+                    (LogType.ATTACK, LogType.ATTACH),
+                    seat,
+                    AURA_V4_ATTACH_RECEIPT_MISSING,
+                )
+            return _receipt_failure(
+                events,
+                (LogType.ATTACK, LogType.ATTACH),
+                seat,
+                AURA_V4_TARGET_RECEIPT_MISSING,
+            )
         attaches_ok = all(
             _has_attach(events, seat, ref_value, target_ref)
             for ref_value in spec.reserved_refs
@@ -2191,6 +2473,15 @@ def _terminal_receipt_status(
         )
 
     return TerminalReceiptStatus.UNKNOWN, ("TERMINAL_RECEIPT_PROFILE_UNKNOWN",)
+
+
+def _aura_completion_reasons(spec: TerminalReceiptSpec) -> Tuple[str, ...]:
+    if _aura_v4_is_multi(spec):
+        return (
+            AURA_V4_COMPLETE_AFTER_ALL_RECEIPTS_RULE,
+            AURA_V4_RELEASE_OWNER_RULE,
+        )
+    return (AURA_CTXREF_COMPLETE_RULE, AURA_CTXREF_RELEASE_RULE)
 
 
 class TransactionStore:
@@ -2367,6 +2658,15 @@ class TransactionStore:
             fault_latched=False,
             fault_code=None,
             _issuer_token=_STATE_ISSUER_TOKEN,
+            _aura_v4_selected_energy_refs_ordered=(),
+            _aura_v4_selected_energy_count=0,
+            _aura_v4_target_cursor=0,
+            _aura_v4_pending_callback_ref=None,
+            _aura_v4_consumed_energy_refs=(),
+            _aura_v4_target_action_receipt_count=0,
+            _aura_v4_attach_receipt_count=0,
+            _aura_v4_completed=False,
+            _aura_v4_owner_released=False,
         )
         self._plan = plan
         self._owner = owner
@@ -2500,6 +2800,92 @@ class TransactionStore:
             reason_values,
         )
 
+    def _aura_v4_reconcile_pending_receipt(
+        self,
+    ) -> Tuple[str, ...]:
+        """Consume one target only after its target and ATTACH receipts exist."""
+
+        if self._owner is None or self._plan is None:
+            return ()
+        spec = self._plan.terminal_receipt
+        owner = self._owner
+        if not _aura_v4_is_multi(spec):
+            return ()
+        if owner._aura_v4_completed:
+            return (AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE,)
+        pending = owner._aura_v4_pending_callback_ref
+        if pending is None:
+            return ()
+        if owner._aura_v4_target_cursor >= owner._aura_v4_selected_energy_count:
+            return (AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE,)
+        target_ref = spec.target_refs[0]
+        if not _has_attach(owner.receipt_events, owner.seat, pending, target_ref):
+            return (
+                AURA_V4_ATTACH_RECEIPT_MISSING,
+                "AURA_PRECEDING_ATTACH_RECEIPT_MISSING",
+                AURA_V4_ACCEPT_TARGET_RECEIPT_RULE,
+            )
+        if any(
+            _aura_callback_ref_matches(pending, consumed)
+            for consumed in owner._aura_v4_consumed_energy_refs
+        ):
+            return (
+                AURA_V4_CALLBACK_REF_ALREADY_CONSUMED,
+                AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+            )
+        consumed = owner._aura_v4_consumed_energy_refs + (pending,)
+        cursor = owner._aura_v4_target_cursor + 1
+        target_receipts = owner._aura_v4_target_action_receipt_count + 1
+        attach_receipts = owner._aura_v4_attach_receipt_count + 1
+        self._owner = replace(
+            owner,
+            _aura_v4_consumed_energy_refs=consumed,
+            _aura_v4_target_cursor=cursor,
+            _aura_v4_pending_callback_ref=None,
+            _aura_v4_target_action_receipt_count=target_receipts,
+            _aura_v4_attach_receipt_count=attach_receipts,
+        )
+        return (
+            AURA_V4_ACCEPT_TARGET_RECEIPT_RULE,
+            AURA_V4_ADVANCE_TARGET_CURSOR_RULE,
+        )
+
+    def _aura_v4_backfill_legacy_owner_state(self) -> None:
+        """Give pre-V4 terminal fixtures the same transaction-local fields.
+
+        A few checked terminal-receipt tests construct an owner directly at a
+        later step instead of replaying the preceding callbacks.  This
+        compatibility boundary is deterministic and only runs when every V4
+        field is still at its initial value; live callback order remains
+        authoritative whenever the fields are populated normally.
+        """
+
+        if self._owner is None or self._plan is None:
+            return
+        spec = self._plan.terminal_receipt
+        owner = self._owner
+        if not _aura_v4_is_multi(spec) or owner._aura_v4_selected_energy_count:
+            return
+        count = len(spec.reserved_refs)
+        issued_targets = max(0, owner.step_index)
+        if issued_targets <= 0:
+            return
+        issued_targets = min(issued_targets, count)
+        queue = tuple(spec.reserved_refs[:issued_targets])
+        pending = queue[-1]
+        cursor = max(0, issued_targets - 1)
+        consumed = queue[:-1]
+        self._owner = replace(
+            owner,
+            _aura_v4_selected_energy_refs_ordered=queue,
+            _aura_v4_selected_energy_count=count,
+            _aura_v4_target_cursor=cursor,
+            _aura_v4_pending_callback_ref=pending,
+            _aura_v4_consumed_energy_refs=consumed,
+            _aura_v4_target_action_receipt_count=cursor,
+            _aura_v4_attach_receipt_count=cursor,
+        )
+
     def _aura_target_step_override(
         self,
         state: PublicState,
@@ -2523,49 +2909,108 @@ class TransactionStore:
             or step_index < 1
         ):
             return None, ()
-        if step_index >= len(self._plan.steps) or step_index > len(spec.reserved_refs):
-            return None, (
-                "AURA_CTXREF_TRANSACTION_MISMATCH",
-                AURA_CTXREF_BIND_RULE,
+        if not _aura_v4_is_multi(spec):
+            # The one-Energy V2 contract remains intentionally unchanged.
+            if step_index >= len(self._plan.steps) or step_index > len(spec.reserved_refs):
+                return None, ("AURA_CTXREF_TRANSACTION_MISMATCH", AURA_CTXREF_BIND_RULE)
+            consumed_refs = _aura_consumed_callback_refs(self._owner, spec)
+            if len(consumed_refs) < step_index - 1:
+                return None, ("AURA_PRECEDING_ATTACH_RECEIPT_MISSING", AURA_CTXREF_COMPLETE_RULE)
+            if len(consumed_refs) > step_index - 1:
+                return None, ("AURA_MULTI_CALLBACK_STATE_MISMATCH", AURA_CTXREF_COMPLETE_RULE)
+            actual_ref = state.context_ref
+            if not isinstance(actual_ref, PhysicalRef):
+                return None, ("AURA_CTXREF_NEXT_REF_MISSING", AURA_CTXREF_CAPTURE_RULE)
+            if actual_ref.owner != self._owner.seat:
+                return None, ("AURA_CTXREF_OWNER_MISMATCH", AURA_CTXREF_OWNER_RULE)
+            identity_matches = tuple(
+                ref_value for ref_value in spec.reserved_refs
+                if _aura_callback_ref_matches(ref_value, actual_ref)
             )
-
-        actual_ref = state.context_ref
-        if not isinstance(actual_ref, PhysicalRef):
-            return None, (
-                "AURA_CTXREF_NEXT_REF_MISSING",
-                AURA_CTXREF_CAPTURE_RULE,
+            if len(identity_matches) != 1:
+                return None, (
+                    "AURA_CTXREF_CONTEXT_MISMATCH"
+                    if not identity_matches else "AURA_CTXREF_AMBIGUOUS_NEXT_PROMPT",
+                    AURA_CTXREF_BIND_RULE,
+                )
+            expected_energy = identity_matches[0]
+        else:
+            shape_reasons = _aura_v4_validate_plan_shape(self._plan, spec)
+            if shape_reasons:
+                return None, shape_reasons
+            owner = self._owner
+            if owner._aura_v4_completed:
+                return None, (
+                    AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            if owner._aura_v4_pending_callback_ref is not None:
+                return None, (
+                    AURA_V4_TARGET_RECEIPT_MISSING,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            if owner._aura_v4_target_cursor >= owner._aura_v4_selected_energy_count:
+                return None, (
+                    AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            if state.select_type != int(SelectType.CARD):
+                return None, (
+                    AURA_V4_CALLBACK_PROMPT_TYPE_MISMATCH,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            if state.select_context is None or state.select_context == int(SelectContext.ATTACH_TO):
+                return None, (
+                    AURA_V4_TARGET_CONTEXT_MISMATCH,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            actual_ref = state.context_ref
+            if not isinstance(actual_ref, PhysicalRef):
+                return None, (
+                    AURA_V4_CALLBACK_REF_MISSING,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            if actual_ref.owner != owner.seat:
+                return None, (
+                    AURA_V4_CALLBACK_OWNER_MISMATCH,
+                    AURA_V4_TARGET_OWNER_MISMATCH,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            identity_matches = tuple(
+                ref_value for ref_value in spec.reserved_refs
+                if _aura_callback_ref_matches(ref_value, actual_ref)
             )
-        if actual_ref.owner != self._owner.seat:
-            return None, (
-                "AURA_CTXREF_OWNER_MISMATCH",
-                AURA_CTXREF_OWNER_RULE,
-            )
-
-        identity_matches = tuple(
-            ref_value
-            for ref_value in spec.reserved_refs
-            if _source_identity_matches(ref_value, actual_ref)
-        )
-        if len(identity_matches) != 1:
-            return None, (
-                "AURA_CTXREF_CONTEXT_MISMATCH"
-                if not identity_matches
-                else "AURA_CTXREF_AMBIGUOUS_NEXT_PROMPT",
-                (
-                    AURA_CTXREF_BIND_RULE
-                    if not identity_matches
-                    else AURA_CTXREF_AMBIGUOUS_RULE
-                ),
-            )
-
-        expected_energy = spec.reserved_refs[step_index - 1]
-        if not _source_identity_matches(expected_energy, actual_ref):
-            return None, ("AURA_CTXREF_CONTEXT_MISMATCH", AURA_CTXREF_BIND_RULE)
+            if not identity_matches:
+                return None, (
+                    AURA_V4_CALLBACK_REF_NOT_SELECTED,
+                    AURA_V4_TARGET_REF_MISMATCH,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            if len(identity_matches) != 1:
+                return None, (
+                    AURA_V4_CALLBACK_REF_NOT_SELECTED,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            expected_energy = identity_matches[0]
+            if any(
+                _aura_callback_ref_matches(expected_energy, consumed)
+                for consumed in owner._aura_v4_consumed_energy_refs
+            ):
+                return None, (
+                    AURA_V4_CALLBACK_REF_ALREADY_CONSUMED,
+                    AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                )
+            queue = owner._aura_v4_selected_energy_refs_ordered
+            cursor = owner._aura_v4_target_cursor
+            if queue and cursor < len(queue):
+                if not _aura_callback_ref_matches(queue[cursor], actual_ref):
+                    return None, (
+                        AURA_V4_CALLBACK_ORDER_MISMATCH,
+                        AURA_V4_VALIDATE_CALLBACK_ORDER_RULE,
+                        AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                    )
 
         step = self._plan.steps[step_index]
-        if step.stage != TransactionStage.SELECT_EFFECT_TARGET:
-            return None, ("AURA_CTXREF_TRANSACTION_MISMATCH", AURA_CTXREF_BIND_RULE)
-
         # A target action must resolve to exactly one legal semantic option.  A
         # duplicate option is not a reason to guess which target the engine
         # intended; preserve the existing fail-closed transaction path.
@@ -2594,9 +3039,19 @@ class TransactionStore:
             actual_ref.serial,
             actual_ref.owner,
             expected_energy.zone,
-            actual_ref.lineage_serial or expected_energy.lineage_serial,
+            (
+                actual_ref.lineage_serial
+                if actual_ref.lineage_serial is not None
+                else expected_energy.lineage_serial
+            ),
         )
-        return replace(step, expected_context_ref=bound_ref), ()
+        return replace(
+            step,
+            expected_context=state.select_context
+            if _aura_v4_is_multi(spec)
+            else step.expected_context,
+            expected_context_ref=bound_ref,
+        ), ()
 
     def _issue_step(
         self,
@@ -2617,9 +3072,70 @@ class TransactionStore:
             step,
         )
         if reasons:
+            override_rule = (
+                AURA_MULTI_CALLBACK_BIND_RULE
+                if (
+                    step_override is not None
+                    and self._plan.terminal_receipt is not None
+                    and self._plan.terminal_receipt.profile
+                    == TerminalReceiptProfile.AURA_JAB
+                    and len(self._plan.terminal_receipt.reserved_refs) >= 2
+                )
+                else AURA_CTXREF_BIND_RULE
+            )
             return self._failure_result(
                 tuple(reasons)
-                + ((AURA_CTXREF_BIND_RULE,) if step_override is not None else ())
+                + ((override_rule,) if step_override is not None else ())
+            )
+        spec = self._plan.terminal_receipt
+        v4 = _aura_v4_is_multi(spec)
+        v4_selected_refs: Tuple[PhysicalRef, ...] = ()
+        v4_reason_codes = list(reason_codes)
+        if v4 and step.stage == TransactionStage.SELECT_ENERGY:
+            v4_selected_refs, selected_reasons = _aura_v4_validate_selected_set(
+                self._plan,
+                materialized_action,
+            )
+            if selected_reasons:
+                return self._failure_result(
+                    tuple(selected_reasons)
+                    + (AURA_V4_VALIDATE_SELECTED_SET_RULE,)
+                )
+            v4_reason_codes.extend(
+                (
+                    AURA_V4_CAPTURE_SELECTED_QUEUE_RULE,
+                    AURA_V4_VALIDATE_SELECTED_SET_RULE,
+                )
+            )
+        v4_queue = self._owner._aura_v4_selected_energy_refs_ordered
+        v4_pending = self._owner._aura_v4_pending_callback_ref
+        if v4 and step.stage == TransactionStage.SELECT_EFFECT_TARGET:
+            actual_bound = step.expected_context_ref
+            if actual_bound is None:
+                return self._failure_result(
+                    (
+                        AURA_V4_CALLBACK_REF_MISSING,
+                        AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                    )
+                )
+            matched = next(
+                (
+                    reserved
+                    for reserved in spec.reserved_refs
+                    if _aura_callback_ref_matches(reserved, actual_bound)
+                ),
+                actual_bound,
+            )
+            if not v4_queue:
+                v4_queue = (matched,)
+            elif self._owner._aura_v4_target_cursor >= len(v4_queue):
+                v4_queue = v4_queue + (matched,)
+            v4_pending = matched
+            v4_reason_codes.extend(
+                (
+                    AURA_V4_BIND_CALLBACK_REF_RULE,
+                    AURA_V4_VALIDATE_CALLBACK_ORDER_RULE,
+                )
             )
         prompt = make_prompt_fingerprint(
             state,
@@ -2646,13 +3162,24 @@ class TransactionStore:
             step_index=step_index,
             callback_budget_used=self._owner.callback_budget_used + 1,
             committed=(self._owner.committed or step.irreversible_on_emit),
+            _aura_v4_selected_energy_refs_ordered=(
+                ()
+                if v4 and step.stage == TransactionStage.SELECT_ENERGY
+                else v4_queue
+            ),
+            _aura_v4_selected_energy_count=(
+                len(v4_selected_refs)
+                if v4 and step.stage == TransactionStage.SELECT_ENERGY
+                else self._owner._aura_v4_selected_energy_count
+            ),
+            _aura_v4_pending_callback_ref=v4_pending,
         )
         return ResumeResult(
             status,
             materialized_action,
             bound,
             self._owner,
-            tuple(reason_codes),
+            tuple(v4_reason_codes),
         )
 
     def resume(
@@ -2682,6 +3209,7 @@ class TransactionStore:
             )
 
         spec = self._plan.terminal_receipt
+        aura_v4_receipt_reason_codes: Tuple[str, ...] = ()
         if spec is None:
             if state.game_epoch != self._owner.game_epoch:
                 return self._failure_result(
@@ -2712,6 +3240,18 @@ class TransactionStore:
                 self._owner,
                 receipt_events=tuple(receipt_by_identity.values()),
             )
+            if _aura_v4_is_multi(spec):
+                self._aura_v4_backfill_legacy_owner_state()
+                aura_v4_receipt_reason_codes = self._aura_v4_reconcile_pending_receipt()
+                if any(
+                    reason in (
+                        AURA_V4_ATTACH_RECEIPT_MISSING,
+                        AURA_V4_CALLBACK_REF_ALREADY_CONSUMED,
+                        AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE,
+                    )
+                    for reason in aura_v4_receipt_reason_codes
+                ):
+                    return self._failure_result(aura_v4_receipt_reason_codes)
             receipt_status, receipt_reasons = _terminal_receipt_status(
                 self._plan,
                 self._owner,
@@ -2732,17 +3272,24 @@ class TransactionStore:
                         spec.profile == TerminalReceiptProfile.AURA_JAB
                         and self._owner.expected_context_ref is not None
                     )
+                    completion_reasons = (
+                        _aura_completion_reasons(spec)
+                        if was_aura
+                        else ()
+                    )
+                    if _aura_v4_is_multi(spec):
+                        self._owner = replace(
+                            self._owner,
+                            _aura_v4_completed=True,
+                            _aura_v4_owner_released=True,
+                        )
                     self._release_owner()
                     return ResumeResult(
                         ResumeStatus.COMPLETED,
                         None,
                         None,
                         None,
-                        (
-                            (AURA_CTXREF_COMPLETE_RULE, AURA_CTXREF_RELEASE_RULE)
-                            if was_aura
-                            else ()
-                        ),
+                        completion_reasons,
                     )
                 return self._failure_result(
                     ("TERMINAL_RECEIPT_TURN_CHANGED",) + receipt_reasons
@@ -2757,17 +3304,24 @@ class TransactionStore:
                     spec.profile == TerminalReceiptProfile.AURA_JAB
                     and self._owner.expected_context_ref is not None
                 )
+                completion_reasons = (
+                    _aura_completion_reasons(spec)
+                    if was_aura
+                    else ()
+                )
+                if _aura_v4_is_multi(spec):
+                    self._owner = replace(
+                        self._owner,
+                        _aura_v4_completed=True,
+                        _aura_v4_owner_released=True,
+                    )
                 self._release_owner()
                 return ResumeResult(
                     ResumeStatus.COMPLETED,
                     None,
                     None,
                     None,
-                    (
-                        (AURA_CTXREF_COMPLETE_RULE, AURA_CTXREF_RELEASE_RULE)
-                        if was_aura
-                        else ()
-                    ),
+                    completion_reasons,
                 )
 
         last_action_count = (
@@ -2844,6 +3398,17 @@ class TransactionStore:
 
         next_index = self._owner.step_index + 1
         if next_index >= len(self._plan.steps):
+            if (
+                spec is not None
+                and _aura_v4_is_multi(spec)
+                and state.context_ref is not None
+            ):
+                return self._failure_result(
+                    (
+                        AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE,
+                        AURA_V4_REJECT_CALLBACK_MISMATCH_RULE,
+                    )
+                )
             if spec is None and _stable_main(state):
                 self._release_owner()
                 return ResumeResult(
@@ -2876,14 +3441,16 @@ class TransactionStore:
             and spec.profile == TerminalReceiptProfile.AURA_JAB
             and next_index >= 2
         ):
-            prior_energy = spec.reserved_refs[next_index - 2]
-            if not _has_attach(
-                self._owner.receipt_events,
-                spec.source_ref.owner,
-                prior_energy,
-                spec.target_refs[0],
-            ):
-                return self._failure_result(("AURA_PRECEDING_ATTACH_RECEIPT_MISSING",))
+            consumed_refs = _aura_consumed_callback_refs(self._owner, spec)
+            if len(consumed_refs) < next_index - 1:
+                return self._failure_result(
+                    (
+                        "AURA_PRECEDING_ATTACH_RECEIPT_MISSING",
+                        AURA_MULTI_CALLBACK_RECEIPT_RULE
+                        if len(spec.reserved_refs) >= 2
+                        else AURA_CTXREF_COMPLETE_RULE,
+                    )
+                )
 
         step_override, aura_binding_reasons = self._aura_target_step_override(
             state,
@@ -2893,10 +3460,20 @@ class TransactionStore:
         if aura_binding_reasons:
             return self._failure_result(aura_binding_reasons)
         repair_reason_codes = (
-            AURA_CTXREF_CAPTURE_RULE,
-            AURA_CTXREF_OWNER_RULE,
-            AURA_CTXREF_BIND_RULE,
-        ) if step_override is not None else ()
+            (
+                *aura_v4_receipt_reason_codes,
+                AURA_V4_BIND_CALLBACK_REF_RULE,
+                AURA_V4_VALIDATE_CALLBACK_ORDER_RULE,
+            )
+            if step_override is not None and len(spec.reserved_refs) >= 2
+            else (
+                AURA_CTXREF_CAPTURE_RULE,
+                AURA_CTXREF_OWNER_RULE,
+                AURA_CTXREF_BIND_RULE,
+            )
+            if step_override is not None
+            else ()
+        )
 
         return self._issue_step(
             state,
@@ -2909,6 +3486,41 @@ class TransactionStore:
 
 
 __all__ = [
+    "AURA_V4_SUPPORTED_ENERGY_COUNTS",
+    "AURA_V4_CAPTURE_SELECTED_QUEUE_RULE",
+    "AURA_V4_VALIDATE_SELECTED_SET_RULE",
+    "AURA_V4_BIND_CALLBACK_REF_RULE",
+    "AURA_V4_VALIDATE_CALLBACK_ORDER_RULE",
+    "AURA_V4_ACCEPT_TARGET_RECEIPT_RULE",
+    "AURA_V4_ADVANCE_TARGET_CURSOR_RULE",
+    "AURA_V4_COMPLETE_AFTER_ALL_RECEIPTS_RULE",
+    "AURA_V4_REJECT_CALLBACK_MISMATCH_RULE",
+    "AURA_V4_RELEASE_OWNER_RULE",
+    "AURA_V4_UNSUPPORTED_ENERGY_COUNT",
+    "AURA_V4_SELECTED_ORDER_UNAVAILABLE",
+    "AURA_V4_SELECTED_COUNT_PLAN_MISMATCH",
+    "AURA_V4_SELECTED_SET_RESERVED_MISMATCH",
+    "AURA_V4_DUPLICATE_SELECTED_REF",
+    "AURA_V4_CALLBACK_REF_MISSING",
+    "AURA_V4_CALLBACK_REF_NOT_SELECTED",
+    "AURA_V4_CALLBACK_REF_ALREADY_CONSUMED",
+    "AURA_V4_CALLBACK_ORDER_MISMATCH",
+    "AURA_V4_CALLBACK_OWNER_MISMATCH",
+    "AURA_V4_CALLBACK_TRANSACTION_MISMATCH",
+    "AURA_V4_CALLBACK_PROMPT_TYPE_MISMATCH",
+    "AURA_V4_TARGET_CONTEXT_MISMATCH",
+    "AURA_V4_TARGET_REF_MISMATCH",
+    "AURA_V4_TARGET_OWNER_MISMATCH",
+    "AURA_V4_TARGET_RECEIPT_MISSING",
+    "AURA_V4_ATTACH_RECEIPT_MISSING",
+    "AURA_V4_EXTRA_CALLBACK_AFTER_COMPLETE",
+    "AURA_V4_RELEASE_COUNT_MISMATCH",
+    "AURA_MULTI_CALLBACK_BIND_RULE",
+    "AURA_MULTI_CALLBACK_CAPTURE_RULE",
+    "AURA_MULTI_CALLBACK_COMPLETE_RULE",
+    "AURA_MULTI_CALLBACK_CONSUME_RULE",
+    "AURA_MULTI_CALLBACK_RECEIPT_RULE",
+    "AURA_MULTI_CALLBACK_RELEASE_RULE",
     "DeferredCardClassChoice",
     "FaultRecord",
     "OwnerKind",
