@@ -67,6 +67,33 @@ except ImportError:  # Flat submission import from main.py.
 
 SCHEMA_VERSION = "mega_lucario_telemetry_v1"
 
+# Keep decision provenance on the small, explicit vocabulary consumed by the
+# runner.  ``SINGLE_RESOLVER`` was the V1 spelling for the ordinary resolver
+# boundary; every call site is the same normal resolver path, so it is a safe
+# compatibility alias rather than a distinct runtime source.
+CANONICAL_DECISION_SOURCES = frozenset(
+    {
+        "RESOLVER",
+        "RESOLVER_TRANSACTION_START",
+        "TRANSACTION_RESUME",
+        "FORCED_ROUTE",
+        "FAULT_CONTAINMENT",
+        "SAFE_FALLBACK",
+        "RAW_CONTAINMENT",
+    }
+)
+_DECISION_SOURCE_ALIASES = {"SINGLE_RESOLVER": "RESOLVER"}
+
+
+def _canonical_decision_source(value: object) -> tuple[str, bool]:
+    """Return a canonical source and whether a compatibility alias was used."""
+
+    if not isinstance(value, str) or not value.strip():
+        return "INVALID", False
+    source = value.strip()
+    canonical = _DECISION_SOURCE_ALIASES.get(source, source)
+    return canonical, canonical != source
+
 
 class TelemetryMode(str, Enum):
     OFF = "OFF"
@@ -489,14 +516,15 @@ def make_resolution_event(
     *,
     projection: TelemetryProjection = TelemetryProjection.INTERNAL_AGENT_VISIBLE,
     run_context: Optional[RunContext] = None,
-    decision_source: str = "SINGLE_RESOLVER",
+    decision_source: str = "RESOLVER",
     transaction_before: Optional[TransactionState] = None,
     transaction_after: Optional[TransactionState] = None,
 ) -> Dict[str, Any]:
     projection = TelemetryProjection(projection)
     if not isinstance(state, PublicState) or not isinstance(resolution, Resolution):
         raise ValueError("resolution telemetry requires checked state and resolution")
-    if not isinstance(decision_source, str) or not decision_source.strip():
+    decision_source, _ = _canonical_decision_source(decision_source)
+    if decision_source == "INVALID":
         raise ValueError("decision_source must be a non-empty code")
     invariant_reasons = resolution_invariant_reasons(
         proposals,
@@ -541,7 +569,7 @@ def make_resolution_event(
                 and value["disposition"] == "SELECTED"
             )
         derived = {
-            "decision_source": decision_source.strip(),
+            "decision_source": decision_source,
             "proposal_evaluations": evaluations,
             "selected": selected,
             "resources": ledger_payload,
@@ -1055,7 +1083,7 @@ class TelemetryRecorder:
         ledger: ResourceLedger,
         *,
         run_context: Optional[RunContext] = None,
-        decision_source: str = "SINGLE_RESOLVER",
+        decision_source: str = "RESOLVER",
         transaction_before: Optional[TransactionState] = None,
         transaction_after: Optional[TransactionState] = None,
     ) -> None:
@@ -1687,6 +1715,7 @@ class ValidationRuntimeState:
         self.failure_codes: list[str] = []
         self.last_exception: Optional[Dict[str, str]] = None
         self.last_containment_reason: Optional[str] = None
+        self.last_fault_reason: Optional[str] = None
         self.last_prompt_fingerprint: Optional[str] = None
         self.last_first_difference: Optional[Dict[str, Any]] = None
         self.last_route_id: Optional[str] = None
@@ -1704,6 +1733,8 @@ class ValidationRuntimeState:
         self.last_emitted_rule_id: Optional[str] = None
         self.last_transaction_status: Optional[str] = None
         self.emitted_action_count = 0
+        self.callback_receipts: list[Dict[str, Any]] = []
+        self.source_alias_normalizations = 0
         self.last_owner_snapshot: Optional[Dict[str, Any]] = None
         self.last_finalize_reason: Optional[str] = None
         self.epoch = -1
@@ -1732,6 +1763,16 @@ class ValidationRuntimeState:
         self.last_emitted_action_validated = None
         self.last_emitted_rule_id = None
         self.last_transaction_status = None
+        self.last_fault_reason = None
+
+    def _clear_stale_provenance(self) -> None:
+        """Remove resolver provenance when the callback is fault-contained."""
+
+        self.last_route_id = None
+        self.last_certificate_id = None
+        self.last_resolution_status = None
+        self.last_resolution_stats = None
+        self.last_emitted_rule_id = None
 
     def note_exception(self, exc: BaseException, *, code: str = "RUNTIME_EXCEPTION") -> None:
         self.runtime_fault_latched = True
@@ -1743,7 +1784,11 @@ class ValidationRuntimeState:
         }
 
     def note_containment(self, reason: str, *, exception_derived: bool) -> None:
-        self.last_containment_reason = _bounded_diagnostic_text(reason, 256)
+        normalized = _bounded_diagnostic_text(reason, 256)
+        self.last_containment_reason = normalized
+        self._clear_stale_provenance()
+        if self.last_fault_reason is None:
+            self.last_fault_reason = normalized
         if exception_derived:
             self.exception_derived_containment_count += 1
 
@@ -1756,12 +1801,14 @@ class ValidationRuntimeState:
         self,
         resolution: Resolution,
         *,
-        decision_source: str = "SINGLE_RESOLVER",
+        decision_source: str = "RESOLVER",
     ) -> None:
-        if not isinstance(decision_source, str) or not decision_source.strip():
+        decision_source, was_alias = _canonical_decision_source(decision_source)
+        if was_alias:
+            self.source_alias_normalizations += 1
+        if decision_source == "INVALID":
             self._fail("DECISION_SOURCE_INVALID")
-            decision_source = "INVALID"
-        self.last_decision_source = decision_source.strip()
+        self.last_decision_source = decision_source
         stats = getattr(resolution, "stats", None)
         if stats is not None:
             self.last_resolution_stats = {
@@ -1774,9 +1821,8 @@ class ValidationRuntimeState:
             # Never leave a prior rule/certificate attached to a no-selection
             # resolution; stale provenance is more harmful to evaluation than
             # a missing value.
+            self._clear_stale_provenance()
             self.last_resolution_status = "NO_SELECTION"
-            self.last_route_id = None
-            self.last_certificate_id = None
             return
         self.last_resolution_status = "SELECTED"
         self.last_route_id = selected.rule_id
@@ -1792,6 +1838,7 @@ class ValidationRuntimeState:
         decision_source: str,
         rule_id: Optional[str] = None,
         transaction_status: Optional[str] = None,
+        fault_reason: Optional[str] = None,
     ) -> None:
         """Record the checked action at the callback boundary.
 
@@ -1801,33 +1848,76 @@ class ValidationRuntimeState:
         and containment paths without inferring them from stale state.
         """
 
-        if not isinstance(decision_source, str) or not decision_source.strip():
+        decision_source, was_alias = _canonical_decision_source(decision_source)
+        if was_alias:
+            self.source_alias_normalizations += 1
+        if decision_source == "INVALID":
             self._fail("DECISION_SOURCE_INVALID")
-            decision_source = "INVALID"
         values = tuple(action)
         valid = all(
             _exact_int(value) and value >= 0
             for value in values
         )
-        self.last_decision_source = decision_source.strip()
+        self.last_decision_source = decision_source
         self.last_emitted_action = tuple(int(value) for value in values) if valid else None
         self.last_emitted_action_validated = bool(valid)
-        self.last_emitted_rule_id = (
-            None if rule_id is None else _bounded_diagnostic_text(rule_id, 256)
+        normalized_fault_reason = (
+            None
+            if fault_reason is None
+            else _bounded_diagnostic_text(fault_reason, 256)
         )
+        if decision_source in ("FAULT_CONTAINMENT", "RAW_CONTAINMENT"):
+            self._clear_stale_provenance()
+            if normalized_fault_reason is None:
+                normalized_fault_reason = self.last_containment_reason
+            self.last_fault_reason = normalized_fault_reason
+            # A containment decision is a fault reason, not a normal rule
+            # provenance value.  Keep it in its dedicated field and in the
+            # callback receipt below.
+            self.last_emitted_rule_id = None
+        else:
+            self.last_fault_reason = None
+            self.last_emitted_rule_id = (
+                None if rule_id is None else _bounded_diagnostic_text(rule_id, 256)
+            )
         self.last_transaction_status = (
             None
             if transaction_status is None
             else _bounded_diagnostic_text(transaction_status, 256)
         )
         self.emitted_action_count += 1
+        self.callback_receipts.append(
+            {
+                "receipt_index": self.emitted_action_count,
+                "epoch": self.epoch,
+                "prompt_fingerprint": self.last_prompt_fingerprint,
+                "decision_source": self.last_decision_source,
+                "action": self.last_emitted_action,
+                "action_validated": self.last_emitted_action_validated,
+                "rule_id": self.last_emitted_rule_id,
+                "fault_reason": self.last_fault_reason,
+                "transaction_status": self.last_transaction_status,
+                "resolution_status": self.last_resolution_status,
+                "resolution_stats": (
+                    None
+                    if self.last_resolution_stats is None
+                    else dict(self.last_resolution_stats)
+                ),
+                "route_id": self.last_route_id,
+                "certificate_id": self.last_certificate_id,
+            }
+        )
         if not valid:
             self._fail("EMITTED_ACTION_RECEIPT_INVALID")
 
     def note_raw_emission(self, action: Sequence[int]) -> None:
         """Record the final raw containment boundary after parsing failed."""
 
-        self.note_emission(action, decision_source="RAW_CONTAINMENT")
+        self.note_emission(
+            action,
+            decision_source="RAW_CONTAINMENT",
+            fault_reason=self.last_containment_reason,
+        )
 
     def note_transaction(self, store: Any, result: Any) -> None:
         status = getattr(getattr(result, "status", None), "value", None)
@@ -1904,6 +1994,7 @@ class ValidationRuntimeState:
             "last_prompt_fingerprint": self.last_prompt_fingerprint,
             "last_exception": self.last_exception,
             "last_containment_reason": self.last_containment_reason,
+            "last_fault_reason": self.last_fault_reason,
             "last_finalize_reason": self.last_finalize_reason,
             "last_first_difference": self.last_first_difference,
             "last_route_id": self.last_route_id,
@@ -1916,6 +2007,11 @@ class ValidationRuntimeState:
             "last_emitted_rule_id": self.last_emitted_rule_id,
             "last_transaction_status": self.last_transaction_status,
             "emitted_action_count": self.emitted_action_count,
+            "callback_receipt_count": len(self.callback_receipts),
+            "callback_receipts": tuple(
+                dict(receipt) for receipt in self.callback_receipts
+            ),
+            "source_alias_normalizations": self.source_alias_normalizations,
             "telemetry_health": health,
         }
 

@@ -348,6 +348,7 @@ class AgentRuntime:
         decision_source: str,
         rule_id: Optional[str] = None,
         transaction_status: Optional[str] = None,
+        fault_reason: Optional[str] = None,
     ) -> list[int]:
         checked = self._checked_action(state, legal_options, action)
         self._validation.note_emission(
@@ -355,6 +356,7 @@ class AgentRuntime:
             decision_source=decision_source,
             rule_id=rule_id,
             transaction_status=transaction_status,
+            fault_reason=fault_reason,
         )
         self._record_setup_active_choice(state, legal_options, checked)
         self._record_emitted_attack(state, legal_options, checked)
@@ -464,7 +466,8 @@ class AgentRuntime:
             decision_source=(
                 "FAULT_CONTAINMENT" if fault_containment else "FORCED_ROUTE"
             ),
-            rule_id=decision.reason_code,
+            rule_id=None if fault_containment else decision.reason_code,
+            fault_reason=decision.reason_code if fault_containment else None,
         )
 
     def _safe_main_action(
@@ -684,10 +687,11 @@ class AgentRuntime:
             proposals,
             resolution,
             ledger,
+            decision_source="RESOLVER",
         )
         self._validation.note_resolution(
             resolution,
-            decision_source="SINGLE_RESOLVER",
+            decision_source="RESOLVER",
         )
         resolved = self._issue_resolution(
             state,
