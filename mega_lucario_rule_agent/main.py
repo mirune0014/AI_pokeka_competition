@@ -344,8 +344,18 @@ class AgentRuntime:
         state: PublicState,
         legal_options: Sequence[SemanticOption],
         action: Sequence[int],
+        *,
+        decision_source: str,
+        rule_id: Optional[str] = None,
+        transaction_status: Optional[str] = None,
     ) -> list[int]:
         checked = self._checked_action(state, legal_options, action)
+        self._validation.note_emission(
+            checked,
+            decision_source=decision_source,
+            rule_id=rule_id,
+            transaction_status=transaction_status,
+        )
         self._record_setup_active_choice(state, legal_options, checked)
         self._record_emitted_attack(state, legal_options, checked)
         return checked
@@ -387,7 +397,13 @@ class AgentRuntime:
         if selected.transaction_plan is None:
             if resolution.bound_action is None:
                 raise RuntimeError("selected proposal is missing its bound action")
-            return self._emit(state, legal_options, resolution.bound_action)
+            return self._emit(
+                state,
+                legal_options,
+                resolution.bound_action,
+                decision_source="RESOLVER",
+                rule_id=selected.rule_id,
+            )
 
         owner_before = self._transactions.owner
         started = self._transactions.start(
@@ -407,7 +423,14 @@ class AgentRuntime:
             self._runtime_fault_latched = True
         if started.status is not StartStatus.STARTED or started.bound_action is None:
             return None
-        return self._emit(state, legal_options, started.bound_action)
+        return self._emit(
+            state,
+            legal_options,
+            started.bound_action,
+            decision_source="RESOLVER_TRANSACTION_START",
+            rule_id=selected.rule_id,
+            transaction_status=started.status.value,
+        )
 
     def _forced_action(
         self,
@@ -438,6 +461,10 @@ class AgentRuntime:
             state,
             legal_options,
             decision.bind_now(state, legal_options),
+            decision_source=(
+                "FAULT_CONTAINMENT" if fault_containment else "FORCED_ROUTE"
+            ),
+            rule_id=decision.reason_code,
         )
 
     def _safe_main_action(
@@ -465,13 +492,22 @@ class AgentRuntime:
             ledger,
             decision_source="SAFE_FALLBACK",
         )
-        self._validation.note_resolution(fallback.resolution)
+        self._validation.note_resolution(
+            fallback.resolution,
+            decision_source="SAFE_FALLBACK",
+        )
         if fallback.resolution.bound_action is None:
             return None
         return self._emit(
             state,
             legal_options,
             fallback.resolution.bound_action,
+            decision_source="SAFE_FALLBACK",
+            rule_id=(
+                None
+                if fallback.resolution.selected is None
+                else fallback.resolution.selected.rule_id
+            ),
         )
 
     def _contained_action(
@@ -502,7 +538,13 @@ class AgentRuntime:
 
         resume = self._issue_transaction_resume(state, legal_options)
         if resume.bound_action is not None:
-            return self._emit(state, legal_options, resume.bound_action)
+            return self._emit(
+                state,
+                legal_options,
+                resume.bound_action,
+                decision_source="TRANSACTION_RESUME",
+                transaction_status=resume.status.value,
+            )
         if resume.status in (
             ResumeStatus.IRREVERSIBLE_FAULT,
             ResumeStatus.FAULT_CONTAINMENT,
@@ -643,7 +685,10 @@ class AgentRuntime:
             resolution,
             ledger,
         )
-        self._validation.note_resolution(resolution)
+        self._validation.note_resolution(
+            resolution,
+            decision_source="SINGLE_RESOLVER",
+        )
         resolved = self._issue_resolution(
             state,
             legal_options,
@@ -675,6 +720,7 @@ class AgentRuntime:
         try:
             prompt_fingerprint = raw_prompt_fingerprint(observation)
             self._validation.note_prompt(prompt_fingerprint)
+            self._validation.begin_callback()
             self._sync_game_boundary(observation)
             legal_options = build_semantic_options(observation)
             state = build_public_state(
@@ -771,6 +817,7 @@ class AgentRuntime:
                 exception_derived=True,
                 transaction_state=self._transactions.owner,
             )
+            self._validation.note_raw_emission(raw_action)
             return raw_action
 
 

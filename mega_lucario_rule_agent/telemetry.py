@@ -1691,6 +1691,19 @@ class ValidationRuntimeState:
         self.last_first_difference: Optional[Dict[str, Any]] = None
         self.last_route_id: Optional[str] = None
         self.last_certificate_id: Optional[str] = None
+        # The resolver record and the emitted callback are separate runtime
+        # boundaries.  Keep a compact receipt for the most recent callback so
+        # the runner can distinguish a selected rule from the action actually
+        # returned, including fallback and transaction resumes.  These fields
+        # are observational only and never influence play.
+        self.last_decision_source: Optional[str] = None
+        self.last_resolution_status: Optional[str] = None
+        self.last_resolution_stats: Optional[Dict[str, int]] = None
+        self.last_emitted_action: Optional[Tuple[int, ...]] = None
+        self.last_emitted_action_validated: Optional[bool] = None
+        self.last_emitted_rule_id: Optional[str] = None
+        self.last_transaction_status: Optional[str] = None
+        self.emitted_action_count = 0
         self.last_owner_snapshot: Optional[Dict[str, Any]] = None
         self.last_finalize_reason: Optional[str] = None
         self.epoch = -1
@@ -1706,6 +1719,19 @@ class ValidationRuntimeState:
 
     def note_prompt(self, fingerprint: str) -> None:
         self.last_prompt_fingerprint = fingerprint
+
+    def begin_callback(self) -> None:
+        """Clear per-callback decision fields before parsing a new prompt."""
+
+        self.last_route_id = None
+        self.last_certificate_id = None
+        self.last_decision_source = None
+        self.last_resolution_status = None
+        self.last_resolution_stats = None
+        self.last_emitted_action = None
+        self.last_emitted_action_validated = None
+        self.last_emitted_rule_id = None
+        self.last_transaction_status = None
 
     def note_exception(self, exc: BaseException, *, code: str = "RUNTIME_EXCEPTION") -> None:
         self.runtime_fault_latched = True
@@ -1726,15 +1752,82 @@ class ValidationRuntimeState:
         self.unsupported_stable_main_count += 1
         self._fail("UNSUPPORTED_STABLE_MAIN")
 
-    def note_resolution(self, resolution: Resolution) -> None:
+    def note_resolution(
+        self,
+        resolution: Resolution,
+        *,
+        decision_source: str = "SINGLE_RESOLVER",
+    ) -> None:
+        if not isinstance(decision_source, str) or not decision_source.strip():
+            self._fail("DECISION_SOURCE_INVALID")
+            decision_source = "INVALID"
+        self.last_decision_source = decision_source.strip()
+        stats = getattr(resolution, "stats", None)
+        if stats is not None:
+            self.last_resolution_stats = {
+                "proposed": int(stats.proposed),
+                "accepted": int(stats.accepted),
+                "rejected": int(stats.rejected),
+            }
         selected = resolution.selected
         if selected is None:
+            # Never leave a prior rule/certificate attached to a no-selection
+            # resolution; stale provenance is more harmful to evaluation than
+            # a missing value.
+            self.last_resolution_status = "NO_SELECTION"
+            self.last_route_id = None
+            self.last_certificate_id = None
             return
+        self.last_resolution_status = "SELECTED"
         self.last_route_id = selected.rule_id
         self.last_certificate_id = "{0}:{1}".format(
             selected.certificate_kind.name,
             selected.proof.schema.value,
         )
+
+    def note_emission(
+        self,
+        action: Sequence[int],
+        *,
+        decision_source: str,
+        rule_id: Optional[str] = None,
+        transaction_status: Optional[str] = None,
+    ) -> None:
+        """Record the checked action at the callback boundary.
+
+        ``note_resolution`` records what the resolver selected; this receipt
+        records what the runtime actually emitted after semantic rebinding.
+        Keeping both values lets evaluation identify fallback, transaction,
+        and containment paths without inferring them from stale state.
+        """
+
+        if not isinstance(decision_source, str) or not decision_source.strip():
+            self._fail("DECISION_SOURCE_INVALID")
+            decision_source = "INVALID"
+        values = tuple(action)
+        valid = all(
+            _exact_int(value) and value >= 0
+            for value in values
+        )
+        self.last_decision_source = decision_source.strip()
+        self.last_emitted_action = tuple(int(value) for value in values) if valid else None
+        self.last_emitted_action_validated = bool(valid)
+        self.last_emitted_rule_id = (
+            None if rule_id is None else _bounded_diagnostic_text(rule_id, 256)
+        )
+        self.last_transaction_status = (
+            None
+            if transaction_status is None
+            else _bounded_diagnostic_text(transaction_status, 256)
+        )
+        self.emitted_action_count += 1
+        if not valid:
+            self._fail("EMITTED_ACTION_RECEIPT_INVALID")
+
+    def note_raw_emission(self, action: Sequence[int]) -> None:
+        """Record the final raw containment boundary after parsing failed."""
+
+        self.note_emission(action, decision_source="RAW_CONTAINMENT")
 
     def note_transaction(self, store: Any, result: Any) -> None:
         status = getattr(getattr(result, "status", None), "value", None)
@@ -1815,6 +1908,14 @@ class ValidationRuntimeState:
             "last_first_difference": self.last_first_difference,
             "last_route_id": self.last_route_id,
             "last_certificate_id": self.last_certificate_id,
+            "last_decision_source": self.last_decision_source,
+            "last_resolution_status": self.last_resolution_status,
+            "last_resolution_stats": self.last_resolution_stats,
+            "last_emitted_action": self.last_emitted_action,
+            "last_emitted_action_validated": self.last_emitted_action_validated,
+            "last_emitted_rule_id": self.last_emitted_rule_id,
+            "last_transaction_status": self.last_transaction_status,
+            "emitted_action_count": self.emitted_action_count,
             "telemetry_health": health,
         }
 

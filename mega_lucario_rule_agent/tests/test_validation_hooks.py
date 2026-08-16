@@ -4,6 +4,7 @@ import pytest
 
 from infrastructure.tools import run_local_battle
 from mega_lucario_rule_agent.main import AgentRuntime
+from mega_lucario_rule_agent.resolver import Resolution, ResolutionStats
 from mega_lucario_rule_agent.state_view import OptionType, SelectContext
 from mega_lucario_rule_agent.telemetry import SCHEMA_VERSION, TelemetryRecorder
 from mega_lucario_rule_agent.tests.test_main_runtime import (
@@ -53,6 +54,10 @@ def test_malformed_state_keeps_legal_raw_action_and_lifetime_fault_details():
     assert "players" in status["last_exception"]["message"]
     assert status["last_containment_reason"] == "RAW_MINIMUM_AFTER_EXCEPTION"
     assert len(status["last_prompt_fingerprint"]) == 64
+    assert status["last_decision_source"] == "RAW_CONTAINMENT"
+    assert status["last_emitted_action"] == (1,)
+    assert status["last_emitted_action_validated"] is True
+    assert status["emitted_action_count"] == 1
 
 
 def test_containment_secondary_exception_records_first_and_second_failures():
@@ -187,7 +192,35 @@ def test_normal_decision_records_prompt_route_and_certificate():
     assert len(status["last_prompt_fingerprint"]) == 64
     assert status["last_route_id"]
     assert status["last_certificate_id"]
+    assert status["last_decision_source"] == "SAFE_FALLBACK"
+    assert status["last_resolution_status"] == "SELECTED"
+    assert status["last_emitted_action"] == (0,)
+    assert status["last_emitted_action_validated"] is True
+    assert status["last_emitted_rule_id"] == "FALLBACK_PASS"
+    assert status["emitted_action_count"] == 1
     assert not status["run_failed"]
+
+
+def test_no_selection_receipt_clears_stale_rule_provenance():
+    runtime = AgentRuntime(registry=empty_registry())
+    assert runtime.act(_end_observation()) == [0]
+    assert runtime.validation_status()["last_route_id"] == "FALLBACK_PASS"
+
+    runtime._validation.note_resolution(
+        Resolution(
+            selected=None,
+            bound_action=None,
+            rejections=(),
+            evaluations=(),
+            stats=ResolutionStats(proposed=0, accepted=0, rejected=0),
+        ),
+        decision_source="SINGLE_RESOLVER",
+    )
+    status = runtime.validation_status()
+    assert status["last_decision_source"] == "SINGLE_RESOLVER"
+    assert status["last_resolution_status"] == "NO_SELECTION"
+    assert status["last_route_id"] is None
+    assert status["last_certificate_id"] is None
 
 
 def test_runner_hooked_fault_marks_validation_failed_and_main_exits_nonzero(
