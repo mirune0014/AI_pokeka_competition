@@ -187,6 +187,23 @@ AURA_MULTI_CALLBACK_RECEIPT_RULE = AURA_V4_ACCEPT_TARGET_RECEIPT_RULE
 AURA_MULTI_CALLBACK_COMPLETE_RULE = AURA_V4_COMPLETE_AFTER_ALL_RECEIPTS_RULE
 AURA_MULTI_CALLBACK_RELEASE_RULE = AURA_V4_RELEASE_OWNER_RULE
 
+# B_ML_AURA_TERMINAL_RECEIPT_TURN_BOUNDARY_REPAIR_V1.  The pending marker is
+# a transaction-local receipt-wait state, not a receipt generator or a turn
+# transition exemption.  It is consumed exactly once only after the final
+# single-energy Aura callback has been issued.
+AURA_TERMINAL_PENDING_RECEIPT_STORE_RULE = (
+    "R_ML_AURA_TERMINAL_RECEIPT_STORE_PENDING_V1"
+)
+AURA_TERMINAL_PENDING_RECEIPT_CONSUME_RULE = (
+    "R_ML_AURA_TERMINAL_RECEIPT_CONSUME_NEXT_CALLBACK_V1"
+)
+AURA_TERMINAL_PENDING_RECEIPT_REJECT_RULE = (
+    "R_ML_AURA_TERMINAL_RECEIPT_REJECT_PENDING_MISMATCH_V1"
+)
+AURA_TERMINAL_PENDING_RECEIPT_MISMATCH = (
+    "AURA_TERMINAL_PENDING_RECEIPT_MISMATCH"
+)
+
 
 class TransactionStoreError(ValueError):
     """Raised when a caller violates an owner or commit boundary."""
@@ -1636,6 +1653,15 @@ class TransactionState:
     _aura_v4_attach_receipt_count: int = 0
     _aura_v4_completed: bool = False
     _aura_v4_owner_released: bool = False
+    # The turn-boundary repair keeps only the receipt-wait identity.  The
+    # actual PublicReceiptEvent stream remains authoritative and is never
+    # synthesized here.
+    _pending_terminal_receipt: bool = False
+    _pending_terminal_owner: Optional[int] = None
+    _pending_terminal_transaction_id: Optional[str] = None
+    _pending_terminal_plan_digest: Optional[str] = None
+    _pending_terminal_expected_context_ref: Optional[PhysicalRef] = None
+    _pending_terminal_turn: Optional[int] = None
 
     @property
     def aura_callback_refs(self) -> Tuple[PhysicalRef, ...]:
@@ -2886,6 +2912,85 @@ class TransactionStore:
             _aura_v4_attach_receipt_count=cursor,
         )
 
+    def _pending_terminal_receipt_identity_reasons(
+        self,
+        spec: Optional[TerminalReceiptSpec],
+    ) -> Tuple[str, ...]:
+        """Validate the transaction-local pending Aura receipt identity.
+
+        This check deliberately compares only the owner/transaction/plan and
+        bound callback identity captured when the terminal callback was
+        issued.  The current turn is not an identity field: the known fault is
+        precisely that the callback is observed after a turn boundary.
+        """
+
+        if self._owner is None or self._plan is None:
+            return ()
+        owner = self._owner
+        if not owner._pending_terminal_receipt:
+            return ()
+        if (
+            spec is None
+            or spec.profile != TerminalReceiptProfile.AURA_JAB
+            or _aura_v4_is_multi(spec)
+        ):
+            return (
+                AURA_TERMINAL_PENDING_RECEIPT_MISMATCH,
+                AURA_TERMINAL_PENDING_RECEIPT_REJECT_RULE,
+            )
+        expected = owner.expected_context_ref
+        pending_expected = owner._pending_terminal_expected_context_ref
+        if (
+            owner._pending_terminal_owner != owner.seat
+            or owner._pending_terminal_transaction_id != owner.transaction_id
+            or owner._pending_terminal_plan_digest != owner.plan_digest
+            or owner._pending_terminal_turn != owner.turn
+            or not isinstance(expected, PhysicalRef)
+            or not isinstance(pending_expected, PhysicalRef)
+            or not _aura_callback_ref_matches(pending_expected, expected)
+        ):
+            return (
+                AURA_TERMINAL_PENDING_RECEIPT_MISMATCH,
+                AURA_TERMINAL_PENDING_RECEIPT_REJECT_RULE,
+            )
+        return ()
+
+    def _consume_pending_terminal_receipt(
+        self,
+        spec: Optional[TerminalReceiptSpec],
+        completion_reasons: Sequence[str],
+    ) -> Optional[ResumeResult]:
+        """Consume a valid pending Aura receipt exactly once.
+
+        Returning ``None`` means that no pending marker exists and the normal
+        terminal-receipt path should continue.  A mismatch is fail-closed;
+        it never falls through to a turn-based acceptance path.
+        """
+
+        if self._owner is None or not self._owner._pending_terminal_receipt:
+            return None
+        mismatch_reasons = self._pending_terminal_receipt_identity_reasons(spec)
+        if mismatch_reasons:
+            return self._failure_result(mismatch_reasons)
+        owner = self._owner
+        self._owner = replace(
+            owner,
+            _pending_terminal_receipt=False,
+            _pending_terminal_owner=None,
+            _pending_terminal_transaction_id=None,
+            _pending_terminal_plan_digest=None,
+            _pending_terminal_expected_context_ref=None,
+            _pending_terminal_turn=None,
+        )
+        self._release_owner()
+        return ResumeResult(
+            ResumeStatus.COMPLETED,
+            None,
+            None,
+            None,
+            tuple(completion_reasons),
+        )
+
     def _aura_target_step_override(
         self,
         state: PublicState,
@@ -3137,6 +3242,13 @@ class TransactionStore:
                     AURA_V4_VALIDATE_CALLBACK_ORDER_RULE,
                 )
             )
+        pending_terminal = bool(
+            spec is not None
+            and spec.profile == TerminalReceiptProfile.AURA_JAB
+            and not _aura_v4_is_multi(spec)
+            and step_index == len(self._plan.steps) - 1
+            and isinstance(step.expected_context_ref, PhysicalRef)
+        )
         prompt = make_prompt_fingerprint(
             state,
             legal_options,
@@ -3173,6 +3285,34 @@ class TransactionStore:
                 else self._owner._aura_v4_selected_energy_count
             ),
             _aura_v4_pending_callback_ref=v4_pending,
+            _pending_terminal_receipt=(
+                True if pending_terminal else self._owner._pending_terminal_receipt
+            ),
+            _pending_terminal_owner=(
+                self._owner.seat
+                if pending_terminal
+                else self._owner._pending_terminal_owner
+            ),
+            _pending_terminal_transaction_id=(
+                self._owner.transaction_id
+                if pending_terminal
+                else self._owner._pending_terminal_transaction_id
+            ),
+            _pending_terminal_plan_digest=(
+                self._owner.plan_digest
+                if pending_terminal
+                else self._owner._pending_terminal_plan_digest
+            ),
+            _pending_terminal_expected_context_ref=(
+                step.expected_context_ref
+                if pending_terminal
+                else self._owner._pending_terminal_expected_context_ref
+            ),
+            _pending_terminal_turn=(
+                self._owner.turn
+                if pending_terminal
+                else self._owner._pending_terminal_turn
+            ),
         )
         return ResumeResult(
             status,
@@ -3262,6 +3402,26 @@ class TransactionStore:
                 return self._failure_result(
                     ("TERMINAL_RECEIPT_SEAT_OR_RESULT_CHANGED",) + receipt_reasons
                 )
+            pending_terminal = self._owner._pending_terminal_receipt
+            if pending_terminal and final_callback_issued and (
+                state.turn != self._owner.turn
+                or receipt_status == TerminalReceiptStatus.COMPLETE
+            ):
+                was_aura = (
+                    spec.profile == TerminalReceiptProfile.AURA_JAB
+                    and self._owner.expected_context_ref is not None
+                )
+                completion_reasons = (
+                    _aura_completion_reasons(spec)
+                    if was_aura
+                    else ()
+                )
+                pending_result = self._consume_pending_terminal_receipt(
+                    spec,
+                    completion_reasons,
+                )
+                if pending_result is not None:
+                    return pending_result
             if state.turn != self._owner.turn:
                 if (
                     spec.allow_turn_transition
@@ -3521,6 +3681,10 @@ __all__ = [
     "AURA_MULTI_CALLBACK_CONSUME_RULE",
     "AURA_MULTI_CALLBACK_RECEIPT_RULE",
     "AURA_MULTI_CALLBACK_RELEASE_RULE",
+    "AURA_TERMINAL_PENDING_RECEIPT_STORE_RULE",
+    "AURA_TERMINAL_PENDING_RECEIPT_CONSUME_RULE",
+    "AURA_TERMINAL_PENDING_RECEIPT_REJECT_RULE",
+    "AURA_TERMINAL_PENDING_RECEIPT_MISMATCH",
     "DeferredCardClassChoice",
     "FaultRecord",
     "OwnerKind",

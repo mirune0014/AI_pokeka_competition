@@ -368,7 +368,7 @@ def _transaction_state_payload(
         raise ValueError("transaction owner must be TransactionState or None")
     if projection == TelemetryProjection.PUBLIC_REDACTED:
         return {"redacted": True}
-    return {
+    payload = {
         "transaction_id": owner.transaction_id,
         "plan_digest": owner.plan_digest,
         "owner_kind": owner.owner_kind.value,
@@ -408,6 +408,22 @@ def _transaction_state_payload(
         "aura_v4_completed": owner._aura_v4_completed,
         "aura_v4_owner_released": owner._aura_v4_owner_released,
     }
+    if owner._pending_terminal_receipt:
+        payload.update(
+            {
+                "pending_terminal_receipt": True,
+                "pending_terminal_owner": owner._pending_terminal_owner,
+                "pending_terminal_transaction_id": (
+                    owner._pending_terminal_transaction_id
+                ),
+                "pending_terminal_plan_digest": owner._pending_terminal_plan_digest,
+                "pending_terminal_expected_context_ref": (
+                    owner._pending_terminal_expected_context_ref
+                ),
+                "pending_terminal_turn": owner._pending_terminal_turn,
+            }
+        )
+    return payload
 
 
 def _proposal_payload(
@@ -1212,6 +1228,25 @@ class TelemetryRecorder:
             status = getattr(result.status, "value", str(result.status))
             actual_ref = state.context_ref
             active_owner = owner_after or owner_before
+            pending_terminal_stored = bool(
+                owner_after is not None
+                and owner_after._pending_terminal_receipt
+                and (
+                    owner_before is None
+                    or not owner_before._pending_terminal_receipt
+                )
+            )
+            pending_terminal_consumed = bool(
+                owner_before is not None
+                and owner_before._pending_terminal_receipt
+                and owner_after is None
+                and status == "COMPLETED"
+            )
+            pending_terminal_rejected = bool(
+                owner_before is not None
+                and owner_before._pending_terminal_receipt
+                and status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT")
+            )
             target_step = next(
                 (
                     owner
@@ -1239,6 +1274,8 @@ class TelemetryRecorder:
                     or reason.startswith("R_ML_AURA_CTXREF_")
                     or reason.startswith("AURA_V4_")
                     or reason.startswith("R_ML_AURA_V4_")
+                    or reason.startswith("AURA_TERMINAL_PENDING_RECEIPT")
+                    or reason.startswith("R_ML_AURA_TERMINAL_RECEIPT_")
                 )
             )
             v4_multi_callback = any(
@@ -1271,6 +1308,12 @@ class TelemetryRecorder:
                         "ML_AURA_CTXREF_OWNER_RELEASED",
                     )
                 )
+            if pending_terminal_stored:
+                event_names.append("ML_PENDING_TERMINAL_RECEIPT_STORED")
+            if pending_terminal_consumed:
+                event_names.append("ML_PENDING_TERMINAL_RECEIPT_CONSUMED")
+            if pending_terminal_rejected:
+                event_names.append("ML_PENDING_TERMINAL_RECEIPT_EXPIRED")
             if status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT") or (
                 repair_reasons
                 and status not in ("ADVANCED_ISSUE", "DUPLICATE_REISSUE")
@@ -1333,9 +1376,17 @@ class TelemetryRecorder:
                     else "B_ML_AURA_CONTEXT_REF_BINDING_REPAIR_V2"
                 ),
                 "rule_id": (
-                    repair_reasons[0]
-                    if repair_reasons
-                    else "R_ML_AURA_CTXREF_COMPLETE_TARGET_V2"
+                    "R_ML_AURA_TERMINAL_RECEIPT_STORE_PENDING_V1"
+                    if pending_terminal_stored
+                    else "R_ML_AURA_TERMINAL_RECEIPT_CONSUME_NEXT_CALLBACK_V1"
+                    if pending_terminal_consumed
+                    else "R_ML_AURA_TERMINAL_RECEIPT_REJECT_PENDING_MISMATCH_V1"
+                    if pending_terminal_rejected
+                    else (
+                        repair_reasons[0]
+                        if repair_reasons
+                        else "R_ML_AURA_CTXREF_COMPLETE_TARGET_V2"
+                    )
                 ),
                 "game_id": state.game_epoch,
                 "turn": state.turn,
