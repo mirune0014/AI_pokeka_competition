@@ -2,7 +2,7 @@
 
 Run from the repository root on Windows with:
 
-    .venv-rl\Scripts\python.exe archaludon\numerical_audits\archaludon_historical_silver_single_resolver_salvage_rule2_trial_v1_fixed160\audit_rule2_fixed160.py
+    .venv-ptcg\Scripts\python.exe archaludon\numerical_audits\archaludon_historical_silver_single_resolver_salvage_rule2_trial_v1_fixed160\audit_rule2_fixed160.py
 
 The script never runs a battle and never writes to the frozen result tree.  It
 prints one canonical JSON calculation to stdout.

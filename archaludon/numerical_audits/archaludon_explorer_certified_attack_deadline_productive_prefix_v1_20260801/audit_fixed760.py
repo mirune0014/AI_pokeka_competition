@@ -1,7 +1,7 @@
 """Independent, read-only audit of the prepared fixed760 paired evaluation.
 
 Run from the repository root with:
-    .venv-rl\Scripts\python.exe archaludon\numerical_audits\archaludon_explorer_certified_attack_deadline_productive_prefix_v1_20260801\audit_fixed760.py
+    .venv-ptcg\Scripts\python.exe archaludon\numerical_audits\archaludon_explorer_certified_attack_deadline_productive_prefix_v1_20260801\audit_fixed760.py
 
 The script reads the immutable spec and completed raw runner outputs.  It writes
 nothing; its complete machine-readable audit is emitted as JSON on stdout.

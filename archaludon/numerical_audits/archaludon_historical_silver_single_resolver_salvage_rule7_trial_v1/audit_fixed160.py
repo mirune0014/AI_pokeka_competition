@@ -2,7 +2,7 @@
 
 Run from the repository root on Windows with the repository interpreter:
 
-    .venv-rl\Scripts\python.exe -B archaludon\numerical_audits\archaludon_historical_silver_single_resolver_salvage_rule7_trial_v1\audit_fixed160.py
+    .venv-ptcg\Scripts\python.exe -B archaludon\numerical_audits\archaludon_historical_silver_single_resolver_salvage_rule7_trial_v1\audit_fixed160.py
 
 The calculator reads specifications, policies, checked-runner outputs, summaries,
 and retained traces.  It prints canonical JSON and never writes or repairs an

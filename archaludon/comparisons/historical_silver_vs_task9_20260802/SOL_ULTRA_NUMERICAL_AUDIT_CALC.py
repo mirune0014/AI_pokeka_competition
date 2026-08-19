@@ -1,7 +1,7 @@
 """Independent read-only audit of the fixed760 Task 6 / Task 9 comparison.
 
 Run on Windows from the repository root with:
-    .venv-rl\Scripts\python.exe archaludon\comparisons\historical_silver_vs_task9_20260802\SOL_ULTRA_NUMERICAL_AUDIT_CALC.py
+    .venv-ptcg\Scripts\python.exe archaludon\comparisons\historical_silver_vs_task9_20260802\SOL_ULTRA_NUMERICAL_AUDIT_CALC.py
 
 The script reads immutable runner outputs and prints a canonical JSON audit to
 stdout.  It does not write to, repair, or expand any runner output.
