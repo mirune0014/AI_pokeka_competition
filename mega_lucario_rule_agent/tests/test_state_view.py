@@ -1,0 +1,915 @@
+from copy import deepcopy
+from dataclasses import replace
+from types import SimpleNamespace
+
+import pytest
+
+from mega_lucario_rule_agent.fallback import resolve_forced_or_setup
+from mega_lucario_rule_agent.resource_ledger import (
+    ReservationKind,
+    ResourceLedger,
+)
+from mega_lucario_rule_agent.state_view import (
+    ActionSpec,
+    AreaType,
+    OptionType,
+    LogType,
+    PublicHistoryTracker,
+    SelectContext,
+    SelectType,
+    SemanticBindError,
+    as_bool,
+    build_public_state,
+    build_semantic_options,
+    is_stable_main_state,
+    is_checked_public_state,
+    make_prompt_fingerprint,
+    public_board_fingerprint,
+    public_board_payload,
+    public_combat_input_complete,
+    public_state_fingerprint,
+)
+
+
+def card(card_id, serial, player=0):
+    return {"id": card_id, "serial": serial, "playerIndex": player}
+
+
+def pokemon(card_id, serial, player=0, hp=100, energies=None, pre=None):
+    energies = energies or []
+    return {
+        "id": card_id,
+        "serial": serial,
+        "playerIndex": player,
+        "hp": hp,
+        "maxHp": hp,
+        "appearThisTurn": False,
+        "energies": [6 for _ in energies],
+        "energyCards": [card(6, value, player) for value in energies],
+        "tools": [],
+        "preEvolution": pre or [],
+    }
+
+
+def observation(options, context=SelectContext.MAIN, min_count=1, max_count=1):
+    return {
+        "select": {
+            "type": 0,
+            "context": int(context),
+            "minCount": min_count,
+            "maxCount": max_count,
+            "remainDamageCounter": 0,
+            "remainEnergyCost": 0,
+            "option": options,
+            "deck": None,
+            "contextCard": None,
+            "effect": None,
+        },
+        "logs": [],
+        "current": {
+            "turn": 3,
+            "turnActionCount": 4,
+            "yourIndex": 0,
+            "firstPlayer": 0,
+            "supporterPlayed": False,
+            "stadiumPlayed": False,
+            "energyAttached": False,
+            "retreated": False,
+            "result": -1,
+            "stadium": [],
+            "looking": None,
+            "players": [
+                {
+                    "active": [pokemon(676, 10, hp=110)],
+                    "bench": [pokemon(677, 20, hp=80)],
+                    "benchMax": 5,
+                    "deckCount": 40,
+                    "discard": [card(6, 70)],
+                    "prize": [None] * 6,
+                    "handCount": 3,
+                    "hand": [card(673, 31), card(673, 32), card(6, 33)],
+                    "poisoned": False,
+                    "burned": False,
+                    "asleep": False,
+                    "paralyzed": False,
+                    "confused": False,
+                },
+                {
+                    "active": [pokemon(100, 110, player=1, hp=100)],
+                    "bench": [],
+                    "benchMax": 5,
+                    "deckCount": 40,
+                    "discard": [],
+                    "prize": [None] * 6,
+                    "handCount": 5,
+                    "hand": None,
+                    "poisoned": False,
+                    "burned": False,
+                    "asleep": False,
+                    "paralyzed": False,
+                    "confused": False,
+                },
+            ],
+        },
+    }
+
+
+def namespace_tree(value):
+    if isinstance(value, dict):
+        return SimpleNamespace(**{key: namespace_tree(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return [namespace_tree(item) for item in value]
+    return value
+
+
+def hand_card_option(index):
+    return {
+        "type": int(OptionType.CARD),
+        "area": int(AreaType.HAND),
+        "index": index,
+        "playerIndex": 0,
+    }
+
+
+def test_same_card_id_different_serial_binds_physical_copy_after_permutation():
+    obs = observation([hand_card_option(0), hand_card_option(1)])
+    semantic = build_semantic_options(obs)
+    wanted = ActionSpec.single(semantic[1].key)
+    assert wanted.bind(semantic, 1, 1) == [1]
+
+    permuted = deepcopy(obs)
+    permuted["current"]["players"][0]["hand"][0:2] = list(
+        reversed(permuted["current"]["players"][0]["hand"][0:2])
+    )
+    permuted["select"]["option"] = [hand_card_option(0), hand_card_option(1)]
+    rebound = build_semantic_options(permuted)
+    assert wanted.bind(rebound, 1, 1) == [0]
+
+
+def test_public_state_builder_receipt_is_bound_to_unchanged_normalized_state():
+    obs = observation([])
+    current = build_public_state(obs)
+    assert current.source_combat_complete
+    assert public_combat_input_complete(obs)
+    assert is_checked_public_state(current)
+
+    changed = replace(current, turn_action_count=current.turn_action_count + 1)
+    assert not is_checked_public_state(changed)
+
+
+def test_public_receipt_events_are_log_only_and_deduped_by_serial_identity():
+    obs = observation([])
+    move = {
+        "type": int(LogType.MOVE_CARD),
+        "playerIndex": 0,
+        "cardId": 6,
+        "serial": 700,
+        "fromArea": int(AreaType.DECK),
+        "toArea": int(AreaType.HAND),
+    }
+    obs["logs"] = [
+        move,
+        dict(move),
+        {
+            "type": int(LogType.ATTACH),
+            "playerIndex": 0,
+            "cardId": 6,
+            "serial": 701,
+            "cardIdTarget": 677,
+            "serialTarget": 20,
+        },
+    ]
+
+    current = build_public_state(obs)
+
+    assert len(current.receipt_events) == 2
+    assert current.receipt_events[0].serial == 700
+    assert current.receipt_events[0].from_area == int(AreaType.DECK)
+    assert current.receipt_events[0].to_area == int(AreaType.HAND)
+    assert current.receipt_events[1].serial == 701
+    assert current.receipt_events[1].serial_target == 20
+    assert is_checked_public_state(current)
+
+
+def test_missing_combat_field_is_explicitly_incomplete_not_silently_trusted():
+    obs = observation([])
+    del obs["current"]["players"][1]["confused"]
+    current = build_public_state(obs)
+    assert not current.source_combat_complete
+    assert not public_combat_input_complete(obs)
+    assert is_checked_public_state(current)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    (
+        lambda obs: obs.pop("logs"),
+        lambda obs: obs["current"]["players"][0].pop("discard"),
+        lambda obs: obs["current"]["players"][1].pop("prize"),
+        lambda obs: obs["current"]["players"][0].pop("benchMax"),
+        lambda obs: obs["current"]["players"][0].pop("deckCount"),
+        lambda obs: obs["current"]["players"][1].pop("handCount"),
+        lambda obs: obs["current"]["players"][1]["active"][0].pop("maxHp"),
+        lambda obs: obs["current"]["players"][0]["bench"][0].pop("energyCards"),
+        lambda obs: obs["select"].pop("deck"),
+        lambda obs: obs["select"].pop("contextCard"),
+        lambda obs: obs["select"].pop("effect"),
+    ),
+)
+def test_combat_integrity_rejects_every_outcome_critical_missing_field(mutate):
+    obs = observation([])
+    mutate(obs)
+    assert not public_combat_input_complete(obs)
+
+
+def test_history_marks_missing_logs_incomplete():
+    obs = observation([])
+    del obs["logs"]
+    tracker = PublicHistoryTracker()
+    current = build_public_state(obs, game_epoch=1, history_tracker=tracker)
+    assert not current.history_complete
+    assert current.ppp_count is None
+
+
+def test_official_pokemon_shape_does_not_require_player_index():
+    obs = observation([])
+    for player in obs["current"]["players"]:
+        for raw_pokemon in player["active"] + player["bench"]:
+            raw_pokemon.pop("playerIndex", None)
+    assert public_combat_input_complete(obs)
+
+
+def test_ambiguous_semantic_key_fails_closed():
+    obs = observation([hand_card_option(0), hand_card_option(1)])
+    obs["current"]["players"][0]["hand"][1] = card(673, 31)
+    semantic = build_semantic_options(obs)
+    with pytest.raises(SemanticBindError):
+        ActionSpec.single(semantic[0].key).bind(semantic, 1, 1)
+
+
+def test_multiselect_rebinds_two_distinct_serials_and_enforces_counts():
+    obs = observation(
+        [hand_card_option(0), hand_card_option(2), hand_card_option(1)],
+        context=SelectContext.DISCARD,
+        min_count=2,
+        max_count=2,
+    )
+    semantic = build_semantic_options(obs)
+    spec = ActionSpec((semantic[0].key, semantic[2].key))
+    assert spec.bind(semantic, 2, 2) == [0, 2]
+    with pytest.raises(SemanticBindError):
+        ActionSpec.single(semantic[0].key).bind(semantic, 2, 2)
+
+
+def test_energy_unit_count_is_part_of_semantic_identity():
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.ENERGY),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "energyIndex": 0,
+                "count": 1,
+            },
+            {
+                "type": int(OptionType.ENERGY),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "energyIndex": 0,
+                "count": 2,
+            },
+        ]
+    )
+    obs["current"]["players"][0]["active"][0] = pokemon(
+        676, 10, hp=110, energies=[71]
+    )
+    options = build_semantic_options(obs)
+    assert options[0].key.card_serial == options[1].key.card_serial == 71
+    assert options[0].key.energy_count == 1
+    assert options[1].key.energy_count == 2
+    assert options[0].key != options[1].key
+
+
+def test_attached_resource_uses_physical_zone_and_hard_reservation_in_fallback():
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.ENERGY_CARD),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "energyIndex": 0,
+                "playerIndex": 0,
+            },
+            {
+                "type": int(OptionType.ENERGY_CARD),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "energyIndex": 1,
+                "playerIndex": 0,
+            },
+        ],
+        context=SelectContext.DISCARD_ENERGY_CARD,
+    )
+    obs["select"]["type"] = int(SelectType.ATTACHED_CARD)
+    obs["current"]["players"][0]["active"][0] = pokemon(
+        676,
+        10,
+        hp=110,
+        energies=[71, 72],
+    )
+    state = build_public_state(obs)
+    options = build_semantic_options(obs)
+    first_energy, second_energy = state.own.active[0].energy_refs
+    ledger = ResourceLedger((first_energy, second_energy)).reserve_exact(
+        "CURRENT_ATTACK_ENERGY",
+        ReservationKind.HARD_RESERVED,
+        "preserve current attack",
+        (first_energy,),
+    )
+
+    assert tuple(option.key.source_zone for option in options) == (
+        int(AreaType.ENERGY),
+        int(AreaType.ENERGY),
+    )
+    decision = resolve_forced_or_setup(state, options, ledger)
+    assert decision.choices[0].card_serial == 72
+    assert decision.bind_now(state, options) == (1,)
+
+    tool_obs = observation(
+        [
+            {
+                "type": int(OptionType.TOOL_CARD),
+                "area": int(AreaType.ACTIVE),
+                "index": 0,
+                "toolIndex": 0,
+                "playerIndex": 0,
+            }
+        ],
+        context=SelectContext.DISCARD_TOOL_CARD,
+    )
+    tool_obs["select"]["type"] = int(SelectType.ATTACHED_CARD)
+    tool_obs["current"]["players"][0]["active"][0]["tools"] = [
+        card(1159, 81)
+    ]
+    tool_option = build_semantic_options(tool_obs)[0]
+    assert tool_option.key.card_serial == 81
+    assert tool_option.key.source_zone == int(AreaType.TOOL)
+
+
+def test_attack_and_evolution_target_use_stable_semantics():
+    attack_obs = observation(
+        [
+            {"type": int(OptionType.ATTACK), "attackId": 983},
+            {"type": int(OptionType.ATTACK), "attackId": 982},
+        ],
+        context=SelectContext.MAIN,
+    )
+    attacks = build_semantic_options(attack_obs)
+    assert attacks[0].key.attack_id == 983
+    assert attacks[1].key.attack_id == 982
+
+    evolve_obs = observation(
+        [
+            {
+                "type": int(OptionType.EVOLVE),
+                "area": int(AreaType.HAND),
+                "index": 0,
+                "playerIndex": 0,
+                "inPlayArea": int(AreaType.BENCH),
+                "inPlayIndex": 0,
+            }
+        ]
+    )
+    evolve_obs["current"]["players"][0]["hand"][0] = card(678, 90)
+    options = build_semantic_options(evolve_obs)
+    assert options[0].key.card_serial == 90
+    assert options[0].key.target_lineage_serial == 20
+
+    evolve_obs["current"]["players"][0]["bench"].append(pokemon(677, 21, hp=80))
+    wanted = ActionSpec.single(build_semantic_options(evolve_obs)[0].key)
+    evolve_obs["current"]["players"][0]["bench"].reverse()
+    evolve_obs["select"]["option"][0]["inPlayIndex"] = 1
+    assert wanted.bind(build_semantic_options(evolve_obs), 1, 1) == [0]
+
+
+def test_skill_source_is_recovered_from_public_board_and_rebinds_by_serial():
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.SKILL),
+                "cardId": 675,
+                "serial": 21,
+                "playerIndex": 0,
+            },
+            {
+                "type": int(OptionType.SKILL),
+                "cardId": 676,
+                "serial": 10,
+                "playerIndex": 0,
+            },
+        ],
+        context=SelectContext.SKILL_ORDER,
+        min_count=1,
+        max_count=1,
+    )
+    obs["select"]["type"] = int(SelectType.SKILL)
+    obs["current"]["players"][0]["bench"] = [pokemon(675, 21, hp=110)]
+
+    first = build_semantic_options(obs)
+    wanted = ActionSpec.single(first[0].key)
+    assert first[0].key.card_id == 675
+    assert first[0].key.card_serial == 21
+    assert first[0].key.source_zone == int(AreaType.BENCH)
+    assert first[0].key.source_lineage_serial == 21
+    assert first[0].key.target_lineage_serial is None
+
+    permuted = deepcopy(obs)
+    permuted["select"]["option"].reverse()
+    rebound = build_semantic_options(permuted)
+    assert wanted.bind(rebound, 1, 1) == [1]
+
+
+@pytest.mark.parametrize("mode", ("missing", "ambiguous"))
+def test_skill_source_absence_or_zone_ambiguity_fails_closed(mode):
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.SKILL),
+                "cardId": 675,
+                "serial": 21,
+                "playerIndex": 0,
+            }
+        ],
+        context=SelectContext.SKILL_ORDER,
+    )
+    obs["select"]["type"] = int(SelectType.SKILL)
+    if mode == "ambiguous":
+        obs["current"]["players"][0]["active"] = [pokemon(675, 21, hp=110)]
+        obs["current"]["players"][0]["bench"] = [pokemon(675, 21, hp=110)]
+
+    with pytest.raises(ValueError, match="exactly one public in-play card"):
+        build_semantic_options(obs)
+
+
+def test_prompt_fingerprint_ignores_option_order_but_preserves_multiplicity():
+    obs = observation([hand_card_option(0), hand_card_option(1)])
+    state = build_public_state(obs, game_epoch=7)
+    options = build_semantic_options(obs)
+    first = make_prompt_fingerprint(state, options, owner_kind="SEARCH", stage="TARGET")
+
+    permuted_options = tuple(reversed(options))
+    second = make_prompt_fingerprint(
+        state, permuted_options, owner_kind="SEARCH", stage="TARGET"
+    )
+    assert first.digest() == second.digest()
+
+    duplicate = make_prompt_fingerprint(
+        state, options + (options[0],), owner_kind="SEARCH", stage="TARGET"
+    )
+    assert duplicate.digest() != first.digest()
+
+
+def test_prompt_fingerprint_keeps_effect_and_context_identity_separate():
+    obs = observation([hand_card_option(0)], context=SelectContext.ATTACH_FROM)
+    obs["select"]["type"] = int(SelectType.CARD)
+    obs["select"]["effect"] = card(678, 10)
+    obs["select"]["contextCard"] = card(6, 73)
+    first_state = build_public_state(obs)
+    first = make_prompt_fingerprint(first_state, build_semantic_options(obs))
+
+    changed = deepcopy(obs)
+    changed["select"]["contextCard"] = card(6, 74)
+    second_state = build_public_state(changed)
+    second = make_prompt_fingerprint(second_state, build_semantic_options(changed))
+
+    assert first.effect_ref.card_id == 678
+    assert first.context_ref.serial == 73
+    assert second.context_ref.serial == 74
+    assert first.digest() != second.digest()
+
+
+def test_main_prompt_fingerprint_changes_with_public_board_state():
+    obs = observation([hand_card_option(0)])
+    first_state = build_public_state(obs)
+    first = make_prompt_fingerprint(first_state, build_semantic_options(obs))
+
+    damaged = deepcopy(obs)
+    damaged["current"]["players"][1]["active"][0]["hp"] = 60
+    second_state = build_public_state(damaged)
+    second = make_prompt_fingerprint(second_state, build_semantic_options(damaged))
+    assert second.digest() != first.digest()
+
+    energized = deepcopy(obs)
+    energized["current"]["players"][0]["active"][0] = pokemon(
+        676, 10, hp=110, energies=[72]
+    )
+    third_state = build_public_state(energized)
+    third = make_prompt_fingerprint(third_state, build_semantic_options(energized))
+    assert third.digest() != first.digest()
+
+
+def test_dict_and_dataclass_like_observations_normalize_identically():
+    obs = observation([hand_card_option(0), hand_card_option(1)])
+    object_obs = namespace_tree(deepcopy(obs))
+    dict_state = build_public_state(obs, game_epoch=9)
+    object_state = build_public_state(object_obs, game_epoch=9)
+    assert dict_state == object_state
+    assert tuple(option.key for option in build_semantic_options(obs)) == tuple(
+        option.key for option in build_semantic_options(object_obs)
+    )
+
+
+def test_state_fingerprint_is_deterministic_and_public_opponent_hand_only():
+    obs = observation([hand_card_option(0)])
+    obs["current"]["players"][1]["hand"] = [card(999, 999, player=1)]
+    first = build_public_state(obs, game_epoch=2)
+    second = build_public_state(deepcopy(obs), game_epoch=2)
+    assert public_state_fingerprint(first) == public_state_fingerprint(second)
+    assert first.opponent.hand_refs == ()
+    assert first.opponent.hand_count == 5
+    assert first.own.prize_count == 6
+    assert first.opponent.prize_count == 6
+    assert first.first_player == 0
+
+
+def test_public_history_reconstructs_cross_turn_logs_without_stale_assignment():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(2)
+    initial = observation([hand_card_option(0)])
+    initial["current"]["turn"] = 1
+    build_public_state(initial, game_epoch=2, history_tracker=tracker)
+
+    current = observation([hand_card_option(0)])
+    current["current"]["turn"] = 4
+    current["logs"] = [
+        {
+            "type": int(LogType.ATTACK),
+            "playerIndex": 1,
+            "cardId": 100,
+            "serial": 110,
+            "attackId": 980,
+        },
+        {"type": int(LogType.TURN_END), "playerIndex": 1},
+        {"type": int(LogType.TURN_START), "playerIndex": 0},
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1141,
+            "serial": 50,
+        },
+        {"type": int(LogType.TURN_END), "playerIndex": 0},
+        {"type": int(LogType.TURN_START), "playerIndex": 1},
+    ]
+    state = build_public_state(current, game_epoch=2, history_tracker=tracker)
+
+    assert state.history_complete
+    assert state.last_attack_by_lineage == (
+        state.last_attack_by_lineage[0],
+    )
+    assert state.last_attack_by_lineage[0].owner == 1
+    assert state.last_attack_by_lineage[0].lineage_serial == 110
+    assert state.last_attack_by_lineage[0].attack_id == 980
+    assert state.last_attack_by_lineage[0].turn == 2
+    assert not state.attacked_this_turn
+    assert state.ppp_count == 0
+
+
+def test_public_history_counts_distinct_ppp_serials_once_per_event_turn():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(4)
+    initial = observation([hand_card_option(0)])
+    initial["current"]["turn"] = 1
+    build_public_state(initial, game_epoch=4, history_tracker=tracker)
+
+    first = observation([hand_card_option(0)])
+    first["current"]["turn"] = 3
+    first["logs"] = [
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1141,
+            "serial": 50,
+        }
+    ]
+    one = build_public_state(first, game_epoch=4, history_tracker=tracker)
+    repeated = build_public_state(first, game_epoch=4, history_tracker=tracker)
+    assert one.ppp_count == repeated.ppp_count == 1
+
+    second = deepcopy(first)
+    second["logs"].append(
+        {
+            "type": int(LogType.PLAY),
+            "playerIndex": 0,
+            "cardId": 1141,
+            "serial": 51,
+        }
+    )
+    two = build_public_state(second, game_epoch=4, history_tracker=tracker)
+    assert two.ppp_count == 2
+
+
+def test_emitted_attack_is_recorded_by_lineage_across_evolution_card_serial():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(5)
+    obs = observation([hand_card_option(0)])
+    obs["current"]["turn"] = 6
+    obs["current"]["players"][0]["active"] = [
+        pokemon(678, 91, hp=340, pre=[card(677, 85)])
+    ]
+    current = build_public_state(obs, game_epoch=5)
+    tracker.record_emitted_attack(current, 983)
+
+    same_turn = tracker.snapshot(0, 6)
+    next_own_turn = tracker.snapshot(0, 8)
+    assert same_turn.attacked_this_turn
+    assert next_own_turn.last_attack_by_lineage[0].lineage_serial == 85
+    assert next_own_turn.last_attack_by_lineage[0].attack_id == 983
+    assert next_own_turn.last_attack_by_lineage[0].turn == 6
+
+
+def test_invalid_turn_marker_actor_marks_public_history_incomplete():
+    tracker = PublicHistoryTracker()
+    tracker.begin_game(6)
+    obs = observation([hand_card_option(0)])
+    obs["current"]["turn"] = 1
+    obs["logs"] = [
+        {"type": int(LogType.TURN_START), "playerIndex": 1}
+    ]
+    state = build_public_state(obs, game_epoch=6, history_tracker=tracker)
+    assert not state.history_complete
+    assert state.ppp_count is None
+
+
+def test_public_board_fingerprint_redacts_both_hidden_hands_and_prizes():
+    obs = observation([hand_card_option(0)])
+    first = build_public_state(obs, game_epoch=2)
+    changed = deepcopy(obs)
+    changed["current"]["players"][0]["hand"][0] = card(999, 900)
+    changed["current"]["players"][0]["prize"][0] = card(998, 901)
+    second = build_public_state(changed, game_epoch=2)
+
+    assert public_state_fingerprint(first) != public_state_fingerprint(second)
+    assert public_board_fingerprint(first) == public_board_fingerprint(second)
+    payload_text = repr(public_board_payload(second))
+    assert "hand_refs" not in payload_text
+    assert "prize_refs" not in payload_text
+    assert "900" not in payload_text
+    assert "901" not in payload_text
+
+    public_change = deepcopy(changed)
+    public_change["current"]["players"][1]["active"][0]["hp"] = 50
+    third = build_public_state(public_change, game_epoch=2)
+    assert public_board_fingerprint(second) != public_board_fingerprint(third)
+
+
+def test_public_board_fingerprint_is_absolute_and_seat_independent():
+    obs = observation([hand_card_option(0)])
+    seat_zero = build_public_state(obs, game_epoch=2)
+    seat_one = replace(
+        seat_zero,
+        seat=1,
+        own=seat_zero.opponent,
+        opponent=seat_zero.own,
+    )
+
+    assert public_board_payload(seat_zero) == public_board_payload(seat_one)
+    assert public_board_fingerprint(seat_zero) == public_board_fingerprint(seat_one)
+
+
+def test_incomplete_own_hand_fails_closed():
+    obs = observation([hand_card_option(0)])
+    obs["current"]["players"][0]["hand"] = None
+    with pytest.raises(ValueError, match="own hand"):
+        build_public_state(obs)
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    (
+        (("current", "turn"), True),
+        (("current", "turnActionCount"), 1.5),
+        (("current", "players", 0, "hand", 0, "id"), "673"),
+        (("current", "players", 0, "hand", 0, "serial"), False),
+        (("current", "players", 0, "hand", 0, "playerIndex"), 0.0),
+        (("select", "option", 0, "area"), "2"),
+    ),
+)
+def test_malformed_public_integer_fields_fail_closed(path, value):
+    obs = observation([hand_card_option(0)])
+    cursor = obs
+    for component in path[:-1]:
+        cursor = cursor[component]
+    cursor[path[-1]] = value
+
+    with pytest.raises(ValueError, match="exact int"):
+        state = build_public_state(obs)
+        build_semantic_options(obs)
+
+
+@pytest.mark.parametrize(
+    "path",
+    (
+        ("current", "supporterPlayed"),
+        ("current", "stadiumPlayed"),
+        ("current", "energyAttached"),
+        ("current", "retreated"),
+        ("current", "players", 0, "poisoned"),
+        ("current", "players", 0, "burned"),
+        ("current", "players", 0, "asleep"),
+        ("current", "players", 0, "paralyzed"),
+        ("current", "players", 0, "confused"),
+        ("current", "players", 0, "active", 0, "appearThisTurn"),
+    ),
+)
+@pytest.mark.parametrize("value", ("false", 0, 1, None))
+def test_malformed_public_boolean_fields_fail_closed(path, value):
+    obs = observation([hand_card_option(0)])
+    cursor = obs
+    for component in path[:-1]:
+        cursor = cursor[component]
+    cursor[path[-1]] = value
+
+    with pytest.raises(ValueError, match="exact bool"):
+        build_public_state(obs)
+
+
+def test_missing_public_boolean_fields_use_explicit_false_defaults():
+    obs = observation([hand_card_option(0)])
+    del obs["current"]["supporterPlayed"]
+    del obs["current"]["players"][0]["active"][0]["appearThisTurn"]
+    state = build_public_state(obs)
+    assert state.supporter_played is False
+    assert state.own_active.appear_this_turn is False
+    assert as_bool(False) is False
+    with pytest.raises(ValueError, match="exact bool"):
+        as_bool(None)
+
+
+def test_facedown_active_slot_count_is_preserved_without_identity():
+    obs = observation([hand_card_option(0)])
+    obs["current"]["players"][1]["active"] = [None]
+    state = build_public_state(obs)
+    assert state.opponent.active == ()
+    assert state.opponent.active_slot_count == 1
+    assert state.opponent.hidden_active_count == 1
+
+    obs = observation([hand_card_option(0)])
+    obs["current"]["players"][0]["handCount"] = 4
+    with pytest.raises(ValueError, match="own hand"):
+        build_public_state(obs)
+
+
+@pytest.mark.parametrize("card_id", (673, 675, 676, 677))
+def test_play_option_infers_exact_hand_basic_key_and_preserves_zero_result(card_id):
+    obs = observation([{"type": int(OptionType.PLAY), "index": 0}])
+    obs["current"]["players"][0]["hand"][0] = card(card_id, 31)
+    obs["current"]["result"] = 0
+    state = build_public_state(obs)
+    option = build_semantic_options(obs)[0]
+    assert state.result == 0
+    assert option.key.canonical() == (
+        int(OptionType.PLAY),
+        0,
+        card_id,
+        31,
+        int(AreaType.HAND),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+
+
+def test_facedown_prize_slots_rebind_by_public_slot_not_option_position():
+    obs = observation(
+        [
+            {
+                "type": int(OptionType.CARD),
+                "area": int(AreaType.PRIZE),
+                "index": 0,
+                "playerIndex": 0,
+            },
+            {
+                "type": int(OptionType.CARD),
+                "area": int(AreaType.PRIZE),
+                "index": 1,
+                "playerIndex": 0,
+            },
+        ],
+        context=SelectContext.TO_HAND,
+    )
+    options = build_semantic_options(obs)
+    wanted = ActionSpec.single(options[1].key)
+    assert options[1].key.card_serial is None
+    assert options[1].key.source_index == 1
+    assert wanted.bind(options, 1, 1) == [1]
+
+    permuted = deepcopy(obs)
+    permuted["select"]["option"].reverse()
+    assert wanted.bind(build_semantic_options(permuted), 1, 1) == [0]
+
+
+def test_zero_selection_action_is_legal_only_with_matching_minimum():
+    obs = observation([], min_count=0, max_count=1)
+    options = build_semantic_options(obs)
+    assert ActionSpec.empty().bind(options, 0, 1) == []
+    with pytest.raises(SemanticBindError):
+        ActionSpec.empty().bind(options, 1, 1)
+
+
+def test_selection_surface_flags_distinguish_closed_and_empty_open_zones():
+    obs = observation([hand_card_option(0)])
+    closed_state = build_public_state(obs)
+    closed_prompt = make_prompt_fingerprint(
+        closed_state,
+        build_semantic_options(obs),
+    )
+    assert closed_state.select_type == int(SelectType.MAIN)
+    assert not closed_state.looking_open
+    assert not closed_state.select_deck_open
+    assert closed_state.remaining_damage_counter == 0
+    assert closed_state.remaining_energy_cost == 0
+
+    opened = deepcopy(obs)
+    opened["current"]["looking"] = []
+    opened["select"]["deck"] = []
+    opened_state = build_public_state(opened)
+    opened_prompt = make_prompt_fingerprint(
+        opened_state,
+        build_semantic_options(opened),
+    )
+    assert opened_state.looking_refs == ()
+    assert opened_state.looking_open
+    assert opened_state.select_deck_open
+    assert public_state_fingerprint(opened_state) != public_state_fingerprint(
+        closed_state
+    )
+    assert opened_prompt.digest() != closed_prompt.digest()
+
+    card_select = deepcopy(obs)
+    card_select["select"]["type"] = int(SelectType.CARD)
+    card_state = build_public_state(card_select)
+    assert public_state_fingerprint(card_state) != public_state_fingerprint(
+        closed_state
+    )
+
+
+def test_stable_main_requires_a_fully_closed_main_selection_surface():
+    obs = observation([hand_card_option(0)])
+    stable = build_public_state(obs)
+    assert is_stable_main_state(stable)
+
+    variants = []
+    card_select = deepcopy(obs)
+    card_select["select"]["type"] = int(SelectType.CARD)
+    variants.append(card_select)
+    looking = deepcopy(obs)
+    looking["current"]["looking"] = []
+    variants.append(looking)
+    deck_select = deepcopy(obs)
+    deck_select["select"]["deck"] = []
+    variants.append(deck_select)
+    effect = deepcopy(obs)
+    effect["select"]["effect"] = card(1121, 99)
+    variants.append(effect)
+    wrong_counts = deepcopy(obs)
+    wrong_counts["select"]["minCount"] = 0
+    variants.append(wrong_counts)
+    remaining_damage = deepcopy(obs)
+    remaining_damage["select"]["remainDamageCounter"] = 1
+    variants.append(remaining_damage)
+    remaining_energy = deepcopy(obs)
+    remaining_energy["select"]["remainEnergyCost"] = 1
+    variants.append(remaining_energy)
+
+    assert all(
+        not is_stable_main_state(build_public_state(variant))
+        for variant in variants
+    )
+
+
+def test_remaining_selection_costs_change_state_and_prompt_fingerprints():
+    obs = observation([hand_card_option(0)])
+    baseline = build_public_state(obs)
+    baseline_prompt = make_prompt_fingerprint(
+        baseline,
+        build_semantic_options(obs),
+    )
+
+    for field in ("remainDamageCounter", "remainEnergyCost"):
+        changed = deepcopy(obs)
+        changed["select"][field] = 1
+        changed_state = build_public_state(changed)
+        changed_prompt = make_prompt_fingerprint(
+            changed_state,
+            build_semantic_options(changed),
+        )
+        assert public_state_fingerprint(changed_state) != public_state_fingerprint(
+            baseline
+        )
+        assert changed_prompt.digest() != baseline_prompt.digest()

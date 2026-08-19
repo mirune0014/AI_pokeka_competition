@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 try:
     from infrastructure.tools.ptcg_common import (
@@ -27,6 +28,182 @@ except ModuleNotFoundError:  # Direct execution from infrastructure/tools.
     )
 
 
+class AgentValidationMonitor:
+    """Fail-closed validation hooks for agents that explicitly expose them."""
+
+    def __init__(self, agents: list[Any]) -> None:
+        self._agents = agents
+        self._hooked = [False for _ in agents]
+        self._failure_codes: list[str] = []
+        self._record_count = 0
+        self._records: list[dict[str, Any]] = []
+        self._last_status: dict[str, Any] = {}
+        self._next_drain_sequence = 0
+        for index, agent in enumerate(agents):
+            module = getattr(agent, "module", None)
+            status_hook = getattr(module, "validation_status", None)
+            if not callable(status_hook):
+                continue
+            self._hooked[index] = True
+            drain_hook = getattr(module, "drain_validation_telemetry", None)
+            finalize_hook = getattr(module, "finalize_validation_game", None)
+            if not callable(drain_hook) or not callable(finalize_hook):
+                self._fail("AGENT_{0}_VALIDATION_HOOK_INCOMPLETE".format(index))
+                continue
+            self._sample(index, drain=False)
+
+    def _fail(self, code: object) -> None:
+        value = str(code).replace("\r", " ").replace("\n", " ")[:256]
+        if value and value not in self._failure_codes:
+            self._failure_codes.append(value)
+
+    def _module(self, index: int) -> Any:
+        return getattr(self._agents[index], "module", None)
+
+    def _ingest_status(self, index: int, status: Any) -> None:
+        if not isinstance(status, Mapping):
+            self._fail("AGENT_{0}_VALIDATION_STATUS_INVALID".format(index))
+            return
+        normalized = dict(status)
+        self._last_status[str(index)] = normalized
+        if normalized.get("telemetry_enabled") is not True:
+            self._fail("AGENT_{0}_TELEMETRY_DISABLED".format(index))
+        health = normalized.get("telemetry_health")
+        if not isinstance(health, Mapping) or health.get("healthy") is not True:
+            self._fail("AGENT_{0}_TELEMETRY_HEALTH_FAILED".format(index))
+        if normalized.get("run_failed") is True:
+            codes = normalized.get("failure_codes", ())
+            if isinstance(codes, (tuple, list)):
+                for code in codes:
+                    self._fail("AGENT_{0}:{1}".format(index, code))
+            else:
+                self._fail("AGENT_{0}_RUN_FAILED".format(index))
+
+    def _ingest_drain(self, index: int, envelope: Any) -> None:
+        if not isinstance(envelope, Mapping):
+            self._fail("AGENT_{0}_VALIDATION_DRAIN_INVALID".format(index))
+            return
+        status = envelope.get("status")
+        if status is not None:
+            self._ingest_status(index, status)
+        telemetry = envelope.get("telemetry")
+        if not isinstance(telemetry, Mapping):
+            self._fail("AGENT_{0}_TELEMETRY_ENVELOPE_INVALID".format(index))
+            return
+        records = telemetry.get("records", ())
+        if not isinstance(records, (tuple, list)):
+            self._fail("AGENT_{0}_TELEMETRY_RECORDS_INVALID".format(index))
+            return
+        drain_sequence = self._next_drain_sequence
+        self._next_drain_sequence += 1
+        self._record_count += len(records)
+        for drain_record_index, record in enumerate(records):
+            if not isinstance(record, Mapping):
+                self._fail(
+                    "AGENT_{0}_TELEMETRY_RECORD_INVALID".format(index)
+                )
+                continue
+            preserved = dict(record)
+            preserved.update(
+                agent_index=index,
+                drain_sequence=drain_sequence,
+                drain_record_index=drain_record_index,
+            )
+            self._records.append(preserved)
+        lifetime = telemetry.get("lifetime_health")
+        if isinstance(lifetime, Mapping) and lifetime.get("healthy") is not True:
+            self._fail("AGENT_{0}_TELEMETRY_LIFETIME_FAILED".format(index))
+
+    def _sample(self, index: int, *, drain: bool) -> None:
+        if not self._hooked[index]:
+            return
+        module = self._module(index)
+        try:
+            self._ingest_status(index, module.validation_status())
+            if drain:
+                self._ingest_drain(index, module.drain_validation_telemetry())
+        except Exception as exc:
+            self._fail(
+                "AGENT_{0}_VALIDATION_HOOK_ERROR:{1}".format(
+                    index,
+                    type(exc).__name__,
+                )
+            )
+
+    def after_callback(self, index: int) -> None:
+        self._sample(index, drain=True)
+
+    def finalize_all(self, reason: str) -> None:
+        for index, hooked in enumerate(self._hooked):
+            if not hooked:
+                continue
+            module = self._module(index)
+            try:
+                self._ingest_status(
+                    index,
+                    module.finalize_validation_game(reason),
+                )
+            except Exception as exc:
+                self._fail(
+                    "AGENT_{0}_VALIDATION_FINALIZE_ERROR:{1}".format(
+                        index,
+                        type(exc).__name__,
+                    )
+                )
+            self._sample(index, drain=True)
+
+    @property
+    def records(self) -> tuple[dict[str, Any], ...]:
+        return tuple(dict(record) for record in self._records)
+
+    def summary(self) -> dict[str, Any]:
+        if not any(self._hooked):
+            return {}
+        return {
+            "validation_hooked": True,
+            "validation_failed": bool(self._failure_codes),
+            "validation_failure_codes": tuple(self._failure_codes),
+            "failure_codes": tuple(self._failure_codes),
+            "validation_record_count": self._record_count,
+            "validation_last_status": self._last_status,
+        }
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def canonical_json_line(record: Mapping[str, Any]) -> str:
+    return json.dumps(
+        dict(record),
+        ensure_ascii=False,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ) + "\n"
+
+
+def write_validation_trace(
+    trace_dir: Path,
+    game_index: int,
+    records: tuple[dict[str, Any], ...],
+) -> dict[str, Any]:
+    path = trace_dir / f"game_{game_index:04d}.validation.jsonl"
+    payload = "".join(canonical_json_line(record) for record in records).encode(
+        "utf-8"
+    )
+    path.write_bytes(payload)
+    return {
+        "validation_trace": str(path),
+        "validation_trace_sha256": hashlib.sha256(payload).hexdigest(),
+        "validation_trace_record_count": len(records),
+    }
+
+
 def compact_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     compact = []
     for entry in logs:
@@ -34,6 +211,11 @@ def compact_logs(logs: list[dict[str, Any]]) -> list[dict[str, Any]]:
         for key in (
             "cardId",
             "attackId",
+            "serial",
+            "serialTarget",
+            "serialBench",
+            "serialBefore",
+            "serialAfter",
             "area",
             "index",
             "result",
@@ -207,25 +389,32 @@ def run_game(args: argparse.Namespace, game_index: int) -> dict[str, Any]:
     agent_a = load_agent(agent_a_dir, f"agent_a_{game_index}")
     agent_b = load_agent(agent_b_dir, f"agent_b_{game_index}")
     agents = [agent_a, agent_b]
+    validation = AgentValidationMonitor(agents)
     if seed is not None:
         for agent in agents:
             module_random = getattr(getattr(agent, "module", None), "random", None)
             if hasattr(module_random, "seed"):
                 module_random.seed(seed)
 
-    if getattr(args, "engine_seed", False):
-        if seed is None:
-            raise ValueError("--engine-seed requires --seed-base")
-        obs, start_data = battle_start(deck_a, deck_b, seed=seed)
-    else:
-        obs, start_data = battle_start(deck_a, deck_b)
+    try:
+        if getattr(args, "engine_seed", False):
+            if seed is None:
+                raise ValueError("--engine-seed requires --seed-base")
+            obs, start_data = battle_start(deck_a, deck_b, seed=seed)
+        else:
+            obs, start_data = battle_start(deck_a, deck_b)
+    except Exception:
+        validation.finalize_all("BATTLE_START_EXCEPTION")
+        raise
     if not obs:
+        validation.finalize_all("BATTLE_START_FAILED")
         return {
             "game": game_index,
             "seed": seed if seed is not None else "",
             "started": False,
             "error_player": start_data.errorPlayer,
             "error_type": start_data.errorType,
+            **validation.summary(),
         }
 
     trace_path = None
@@ -257,6 +446,7 @@ def run_game(args: argparse.Namespace, game_index: int) -> dict[str, Any]:
             except Exception as exc:
                 action_errors += 1
                 raise RuntimeError(f"agent {player} failed at step {steps}: {exc}") from exc
+            validation.after_callback(player)
 
             if trace_file:
                 scored_options = (
@@ -297,10 +487,38 @@ def run_game(args: argparse.Namespace, game_index: int) -> dict[str, Any]:
             final_obs = obs
             steps += 1
     finally:
+        final_current = (final_obs or {}).get("current") or {}
+        if final_current.get("result") not in (None, -1):
+            finalize_reason = "GAME_END"
+        elif steps >= args.max_steps:
+            finalize_reason = "MAX_STEPS"
+        elif action_errors:
+            finalize_reason = "AGENT_EXCEPTION_ABORT"
+        else:
+            finalize_reason = "RUNNER_ABORT"
+        validation.finalize_all(finalize_reason)
         if trace_file:
             trace_file.close()
         battle_finish()
 
+    if trace_path is not None:
+        trace_metadata = {
+            "trace": str(trace_path),
+            "trace_sha256": sha256_file(trace_path),
+            **write_validation_trace(
+                args.trace_dir,
+                game_index,
+                validation.records,
+            ),
+        }
+    else:
+        trace_metadata = {
+            "trace": "",
+            "trace_sha256": "",
+            "validation_trace": "",
+            "validation_trace_sha256": "",
+            "validation_trace_record_count": 0,
+        }
     final_current = (final_obs or {}).get("current") or {}
     return {
         "game": game_index,
@@ -311,8 +529,9 @@ def run_game(args: argparse.Namespace, game_index: int) -> dict[str, Any]:
         "result": final_current.get("result"),
         "turn": final_current.get("turn"),
         "action_errors": action_errors,
-        "trace": str(trace_path) if trace_path else "",
+        **trace_metadata,
         "context_counts": dict(sorted(context_counts.items())),
+        **validation.summary(),
         **player_snapshot(final_obs or {}),
     }
 
@@ -353,10 +572,14 @@ def main() -> None:
     ensure_engine_on_path(args.engine_dir)
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     with args.summary.open("w", encoding="utf-8") as summary_file:
+        validation_failed = False
         for game_index in range(args.games):
             result = run_game(args, game_index)
             summary_file.write(json.dumps(result, ensure_ascii=False) + "\n")
             print(json.dumps(result, ensure_ascii=False))
+            validation_failed = validation_failed or result.get("validation_failed", False)
+    if validation_failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

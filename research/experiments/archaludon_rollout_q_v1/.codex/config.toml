@@ -1,0 +1,15 @@
+# This layer applies only when Codex is started with a working directory in
+# research/experiments/archaludon_rollout_q_v1 or one of its subdirectories.
+# The repository must be trusted for project-local .codex layers to load.
+
+model = 'gpt-5.6-luna'
+model_reasoning_effort = 'max'
+
+[agents]
+enabled = true
+default_subagent_model = 'gpt-5.6-luna'
+default_subagent_reasoning_effort = 'max'
+
+[agents.archaludon_rollout_q_v1_luna_max]
+description = 'The sole subagent role for Archaludon rollout Q v1; pinned to Luna Max.'
+config_file = './agents/luna_max.toml'
