@@ -627,8 +627,9 @@ def test_wally_never_issues_reattach_before_exact_return_receipt(receipt_cases):
     assert issued.action_spec == plan.steps[-1].action_spec
 
 
-def _aura_next_target_state(base, refs, plan, *, include_attach):
+def _aura_next_target_state(base, refs, plan, *, include_attach, context_energy=None):
     energy = refs["aura1"]
+    context_energy = energy if context_energy is None else context_energy
     target = base.own.bench[0]
     if include_attach:
         target = replace(target, energy_refs=(energy,), energy_types=(1,))
@@ -657,6 +658,7 @@ def _aura_next_target_state(base, refs, plan, *, include_attach):
         select_type=int(SelectType.CARD),
         select_context=int(SelectContext.ATTACH_FROM),
         effect_ref=plan.source_ref,
+        context_ref=context_energy,
     )
 
 
@@ -669,7 +671,9 @@ def test_aura_requires_preceding_attach_before_next_target_callback(receipt_case
     started = missing_store.start(plan, base, (SemanticOption(0, key),))
     missing_store._owner = replace(started.owner, step_index=1)
     missing = missing_store.resume(
-        _aura_next_target_state(base, refs, plan, include_attach=False),
+        _aura_next_target_state(
+            base, refs, plan, include_attach=False, context_energy=refs["aura2"]
+        ),
         (SemanticOption(0, plan.steps[2].action_spec.choices[0]),),
     )
     assert missing.status == ResumeStatus.IRREVERSIBLE_FAULT
@@ -679,7 +683,9 @@ def test_aura_requires_preceding_attach_before_next_target_callback(receipt_case
     started = exact_store.start(plan, base, (SemanticOption(0, key),))
     exact_store._owner = replace(started.owner, step_index=1)
     issued = exact_store.resume(
-        _aura_next_target_state(base, refs, plan, include_attach=True),
+        _aura_next_target_state(
+            base, refs, plan, include_attach=True, context_energy=refs["aura2"]
+        ),
         (SemanticOption(0, plan.steps[2].action_spec.choices[0]),),
     )
     assert issued.status == ResumeStatus.ADVANCED_ISSUE

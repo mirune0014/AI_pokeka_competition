@@ -67,6 +67,33 @@ except ImportError:  # Flat submission import from main.py.
 
 SCHEMA_VERSION = "mega_lucario_telemetry_v1"
 
+# Keep decision provenance on the small, explicit vocabulary consumed by the
+# runner.  ``SINGLE_RESOLVER`` was the V1 spelling for the ordinary resolver
+# boundary; every call site is the same normal resolver path, so it is a safe
+# compatibility alias rather than a distinct runtime source.
+CANONICAL_DECISION_SOURCES = frozenset(
+    {
+        "RESOLVER",
+        "RESOLVER_TRANSACTION_START",
+        "TRANSACTION_RESUME",
+        "FORCED_ROUTE",
+        "FAULT_CONTAINMENT",
+        "SAFE_FALLBACK",
+        "RAW_CONTAINMENT",
+    }
+)
+_DECISION_SOURCE_ALIASES = {"SINGLE_RESOLVER": "RESOLVER"}
+
+
+def _canonical_decision_source(value: object) -> tuple[str, bool]:
+    """Return a canonical source and whether a compatibility alias was used."""
+
+    if not isinstance(value, str) or not value.strip():
+        return "INVALID", False
+    source = value.strip()
+    canonical = _DECISION_SOURCE_ALIASES.get(source, source)
+    return canonical, canonical != source
+
 
 class TelemetryMode(str, Enum):
     OFF = "OFF"
@@ -341,7 +368,7 @@ def _transaction_state_payload(
         raise ValueError("transaction owner must be TransactionState or None")
     if projection == TelemetryProjection.PUBLIC_REDACTED:
         return {"redacted": True}
-    return {
+    payload = {
         "transaction_id": owner.transaction_id,
         "plan_digest": owner.plan_digest,
         "owner_kind": owner.owner_kind.value,
@@ -371,7 +398,32 @@ def _transaction_state_payload(
         "committed": owner.committed,
         "fault_latched": owner.fault_latched,
         "fault_code": owner.fault_code,
+        "aura_v4_selected_energy_refs_ordered": owner._aura_v4_selected_energy_refs_ordered,
+        "aura_v4_selected_energy_count": owner._aura_v4_selected_energy_count,
+        "aura_v4_target_cursor": owner._aura_v4_target_cursor,
+        "aura_v4_pending_callback_ref": owner._aura_v4_pending_callback_ref,
+        "aura_v4_consumed_energy_refs": owner._aura_v4_consumed_energy_refs,
+        "aura_v4_target_action_receipt_count": owner._aura_v4_target_action_receipt_count,
+        "aura_v4_attach_receipt_count": owner._aura_v4_attach_receipt_count,
+        "aura_v4_completed": owner._aura_v4_completed,
+        "aura_v4_owner_released": owner._aura_v4_owner_released,
     }
+    if owner._pending_terminal_receipt:
+        payload.update(
+            {
+                "pending_terminal_receipt": True,
+                "pending_terminal_owner": owner._pending_terminal_owner,
+                "pending_terminal_transaction_id": (
+                    owner._pending_terminal_transaction_id
+                ),
+                "pending_terminal_plan_digest": owner._pending_terminal_plan_digest,
+                "pending_terminal_expected_context_ref": (
+                    owner._pending_terminal_expected_context_ref
+                ),
+                "pending_terminal_turn": owner._pending_terminal_turn,
+            }
+        )
+    return payload
 
 
 def _proposal_payload(
@@ -480,14 +532,15 @@ def make_resolution_event(
     *,
     projection: TelemetryProjection = TelemetryProjection.INTERNAL_AGENT_VISIBLE,
     run_context: Optional[RunContext] = None,
-    decision_source: str = "SINGLE_RESOLVER",
+    decision_source: str = "RESOLVER",
     transaction_before: Optional[TransactionState] = None,
     transaction_after: Optional[TransactionState] = None,
 ) -> Dict[str, Any]:
     projection = TelemetryProjection(projection)
     if not isinstance(state, PublicState) or not isinstance(resolution, Resolution):
         raise ValueError("resolution telemetry requires checked state and resolution")
-    if not isinstance(decision_source, str) or not decision_source.strip():
+    decision_source, _ = _canonical_decision_source(decision_source)
+    if decision_source == "INVALID":
         raise ValueError("decision_source must be a non-empty code")
     invariant_reasons = resolution_invariant_reasons(
         proposals,
@@ -532,7 +585,7 @@ def make_resolution_event(
                 and value["disposition"] == "SELECTED"
             )
         derived = {
-            "decision_source": decision_source.strip(),
+            "decision_source": decision_source,
             "proposal_evaluations": evaluations,
             "selected": selected,
             "resources": ledger_payload,
@@ -1046,7 +1099,7 @@ class TelemetryRecorder:
         ledger: ResourceLedger,
         *,
         run_context: Optional[RunContext] = None,
-        decision_source: str = "SINGLE_RESOLVER",
+        decision_source: str = "RESOLVER",
         transaction_before: Optional[TransactionState] = None,
         transaction_after: Optional[TransactionState] = None,
     ) -> None:
@@ -1133,6 +1186,337 @@ class TelemetryRecorder:
                 run_context=run_context,
             )
             self._append(event)
+        except Exception:
+            self._mark_record_error()
+
+    def record_aura_context_ref(
+        self,
+        state: PublicState,
+        legal_options: Sequence[SemanticOption],
+        result: Union[StartResult, ResumeResult],
+        *,
+        owner_before: Optional[TransactionState],
+    ) -> None:
+        """Record the bounded AURA context-ref repair events.
+
+        This is intentionally a typed companion to ``record_transaction``;
+        it does not introduce a generic event bus or influence action choice.
+        The fixed fields make capture, binding, rejection, completion, and
+        owner release auditable in the existing telemetry stream.
+        """
+
+        if not self.enabled:
+            return
+        try:
+            owner_after = result.owner
+            owners = tuple(
+                owner
+                for owner in (owner_before, owner_after)
+                if owner is not None
+            )
+            aura_owner = next(
+                (
+                    owner
+                    for owner in owners
+                    if owner.origin_owner_kind.value == "AURA_JAB_ATTACH"
+                ),
+                None,
+            )
+            if aura_owner is None:
+                return
+
+            status = getattr(result.status, "value", str(result.status))
+            actual_ref = state.context_ref
+            active_owner = owner_after or owner_before
+            pending_terminal_stored = bool(
+                owner_after is not None
+                and owner_after._pending_terminal_receipt
+                and (
+                    owner_before is None
+                    or not owner_before._pending_terminal_receipt
+                )
+            )
+            pending_terminal_consumed = bool(
+                owner_before is not None
+                and owner_before._pending_terminal_receipt
+                and owner_after is None
+                and status == "COMPLETED"
+            )
+            pending_terminal_rejected = bool(
+                owner_before is not None
+                and owner_before._pending_terminal_receipt
+                and status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT")
+            )
+            target_step = next(
+                (
+                    owner
+                    for owner in owners
+                    if owner.stage.value == "SELECT_EFFECT_TARGET"
+                ),
+                None,
+            )
+            selected_target = None
+            action_spec = result.action_spec
+            if action_spec is not None and action_spec.choices:
+                choice = action_spec.choices[0]
+                selected_target = (
+                    choice.player_index,
+                    choice.card_id,
+                    choice.card_serial,
+                )
+
+            repair_reasons = tuple(
+                reason
+                for reason in result.reasons
+                if isinstance(reason, str)
+                and (
+                    reason.startswith("AURA_CTXREF_")
+                    or reason.startswith("R_ML_AURA_CTXREF_")
+                    or reason.startswith("AURA_V4_")
+                    or reason.startswith("R_ML_AURA_V4_")
+                    or reason.startswith("AURA_TERMINAL_PENDING_RECEIPT")
+                    or reason.startswith("R_ML_AURA_TERMINAL_RECEIPT_")
+                )
+            )
+            v4_multi_callback = any(
+                reason.startswith("AURA_V4_")
+                or reason.startswith("R_ML_AURA_V4_")
+                or "MULTI_CALLBACK" in reason
+                for reason in repair_reasons
+            )
+            event_names = []
+            if (
+                owner_before is not None
+                and owner_before.stage.value == "SELECT_ENERGY"
+                and isinstance(actual_ref, PhysicalRef)
+                and target_step is not None
+                and target_step.expected_context_ref is not None
+                and status == "ADVANCED_ISSUE"
+            ):
+                event_names.extend(
+                    (
+                        "ML_AURA_CTXREF_ENERGY_RECEIPT",
+                        "ML_AURA_CTXREF_NEXT_PROMPT_FOUND",
+                        "ML_AURA_CTXREF_TARGET_STEP_BOUND",
+                        "ML_AURA_CTXREF_TARGET_SELECTED",
+                    )
+                )
+            if status == "COMPLETED":
+                event_names.extend(
+                    (
+                        "ML_AURA_CTXREF_TRANSACTION_COMPLETED",
+                        "ML_AURA_CTXREF_OWNER_RELEASED",
+                    )
+                )
+            if pending_terminal_stored:
+                event_names.append("ML_PENDING_TERMINAL_RECEIPT_STORED")
+            if pending_terminal_consumed:
+                event_names.append("ML_PENDING_TERMINAL_RECEIPT_CONSUMED")
+            if pending_terminal_rejected:
+                event_names.append("ML_PENDING_TERMINAL_RECEIPT_EXPIRED")
+            if status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT") or (
+                repair_reasons
+                and status not in ("ADVANCED_ISSUE", "DUPLICATE_REISSUE")
+            ):
+                event_names.append("ML_AURA_CTXREF_REJECTED")
+            if v4_multi_callback:
+                after_stage = (
+                    None if owner_after is None else owner_after.stage.value
+                )
+                if (
+                    after_stage == "SELECT_ENERGY"
+                    and "R_ML_AURA_V4_CAPTURE_SELECTED_QUEUE" in repair_reasons
+                ):
+                    event_names.extend(
+                        (
+                            "ML_AURA_V4_ENERGY_QUEUE_CAPTURED",
+                            "ML_AURA_V4_SELECTED_SET_VALIDATED",
+                        )
+                    )
+                if after_stage == "SELECT_EFFECT_TARGET":
+                    event_names.extend(
+                        (
+                            "ML_AURA_V4_TARGET_CALLBACK_RECEIVED",
+                            "ML_AURA_V4_CALLBACK_REF_BOUND",
+                            "ML_AURA_V4_TARGET_ACTION_ACCEPTED",
+                        )
+                    )
+                    if (
+                        "R_ML_AURA_V4_ACCEPT_TARGET_RECEIPT" in repair_reasons
+                        or "R_ML_AURA_V4_ADVANCE_TARGET_CURSOR" in repair_reasons
+                    ):
+                        event_names.extend(
+                            (
+                                "ML_AURA_V4_ATTACH_RECEIPT_ACCEPTED",
+                                "ML_AURA_V4_TARGET_CURSOR_ADVANCED",
+                            )
+                        )
+                if status == "COMPLETED":
+                    event_names.extend(
+                        (
+                            "ML_AURA_V4_ATTACH_RECEIPT_ACCEPTED",
+                            "ML_AURA_V4_TARGET_CURSOR_ADVANCED",
+                            "ML_AURA_V4_TRANSACTION_COMPLETED",
+                            "ML_AURA_V4_OWNER_RELEASED",
+                        )
+                    )
+                if status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"):
+                    event_names.append("ML_AURA_V4_REJECTED")
+            if not event_names:
+                return
+
+            pending_step_count = int(owner_after is not None)
+            owner_release_count = int(
+                status in ("COMPLETED", "FAULT_RELEASED")
+            )
+            payload = {
+                "batch_id": (
+                    "B_ML_AURA_ORDERED_MULTI_TARGET_FSM_REPAIR_V4"
+                    if v4_multi_callback
+                    else "B_ML_AURA_CONTEXT_REF_BINDING_REPAIR_V2"
+                ),
+                "rule_id": (
+                    "R_ML_AURA_TERMINAL_RECEIPT_STORE_PENDING_V1"
+                    if pending_terminal_stored
+                    else "R_ML_AURA_TERMINAL_RECEIPT_CONSUME_NEXT_CALLBACK_V1"
+                    if pending_terminal_consumed
+                    else "R_ML_AURA_TERMINAL_RECEIPT_REJECT_PENDING_MISMATCH_V1"
+                    if pending_terminal_rejected
+                    else (
+                        repair_reasons[0]
+                        if repair_reasons
+                        else "R_ML_AURA_CTXREF_COMPLETE_TARGET_V2"
+                    )
+                ),
+                "game_id": state.game_epoch,
+                "turn": state.turn,
+                "step": state.turn_action_count,
+                "transaction_id": aura_owner.transaction_id,
+                "transaction_owner": aura_owner.seat,
+                "energy_instance_id": (
+                    None if not isinstance(actual_ref, PhysicalRef) else actual_ref
+                ),
+                "energy_receipt_status": (
+                    "SUCCESS"
+                    if isinstance(actual_ref, PhysicalRef)
+                    and owner_before is not None
+                    and owner_before.stage.value == "SELECT_ENERGY"
+                    else None
+                ),
+                "next_context": state.select_context,
+                "next_context_ref": actual_ref,
+                "next_prompt_owner": (
+                    None if not isinstance(actual_ref, PhysicalRef) else actual_ref.owner
+                ),
+                "next_prompt_count": int(isinstance(actual_ref, PhysicalRef)),
+                "pending_target_step_id": (
+                    None if target_step is None else target_step.step_index
+                ),
+                "bound_context": (
+                    None if active_owner is None else active_owner.expected_context
+                ),
+                "bound_context_ref": (
+                    None
+                    if active_owner is None
+                    else active_owner.expected_context_ref
+                ),
+                "bound_owner": None if active_owner is None else active_owner.seat,
+                "selected_target_instance_id": selected_target,
+                "selected_target_role": (
+                    "BENCH" if target_step is not None else None
+                ),
+                "target_receipt_status": (
+                    "COMPLETE"
+                    if status == "COMPLETED"
+                    else "REJECTED"
+                    if "ML_AURA_CTXREF_REJECTED" in event_names
+                    else "BOUND"
+                ),
+                "callback_count": (
+                    0 if active_owner is None else active_owner.callback_budget_used
+                ),
+                "pending_step_count": pending_step_count,
+                "owner_release_count": owner_release_count,
+                "transaction_status": status,
+                "reject_reason": repair_reasons[0] if repair_reasons else None,
+                "runtime_fault": status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"),
+                "validation_failure": status in ("IRREVERSIBLE_FAULT", "FAULT_CONTAINMENT"),
+            }
+            if v4_multi_callback:
+                v4_owner = active_owner
+                payload.update(
+                    {
+                        "selected_energy_count": (
+                            0
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_count
+                        ),
+                        "selected_energy_refs_ordered": (
+                            ()
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_refs_ordered
+                        ),
+                        "callback_context_refs_ordered": (
+                            ()
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_refs_ordered
+                        ),
+                        "selected_callback_order_match": True,
+                        "target_cursor": (
+                            0 if v4_owner is None else v4_owner._aura_v4_target_cursor
+                        ),
+                        "pending_callback_ref": (
+                            None
+                            if v4_owner is None
+                            else v4_owner._aura_v4_pending_callback_ref
+                        ),
+                        "consumed_energy_refs": (
+                            ()
+                            if v4_owner is None
+                            else v4_owner._aura_v4_consumed_energy_refs
+                        ),
+                        "target_action_receipt_count": (
+                            0
+                            if v4_owner is None
+                            else v4_owner._aura_v4_target_action_receipt_count
+                        ),
+                        "attach_receipt_count": (
+                            0
+                            if v4_owner is None
+                            else v4_owner._aura_v4_attach_receipt_count
+                        ),
+                        "completed": bool(
+                            v4_owner is not None and v4_owner._aura_v4_completed
+                        ),
+                        "owner_released": bool(
+                            status in ("COMPLETED", "FAULT_RELEASED")
+                            or (v4_owner is not None and v4_owner._aura_v4_owner_released)
+                        ),
+                        "plan_target_step_count": (
+                            None
+                            if v4_owner is None
+                            else v4_owner._aura_v4_selected_energy_count
+                        ),
+                    }
+                )
+            for event_name in event_names:
+                self._append(
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "record_type": RecordType.TRANSACTION.value,
+                        "projection": self._projection.value,
+                        "run": _run_payload(None, state.seat),
+                        "observed": {
+                            "turn": state.turn,
+                            "turn_action_count": state.turn_action_count,
+                            "actor_seat": state.seat,
+                        },
+                        "aura_context_ref": {
+                            "event": event_name,
+                            **payload,
+                        },
+                    }
+                )
         except Exception:
             self._mark_record_error()
 
@@ -1382,10 +1766,26 @@ class ValidationRuntimeState:
         self.failure_codes: list[str] = []
         self.last_exception: Optional[Dict[str, str]] = None
         self.last_containment_reason: Optional[str] = None
+        self.last_fault_reason: Optional[str] = None
         self.last_prompt_fingerprint: Optional[str] = None
         self.last_first_difference: Optional[Dict[str, Any]] = None
         self.last_route_id: Optional[str] = None
         self.last_certificate_id: Optional[str] = None
+        # The resolver record and the emitted callback are separate runtime
+        # boundaries.  Keep a compact receipt for the most recent callback so
+        # the runner can distinguish a selected rule from the action actually
+        # returned, including fallback and transaction resumes.  These fields
+        # are observational only and never influence play.
+        self.last_decision_source: Optional[str] = None
+        self.last_resolution_status: Optional[str] = None
+        self.last_resolution_stats: Optional[Dict[str, int]] = None
+        self.last_emitted_action: Optional[Tuple[int, ...]] = None
+        self.last_emitted_action_validated: Optional[bool] = None
+        self.last_emitted_rule_id: Optional[str] = None
+        self.last_transaction_status: Optional[str] = None
+        self.emitted_action_count = 0
+        self.callback_receipts: list[Dict[str, Any]] = []
+        self.source_alias_normalizations = 0
         self.last_owner_snapshot: Optional[Dict[str, Any]] = None
         self.last_finalize_reason: Optional[str] = None
         self.epoch = -1
@@ -1402,6 +1802,29 @@ class ValidationRuntimeState:
     def note_prompt(self, fingerprint: str) -> None:
         self.last_prompt_fingerprint = fingerprint
 
+    def begin_callback(self) -> None:
+        """Clear per-callback decision fields before parsing a new prompt."""
+
+        self.last_route_id = None
+        self.last_certificate_id = None
+        self.last_decision_source = None
+        self.last_resolution_status = None
+        self.last_resolution_stats = None
+        self.last_emitted_action = None
+        self.last_emitted_action_validated = None
+        self.last_emitted_rule_id = None
+        self.last_transaction_status = None
+        self.last_fault_reason = None
+
+    def _clear_stale_provenance(self) -> None:
+        """Remove resolver provenance when the callback is fault-contained."""
+
+        self.last_route_id = None
+        self.last_certificate_id = None
+        self.last_resolution_status = None
+        self.last_resolution_stats = None
+        self.last_emitted_rule_id = None
+
     def note_exception(self, exc: BaseException, *, code: str = "RUNTIME_EXCEPTION") -> None:
         self.runtime_fault_latched = True
         self._fail(code)
@@ -1412,7 +1835,11 @@ class ValidationRuntimeState:
         }
 
     def note_containment(self, reason: str, *, exception_derived: bool) -> None:
-        self.last_containment_reason = _bounded_diagnostic_text(reason, 256)
+        normalized = _bounded_diagnostic_text(reason, 256)
+        self.last_containment_reason = normalized
+        self._clear_stale_provenance()
+        if self.last_fault_reason is None:
+            self.last_fault_reason = normalized
         if exception_derived:
             self.exception_derived_containment_count += 1
 
@@ -1421,14 +1848,126 @@ class ValidationRuntimeState:
         self.unsupported_stable_main_count += 1
         self._fail("UNSUPPORTED_STABLE_MAIN")
 
-    def note_resolution(self, resolution: Resolution) -> None:
+    def note_resolution(
+        self,
+        resolution: Resolution,
+        *,
+        decision_source: str = "RESOLVER",
+    ) -> None:
+        decision_source, was_alias = _canonical_decision_source(decision_source)
+        if was_alias:
+            self.source_alias_normalizations += 1
+        if decision_source == "INVALID":
+            self._fail("DECISION_SOURCE_INVALID")
+        self.last_decision_source = decision_source
+        stats = getattr(resolution, "stats", None)
+        if stats is not None:
+            self.last_resolution_stats = {
+                "proposed": int(stats.proposed),
+                "accepted": int(stats.accepted),
+                "rejected": int(stats.rejected),
+            }
         selected = resolution.selected
         if selected is None:
+            # Never leave a prior rule/certificate attached to a no-selection
+            # resolution; stale provenance is more harmful to evaluation than
+            # a missing value.
+            self._clear_stale_provenance()
+            self.last_resolution_status = "NO_SELECTION"
             return
+        self.last_resolution_status = "SELECTED"
         self.last_route_id = selected.rule_id
         self.last_certificate_id = "{0}:{1}".format(
             selected.certificate_kind.name,
             selected.proof.schema.value,
+        )
+
+    def note_emission(
+        self,
+        action: Sequence[int],
+        *,
+        decision_source: str,
+        rule_id: Optional[str] = None,
+        transaction_status: Optional[str] = None,
+        fault_reason: Optional[str] = None,
+    ) -> None:
+        """Record the checked action at the callback boundary.
+
+        ``note_resolution`` records what the resolver selected; this receipt
+        records what the runtime actually emitted after semantic rebinding.
+        Keeping both values lets evaluation identify fallback, transaction,
+        and containment paths without inferring them from stale state.
+        """
+
+        decision_source, was_alias = _canonical_decision_source(decision_source)
+        if was_alias:
+            self.source_alias_normalizations += 1
+        if decision_source == "INVALID":
+            self._fail("DECISION_SOURCE_INVALID")
+        values = tuple(action)
+        valid = all(
+            _exact_int(value) and value >= 0
+            for value in values
+        )
+        self.last_decision_source = decision_source
+        self.last_emitted_action = tuple(int(value) for value in values) if valid else None
+        self.last_emitted_action_validated = bool(valid)
+        normalized_fault_reason = (
+            None
+            if fault_reason is None
+            else _bounded_diagnostic_text(fault_reason, 256)
+        )
+        if decision_source in ("FAULT_CONTAINMENT", "RAW_CONTAINMENT"):
+            self._clear_stale_provenance()
+            if normalized_fault_reason is None:
+                normalized_fault_reason = self.last_containment_reason
+            self.last_fault_reason = normalized_fault_reason
+            # A containment decision is a fault reason, not a normal rule
+            # provenance value.  Keep it in its dedicated field and in the
+            # callback receipt below.
+            self.last_emitted_rule_id = None
+        else:
+            self.last_fault_reason = None
+            self.last_emitted_rule_id = (
+                None if rule_id is None else _bounded_diagnostic_text(rule_id, 256)
+            )
+        self.last_transaction_status = (
+            None
+            if transaction_status is None
+            else _bounded_diagnostic_text(transaction_status, 256)
+        )
+        self.emitted_action_count += 1
+        self.callback_receipts.append(
+            {
+                "receipt_index": self.emitted_action_count,
+                "epoch": self.epoch,
+                "prompt_fingerprint": self.last_prompt_fingerprint,
+                "decision_source": self.last_decision_source,
+                "action": self.last_emitted_action,
+                "action_validated": self.last_emitted_action_validated,
+                "rule_id": self.last_emitted_rule_id,
+                "fault_reason": self.last_fault_reason,
+                "transaction_status": self.last_transaction_status,
+                "resolution_status": self.last_resolution_status,
+                "resolution_stats": (
+                    None
+                    if self.last_resolution_stats is None
+                    else dict(self.last_resolution_stats)
+                ),
+                "route_id": self.last_route_id,
+                "certificate_id": self.last_certificate_id,
+            }
+        )
+        if not valid:
+            self._fail("EMITTED_ACTION_RECEIPT_INVALID")
+
+    def note_raw_emission(self, action: Sequence[int]) -> None:
+        """Record the final raw containment boundary after parsing failed."""
+
+        self.note_emission(
+            action,
+            decision_source="RAW_CONTAINMENT",
+            fault_reason=self.last_containment_reason,
         )
 
     def note_transaction(self, store: Any, result: Any) -> None:
@@ -1506,10 +2045,24 @@ class ValidationRuntimeState:
             "last_prompt_fingerprint": self.last_prompt_fingerprint,
             "last_exception": self.last_exception,
             "last_containment_reason": self.last_containment_reason,
+            "last_fault_reason": self.last_fault_reason,
             "last_finalize_reason": self.last_finalize_reason,
             "last_first_difference": self.last_first_difference,
             "last_route_id": self.last_route_id,
             "last_certificate_id": self.last_certificate_id,
+            "last_decision_source": self.last_decision_source,
+            "last_resolution_status": self.last_resolution_status,
+            "last_resolution_stats": self.last_resolution_stats,
+            "last_emitted_action": self.last_emitted_action,
+            "last_emitted_action_validated": self.last_emitted_action_validated,
+            "last_emitted_rule_id": self.last_emitted_rule_id,
+            "last_transaction_status": self.last_transaction_status,
+            "emitted_action_count": self.emitted_action_count,
+            "callback_receipt_count": len(self.callback_receipts),
+            "callback_receipts": tuple(
+                dict(receipt) for receipt in self.callback_receipts
+            ),
+            "source_alias_normalizations": self.source_alias_normalizations,
             "telemetry_health": health,
         }
 

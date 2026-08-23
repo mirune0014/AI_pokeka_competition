@@ -4,6 +4,7 @@ import pytest
 
 from infrastructure.tools import run_local_battle
 from mega_lucario_rule_agent.main import AgentRuntime
+from mega_lucario_rule_agent.resolver import Resolution, ResolutionStats
 from mega_lucario_rule_agent.state_view import OptionType, SelectContext
 from mega_lucario_rule_agent.telemetry import SCHEMA_VERSION, TelemetryRecorder
 from mega_lucario_rule_agent.tests.test_main_runtime import (
@@ -53,6 +54,10 @@ def test_malformed_state_keeps_legal_raw_action_and_lifetime_fault_details():
     assert "players" in status["last_exception"]["message"]
     assert status["last_containment_reason"] == "RAW_MINIMUM_AFTER_EXCEPTION"
     assert len(status["last_prompt_fingerprint"]) == 64
+    assert status["last_decision_source"] == "RAW_CONTAINMENT"
+    assert status["last_emitted_action"] == (1,)
+    assert status["last_emitted_action_validated"] is True
+    assert status["emitted_action_count"] == 1
 
 
 def test_containment_secondary_exception_records_first_and_second_failures():
@@ -187,7 +192,116 @@ def test_normal_decision_records_prompt_route_and_certificate():
     assert len(status["last_prompt_fingerprint"]) == 64
     assert status["last_route_id"]
     assert status["last_certificate_id"]
+    assert status["last_decision_source"] == "SAFE_FALLBACK"
+    assert status["last_resolution_status"] == "SELECTED"
+    assert status["last_emitted_action"] == (0,)
+    assert status["last_emitted_action_validated"] is True
+    assert status["last_emitted_rule_id"] == "FALLBACK_PASS"
+    assert status["emitted_action_count"] == 1
     assert not status["run_failed"]
+
+
+def test_no_selection_receipt_clears_stale_rule_provenance():
+    runtime = AgentRuntime(registry=empty_registry())
+    assert runtime.act(_end_observation()) == [0]
+    assert runtime.validation_status()["last_route_id"] == "FALLBACK_PASS"
+
+    runtime._validation.note_resolution(
+        Resolution(
+            selected=None,
+            bound_action=None,
+            rejections=(),
+            evaluations=(),
+            stats=ResolutionStats(proposed=0, accepted=0, rejected=0),
+        ),
+        decision_source="SINGLE_RESOLVER",
+    )
+    status = runtime.validation_status()
+    assert status["last_decision_source"] == "RESOLVER"
+    assert status["last_resolution_status"] == "NO_SELECTION"
+    assert status["last_route_id"] is None
+    assert status["last_certificate_id"] is None
+    assert status["last_emitted_rule_id"] is None
+
+
+def test_callback_receipts_are_persisted_in_order_without_changing_status_fields():
+    runtime = AgentRuntime(registry=empty_registry())
+
+    assert runtime.act(_end_observation()) == [0]
+    assert runtime.act(_end_observation()) == [0]
+
+    status = runtime.validation_status()
+    receipts = status["callback_receipts"]
+    assert status["callback_receipt_count"] == 2
+    assert status["emitted_action_count"] == 2
+    assert [receipt["receipt_index"] for receipt in receipts] == [1, 2]
+    assert [receipt["decision_source"] for receipt in receipts] == [
+        "SAFE_FALLBACK",
+        "SAFE_FALLBACK",
+    ]
+    assert [receipt["action"] for receipt in receipts] == [(0,), (0,)]
+    assert all(receipt["action_validated"] is True for receipt in receipts)
+    assert all(receipt["rule_id"] == "FALLBACK_PASS" for receipt in receipts)
+
+
+def test_fault_containment_rehomes_reason_and_clears_stale_provenance():
+    runtime = AgentRuntime(registry=empty_registry())
+    validation = runtime._validation
+    validation.last_route_id = "STALE_ROUTE"
+    validation.last_certificate_id = "STALE_CERTIFICATE"
+    validation.last_resolution_status = "SELECTED"
+    validation.last_resolution_stats = {"proposed": 1, "accepted": 1, "rejected": 0}
+    validation.last_emitted_rule_id = "STALE_RULE"
+
+    validation.note_emission(
+        [0],
+        decision_source="FAULT_CONTAINMENT",
+        rule_id="IRREVERSIBLE_FAULT:EXAMPLE",
+        fault_reason="IRREVERSIBLE_FAULT:EXAMPLE",
+    )
+    status = runtime.validation_status()
+    receipt = status["callback_receipts"][0]
+    assert status["last_decision_source"] == "FAULT_CONTAINMENT"
+    assert status["last_fault_reason"] == "IRREVERSIBLE_FAULT:EXAMPLE"
+    assert status["last_route_id"] is None
+    assert status["last_certificate_id"] is None
+    assert status["last_resolution_status"] is None
+    assert status["last_resolution_stats"] is None
+    assert status["last_emitted_rule_id"] is None
+    assert receipt["fault_reason"] == "IRREVERSIBLE_FAULT:EXAMPLE"
+    assert receipt["rule_id"] is None
+    assert receipt["route_id"] is None
+    assert receipt["certificate_id"] is None
+
+
+def test_single_resolver_compatibility_alias_is_canonicalized_to_resolver():
+    runtime = AgentRuntime(registry=empty_registry())
+    runtime._validation.note_resolution(
+        Resolution(
+            selected=None,
+            bound_action=None,
+            rejections=(),
+            evaluations=(),
+            stats=ResolutionStats(proposed=0, accepted=0, rejected=0),
+        ),
+        decision_source="SINGLE_RESOLVER",
+    )
+    status = runtime.validation_status()
+    assert status["last_decision_source"] == "RESOLVER"
+    assert status["source_alias_normalizations"] == 1
+
+
+def test_finalize_is_idempotent_and_does_not_duplicate_callback_receipts():
+    runtime = AgentRuntime(registry=empty_registry())
+    assert runtime.act(_end_observation()) == [0]
+    before = runtime.validation_status()["callback_receipts"]
+
+    first = runtime.finalize_validation_game("GAME_END")
+    second = runtime.finalize_validation_game("GAME_END")
+
+    assert first == second
+    assert second["callback_receipt_count"] == 1
+    assert second["callback_receipts"] == before
 
 
 def test_runner_hooked_fault_marks_validation_failed_and_main_exits_nonzero(
