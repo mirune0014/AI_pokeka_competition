@@ -1,0 +1,2 @@
+submission_id,episode_id,create_time,end_time,state,type,target_reward,target_initial_score,target_updated_score,target_team,opponent_team,opponent_submission_id,opponent_reward,opponent_initial_score,opponent_updated_score,replay_path,replay_downloaded
+55154818,89272108,2026-08-01T05:42:08.695330800Z,2026-08-01T05:42:35.002711600Z,COMPLETED,EPISODE_TYPE_VALIDATION,,,,rurumi,rurumi,55154818,,,,replays\episode_89272108.json,True

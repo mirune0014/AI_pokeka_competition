@@ -92,6 +92,12 @@ infrastructure/external/ptcg_engine.zip
 # summaries and telemetry under the analysis directory trackable.
 /autonomous_gold_20260715/analysis/archaludon_submission_55248159_20260809/*.json
 
+# Raw multi-submission history collection. Keep the local 5 GB replay corpus
+# and API responses out of Git; generators, manifests, Markdown, and compact
+# CSV indexes remain trackable.
+/autonomous_gold_20260715/analysis/archaludon_all_submitted_histories_20260812/replays/
+/autonomous_gold_20260715/analysis/archaludon_all_submitted_histories_20260812/submissions/*/episodes.json
+
 # Autonomous-loop raw state. Keep source, Markdown, CSV, and text evidence.
 archaludon/**/*.json
 # These JSON files are authored reproducibility contracts/compact strategy
