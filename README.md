@@ -6,6 +6,7 @@ Kaggle `pokemon-tcg-ai-battle`向けの、決定論的ルールベースエー�
 ## 最初に見る場所
 
 - 全体の配置と用途: [`docs/repository_layout.md`](docs/repository_layout.md)
+- 使用技術と強化学習手法の初学者向けガイド: [`docs/ptcg_competition_technology_guide.md`](docs/ptcg_competition_technology_guide.md)
 - 日付付きワークスペース名の恒久名への移行: [`docs/workspace_rename_20260804.md`](docs/workspace_rename_20260804.md)
 - Archaludonの正式成果物: [`archaludon/WORKSPACE.md`](archaludon/WORKSPACE.md)
 - Alakazamの段階開発: [`alakazam/README.md`](alakazam/README.md)
