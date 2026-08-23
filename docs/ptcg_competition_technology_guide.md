@@ -20,6 +20,10 @@
 - **研究**：実装して測定したが、最終方策には採用しなかった。
 - **外部**：他の参加者または公開教材で確認したが、このプロジェクトの正式方策には使わなかった。
 
+対象範囲は、提出エージェント、デッキ選定、メタ調査、リプレイ解析、ローカル評価、学習実験、再現性、パッケージ、Kaggle運用、開発支援の役割分離である。
+
+人間対戦GUIは競技方策ではないが、局面確認とリプレイ再生を支える周辺技術として短く扱う。
+
 > 2026年8月24日時点では、コンペティションの最終評価期間が続いている。
 > 公開リプレイの思考時間から上位エージェントの方式を推定した投稿はあるが、最終上位者全員の内部実装が公開されたわけではない。
 > 「上位陣の手法」は、本人が公開した内容と、公開上そう推定された内容を分けて読む必要がある。
@@ -524,6 +528,38 @@ stockのローカルBattle APIがPythonのseedだけでは固定されない問�
 
 異なるプラットフォームのshardを一つの教師データへ混ぜず、Kaggle用教師ではLinuxを権威側とした。
 
+### 開発支援エージェントの役割分離
+
+提出エージェントの外側では、調査、実装、実行、数値監査、戦略判断を別の作業役へ分けた。
+
+ログ収集役と評価実行役は、コマンド、終了コード、行数、ハッシュ、raw出力だけを返し、勝率の意味を判断しない。
+
+数値監査役はraw行から勝敗、対応差、区間、bucket floorを再計算し、戦略判断役はその数値とリプレイを結び付けて採否を判断する。
+
+ルール実装は一度に一人のwriterだけが担当し、同じソースへ複数の変更を同時に入れなかった。
+
+Kaggleへの提出、置換、公開などの外部書き込みはrootだけが所有した。
+
+この役割分離により、実行担当の「完了した」という報告を、そのまま強さの証拠として採用することを防いだ。
+
+言語モデルは開発と分析を支援したが、提出runtimeが対戦中に外部モデルへ問い合わせる構成ではない。
+
+正式方策は、提出archive内だけで動く決定論的なPythonコードである。
+
+### ローカル人間クライアントとリプレイ
+
+周辺成果物として、PySide6とQt Quick/QMLによるWindows向け人間対戦クライアントも設計した。
+
+GUI親プロセスは完全情報やnative engineを直接保持せず、一試合ごとのspawn子プロセスだけがエンジンとagentを読み込む。
+
+画面へ渡す状態は、非公開情報を除いた`HumanViewState`と合法手要求へ限定した。
+
+対戦後は完全局面を含むリプレイを封印し、ライブ中の情報漏えいと試合後分析を分けた。
+
+agentとデッキはSHA-256で識別し、登録後の改変を検出する。
+
+このクライアントは方策を強くする学習器ではないが、人間が盤面、選択、ログ、リプレイを確認できる診断基盤である。
+
 ### パッケージ検証
 
 提出前には、archive直下の`main.py`、`deck.csv`、`cg/`、60枚制約、ACE SPEC枚数、import、最終callable、パス依存、不要ファイルを検査した。
@@ -544,7 +580,7 @@ stockのローカルBattle APIがPythonのseedだけでは固定されない問�
 
 ```text
 final_score(a) = rule_score(a)
-               + clip(scale × weight・feature(a), -cap, cap)
+               + clip(scale × weight × feature(a), -cap, cap)
 ```
 
 ゼロ重みなら基準行動を完全再現し、特徴抽出や推論に失敗したら基準へ戻る。
@@ -675,6 +711,10 @@ Q_public(s, a) ≈ 平均_h Q(complete_state_h, a)
 
 ここで`h`は、公開情報と矛盾しない相手手札、山札、サイドの仮説である。
 
+native Search APIの状態はprocess-globalであるため、別branchの`search_begin`、`search_step`、`search_end`を同じprocessで無秩序に並行実行しなかった。
+
+branch workerを独立processへ分け、固定shardとtask IDで再開可能にした。
+
 Round 0では98,323件のbranch結果を完走したが、これらの学習方策は正式Archaludonへimportしていない。
 
 探索が一つの仮想隠し状態へ過適合しないための基盤にはなったが、強い提出方策としての昇格証拠は別に必要だった。
@@ -684,6 +724,10 @@ Round 0では98,323件のbranch結果を完走したが、これらの学習方�
 上位リプレイの局面で、記録行動と候補行動を複数の相手方策、batch、particleでrolloutし、advantage、下側信頼限界、最悪opponent headを保存した。
 
 この教師は「上位者が選んだ行動」を直接ラベルにせず、「同じ公開局面で複数の仮想世界を試した結果」をラベルにする。
+
+教師行動を見てから候補集合へ追加すると、候補生成の時点で正解が漏れる。
+
+候補集合は公開状態、既存ルール、事前固定した完全行動bridgeから作り、教師結果を見る前に固定した。
 
 それでも候補の順位はparticle数、相手方策、WindowsとLinuxで変わり、広いrankerへ一般化しなかった。
 
@@ -1002,6 +1046,8 @@ policy networkが候補を絞り、value networkが終局まで読まない葉�
 - Alakazam正式経路：[`../alakazam/README.md`](../alakazam/README.md)
 - Alakazamデッキ理論：[`../research/reports/alakazam_domain_playbook_20260801.md`](../research/reports/alakazam_domain_playbook_20260801.md)
 - Mega Lucario実装概要：[`../mega_lucario_rule_agent/README_JA.md`](../mega_lucario_rule_agent/README_JA.md)
+- 人間対戦クライアントの範囲：[`product_scope.md`](product_scope.md)
+- 人間対戦クライアントの構成：[`architecture.md`](architecture.md)
 - メタ調査：[`../research/reports/current_meta_report.md`](../research/reports/current_meta_report.md)
 - メタデータの制約：[`../research/reports/meta_data_limitations.md`](../research/reports/meta_data_limitations.md)
 - RLとSearch APIの検証：[`rl_search_findings_2026-07-10.md`](rl_search_findings_2026-07-10.md)
